@@ -1,13 +1,16 @@
 using UnityEngine;
+using System;
 using static UnityEngine.InputSystem.InputAction;
 
-[CreateAssetMenu(fileName = "PlayerInputSO", menuName = "Scriptable Objects/PlayerInputSO")]
-public class PlayerInputSO : ScriptableObject, PlayerInput.IPlayerActions
+[CreateAssetMenu(fileName = "InputReader", menuName = "Scriptable Objects/InputReaderSO")]
+public class InputReader : ScriptableObject, PlayerInput.IPlayerActions //인풋리더라고 이름
 {
     private PlayerInput _playerInput;
     private Vector2 _moveInput = Vector2.zero;
 
     public Vector2 MoveInput => _moveInput;
+
+    public event Action OnMoveInput;
 
     private void OnEnable()
     {
@@ -31,5 +34,14 @@ public class PlayerInputSO : ScriptableObject, PlayerInput.IPlayerActions
         {
             _moveInput = context.ReadValue<Vector2>();
         }
+    }
+
+    public void OnDash(CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnMoveInput?.Invoke();
+        }
+        Debug.Log("Dash input received");
     }
 }

@@ -464,7 +464,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveModule
   _playerStatus: {fileID: 1893450926}
   _rigid: {fileID: 1893450927}
-  _collider: {fileID: 1893450928}
 --- !u!212 &1893450923
 SpriteRenderer:
   serializedVersion: 2
@@ -551,7 +550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 718b33b13781ad0418aeb0d4beb656c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  _playerInputSO: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
+  _inputSO: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
   _movementModule: {fileID: 1893450922}
 --- !u!114 &1893450926
 MonoBehaviour:
@@ -566,6 +565,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   _speed: 5
+  _dashSpeed: 10
+  _dashDuration: 0.2
+  _dashCooltime: 0.5
 --- !u!50 &1893450927
 Rigidbody2D:
   serializedVersion: 5

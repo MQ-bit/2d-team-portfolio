@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e93e43a1c4e61ec4ba328171a203825e, type: 3}
-  m_Name: PlayerInputSO
+  m_Name: InputReaderSO
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputSO
   _moveInput: {x: 0, y: 0}
