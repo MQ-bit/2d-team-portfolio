@@ -19,6 +19,13 @@
 ## or put your custom commands -------------------
 #echo 'Husky.Net is awesome!'
 
+# Merge와 Revert의 경우 제외
+if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ] ||
+   [ -f "$(git rev-parse --git-path REVERT_HEAD)" ]; then
+    echo "merge/revert 커밋이므로 Husky 검사를 건너뜁니다."
+    exit 0
+fi
+
 # 첫 번째 줄: 커밋 제목 형식 검사
 if ! head -n 1 "$1" | grep -qE '^(asset|design|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?!?: .+'; then
     echo "커밋 메시지 제목은 'type: 설명' 형식이어야 합니다."
