@@ -1,0 +1,59 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## husky task runner examples -------------------
+## Note : for local installation use 'dotnet' prefix. e.g. 'dotnet husky'
+
+## run all tasks
+#husky run
+
+### run all tasks with group: 'group-name'
+#husky run --group group-name
+
+## run task with name: 'task-name'
+#husky run --name task-name
+
+## pass hook arguments to task
+#husky run --args "$1" "$2"
+
+## or put your custom commands -------------------
+#echo 'Husky.Net is awesome!'
+
+# 첫 번째 줄: 커밋 제목 형식 검사
+if ! head -n 1 "$1" | grep -qE '^(asset|design|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.+\))?!?: .+'; then
+    echo "커밋 메시지 제목은 'type: 설명' 형식이어야 합니다."
+    exit 1
+fi
+
+# 제목을 제외하고, 빈 줄과 주석을 뺀 본문 줄 수 계산
+body_lines=$(awk '
+    NR > 1 && $0 !~ /^[[:space:]]*$/ && $0 !~ /^#/ {
+        count++
+    }
+    END {
+        print count + 0
+    }
+' "$1")
+
+# 본문 최소 1줄 검사
+if [ "$body_lines" -lt 1 ]; then
+    echo "커밋 메시지 본문은 빈 줄과 주석을 제외하고 1줄 이상 작성해야 합니다."
+    exit 1
+fi
+
+exit 0
+
+/*
+asset: 에셋 추가/수정/삭제
+build: 빌드 시스템, 빌드 설정 변경
+chore: 기타 잡무성 작업, 프로젝트 관리
+ci: CI/CD 설정 및 자동화 변경
+docs: 문서 작성 및 수정
+feat: 새로운 기능 추가
+fix: 버그 수정
+perf: 성능 개선
+refactor: 기능 변화 없는 코드 구조 개선
+revert: 이전 커밋 되돌리기
+style: 코드 포맷팅, 공백, 네이밍 등 로직과 무관한 수정
+test: 테스트 코드 추가/수정
+*/

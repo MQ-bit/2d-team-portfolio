@@ -74,6 +74,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-#Rider
-.idea
-.idea/**
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
