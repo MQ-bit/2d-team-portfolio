@@ -3,11 +3,17 @@ using UnityEngine;
 public class ThrowAimPreview : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] private GameObject _owner;
     [SerializeField] private LineRenderer _lineRenderer;
     [SerializeField] private Transform _indicator;
 
     [Header("Settings")]
     [SerializeField] private int _trajectoryPointCount = 24;
+
+    [SerializeField]
+    private SpriteRenderer _ownerSpriteRenderer;
+    [SerializeField]
+    private SpriteRenderer _indicatorSpriteRenderer;
 
     private void Awake()
     {
@@ -20,6 +26,21 @@ public class ThrowAimPreview : MonoBehaviour
         {
             Debug.LogError($"{gameObject.name} : Indicator Transform이 할당되지 않음");
         }
+        _indicatorSpriteRenderer = _indicator.GetComponent<SpriteRenderer>();
+    }
+
+    private void LateUpdate()
+    {
+        if (_owner != null)
+        {
+            ReorderSortingLayer();
+        }
+    }
+
+    public void SetOwner(GameObject owner)
+    {
+        _owner = owner;
+        _ownerSpriteRenderer = _owner.GetComponent<SpriteRenderer>();
     }
 
     public void Show()
@@ -52,5 +73,16 @@ public class ThrowAimPreview : MonoBehaviour
 
             _lineRenderer.SetPosition(i, point);
         }
+    }
+
+    private void ReorderSortingLayer()
+    {
+        int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? 1 : -1;
+
+        _indicatorSpriteRenderer.sortingLayerID = _ownerSpriteRenderer.sortingLayerID;
+        _indicatorSpriteRenderer.sortingOrder = _ownerSpriteRenderer.sortingOrder + orderModifier;
+
+        _lineRenderer.sortingLayerID = _ownerSpriteRenderer.sortingLayerID;
+        _lineRenderer.sortingOrder = _ownerSpriteRenderer.sortingOrder - orderModifier;
     }
 }

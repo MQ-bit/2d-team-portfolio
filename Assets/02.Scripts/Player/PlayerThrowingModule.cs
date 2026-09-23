@@ -39,7 +39,8 @@ public class PlayerThrowingModule : MonoBehaviour
             _throwPoint = transform;
         }
 
-         _aimPreviewInstance = Instantiate(_aimPreviewPrefab, transform);
+        _aimPreviewInstance = Instantiate(_aimPreviewPrefab, transform);
+        _aimPreviewInstance.SetOwner(gameObject);
         _aimPreviewInstance.Hide();
     }
 
@@ -99,18 +100,10 @@ public class PlayerThrowingModule : MonoBehaviour
 
     private Vector2 ScreenToWorldPosition(Vector2 screenPosition)
     {
-        Ray ray = _worldCamera.ScreenPointToRay(screenPosition);
+        float depth = Mathf.Abs(_throwPoint.position.z - _worldCamera.transform.position.z);
+        Vector3 worldPosition = _worldCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, depth));
 
-        float groundZ = _throwPoint.position.z;
-        Plane groundPlane = new Plane( Vector3.forward, new Vector3(0f, 0f, groundZ) );
-
-        if (groundPlane.Raycast(ray, out float enter))
-        {
-            Vector3 hitPoint = ray.GetPoint(enter);
-            return new Vector2(hitPoint.x, hitPoint.y);
-        }
-
-        return _throwPoint.position;
+        return worldPosition;
     }
 
     private Vector2 ClampToThrowRange(Vector2 desiredPosition)
@@ -142,6 +135,4 @@ public class PlayerThrowingModule : MonoBehaviour
     {
         _aimPreviewInstance.Hide();
     }
-
- 
 }
