@@ -16,7 +16,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 
 /// <summary>
-/// Provides programmatic access to <see cref="InputActionAsset" />, <see cref="InputActionMap" />, <see cref="UnityEngine.InputSystem.InputAction" /> and <see cref="InputControlScheme" /> instances defined in asset "Assets/07.Datas/InputAction/PlayerInput.inputactions".
+/// Provides programmatic access to <see cref="InputActionAsset" />, <see cref="InputActionMap" />, <see cref="InputAction" /> and <see cref="InputControlScheme" /> instances defined in asset "Assets/07.Datas/InputAction/PlayerInput.inputactions".
 /// </summary>
 /// <remarks>
 /// This class is source generated and any manual edits will be discarded if the associated asset is reimported or modified.
@@ -111,6 +111,26 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Throw"",
+                    ""type"": ""Button"",
+                    ""id"": ""a6aecb34-8836-428e-bb4d-759871155665"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""AimPosition"",
+                    ""type"": ""Value"",
+                    ""id"": ""61b332b1-3359-43e4-88b9-f9c85245c5b4"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -179,6 +199,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e97c4e2a-e4fa-434c-a530-ea73a7d5f2df"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""Throw"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dbf2523c-e952-4e63-871c-8abedd6323f3"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""AimPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -195,6 +237,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
+        m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
+        m_Player_AimPosition = m_Player.FindAction("AimPosition", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -203,7 +247,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     }
 
     /// <summary>
-    /// Destroys this asset and all associated <see cref="UnityEngine.InputSystem.InputAction"/> instances.
+    /// Destroys this asset and all associated <see cref="InputAction"/> instances.
     /// </summary>
     public void Dispose()
     {
@@ -227,14 +271,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.controlSchemes" />
     public ReadOnlyArray<InputControlScheme> controlSchemes => asset.controlSchemes;
 
-    /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.Contains(UnityEngine.InputSystem.InputAction)" />
-    public bool Contains(UnityEngine.InputSystem.InputAction action)
+    /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.Contains(InputAction)" />
+    public bool Contains(InputAction action)
     {
         return asset.Contains(action);
     }
 
     /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.GetEnumerator()" />
-    public IEnumerator<UnityEngine.InputSystem.InputAction> GetEnumerator()
+    public IEnumerator<InputAction> GetEnumerator()
     {
         return asset.GetEnumerator();
     }
@@ -261,13 +305,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     public IEnumerable<InputBinding> bindings => asset.bindings;
 
     /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.FindAction(string, bool)" />
-    public UnityEngine.InputSystem.InputAction FindAction(string actionNameOrId, bool throwIfNotFound = false)
+    public InputAction FindAction(string actionNameOrId, bool throwIfNotFound = false)
     {
         return asset.FindAction(actionNameOrId, throwIfNotFound);
     }
 
-    /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.FindBinding(InputBinding, out UnityEngine.InputSystem.InputAction)" />
-    public int FindBinding(InputBinding bindingMask, out UnityEngine.InputSystem.InputAction action)
+    /// <inheritdoc cref="UnityEngine.InputSystem.InputActionAsset.FindBinding(InputBinding, out InputAction)" />
+    public int FindBinding(InputBinding bindingMask, out InputAction action)
     {
         return asset.FindBinding(bindingMask, out action);
     }
@@ -275,8 +319,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     // Player
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
-    private readonly UnityEngine.InputSystem.InputAction m_Player_Move;
-    private readonly UnityEngine.InputSystem.InputAction m_Player_Dash;
+    private readonly InputAction m_Player_Move;
+    private readonly InputAction m_Player_Dash;
+    private readonly InputAction m_Player_Throw;
+    private readonly InputAction m_Player_AimPosition;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -291,11 +337,19 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <summary>
         /// Provides access to the underlying input action "Player/Move".
         /// </summary>
-        public UnityEngine.InputSystem.InputAction @Move => m_Wrapper.m_Player_Move;
+        public InputAction @Move => m_Wrapper.m_Player_Move;
         /// <summary>
         /// Provides access to the underlying input action "Player/Dash".
         /// </summary>
-        public UnityEngine.InputSystem.InputAction @Dash => m_Wrapper.m_Player_Dash;
+        public InputAction @Dash => m_Wrapper.m_Player_Dash;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Throw".
+        /// </summary>
+        public InputAction @Throw => m_Wrapper.m_Player_Throw;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/AimPosition".
+        /// </summary>
+        public InputAction @AimPosition => m_Wrapper.m_Player_AimPosition;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -311,7 +365,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public static implicit operator InputActionMap(PlayerActions set) { return set.Get(); }
         /// <summary>
-        /// Adds <see cref="UnityEngine.InputSystem.InputAction.started"/>, <see cref="UnityEngine.InputSystem.InputAction.performed"/> and <see cref="UnityEngine.InputSystem.InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
         /// <param name="instance">Callback instance.</param>
         /// <remarks>
@@ -328,10 +382,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
+            @Throw.started += instance.OnThrow;
+            @Throw.performed += instance.OnThrow;
+            @Throw.canceled += instance.OnThrow;
+            @AimPosition.started += instance.OnAimPosition;
+            @AimPosition.performed += instance.OnAimPosition;
+            @AimPosition.canceled += instance.OnAimPosition;
         }
 
         /// <summary>
-        /// Removes <see cref="UnityEngine.InputSystem.InputAction.started"/>, <see cref="UnityEngine.InputSystem.InputAction.performed"/> and <see cref="UnityEngine.InputSystem.InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
@@ -345,6 +405,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
+            @Throw.started -= instance.OnThrow;
+            @Throw.performed -= instance.OnThrow;
+            @Throw.canceled -= instance.OnThrow;
+            @AimPosition.started -= instance.OnAimPosition;
+            @AimPosition.performed -= instance.OnAimPosition;
+            @AimPosition.canceled -= instance.OnAimPosition;
         }
 
         /// <summary>
@@ -404,13 +470,27 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMove(UnityEngine.InputSystem.InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDash(UnityEngine.InputSystem.InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Throw" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AimPosition" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAimPosition(InputAction.CallbackContext context);
     }
 }
