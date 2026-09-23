@@ -14,7 +14,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions //인풋
 
     private void OnEnable()
     {
-        if(_playerInput == null)
+        if (_playerInput == null)
         {
             _playerInput = new PlayerInput();
         }

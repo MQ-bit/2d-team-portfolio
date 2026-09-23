@@ -8,14 +8,14 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        if(_inputSO == null)
+        if (_inputSO == null)
         {
             Debug.LogError("PlayerInputSO is not assigned in PlayerController.");
         }
-        if(_movementModule == null)
+        if (_movementModule == null)
         {
             _movementModule = GetComponent<PlayerMovementModule>();
-            if(_movementModule == null)
+            if (_movementModule == null)
             {
                 Debug.LogError("PlayerMovementModule is not assigned and not found on the GameObject.");
             }
@@ -38,14 +38,14 @@ public class PlayerController : MonoBehaviour
 
     private void UnLinkInputEvents()
     {
-        _inputSO.OnMoveInput -= HandleDashInput;        
+        _inputSO.OnMoveInput -= HandleDashInput;
     }
 
     private void FixedUpdate()
     {
         HandleMoveInput();
     }
-    
+
     private void HandleMoveInput()
     {
         _movementModule.MovePosition(_inputSO.MoveInput);
@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
     private void HandleDashInput()
     {
         Vector2 moveInput = _inputSO.MoveInput;
-        if(moveInput == Vector2.zero)
+        if (moveInput == Vector2.zero)
         {
             return;
         }

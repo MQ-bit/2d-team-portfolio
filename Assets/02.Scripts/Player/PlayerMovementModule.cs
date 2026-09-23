@@ -56,7 +56,7 @@ public class PlayerMovementModule : MonoBehaviour
 
             float stepTime = Mathf.Min(Time.fixedDeltaTime, dashRemainingTime);
             Vector2 movement = direction * _playerStatus.DashSpeed * stepTime;
-            
+
             _rigid.MovePosition(_rigid.position + movement);
             dashRemainingTime -= stepTime;
         }
