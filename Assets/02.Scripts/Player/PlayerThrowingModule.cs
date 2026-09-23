@@ -11,7 +11,6 @@ public class PlayerThrowingModule : MonoBehaviour
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
-    [SerializeField] private float _flightDuration = 0.5f;
     [SerializeField] private float _arcHeight = 1.5f;
 
     [Header("Potion Prefab")]
