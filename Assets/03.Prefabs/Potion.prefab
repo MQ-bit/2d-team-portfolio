@@ -47,7 +47,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionProjectile
   _visual: {fileID: 8000000000000000002}
-  _shadow: {fileID: 8000000000000000004}
 --- !u!1 &8000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

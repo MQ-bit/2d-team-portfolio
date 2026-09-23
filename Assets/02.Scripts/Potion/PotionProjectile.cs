@@ -3,7 +3,6 @@ using UnityEngine;
 public class PotionProjectile : MonoBehaviour
 {
     [SerializeField] private Transform _visual;
-    [SerializeField] private Transform _shadow;
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
@@ -20,10 +19,9 @@ public class PotionProjectile : MonoBehaviour
 
     private void Update()
     {
-        _elapsedTime += Time.deltaTime;
-        float flightTime = Mathf.Min(_elapsedTime, _flightDuration);
-        float progress = flightTime / _flightDuration;
-        float virtualHeight = Mathf.Max(0f, _verticalVelocity * flightTime - 0.5f * _gravity * flightTime * flightTime);
+        _elapsedTime = Mathf.Min(_elapsedTime + Time.deltaTime, _flightDuration);
+        float progress = _elapsedTime / _flightDuration;
+        float virtualHeight = Mathf.Max(0f, _verticalVelocity * _elapsedTime - 0.5f * _gravity * _elapsedTime * _elapsedTime);
 
         transform.position = Vector3.Lerp(_startPosition, _targetPosition, progress);
         if (_visual != null)
@@ -32,7 +30,7 @@ public class PotionProjectile : MonoBehaviour
             _visual.Rotate(0f, 0f, _rotationSpeed * Time.deltaTime);
         }
 
-        if (_elapsedTime >= _flightDuration && virtualHeight <= 0.001f)
+        if (_elapsedTime >= _flightDuration)
         {
             Land();
         }
@@ -49,24 +47,13 @@ public class PotionProjectile : MonoBehaviour
         float height = Mathf.Max(0f, arcHeight);
         _gravity = 8f * height / (_flightDuration * _flightDuration);
         _verticalVelocity = 0.5f * _gravity * _flightDuration;
-
-        if (_shadow != null)
-        {
-            _shadow.localPosition = Vector3.zero;
-        }
-
         enabled = true;
     }
 
-    public static Vector3 EvaluateVisualPosition(
-        Vector3 startPosition,
-        Vector3 targetPosition,
-        float arcHeight,
-        float progress)
+    public static Vector3 EvaluateVisualPosition(Vector3 startPosition, Vector3 targetPosition, float arcHeight, float progress)
     {
         float height = 4f * arcHeight * progress * (1f - progress);
-        return Vector3.Lerp(startPosition, targetPosition, progress)
-            + Vector3.up * height;
+        return Vector3.Lerp(startPosition, targetPosition, progress) + Vector3.up * height;
     }
 
     private void Land()

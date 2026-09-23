@@ -38,9 +38,7 @@ public class PotionThrowPath : MonoBehaviour
         {
             float progress = i / (float)(_pointCount - 1);
             Vector3 position = PotionProjectile.EvaluateVisualPosition(startPosition, landingPosition, arcHeight, progress);
-
             _lineRenderer.SetPosition(i, position);
         }
     }
-
 }

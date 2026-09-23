@@ -33,8 +33,7 @@ public class PotionThrower : MonoBehaviour
     public PotionProjectile Throw(Vector3 aimPosition)
     {
         Vector3 start = SpawnPosition;
-        return TryGetLandingPosition(start, aimPosition, out Vector3 end)
-            ? SpawnProjectile(start, end) : null;
+        return TryGetLandingPosition(start, aimPosition, out Vector3 end) ? SpawnProjectile(start, end) : null;
     }
 
     public bool TryGetCurrentThrowPath(out Vector3 spawnPosition, out Vector3 landingPosition)
