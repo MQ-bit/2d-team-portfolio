@@ -26,7 +26,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     private void OnEnable()
     {
-        if(_playerInput == null)
+        if (_playerInput == null)
         {
             _playerInput = new PlayerInput();
         }
@@ -79,7 +79,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
             return;
         }
 
-        if(context.canceled && _isThrowHolding)
+        if (context.canceled && _isThrowHolding)
         {
             UpdateMousePosition();
             _isThrowHolding = false;

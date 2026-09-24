@@ -21,7 +21,7 @@ public class ThrowAimPreview : MonoBehaviour
         {
             _lineRenderer = GetComponent<LineRenderer>();
         }
-        if( _aoeIndicator == null)
+        if (_aoeIndicator == null)
         {
             _aoeIndicator = transform.Find("AOEIndicator");
         }

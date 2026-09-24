@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour
 
     private void UnLinkInputEvents()
     {
-        _inputSO.OnMoveInput -= HandleDashInput;        
+        _inputSO.OnMoveInput -= HandleDashInput;
         _inputSO.OnThrowStart -= HandleThrowStarted;
         _inputSO.OnThrowEnd -= HandleThrowReleased;
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
             _throwingModule.UpdateAim(_inputSO.MousePosition);
         }
     }
-    
+
     private void HandleMoveInput()
     {
         _movementModule.MovePosition(_inputSO.MoveInput);
@@ -92,7 +92,7 @@ public class PlayerController : MonoBehaviour
     private void HandleDashInput()
     {
         Vector2 moveInput = _inputSO.MoveInput;
-        if(moveInput == Vector2.zero)
+        if (moveInput == Vector2.zero)
         {
             return;
         }

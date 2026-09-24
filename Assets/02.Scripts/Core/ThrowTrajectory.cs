@@ -20,7 +20,7 @@ public static class ThrowTrajectory
     {
         Vector3 groundPosition = EvaluateGroundPoint(startPosition, targetPosition, t);
         float height = EvaluateHeight(arcHeight, t);
-        
+
         return groundPosition + Vector3.up * height;
     }
 }

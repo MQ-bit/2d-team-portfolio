@@ -13,9 +13,11 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
+    [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
+    [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
-    [SerializeField] private GameObject _potionPrefab;
+    [SerializeField] private PotionProjectile _potionPrefab;
 
     private Vector2 _aimWorldPosition;
     public bool IsAiming { get; private set; }
