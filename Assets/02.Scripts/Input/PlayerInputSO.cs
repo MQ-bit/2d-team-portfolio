@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using static UnityEngine.InputSystem.InputAction;
 
 [CreateAssetMenu(fileName = "InputReader", menuName = "Scriptable Objects/InputReaderSO")]
@@ -20,6 +22,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event Action OnMoveInput;
     public event Action<Vector2> OnThrowStart;
     public event Action<Vector2> OnThrowEnd;
+    public event Action<int> OnItemSlotChanged;
 
     private void OnEnable()
     {
@@ -87,5 +90,27 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     private void UpdateMousePosition()
     {
         _mousePosition = _playerInput.Player.AimPosition.ReadValue<Vector2>();
+    }
+
+    public void OnItemSlotChange(CallbackContext context)
+    {
+        if (context.performed && context.control is KeyControl keyControl)
+        {
+            int slotIndex = keyControl.keyCode switch
+            {
+                Key.Digit1 =>0,
+                Key.Digit2 =>1,
+                Key.Digit3 =>2,
+                Key.Digit4 =>3,
+                Key.Digit5 =>4,
+                Key.Digit6 =>5,
+                _ => -1
+            };
+
+            if(slotIndex != -1)
+            {
+                OnItemSlotChanged?.Invoke(slotIndex);
+            }
+        }
     }
 }
