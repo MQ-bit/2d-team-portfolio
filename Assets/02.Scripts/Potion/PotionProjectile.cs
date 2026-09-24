@@ -3,6 +3,8 @@ using UnityEngine;
 public class PotionProjectile : MonoBehaviour
 {
     [SerializeField] private Transform _visual;
+    [SerializeField] private PotionBreakEffect _breakEffectPrefab;
+    [SerializeField] private PotionGroundArea _groundAreaPrefab;
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
@@ -59,6 +61,19 @@ public class PotionProjectile : MonoBehaviour
     private void Land()
     {
         transform.position = _targetPosition;
+
+        if (_breakEffectPrefab != null)
+        {
+            PotionBreakEffect breakEffect = Instantiate(_breakEffectPrefab, _targetPosition, Quaternion.identity);
+            breakEffect.Play();
+        }
+
+        if (_groundAreaPrefab != null)
+        {
+            PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
+            groundArea.Activate();
+        }
+
         Destroy(gameObject);
     }
 }

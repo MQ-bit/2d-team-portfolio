@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionProjectile
   _visual: {fileID: 8000000000000000002}
+  _breakEffectPrefab: {fileID: 6545532118163206398, guid: fc41fa5460279014a8833c3ebc611d30, type: 3}
+  _groundAreaPrefab: {fileID: 8441354467153822698, guid: 14784a82e51a53c4696bbcb2ff4d417f, type: 3}
 --- !u!1 &8000000000000000001
 GameObject:
   m_ObjectHideFlags: 0
