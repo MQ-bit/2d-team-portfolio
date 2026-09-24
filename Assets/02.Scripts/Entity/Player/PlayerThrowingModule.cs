@@ -13,7 +13,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
-    [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
+    [SerializeField] private float _throwSpeed = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
@@ -77,6 +77,12 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
+        if( _inventoryModule.SelectedPotion == null)
+        {
+            CancelAim();
+            return;
+        }
+
         Vector2 desiredPosition = ScreenToWorldPosition(screenPosition);
 
         _aimWorldPosition = ClampToThrowRange(desiredPosition);
@@ -84,10 +90,9 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
 
-        // TODO : 아래 Draw에 PotionData를 넘겨줘서 색깔 및 범위 정하게 하기.
-        //  PotionData selectedPotion = _inventoryModule.SelectedPotion;
-        // _aimPreviewInstance.Configure(_inventoryModule.SelectedPotion.Color, _inventoryModule.SelectedPotion.AoeRadius);
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight);
+        PotionData selectedPotion = _inventoryModule.SelectedPotion;
+        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.Radius);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, selectedPotion);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
@@ -106,8 +111,9 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void CancelAim()
     {
-        IsAiming = false;
+        if(!IsAiming) return;
 
+        IsAiming = false;
         HideAimPreview();
     }
 
@@ -141,17 +147,12 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
-        Vector3 startPosition = _throwPoint.position;
-        PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-        proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
-
-        //TODO : 포션 로직 오면 여기에 생성시키는 로직 추가
-        // if(_inventoryModule.TryConsumeSelectedPotion(out PotionData selectedPotion))
-        // {
-        //     PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-        //     proj.SetPotionData(selectedPotion, startPosition, targetPosition, _arcHeight,_inventoryModule.PotionData); 포션데이타..를 넣나..?
-        //     proj.Launch(startPos, _targetPosition, arcHeight);
-        // }
+        if(_inventoryModule.TryConsumeSelectedPotion())
+        {
+            Vector3 startPosition = _throwPoint.position;
+            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+            proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+        }
     }
     private void HideAimPreview()
     {

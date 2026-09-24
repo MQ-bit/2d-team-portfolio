@@ -228,7 +228,9 @@ MonoBehaviour:
   _inventoryModule: {fileID: 0}
   _aimPreviewPrefab: {fileID: 6581337394013715911, guid: f6810065176599a49b79d855659d051c, type: 3}
   _arcHeight: 1.5
-  _potionPrefab: {fileID: 4122200703236666151, guid: cd9ecbb7db3276641babf0cc29c4fa9a, type: 3}
+  _throwSpeed: 0.5
+  _rotationSpeed: 360
+  _potionPrefab: {fileID: 5114251214697153630, guid: c73c22f1a5e5ce04f923eeec473560d3, type: 3}
 --- !u!114 &7774034623503532432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,8 +243,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b309bc3e74f33a4ca5e040e6d25a5a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Entity.Inventory.EntityInventory
-  _inventorySlots: []
-  _maxSlotSize: 10
+  _inventorySlots:
+  - _quantity: 0
+  - _quantity: 0
+  - _quantity: 0
+  - _quantity: 0
+  _maxSlotSize: 4
 --- !u!114 &6544000177656053045
 MonoBehaviour:
   m_ObjectHideFlags: 0

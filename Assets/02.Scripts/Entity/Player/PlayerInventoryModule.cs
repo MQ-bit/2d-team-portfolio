@@ -11,7 +11,7 @@ public class PlayerInventoryModule : MonoBehaviour
 
     public event Action<int> OnSelectedSlotChanged; // TODO : UI 연결 
     public int SelectedSlotIndex => _selectedSlotIndex;
-    public PotionData SelectedPotion => _selctedPotionData;
+    public PotionData SelectedPotion => _inventory.GetPotionData(_selectedSlotIndex);
 
     private void Awake()
     {
@@ -32,4 +32,16 @@ public class PlayerInventoryModule : MonoBehaviour
         _selctedPotionData = _inventory.GetPotionData(index);
         OnSelectedSlotChanged?.Invoke(index);
     }
+    
+    public bool TryConsumeSelectedPotion()
+    {
+        return TryConsumeSelectedPotion(out _);
+    }
+
+    public bool TryConsumeSelectedPotion(out PotionData consumedPotion)
+    {
+        return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedPotion);
+    }
+
+    
 }

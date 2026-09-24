@@ -23,23 +23,12 @@ namespace Entity.Inventory
         private void InitializeInventory()
         {
             _itemFinder = new Dictionary<PotionData, int>();
-
-            if(_inventorySlots != null)
-            {   
-                _maxSlotSize = _inventorySlots.Length;
-
-                for(int i = 0 ; i < _inventorySlots.Length; i++)
-                {
-                    _itemFinder[_inventorySlots[i].Data] = i;
-                }
-            }
-            else
+            _inventorySlots = new ItemSlot[_maxSlotSize];
+            
+            for (int i = 0; i < _maxSlotSize; i++)
             {
-                _inventorySlots = new ItemSlot[_maxSlotSize];
-                for (int i = 0; i < _maxSlotSize; i++)
-                {
-                    _inventorySlots[i] = new ItemSlot();
-                }
+                _inventorySlots[i] = new ItemSlot();
+                //_inventorySlots[i].ClearSlot();
             }
         }
 
@@ -77,43 +66,35 @@ namespace Entity.Inventory
             }
         }
 
-        public void ConsumeItem(PotionData data, int quantity)
+        public bool TryConsumeItem(int slotIndex, int quantity, out PotionData consumedPotion)
         {
-            if(!CheckItemExists(data) || quantity <= 0)
+            consumedPotion = null;
+
+            if (slotIndex < 0 || slotIndex >= _maxSlotSize || quantity <= 0)
             {
-                return;
+                return false;
             }
 
-            int index = _itemFinder[data];
-            int currentQuantity = _inventorySlots[index].Quantity;
-            if(currentQuantity < quantity)
+            ItemSlot slot = _inventorySlots[slotIndex];
+
+            if (slot == null || slot.Data == null || slot.Quantity < quantity)
             {
-                Debug.LogWarning($"Not enough quantity of {data.Name} to use. Current: {currentQuantity}, Requested: {quantity}");
-                return;
+                return false;
             }
 
-            _inventorySlots[index].RemoveQuantity(quantity);
-            if(_inventorySlots[index].IsDataEmpty() || _inventorySlots[index].Quantity == 0)
+            consumedPotion = slot.Data;
+            slot.RemoveQuantity(quantity);
+
+            if (slot.Quantity == 0)
             {
-                _itemFinder.Remove(data);
+                _itemFinder.Remove(consumedPotion);
                 _occupiedSlots--;
-                _inventorySlots[index].ClearSlot();
-            }
-        }
-
-        public void RemoveItem(PotionData data)
-        {
-            if(!CheckItemExists(data))
-            {
-                return;
+                slot.ClearSlot();
             }
 
-            int index = _itemFinder[data];
-            _inventorySlots[index].ClearSlot();
-            _itemFinder.Remove(data);
-            _occupiedSlots--;
+            return true;
         }
-
+        
         private bool CheckItemExists(PotionData data)
         {   
             if(data == null)
@@ -130,6 +111,11 @@ namespace Entity.Inventory
             if(index < 0 || index >= _maxSlotSize)
             {
                 Debug.LogWarning($"{index} is out of bounds for inventory slots.");
+                return null;
+            }
+
+            if (_inventorySlots[index].IsDataEmpty())
+            {
                 return null;
             }
 

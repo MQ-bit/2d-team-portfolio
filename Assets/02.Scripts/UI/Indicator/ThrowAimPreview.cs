@@ -61,15 +61,16 @@ public class ThrowAimPreview : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight)
+    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, PotionData potionData)
     {
-        if (_lineRenderer == null || _indicator == null)
+        if (_lineRenderer == null || _indicator == null || potionData == null)
         {
             return;
         }
 
         _indicator.position = targetPosition;
         _aoeIndicator.position = targetPosition;
+        UpdateAoeIndicator(potionData.VisualData.AreaColor, potionData.Radius);
         RedrawLine(startPosition, targetPosition, arcHeight);
     }
 
