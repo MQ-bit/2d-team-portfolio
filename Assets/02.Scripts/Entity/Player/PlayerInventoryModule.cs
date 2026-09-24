@@ -6,17 +6,21 @@ using System;
 public class PlayerInventoryModule : MonoBehaviour
 {
     [SerializeField] private EntityInventory _inventory;
-    private int _selectedSlotIndex = 0;
-    //private PotionData _selctedPotionData;
+    private int _selectedSlotIndex = -1;
+    private PotionData _selctedPotionData;
 
     public event Action<int> OnSelectedSlotChanged; // TODO : UI 연결 
     public int SelectedSlotIndex => _selectedSlotIndex;
-    //public PotionData SelectedPotion => _selctedPotionData;
+    public PotionData SelectedPotion => _selctedPotionData;
 
     private void Awake()
     {
         _inventory = GetComponent<EntityInventory>();
-        _selectedSlotIndex = 0;
+    }
+
+    private void Start()
+    {
+        SelectSlot(0);
     }
 
     public void SelectSlot(int index)
@@ -25,22 +29,7 @@ public class PlayerInventoryModule : MonoBehaviour
         if (_selectedSlotIndex == index) return;
 
         _selectedSlotIndex = index;
+        _selctedPotionData = _inventory.GetPotionData(index);
         OnSelectedSlotChanged?.Invoke(index);
     }
-
-    // private void RefreshSelectedPotion()
-    // {
-    //     PotionData previousPotion = SelectedPotion;
-    //     SelectedPotion = null;
-
-    //     if (_inventory.TryGetSlot(SelectedSlotIndex, out PotionData data))
-    //     {
-    //         SelectedPotion = data;
-    //     }
-
-    //     if (previousPotion != SelectedPotion)
-    //     {
-    //         SelectedPotionChanged?.Invoke(SelectedPotion);
-    //     }
-    // }
 }

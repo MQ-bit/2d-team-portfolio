@@ -61,14 +61,12 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void BeginAim(Vector2 screenPosition)
     {
-        //if(_inventoryModule.SelectedPotion == null) return;
+        if(_inventoryModule.SelectedPotion == null) return;
 
         IsAiming = true;
         _aimPreviewInstance.Show();
 
-        // TODO : 아래 Draw에 PotionData를 넘겨줘서 색깔 및 범위 정하게 하기. 일단 선택된 포션데이터가 null이면 아무일도 없게하는 로직도 생각해보기
-        //  PotionData selectedPotion = _inventoryModule.SelectedPotion;
-        // _aimPreviewInstance.Configure(_inventoryModule.SelectedPotion.Color, _inventoryModule.SelectedPotion.AoeRadius);
+        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.Radius);
         UpdateAim(screenPosition);
     }
 
@@ -144,6 +142,9 @@ public class PlayerThrowingModule : MonoBehaviour
         }
 
         Vector3 startPosition = _throwPoint.position;
+        PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+        proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+
         //TODO : 포션 로직 오면 여기에 생성시키는 로직 추가
         // if(_inventoryModule.TryConsumeSelectedPotion(out PotionData selectedPotion))
         // {

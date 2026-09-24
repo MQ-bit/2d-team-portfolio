@@ -5,21 +5,21 @@ namespace Entity.Inventory
     [System.Serializable]
     public class ItemSlot
     {
-        private GameObject _item; //아이템 데이터, 아마 Potion으로 바꿀 듯(26.09.24)
-        private int _quantity;
+        [SerializeField] private PotionData _data;
+        [SerializeField] private int _quantity;
 
-        public GameObject Item => _item;
+        public PotionData Data => _data;
         public int Quantity => _quantity;
 
-        internal void SetItem(GameObject item, int quantity)
+        internal void SetItem(PotionData data, int quantity)
         {
-            _item = item;
+            _data = data;
             _quantity = quantity;
         }
 
         internal void ClearSlot()
         {
-            _item = null;
+            _data = null;
             _quantity = 0;
         }
 
@@ -42,9 +42,10 @@ namespace Entity.Inventory
                 _quantity = 0;
             }
         }
+
         internal bool IsDataEmpty()
         {
-            return _item == null || _quantity <= 0;
+            return _data == null || _quantity <= 0;
         }
     }
 }

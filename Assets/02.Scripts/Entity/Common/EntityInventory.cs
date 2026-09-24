@@ -7,8 +7,9 @@ namespace Entity.Inventory
     {
         [Header("Inventory Settings")]
         [SerializeField] private ItemSlot[] _inventorySlots;
-        [SerializeField] private Dictionary<GameObject, int> _itemFinder; // (아이템 / 슬롯 인덱스)
         [SerializeField] private int _maxSlotSize = 10;
+
+        private Dictionary<PotionData, int> _itemFinder; // (아이템 / 슬롯 인덱스)
         private int _occupiedSlots = 0;
 
         public int MaxSlotSize => _maxSlotSize;
@@ -16,35 +17,42 @@ namespace Entity.Inventory
         private void Awake()
         {
             InitializeInventory();
+            AddItem(new PotionData("potion_Fire", "Fire Potion", PotionElement.Fire, 10, 5, 5, 5, 0.25f), 5);
         }
 
         private void InitializeInventory()
         {
-            _itemFinder = new Dictionary<GameObject, int>();
+            _itemFinder = new Dictionary<PotionData, int>();
+
             if(_inventorySlots != null)
             {   
                 _maxSlotSize = _inventorySlots.Length;
-                return;
-            }
 
-            _inventorySlots = new ItemSlot[_maxSlotSize];
-            for (int i = 0; i < _maxSlotSize; i++)
+                for(int i = 0 ; i < _inventorySlots.Length; i++)
+                {
+                    _itemFinder[_inventorySlots[i].Data] = i;
+                }
+            }
+            else
             {
-                _inventorySlots[i] = new ItemSlot();
+                _inventorySlots = new ItemSlot[_maxSlotSize];
+                for (int i = 0; i < _maxSlotSize; i++)
+                {
+                    _inventorySlots[i] = new ItemSlot();
+                }
             }
-
         }
 
-        public void AddItem(GameObject item, int quantity) //TODO : GameObject Item을 PotionData data로 바꾸기!
+        public void AddItem(PotionData data, int quantity)
         {
-            if(item == null || quantity <= 0)
+            if(data == null || quantity <= 0)
             {
                 return;
             }
 
-            if (CheckItemExists(item))
+            if (CheckItemExists(data))
             {
-                int index = _itemFinder[item];
+                int index = _itemFinder[data];
                 _inventorySlots[index].AddQuantity(quantity);
             }
             else
@@ -59,8 +67,8 @@ namespace Entity.Inventory
                 {
                     if(_inventorySlots[i].IsDataEmpty())
                     {
-                        _inventorySlots[i].SetItem(item, quantity);
-                        _itemFinder[item] = i;
+                        _inventorySlots[i].SetItem(data, quantity);
+                        _itemFinder[data] = i;
                         _occupiedSlots++;
 
                         break;
@@ -69,64 +77,63 @@ namespace Entity.Inventory
             }
         }
 
-        public void ConsumeItem(GameObject item, int quantity)
+        public void ConsumeItem(PotionData data, int quantity)
         {
-            if(!CheckItemExists(item) || quantity <= 0)
+            if(!CheckItemExists(data) || quantity <= 0)
             {
                 return;
             }
 
-            int index = _itemFinder[item];
+            int index = _itemFinder[data];
             int currentQuantity = _inventorySlots[index].Quantity;
             if(currentQuantity < quantity)
             {
-                Debug.LogWarning($"Not enough quantity of {item.name} to use. Current: {currentQuantity}, Requested: {quantity}");
+                Debug.LogWarning($"Not enough quantity of {data.Name} to use. Current: {currentQuantity}, Requested: {quantity}");
                 return;
             }
 
             _inventorySlots[index].RemoveQuantity(quantity);
-            if(_inventorySlots[index].Item == null || _inventorySlots[index].Quantity == 0)
+            if(_inventorySlots[index].IsDataEmpty() || _inventorySlots[index].Quantity == 0)
             {
-                _itemFinder.Remove(item);
+                _itemFinder.Remove(data);
                 _occupiedSlots--;
                 _inventorySlots[index].ClearSlot();
             }
         }
 
-        public void RemoveItem(GameObject item)
+        public void RemoveItem(PotionData data)
         {
-            if(!CheckItemExists(item))
+            if(!CheckItemExists(data))
             {
                 return;
             }
 
-            int index = _itemFinder[item];
+            int index = _itemFinder[data];
             _inventorySlots[index].ClearSlot();
-            _itemFinder.Remove(item);
+            _itemFinder.Remove(data);
             _occupiedSlots--;
         }
 
-        // public bool TryGetPotionData(int index, out PotionData potion)
-        // {
-        //     potion = null;
-
-        //     if (index < 0 || index >= _maxSlotSize) return false;
-
-        //     if (_inventorySlots[index].Item == null) return false;
-
-        //     potion = _inventorySlots[index].Item as PotionData;
-        //     return potion != null;
-        // }
-
-        private bool CheckItemExists(GameObject item)
+        private bool CheckItemExists(PotionData data)
         {   
-            if(item == null)
+            if(data == null)
             {
-                Debug.LogWarning("Item should not be null.");
+                Debug.LogWarning("Item Data should not be null.");
                 return false;
             }
 
-            return _itemFinder.ContainsKey(item);
+            return _itemFinder.ContainsKey(data);
+        }
+
+        public PotionData GetPotionData(int index)
+        {
+            if(index < 0 || index >= _maxSlotSize)
+            {
+                Debug.LogWarning($"{index} is out of bounds for inventory slots.");
+                return null;
+            }
+
+            return _inventorySlots[index].Data;
         }
     }
 }

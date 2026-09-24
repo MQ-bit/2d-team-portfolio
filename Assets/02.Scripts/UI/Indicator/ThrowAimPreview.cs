@@ -76,7 +76,7 @@ public class ThrowAimPreview : MonoBehaviour
     public void UpdateAoeIndicator(Color color, float radius)
     {
         _aoeRenderer.color = color;
-        _aoeIndicator.localScale = Vector3.one * radius * 2f;
+        _aoeIndicator.localScale = new Vector3(radius * 2f, radius, 1f);
     }
 
     private void RedrawLine(Vector3 startPosition, Vector3 targetPosition, float arcHeight)
