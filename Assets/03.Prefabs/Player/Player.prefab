@@ -223,9 +223,10 @@ MonoBehaviour:
   _throwPoint: {fileID: 2905248735513423768}
   _playerStatus: {fileID: 409094873972115548}
   _aimPreviewPrefab: {fileID: 6581337394013715911, guid: f6810065176599a49b79d855659d051c, type: 3}
-  _flightDuration: 0.5
   _arcHeight: 1.5
-  _potionPrefab: {fileID: 4122200703236666151, guid: cd9ecbb7db3276641babf0cc29c4fa9a, type: 3}
+  _throwSpeed: 8
+  _rotationSpeed: 360
+  _potionPrefab: {fileID: 5114251214697153630, guid: c73c22f1a5e5ce04f923eeec473560d3, type: 3}
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0

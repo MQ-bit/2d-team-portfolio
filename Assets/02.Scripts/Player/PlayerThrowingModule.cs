@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class PlayerThrowingModule : MonoBehaviour
@@ -12,9 +11,11 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
+    [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
+    [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
-    [SerializeField] private GameObject _potionPrefab;
+    [SerializeField] private PotionProjectile _potionPrefab;
 
     private Vector2 _aimWorldPosition;
     public bool IsAiming { get; private set; }
@@ -109,7 +110,7 @@ public class PlayerThrowingModule : MonoBehaviour
     {
         Vector2 origin = _throwPoint.position;
         Vector2 offset = desiredPosition - origin;
-        float maxThrowDistance =  _playerStatus.MaxThrowDistance;
+        float maxThrowDistance = _playerStatus.MaxThrowDistance;
 
         if (offset.sqrMagnitude <= maxThrowDistance * maxThrowDistance)
         {
@@ -128,7 +129,12 @@ public class PlayerThrowingModule : MonoBehaviour
         }
 
         Vector3 startPosition = _throwPoint.position;
-        //TODO : 포션 로직 오면 여기에 생성시키는 로직 추가
+        Vector3 landingPosition = new Vector3(targetPosition.x, targetPosition.y, startPosition.z);
+        float throwDistance = Vector2.Distance(startPosition, landingPosition);
+        float flightDuration = throwDistance / _throwSpeed;
+
+        PotionProjectile projectile = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+        projectile.Launch(landingPosition, flightDuration, _arcHeight, _rotationSpeed);
     }
     private void HideAimPreview()
     {

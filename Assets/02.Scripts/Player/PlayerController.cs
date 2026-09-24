@@ -9,14 +9,14 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        if(_inputSO == null)
+        if (_inputSO == null)
         {
             Debug.LogError($"{gameObject.name} : PlayerInputSO가 할당안됨");
         }
-        if(_movementModule == null)
+        if (_movementModule == null)
         {
             _movementModule = GetComponent<PlayerMovementModule>();
-            if(_movementModule == null)
+            if (_movementModule == null)
             {
                 Debug.LogError($"{gameObject.name} : PlayerMovementModule 이 할당안됨");
             }
@@ -48,12 +48,12 @@ public class PlayerController : MonoBehaviour
     {
         _inputSO.OnMoveInput += HandleDashInput;
         _inputSO.OnThrowStart += HandleThrowStarted;
-        _inputSO.OnThrowEnd += HandleThrowReleased;      
+        _inputSO.OnThrowEnd += HandleThrowReleased;
     }
 
     private void UnLinkInputEvents()
     {
-        _inputSO.OnMoveInput -= HandleDashInput;        
+        _inputSO.OnMoveInput -= HandleDashInput;
         _inputSO.OnThrowStart -= HandleThrowStarted;
         _inputSO.OnThrowEnd -= HandleThrowReleased;
     }
@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
             _throwingModule.UpdateAim(_inputSO.MousePosition);
         }
     }
-    
+
     private void HandleMoveInput()
     {
         _movementModule.MovePosition(_inputSO.MoveInput);
@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour
     private void HandleDashInput()
     {
         Vector2 moveInput = _inputSO.MoveInput;
-        if(moveInput == Vector2.zero)
+        if (moveInput == Vector2.zero)
         {
             return;
         }

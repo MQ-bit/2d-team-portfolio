@@ -76,7 +76,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
             return;
         }
 
-        if(context.canceled && _isThrowHolding)
+        if (context.canceled && _isThrowHolding)
         {
             UpdateMousePosition();
             _isThrowHolding = false;
