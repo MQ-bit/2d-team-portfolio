@@ -20,7 +20,11 @@ public class PotionBreakEffect : MonoBehaviour
 
     private void Awake()
     {
-        _visual ??= transform;
+        if (_visual == null)
+        {
+            _visual = transform;
+        }
+
         CacheRenderers();
         _baseScale = _visual.localScale;
         _baseRotation = _visual.localRotation;

@@ -104,9 +104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adc553bd11b62364fb0b6f8b65242c09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionBreakEffect
-  _visual: {fileID: 0}
+  _visual: {fileID: 7214586443605708909}
   _renderers:
-  - {fileID: 0}
+  - {fileID: 3169243644464564322}
   _duration: 0.3
   _startScale: 0.5
   _peakScale: 1.25
