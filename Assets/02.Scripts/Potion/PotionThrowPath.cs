@@ -11,6 +11,8 @@ public class PotionThrowPath : MonoBehaviour
     private void Awake()
     {
         _lineRenderer = GetComponent<LineRenderer>();
+        _lineRenderer.useWorldSpace = true;
+        HidePath();
 
         if (_potionThrower == null)
         {
@@ -22,11 +24,16 @@ public class PotionThrowPath : MonoBehaviour
     {
         if (_potionThrower == null || !_potionThrower.TryGetCurrentThrowPath(out Vector3 startPosition, out Vector3 landingPosition))
         {
-            _lineRenderer.positionCount = 0;
+            HidePath();
             return;
         }
 
         DrawPath(startPosition, landingPosition);
+    }
+
+    private void OnDisable()
+    {
+        HidePath();
     }
 
     private void DrawPath(Vector3 startPosition, Vector3 landingPosition)
@@ -40,5 +47,10 @@ public class PotionThrowPath : MonoBehaviour
             Vector3 position = PotionProjectile.EvaluateVisualPosition(startPosition, landingPosition, arcHeight, progress);
             _lineRenderer.SetPosition(i, position);
         }
+    }
+
+    private void HidePath()
+    {
+        _lineRenderer.positionCount = 0;
     }
 }

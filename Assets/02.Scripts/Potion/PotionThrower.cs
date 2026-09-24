@@ -3,14 +3,18 @@ using UnityEngine.InputSystem;
 
 public class PotionThrower : MonoBehaviour
 {
-    [Header("Throw Curve Settings")]
+    [Header("References")]
     [SerializeField] private PotionProjectile _potionPrefab;
     [SerializeField] private Transform _throwPoint;
     [SerializeField] private Camera _worldCamera;
+
+    [Header("Throw Settings")]
     [SerializeField, Min(0.01f)] private float _maxThrowDistance = 5f;
     [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
     [SerializeField, Min(0f)] private float _arcHeight = 2f;
     [SerializeField] private float _rotationSpeed = 360f;
+
+    private bool _isAiming;
 
     private Vector3 SpawnPosition => _throwPoint != null ? _throwPoint.position : transform.position;
 
@@ -24,16 +28,47 @@ public class PotionThrower : MonoBehaviour
 
     private void Update()
     {
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && TryGetCurrentThrowPath(out Vector3 start, out Vector3 end))
+        HandleMouseInput();
+    }
+
+    private void OnDisable()
+    {
+        _isAiming = false;
+    }
+
+    private void HandleMouseInput()
+    {
+        Mouse mouse = Mouse.current;
+        if (mouse == null)
         {
-            SpawnProjectile(start, end);
+            _isAiming = false;
+            return;
+        }
+
+        if (mouse.leftButton.wasPressedThisFrame)
+        {
+            _isAiming = true;
+        }
+
+        if (!_isAiming || !mouse.leftButton.wasReleasedThisFrame)
+        {
+            return;
+        }
+
+        _isAiming = false;
+
+        if (TryGetMouseWorldPosition(mouse, out Vector3 aimPosition))
+        {
+            Throw(aimPosition);
         }
     }
 
     public PotionProjectile Throw(Vector3 aimPosition)
     {
-        Vector3 start = SpawnPosition;
-        return TryGetLandingPosition(start, aimPosition, out Vector3 end) ? SpawnProjectile(start, end) : null;
+        Vector3 spawnPosition = SpawnPosition;
+        return TryGetLandingPosition(spawnPosition, aimPosition, out Vector3 landingPosition)
+            ? SpawnProjectile(spawnPosition, landingPosition)
+            : null;
     }
 
     public bool TryGetCurrentThrowPath(out Vector3 spawnPosition, out Vector3 landingPosition)
@@ -41,15 +76,27 @@ public class PotionThrower : MonoBehaviour
         spawnPosition = SpawnPosition;
         landingPosition = spawnPosition;
 
-        if (_worldCamera == null || Mouse.current == null)
+        Mouse mouse = Mouse.current;
+        if (!_isAiming || mouse == null || !TryGetMouseWorldPosition(mouse, out Vector3 aimPosition))
         {
             return false;
         }
 
-        Vector3 screenPosition = Mouse.current.position.ReadValue();
-        screenPosition.z = Mathf.Abs(_worldCamera.transform.position.z - spawnPosition.z);
-        Vector3 aimPosition = _worldCamera.ScreenToWorldPoint(screenPosition);
         return TryGetLandingPosition(spawnPosition, aimPosition, out landingPosition);
+    }
+
+    private bool TryGetMouseWorldPosition(Mouse mouse, out Vector3 worldPosition)
+    {
+        worldPosition = SpawnPosition;
+        if (_worldCamera == null)
+        {
+            return false;
+        }
+
+        Vector3 screenPosition = mouse.position.ReadValue();
+        screenPosition.z = Mathf.Abs(_worldCamera.transform.position.z - SpawnPosition.z);
+        worldPosition = _worldCamera.ScreenToWorldPoint(screenPosition);
+        return true;
     }
 
     private PotionProjectile SpawnProjectile(Vector3 spawnPosition, Vector3 landingPosition)
