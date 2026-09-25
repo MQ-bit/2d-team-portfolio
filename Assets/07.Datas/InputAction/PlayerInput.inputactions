@@ -45,6 +45,16 @@
                     "interactions": "",
                     "initialStateCheck": true,
                     "priority": 0
+                },
+                {
+                    "name": "ItemSlotChange",
+                    "type": "Button",
+                    "id": "de8fc5ea-ef15-4692-a9f6-702b48b70e1d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -133,6 +143,72 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "AimPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "13a094a9-3f63-4177-8343-59b8f22e539b",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7665a3c6-dcb3-44bf-99ac-6dd23c79ec20",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4b47a33d-1de4-42b0-ae89-75daf58d5d1f",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2dbe0e0e-39ea-4840-b575-b36fd8c9f2d5",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "26c114d5-223f-440c-b8de-0d16f8e3f9a6",
+                    "path": "<Keyboard>/5",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f43e5ed-b9bf-493a-95b8-a2c473db881c",
+                    "path": "<Keyboard>/6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChange",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

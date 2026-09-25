@@ -131,6 +131,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": true,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ItemSlotChange"",
+                    ""type"": ""Button"",
+                    ""id"": ""de8fc5ea-ef15-4692-a9f6-702b48b70e1d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -221,6 +231,72 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""AimPosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""13a094a9-3f63-4177-8343-59b8f22e539b"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7665a3c6-dcb3-44bf-99ac-6dd23c79ec20"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4b47a33d-1de4-42b0-ae89-75daf58d5d1f"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2dbe0e0e-39ea-4840-b575-b36fd8c9f2d5"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""26c114d5-223f-440c-b8de-0d16f8e3f9a6"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1f43e5ed-b9bf-493a-95b8-a2c473db881c"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -239,6 +315,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
         m_Player_AimPosition = m_Player.FindAction("AimPosition", throwIfNotFound: true);
+        m_Player_ItemSlotChange = m_Player.FindAction("ItemSlotChange", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -323,6 +400,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Throw;
     private readonly InputAction m_Player_AimPosition;
+    private readonly InputAction m_Player_ItemSlotChange;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -350,6 +428,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/AimPosition".
         /// </summary>
         public InputAction @AimPosition => m_Wrapper.m_Player_AimPosition;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ItemSlotChange".
+        /// </summary>
+        public InputAction @ItemSlotChange => m_Wrapper.m_Player_ItemSlotChange;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -388,6 +470,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AimPosition.started += instance.OnAimPosition;
             @AimPosition.performed += instance.OnAimPosition;
             @AimPosition.canceled += instance.OnAimPosition;
+            @ItemSlotChange.started += instance.OnItemSlotChange;
+            @ItemSlotChange.performed += instance.OnItemSlotChange;
+            @ItemSlotChange.canceled += instance.OnItemSlotChange;
         }
 
         /// <summary>
@@ -411,6 +496,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AimPosition.started -= instance.OnAimPosition;
             @AimPosition.performed -= instance.OnAimPosition;
             @AimPosition.canceled -= instance.OnAimPosition;
+            @ItemSlotChange.started -= instance.OnItemSlotChange;
+            @ItemSlotChange.performed -= instance.OnItemSlotChange;
+            @ItemSlotChange.canceled -= instance.OnItemSlotChange;
         }
 
         /// <summary>
@@ -492,5 +580,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnAimPosition(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemSlotChange" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemSlotChange(InputAction.CallbackContext context);
     }
 }

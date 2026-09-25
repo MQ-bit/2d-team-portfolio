@@ -1,0 +1,217 @@
+using UnityEngine;
+using System.Collections;
+
+public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
+{
+    [Header("Item Setting")]
+    // 실제 PotionData의 직렬화 방식이 확정되면 활성화한다.
+    // [SerializeField] private PotionData _potionData;
+    [SerializeField] private int _quantity = 1;
+    [SerializeField] private PotionElement _potionType = PotionElement.Ice;
+
+
+    [Header("Collect Movement Settings")]
+    [SerializeField] private float _flightDuration = 0.45f;
+    [SerializeField] private float _arcHeight = 1f;
+
+    [SerializeField] private AnimationCurve _flightCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Failed Collection Setting")]
+    [SerializeField] private float _failedDropPadding = 0.5f;
+
+    [SerializeField] private float _failedDropDuration = 0.3f;
+
+    [SerializeField] private float _failedDropArcHeight = 0.75f;
+    [SerializeField] private float _reactivateDelay = 1f;
+    private WaitForSeconds _waitForReactivate;
+    
+    private PotionData _testPotionData; //테스트용 데이터. 테스트 잘 되면 삭제하기
+
+    private Collider2D _collider;
+    private Coroutine _collectionRoutine;
+
+    private Vector3 _originalPosition;
+    private bool _isCollecting;
+    private bool _isBeingDestroyed;
+
+    private void Awake()
+    {
+        _collider = GetComponentInChildren<Collider2D>();
+        _testPotionData = new PotionData("test_potion", "Test Potion", _potionType, 10f, 10f, 0f, 0f, 0.5f);
+        _waitForReactivate = new WaitForSeconds(_reactivateDelay);
+    }
+    private void OnDisable()
+    {
+        if (_isBeingDestroyed)
+        {
+            return;
+        }
+
+        if (_collectionRoutine != null)
+        {
+            StopCoroutine(_collectionRoutine);
+            _collectionRoutine = null;
+        }
+
+        if (_isCollecting)
+        {
+            transform.position = _originalPosition;
+        }
+
+        _isCollecting = false;
+        SetCollidersEnabled(true);
+    }
+
+    public bool TryCollect(IItemReceiver receiver, Transform collectTarget, float collectRadius)
+    {
+        if (!isActiveAndEnabled || _isCollecting || receiver == null || collectTarget == null)
+        {
+            return false;
+        }
+
+        // 실제 PotionData가 준비되면 아래 코드를 활성화하기.
+        // PotionData potionData = _potionData;
+        PotionData potionData = _testPotionData;
+
+        _originalPosition = transform.position;
+        _isCollecting = true;
+
+        SetCollidersEnabled(false);
+
+        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), potionData));
+
+        return true;
+    }
+
+    
+    // 플레이어에게 날아가는 동작을 구현하는 코루틴. 여러 코루틴이 연속적으로 수행됨.
+    // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
+    private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionData potionData)
+    {
+        yield return FlyToPlayer(collectTarget);
+
+        if (collectTarget == null)
+        {
+            ResetToOriginalState();
+            yield break;
+        }
+
+        //플레이어에게 도착한 순간 실제 인벤토리 추가를 시도
+        if (receiver.TryTakeItem(potionData, _quantity))
+        {
+            _collectionRoutine = null;
+            _isBeingDestroyed = true;
+
+            Destroy(gameObject); // TODO : 풀링 적용 시 SetActive(false)로 변경
+        }
+        else
+        {
+            yield return DropNearPlayer(collectTarget, collectRadius); //인벤토리가 가득 찼다면 수집 범위 바깥으로 떨어트리는 루틴 실행
+
+            _collectionRoutine = null;
+            _isCollecting = false;
+
+            SetCollidersEnabled(true);
+        }
+            
+    }
+
+    private IEnumerator FlyToPlayer(Transform collectTarget)
+    {
+        Vector3 start = transform.position;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < _flightDuration)
+        {
+            if (collectTarget == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+            float normalizedTime = Mathf.Clamp01(elapsedTime / _flightDuration);
+
+            float t = EvaluateCurve(_flightCurve, normalizedTime);
+
+            Vector3 end = collectTarget.position;
+            Vector3 control = BezierCalculator.CalculateSideControlPoint(start, end, _arcHeight);
+
+            transform.position = BezierCalculator.CalculateQuadraticBezier(start, control, end, t);
+
+            yield return null;
+        }
+
+        if (collectTarget != null)
+        {
+            transform.position = collectTarget.position;
+        }
+    }
+
+    private IEnumerator DropNearPlayer(Transform collectTarget, float collectRadius)
+    {
+        Vector3 dropStart = transform.position;
+
+        //아이템이 처음 놓여 있던 방향으로 다시 튕겨 나가게 한다.
+        Vector2 dropDirection = _originalPosition - collectTarget.position;
+
+        if (dropDirection.sqrMagnitude <= 0.001f)
+        {
+            dropDirection = Random.insideUnitCircle;
+
+            if (dropDirection.sqrMagnitude <= 0.001f)
+            {
+                dropDirection = Vector2.right;
+            }
+        }
+
+        dropDirection.Normalize();
+
+        float dropDistance = _failedDropPadding; // 수집 범위 바깥으로 떨어지는 거리를 계산.
+
+        Vector3 dropEnd = collectTarget.position + (Vector3)(dropDirection * dropDistance);
+        Vector3 dropControl = BezierCalculator.CalculateSideControlPoint(dropStart, dropEnd, _failedDropArcHeight, Vector3.up);
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < _failedDropDuration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            float t = Mathf.Clamp01(elapsedTime / _failedDropDuration);
+
+            t = Mathf.SmoothStep(0f, 1f, t); // 떨어지는 동작을 부드럽게 만듦.
+
+            transform.position = BezierCalculator.CalculateQuadraticBezier(dropStart, dropControl, dropEnd, t);
+
+            yield return null;
+        }
+
+        transform.position = dropEnd;
+        yield return _waitForReactivate; // 일정 시간 후에 다시 수집 가능하도록 대기
+    }
+
+    private float EvaluateCurve(AnimationCurve curve, float normalizedTime)
+    {
+        if (curve == null)
+        {
+            return normalizedTime;
+        }
+
+        return Mathf.Clamp01(curve.Evaluate(normalizedTime));
+    }
+
+    private void ResetToOriginalState()
+    {
+        transform.position = _originalPosition;
+
+        _collectionRoutine = null;
+        _isCollecting = false;
+
+        SetCollidersEnabled(true);
+    }
+
+    private void SetCollidersEnabled(bool isEnabled)
+    {
+        _collider.enabled = isEnabled;
+    }
+}

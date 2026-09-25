@@ -14,7 +14,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - FieldItem
   - 
   - 
   - 
@@ -49,6 +49,9 @@ TagManager:
     locked: 0
   - name: Enitty
     uniqueID: 3787839933
+    locked: 0
+  - name: FieldObject
+    uniqueID: 1831432877
     locked: 0
   m_RenderingLayers:
   - Default

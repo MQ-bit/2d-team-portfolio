@@ -11,8 +11,9 @@ public class ThrowAimPreview : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int _trajectoryPointCount = 24;
 
-    private SpriteRenderer _ownerSpriteRenderer;
-    private SpriteRenderer _indicatorSpriteRenderer;
+    private SpriteRenderer _ownerRenderer;
+    private SpriteRenderer _indicatorRenderer;
+    private SpriteRenderer _aoeRenderer;
 
     private void Awake()
     {
@@ -29,7 +30,11 @@ public class ThrowAimPreview : MonoBehaviour
         {
             Debug.LogError($"{gameObject.name} : Indicator Transform이 할당되지 않음");
         }
-        _indicatorSpriteRenderer = _indicator.GetComponent<SpriteRenderer>();
+        _indicatorRenderer = _indicator.GetComponent<SpriteRenderer>();
+        if (_aoeIndicator != null)
+        {
+            _aoeRenderer = _aoeIndicator.GetComponent<SpriteRenderer>();
+        }
     }
 
     private void LateUpdate()
@@ -43,7 +48,7 @@ public class ThrowAimPreview : MonoBehaviour
     public void SetOwner(GameObject owner)
     {
         _owner = owner;
-        _ownerSpriteRenderer = _owner.GetComponent<SpriteRenderer>();
+        _ownerRenderer = _owner.GetComponent<SpriteRenderer>();
     }
 
     public void Show()
@@ -56,16 +61,23 @@ public class ThrowAimPreview : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight)
+    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, PotionData potionData)
     {
-        if (_lineRenderer == null || _indicator == null)
+        if (_lineRenderer == null || _indicator == null || potionData == null)
         {
             return;
         }
 
         _indicator.position = targetPosition;
         _aoeIndicator.position = targetPosition;
+        UpdateAoeIndicator(potionData.VisualData.AreaColor, potionData.Radius);
         RedrawLine(startPosition, targetPosition, arcHeight);
+    }
+
+    public void UpdateAoeIndicator(Color color, float radius)
+    {
+        _aoeRenderer.color = color;
+        _aoeIndicator.localScale = new Vector3(radius * 2f, radius, 1f);
     }
 
     private void RedrawLine(Vector3 startPosition, Vector3 targetPosition, float arcHeight)
@@ -85,10 +97,10 @@ public class ThrowAimPreview : MonoBehaviour
     {
         int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? -1 : 1;
 
-        _indicatorSpriteRenderer.sortingLayerID = _ownerSpriteRenderer.sortingLayerID;
-        _indicatorSpriteRenderer.sortingOrder = _ownerSpriteRenderer.sortingOrder + orderModifier;
+        _indicatorRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+        _indicatorRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
 
-        _lineRenderer.sortingLayerID = _ownerSpriteRenderer.sortingLayerID;
-        _lineRenderer.sortingOrder = _ownerSpriteRenderer.sortingOrder + orderModifier;
+        _lineRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+        _lineRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
     }
 }

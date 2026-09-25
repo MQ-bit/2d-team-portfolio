@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 
 public enum PotionElement
 {
@@ -12,15 +13,16 @@ public enum PotionElement
 [Serializable]
 public sealed class PotionData
 {
-    public string Id { get; }
-    public string Name { get; }
+    public string Id { get;}
+    public string Name { get;}
     public PotionElement Element { get; }
     public float Damage { get; }
     public float TickInterval { get; }
     public float AreaDuration { get; }
     public float EffectDuration { get; }
     public float Radius { get; }
-
+    public PotionVisualData VisualData { get; set;}
+    
     public bool HasAreaEffect => AreaDuration > 0f && Radius > 0f;
     public bool HasPeriodicDamage => Damage > 0f && TickInterval > 0f;
 
@@ -53,6 +55,8 @@ public sealed class PotionData
         AreaDuration = areaDuration;
         EffectDuration = effectDuration;
         Radius = radius;
+
+        VisualData = new PotionVisualData(null, UnityEngine.Color.red); // Initialize with default values; you can modify this as needed.
     }
 
     private static void ValidateNonNegative(float value, string fieldName)

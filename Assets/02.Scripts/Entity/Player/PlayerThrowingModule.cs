@@ -1,17 +1,19 @@
 using UnityEngine;
+using Entity.Inventory;
 
 public class PlayerThrowingModule : MonoBehaviour
 {
     [Header("Component References")]
     [SerializeField] private Camera _worldCamera;
     [SerializeField] private Transform _throwPoint;
-    [SerializeField] private PlayerStatus _playerStatus;
+    [SerializeField] private PlayerStatus _status;
+    [SerializeField] private PlayerInventoryModule _inventoryModule;
 
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
-    [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
+    [SerializeField] private float _throwSpeed = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
@@ -19,7 +21,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     private Vector2 _aimWorldPosition;
     public bool IsAiming { get; private set; }
-    public Vector2 AimWorldPosition => _aimWorldPosition;
+
 
     private void Awake()
     {
@@ -46,17 +48,25 @@ public class PlayerThrowingModule : MonoBehaviour
 
     private void InitiateComponent()
     {
-        if (_playerStatus == null)
+        if (_status == null)
         {
-            _playerStatus = GetComponent<PlayerStatus>();
+            _status = GetComponent<PlayerStatus>();
+        }
+
+        if( _inventoryModule == null)
+        {
+            _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
     }
 
     public void BeginAim(Vector2 screenPosition)
     {
+        if(_inventoryModule.SelectedPotion == null) return;
+
         IsAiming = true;
         _aimPreviewInstance.Show();
 
+        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.Radius);
         UpdateAim(screenPosition);
     }
 
@@ -67,6 +77,12 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
+        if( _inventoryModule.SelectedPotion == null)
+        {
+            CancelAim();
+            return;
+        }
+
         Vector2 desiredPosition = ScreenToWorldPosition(screenPosition);
 
         _aimWorldPosition = ClampToThrowRange(desiredPosition);
@@ -74,7 +90,9 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
 
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight);
+        PotionData selectedPotion = _inventoryModule.SelectedPotion;
+        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.Radius);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, selectedPotion);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
@@ -93,8 +111,9 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void CancelAim()
     {
-        IsAiming = false;
+        if(!IsAiming) return;
 
+        IsAiming = false;
         HideAimPreview();
     }
 
@@ -110,7 +129,7 @@ public class PlayerThrowingModule : MonoBehaviour
     {
         Vector2 origin = _throwPoint.position;
         Vector2 offset = desiredPosition - origin;
-        float maxThrowDistance = _playerStatus.MaxThrowDistance;
+        float maxThrowDistance =  _status.MaxThrowDistance;
 
         if (offset.sqrMagnitude <= maxThrowDistance * maxThrowDistance)
         {
@@ -128,13 +147,12 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
-        Vector3 startPosition = _throwPoint.position;
-        Vector3 landingPosition = new Vector3(targetPosition.x, targetPosition.y, startPosition.z);
-        float throwDistance = Vector2.Distance(startPosition, landingPosition);
-        float flightDuration = throwDistance / _throwSpeed;
-
-        PotionProjectile projectile = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-        projectile.Launch(landingPosition, flightDuration, _arcHeight, _rotationSpeed);
+        if(_inventoryModule.TryConsumeSelectedPotion())
+        {
+            Vector3 startPosition = _throwPoint.position;
+            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+            proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+        }
     }
     private void HideAimPreview()
     {

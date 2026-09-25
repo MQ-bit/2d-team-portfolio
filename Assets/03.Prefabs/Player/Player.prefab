@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 1377203738665982733}
   - component: {fileID: 353974945982132991}
   - component: {fileID: 8625112247451139820}
+  - component: {fileID: 7774034623503532432}
+  - component: {fileID: 6544000177656053045}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -207,6 +209,7 @@ MonoBehaviour:
   _inputSO: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
   _movementModule: {fileID: 1377203738665982733}
   _throwingModule: {fileID: 8625112247451139820}
+  _inventoryModule: {fileID: 0}
 --- !u!114 &8625112247451139820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,12 +224,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerThrowingModule
   _worldCamera: {fileID: 0}
   _throwPoint: {fileID: 2905248735513423768}
-  _playerStatus: {fileID: 409094873972115548}
+  _status: {fileID: 0}
+  _inventoryModule: {fileID: 0}
   _aimPreviewPrefab: {fileID: 6581337394013715911, guid: f6810065176599a49b79d855659d051c, type: 3}
   _arcHeight: 1.5
-  _throwSpeed: 8
+  _throwSpeed: 0.5
   _rotationSpeed: 360
   _potionPrefab: {fileID: 5114251214697153630, guid: c73c22f1a5e5ce04f923eeec473560d3, type: 3}
+--- !u!114 &7774034623503532432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b309bc3e74f33a4ca5e040e6d25a5a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Entity.Inventory.EntityInventory
+  _inventorySlots:
+  - _quantity: 0
+  - _quantity: 0
+  - _quantity: 0
+  - _quantity: 0
+  _maxSlotSize: 4
+--- !u!114 &6544000177656053045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 382a2bf1bfbd584468d247d8983d747b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryModule
+  _inventory: {fileID: 0}
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,19 +6,25 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputReader _inputSO;
     [SerializeField] private PlayerMovementModule _movementModule;
     [SerializeField] private PlayerThrowingModule _throwingModule;
+    [SerializeField] private PlayerInventoryModule _inventoryModule;
 
     private void Awake()
     {
+        GetModules();
+    }
+
+    private void GetModules()
+    {
         if (_inputSO == null)
         {
-            Debug.LogError($"{gameObject.name} : PlayerInputSO가 할당안됨");
+            Debug.LogError($"{gameObject.name} : PlayerInputSO가 할당 안됨");
         }
         if (_movementModule == null)
         {
             _movementModule = GetComponent<PlayerMovementModule>();
             if (_movementModule == null)
             {
-                Debug.LogError($"{gameObject.name} : PlayerMovementModule 이 할당안됨");
+                Debug.LogError($"{gameObject.name} : PlayerMovementModule 이 할당 안됨");
             }
         }
         if (_throwingModule == null)
@@ -26,8 +32,12 @@ public class PlayerController : MonoBehaviour
             _throwingModule = GetComponent<PlayerThrowingModule>();
             if (_throwingModule == null)
             {
-                Debug.LogError($"{gameObject.name} : PlayerThrowingModule 이 할당안됨");
+                Debug.LogError($"{gameObject.name} : PlayerThrowingModule 이 할당 안됨");
             }
+        }
+        if (_inventoryModule == null)
+        {
+            _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
     }
 
@@ -35,10 +45,11 @@ public class PlayerController : MonoBehaviour
     {
         LinkInputEvents();
     }
+
     private void OnDisable()
     {
         UnLinkInputEvents();
-        if (_throwingModule != null) // TODO : 함수화
+        if (_throwingModule != null)
         {
             _throwingModule.CancelAim();
         }
@@ -48,7 +59,8 @@ public class PlayerController : MonoBehaviour
     {
         _inputSO.OnMoveInput += HandleDashInput;
         _inputSO.OnThrowStart += HandleThrowStarted;
-        _inputSO.OnThrowEnd += HandleThrowReleased;
+        _inputSO.OnThrowEnd += HandleThrowReleased;      
+        _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
     }
 
     private void UnLinkInputEvents()
@@ -56,6 +68,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnMoveInput -= HandleDashInput;
         _inputSO.OnThrowStart -= HandleThrowStarted;
         _inputSO.OnThrowEnd -= HandleThrowReleased;
+        _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
     }
 
     private void FixedUpdate()
@@ -94,5 +107,10 @@ public class PlayerController : MonoBehaviour
     private void HandleThrowReleased(Vector2 screenPosition)
     {
         _throwingModule.ReleaseThrow(screenPosition);
+    }
+
+    private void HandleItemSlotChanged(int newSlotIndex)
+    {
+        _inventoryModule.SelectSlot(newSlotIndex);
     }
 }
