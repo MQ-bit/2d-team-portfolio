@@ -43,7 +43,7 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedPotion);
     }
 
-    public bool TryReceive(PotionData data, int quantity)
+    public bool TryTakeItem(PotionData data, int quantity)
     {
         return _inventory.TryAddItem(data, quantity);
     }

@@ -17,7 +17,6 @@ namespace Entity.Inventory
         private void Awake()
         {
             InitializeInventory();
-            AddItem(new PotionData("potion_Fire", "Fire Potion", PotionElement.Fire, 10, 5, 5, 5, 0.25f), 5);
         }
 
         private void InitializeInventory()
@@ -39,9 +38,9 @@ namespace Entity.Inventory
                 return false;
             }
 
-            if (_itemFinder.TryGetValue(data, out int existingIndex))
+            if (CheckItemExists(data))
             {
-                _inventorySlots[existingIndex].AddQuantity(quantity);
+                _inventorySlots[_itemFinder[data]].AddQuantity(quantity);
                 return true;
             }
 
@@ -67,11 +66,6 @@ namespace Entity.Inventory
             return false;
         }
 
-        public void AddItem(PotionData data, int quantity)
-        {
-            TryAddItem(data, quantity);
-        }
-
         public bool TryConsumeItem(int slotIndex, int quantity, out PotionData consumedPotion)
         {
             consumedPotion = null;
@@ -93,9 +87,9 @@ namespace Entity.Inventory
 
             if (slot.Quantity == 0)
             {
+                slot.ClearSlot();
                 _itemFinder.Remove(consumedPotion);
                 _occupiedSlots--;
-                slot.ClearSlot();
             }
 
             return true;
