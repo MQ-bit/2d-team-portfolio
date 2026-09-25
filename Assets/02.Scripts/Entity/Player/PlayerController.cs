@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour
     {
         _inputSO.OnMoveInput += HandleDashInput;
         _inputSO.OnThrowStart += HandleThrowStarted;
-        _inputSO.OnThrowEnd += HandleThrowReleased;      
+        _inputSO.OnThrowEnd += HandleThrowReleased;
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
     }
 

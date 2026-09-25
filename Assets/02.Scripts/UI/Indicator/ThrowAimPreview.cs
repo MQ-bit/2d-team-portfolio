@@ -70,14 +70,14 @@ public class ThrowAimPreview : MonoBehaviour
 
         _indicator.position = targetPosition;
         _aoeIndicator.position = targetPosition;
-        UpdateAoeIndicator(potionData.VisualData.AreaColor, potionData.Radius);
+        UpdateAoeIndicator(potionData.VisualData.AreaColor, potionData.AreaWidth);
         RedrawLine(startPosition, targetPosition, arcHeight);
     }
 
-    public void UpdateAoeIndicator(Color color, float radius)
+    public void UpdateAoeIndicator(Color color, float areaWidth)
     {
         _aoeRenderer.color = color;
-        _aoeIndicator.localScale = new Vector3(radius * 2f, radius, 1f);
+        _aoeIndicator.localScale = new Vector3(areaWidth, areaWidth * 0.5f, 1f);
     }
 
     private void RedrawLine(Vector3 startPosition, Vector3 targetPosition, float arcHeight)

@@ -53,7 +53,7 @@ public class PlayerThrowingModule : MonoBehaviour
             _status = GetComponent<PlayerStatus>();
         }
 
-        if( _inventoryModule == null)
+        if (_inventoryModule == null)
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
@@ -61,12 +61,12 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void BeginAim(Vector2 screenPosition)
     {
-        if(_inventoryModule.SelectedPotion == null) return;
+        if (_inventoryModule.SelectedPotion == null) return;
 
         IsAiming = true;
         _aimPreviewInstance.Show();
 
-        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.Radius);
+        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
         UpdateAim(screenPosition);
     }
 
@@ -77,7 +77,7 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
-        if( _inventoryModule.SelectedPotion == null)
+        if (_inventoryModule.SelectedPotion == null)
         {
             CancelAim();
             return;
@@ -91,7 +91,7 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
 
         PotionData selectedPotion = _inventoryModule.SelectedPotion;
-        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.Radius);
+        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.AreaWidth);
         _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, selectedPotion);
     }
 
@@ -111,7 +111,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void CancelAim()
     {
-        if(!IsAiming) return;
+        if (!IsAiming) return;
 
         IsAiming = false;
         HideAimPreview();
@@ -129,7 +129,7 @@ public class PlayerThrowingModule : MonoBehaviour
     {
         Vector2 origin = _throwPoint.position;
         Vector2 offset = desiredPosition - origin;
-        float maxThrowDistance =  _status.MaxThrowDistance;
+        float maxThrowDistance = _status.MaxThrowDistance;
 
         if (offset.sqrMagnitude <= maxThrowDistance * maxThrowDistance)
         {
@@ -147,11 +147,11 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
-        if(_inventoryModule.TryConsumeSelectedPotion())
+        if (_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-            proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+            proj.Launch(consumedPotion, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()

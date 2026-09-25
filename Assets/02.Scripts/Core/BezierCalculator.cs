@@ -12,10 +12,10 @@ public static class BezierCalculator
     /// <returns>control point</returns>
     public static Vector3 CalculateSideControlPoint(Vector3 start, Vector3 end, float arcHeight, Vector3 perpendicular = default)
     {
-        
+
         Vector3 direction = end - start;
-        
-        if(perpendicular == default)
+
+        if (perpendicular == default)
         {
             perpendicular = new Vector3(-direction.y, direction.x, 0f);
         }

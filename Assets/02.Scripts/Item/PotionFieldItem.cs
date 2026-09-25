@@ -4,10 +4,8 @@ using System.Collections;
 public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 {
     [Header("Item Setting")]
-    // 실제 PotionData의 직렬화 방식이 확정되면 활성화한다.
-    // [SerializeField] private PotionData _potionData;
+    [SerializeField] private PotionData _potionData;
     [SerializeField] private int _quantity = 1;
-    [SerializeField] private PotionElement _potionType = PotionElement.Ice;
 
 
     [Header("Collect Movement Settings")]
@@ -24,8 +22,6 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     [SerializeField] private float _failedDropArcHeight = 0.75f;
     [SerializeField] private float _reactivateDelay = 1f;
     private WaitForSeconds _waitForReactivate;
-    
-    private PotionData _testPotionData; //테스트용 데이터. 테스트 잘 되면 삭제하기
 
     private Collider2D _collider;
     private Coroutine _collectionRoutine;
@@ -37,7 +33,6 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider2D>();
-        _testPotionData = new PotionData("test_potion", "Test Potion", _potionType, 10f, 10f, 0f, 0f, 0.5f);
         _waitForReactivate = new WaitForSeconds(_reactivateDelay);
     }
     private void OnDisable()
@@ -69,21 +64,23 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             return false;
         }
 
-        // 실제 PotionData가 준비되면 아래 코드를 활성화하기.
-        // PotionData potionData = _potionData;
-        PotionData potionData = _testPotionData;
+        if (_potionData == null)
+        {
+            Debug.LogError($"{name}: PotionData is not assigned.", this);
+            return false;
+        }
 
         _originalPosition = transform.position;
         _isCollecting = true;
 
         SetCollidersEnabled(false);
 
-        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), potionData));
+        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), _potionData));
 
         return true;
     }
 
-    
+
     // 플레이어에게 날아가는 동작을 구현하는 코루틴. 여러 코루틴이 연속적으로 수행됨.
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
     private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionData potionData)
@@ -113,7 +110,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
             SetCollidersEnabled(true);
         }
-            
+
     }
 
     private IEnumerator FlyToPlayer(Transform collectTarget)

@@ -24,7 +24,7 @@ public class PlayerMovementModule : MonoBehaviour
 
     public void MovePosition(Vector2 moveInput)
     {
-        if (_isDashing)
+        if (_isDashing || !_playerStatus.CanMove)
         {
             return;
         }
@@ -35,7 +35,7 @@ public class PlayerMovementModule : MonoBehaviour
 
     public bool TryStartDash(Vector2 moveInput)
     {
-        if (!CanDash || moveInput == Vector2.zero)
+        if (!CanDash || !_playerStatus.CanMove || moveInput == Vector2.zero)
         {
             return false;
         }

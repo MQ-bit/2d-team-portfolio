@@ -13,6 +13,7 @@ public class PotionProjectile : MonoBehaviour
     private float _elapsedTime;
     private float _verticalVelocity;
     private float _gravity;
+    private PotionData _potionData;
 
     private void Awake()
     {
@@ -38,8 +39,9 @@ public class PotionProjectile : MonoBehaviour
         }
     }
 
-    public void Launch(Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
+    public void Launch(PotionData potionData, Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
     {
+        _potionData = potionData;
         _startPosition = transform.position;
         _targetPosition = targetPosition;
         _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -49,13 +51,17 @@ public class PotionProjectile : MonoBehaviour
         float height = Mathf.Max(0f, arcHeight);
         _gravity = 8f * height / (_flightDuration * _flightDuration);
         _verticalVelocity = 0.5f * _gravity * _flightDuration;
-        enabled = true;
-    }
 
-    public static Vector3 EvaluateVisualPosition(Vector3 startPosition, Vector3 targetPosition, float arcHeight, float progress)
-    {
-        float height = 4f * arcHeight * progress * (1f - progress);
-        return Vector3.Lerp(startPosition, targetPosition, progress) + Vector3.up * height;
+        if (_visual != null && _potionData != null && _potionData.VisualData.PotionSprite != null)
+        {
+            SpriteRenderer visualRenderer = _visual.GetComponent<SpriteRenderer>();
+            if (visualRenderer != null)
+            {
+                visualRenderer.sprite = _potionData.VisualData.PotionSprite;
+            }
+        }
+
+        enabled = true;
     }
 
     private void Land()
@@ -71,6 +77,7 @@ public class PotionProjectile : MonoBehaviour
         if (_groundAreaPrefab != null)
         {
             PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
+            groundArea.Initialize(_potionData);
             groundArea.Activate();
         }
 

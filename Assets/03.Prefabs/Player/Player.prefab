@@ -18,6 +18,8 @@ GameObject:
   - component: {fileID: 8625112247451139820}
   - component: {fileID: 7774034623503532432}
   - component: {fileID: 6544000177656053045}
+  - component: {fileID: 910000000000000001}
+  - component: {fileID: 910000000000000003}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -175,6 +177,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cdcdbc780a21e47be872cf369e65ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
+  _potionEffectReceiver: {fileID: 910000000000000003}
+  _maxThirst: 100
+  _currentThirst: 100
   _speed: 5
   _dashSpeed: 30
   _dashDuration: 0.1
@@ -293,3 +298,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3612528117417103380}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ee51b7321b14ee5a4409ed407561b11, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  _maxHealth: 100
+  _currentHealth: 100
+--- !u!114 &910000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86d4ce1d2e249f6840e2d2cc25784da, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
+  _targetKind: 0
+  _health: {fileID: 910000000000000001}
+  _playerStatus: {fileID: 409094873972115548}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d47a9c2e64b4cb8ad4f2d6a0218cc33, type: 3}
+  m_Name: PotionDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::PotionDatabase
+  _potions:
+  - {fileID: 11400000, guid: d1f6a9038b7c4e2fb1a5c6d7890e1234, type: 2}
+  - {fileID: 11400000, guid: e2a7b0149c8d5f30a2b6d7e8901f2345, type: 2}
+  - {fileID: 11400000, guid: f3b8c125ad9e6041b3c7e8f9012a3456, type: 2}
+  - {fileID: 11400000, guid: a4c9d236beaf7152c4d8f901123b4567, type: 2}
+  - {fileID: 11400000, guid: b5dae347cfb08263d5e90112234c5678, type: 2}
+  - {fileID: 11400000, guid: c6ebf458d0c19374e6f01223345d6789, type: 2}

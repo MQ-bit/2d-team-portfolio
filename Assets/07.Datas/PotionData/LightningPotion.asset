@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f95fa3d42bbd1cc4b91d522442a7e369, type: 3}
+  m_Name: LightningPotion
+  m_EditorClassIdentifier: Assembly-CSharp::PotionData
+  _id: lightning_potion
+  _displayName: 전기의 물약
+  _element: 5
+  _areaWidth: 3
+  _areaDuration: 3
+  _areaEffectAmount: 5
+  _tickInterval: 0
+  _effectDuration: 3
+  _drinkEffectAmount: 5
+  _drinkThirstRecoveryAmount: 10
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}

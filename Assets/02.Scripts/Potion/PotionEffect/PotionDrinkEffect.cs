@@ -2,15 +2,20 @@ using UnityEngine;
 
 public class PotionDrinkEffect : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public bool Apply(PotionData data, GameObject targetObject)
     {
+        if (data == null || targetObject == null)
+        {
+            return false;
+        }
 
-    }
+        IPotionEffectTarget target = PotionEffectResolver.FindTarget(targetObject.transform);
+        if (target == null)
+        {
+            return false;
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-
+        PotionEffectResolver.ApplyDrinkEffect(data, target);
+        return true;
     }
 }

@@ -1,5 +1,5 @@
-using System;
-using System.Drawing;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum PotionElement
 {
@@ -7,63 +7,63 @@ public enum PotionElement
     Fire,
     Poison,
     Ice,
-    Heal
+    Heal,
+    Lightning,
+    Flash
 }
 
-[Serializable]
-public sealed class PotionData
+[CreateAssetMenu(fileName = "PotionData", menuName = "Potion/Potion Data")]
+public sealed class PotionData : ScriptableObject
 {
-    public string Id { get;}
-    public string Name { get;}
-    public PotionElement Element { get; }
-    public float Damage { get; }
-    public float TickInterval { get; }
-    public float AreaDuration { get; }
-    public float EffectDuration { get; }
-    public float Radius { get; }
-    public PotionVisualData VisualData { get; set;}
-    
-    public bool HasAreaEffect => AreaDuration > 0f && Radius > 0f;
-    public bool HasPeriodicDamage => Damage > 0f && TickInterval > 0f;
+    [Header("Identity")]
+    [SerializeField] private string _id;
+    [SerializeField] private string _displayName;
 
-    public PotionData(
-        string id,
-        string name,
-        PotionElement element,
-        float damage,
-        float tickInterval,
-        float areaDuration,
-        float effectDuration,
-        float radius)
+    [Header("Area Effect")]
+    [SerializeField] private PotionElement _element;
+    [FormerlySerializedAs("_radius")]
+    [SerializeField, Min(0f)] private float _areaWidth;
+    [SerializeField, Min(0f)] private float _areaDuration;
+    [FormerlySerializedAs("_damage")]
+    [SerializeField, Min(0f)] private float _areaEffectAmount;
+    [SerializeField, Min(0f)] private float _tickInterval;
+    [SerializeField, Min(0f)] private float _effectDuration;
+
+    [Header("Drink Effect")]
+    [SerializeField, Min(0f)] private float _drinkEffectAmount;
+    [SerializeField, Min(0f)] private float _drinkThirstRecoveryAmount;
+
+    [Header("Visual")]
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.red);
+
+    public string Id => _id;
+    public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
+    public PotionElement Element => _element;
+    public float AreaWidth => _areaWidth;
+    public float AreaDuration => _areaDuration;
+    public float AreaEffectAmount => _areaEffectAmount;
+    public float TickInterval => _tickInterval;
+    public float EffectDuration => _effectDuration;
+    public float DrinkEffectAmount => _drinkEffectAmount;
+    public float DrinkThirstRecoveryAmount => _drinkThirstRecoveryAmount;
+    public PotionVisualData VisualData => _visualData;
+
+    public bool HasAreaEffect => AreaDuration > 0f && AreaWidth > 0f;
+    public bool HasPeriodicAreaEffect => AreaEffectAmount > 0f && TickInterval > 0f;
+
+    private void OnValidate()
     {
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            throw new ArgumentException("Potion id cannot be empty.", nameof(id));
-        }
-
-        ValidateNonNegative(damage, nameof(damage));
-        ValidateNonNegative(tickInterval, nameof(tickInterval));
-        ValidateNonNegative(areaDuration, nameof(areaDuration));
-        ValidateNonNegative(effectDuration, nameof(effectDuration));
-        ValidateNonNegative(radius, nameof(radius));
-
-        Id = id.Trim();
-        Name = string.IsNullOrWhiteSpace(name) ? Id : name.Trim();
-        Element = element;
-        Damage = damage;
-        TickInterval = tickInterval;
-        AreaDuration = areaDuration;
-        EffectDuration = effectDuration;
-        Radius = radius;
-
-        VisualData = new PotionVisualData(null, UnityEngine.Color.red); // Initialize with default values; you can modify this as needed.
+        _id = _id?.Trim();
+        _displayName = _displayName?.Trim();
+        _areaWidth = SanitizeNonNegative(_areaWidth);
+        _areaEffectAmount = SanitizeNonNegative(_areaEffectAmount);
+        _tickInterval = SanitizeNonNegative(_tickInterval);
+        _areaDuration = SanitizeNonNegative(_areaDuration);
+        _effectDuration = SanitizeNonNegative(_effectDuration);
+        _drinkEffectAmount = SanitizeNonNegative(_drinkEffectAmount);
+        _drinkThirstRecoveryAmount = SanitizeNonNegative(_drinkThirstRecoveryAmount);
     }
 
-    private static void ValidateNonNegative(float value, string fieldName)
-    {
-        if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f)
-        {
-            throw new ArgumentOutOfRangeException(fieldName, value, "Value must be a finite number greater than or equal to zero.");
-        }
-    }
+    private static float SanitizeNonNegative(float value) =>
+        float.IsNaN(value) || float.IsInfinity(value) ? 0f : Mathf.Max(0f, value);
 }

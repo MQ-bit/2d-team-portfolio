@@ -30,12 +30,12 @@ namespace Entity.Inventory
 
         internal void RemoveQuantity(int amount)
         {
-            if(amount < 0)
+            if (amount < 0)
             {
                 Debug.LogWarning("Cannot remove a negative quantity.");
                 return;
             }
-            
+
             _quantity -= amount;
             if (_quantity < 0)
             {

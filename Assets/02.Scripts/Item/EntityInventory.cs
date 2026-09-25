@@ -23,7 +23,7 @@ namespace Entity.Inventory
         {
             _itemFinder = new Dictionary<PotionData, int>();
             _inventorySlots = new ItemSlot[_maxSlotSize];
-            
+
             for (int i = 0; i < _maxSlotSize; i++)
             {
                 _inventorySlots[i] = new ItemSlot();
@@ -94,10 +94,10 @@ namespace Entity.Inventory
 
             return true;
         }
-        
+
         private bool CheckItemExists(PotionData data)
-        {   
-            if(data == null)
+        {
+            if (data == null)
             {
                 Debug.LogWarning("Item Data should not be null.");
                 return false;
@@ -108,7 +108,7 @@ namespace Entity.Inventory
 
         public PotionData GetPotionData(int index)
         {
-            if(index < 0 || index >= _maxSlotSize)
+            if (index < 0 || index >= _maxSlotSize)
             {
                 Debug.LogWarning($"{index} is out of bounds for inventory slots.");
                 return null;

@@ -32,7 +32,7 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         _selctedPotionData = _inventory.GetPotionData(index);
         OnSelectedSlotChanged?.Invoke(index);
     }
-    
+
     public bool TryConsumeSelectedPotion()
     {
         return TryConsumeSelectedPotion(out _);

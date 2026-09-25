@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f95fa3d42bbd1cc4b91d522442a7e369, type: 3}
+  m_Name: PoisonPotion
+  m_EditorClassIdentifier: Assembly-CSharp::PotionData
+  _id: poison_potion
+  _displayName: 독의 물약
+  _element: 2
+  _areaWidth: 3
+  _areaDuration: 5
+  _areaEffectAmount: 5
+  _tickInterval: 1
+  _effectDuration: 5
+  _drinkEffectAmount: 5
+  _drinkThirstRecoveryAmount: 10
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaColor: {r: 0.55, g: 0.15, b: 0.8, a: 0.65}

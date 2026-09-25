@@ -98,16 +98,16 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         {
             int slotIndex = keyControl.keyCode switch
             {
-                Key.Digit1 =>0,
-                Key.Digit2 =>1,
-                Key.Digit3 =>2,
-                Key.Digit4 =>3,
-                Key.Digit5 =>4,
-                Key.Digit6 =>5,
+                Key.Digit1 => 0,
+                Key.Digit2 => 1,
+                Key.Digit3 => 2,
+                Key.Digit4 => 3,
+                Key.Digit5 => 4,
+                Key.Digit6 => 5,
                 _ => -1
             };
 
-            if(slotIndex != -1)
+            if (slotIndex != -1)
             {
                 OnItemSlotChanged?.Invoke(slotIndex);
             }
