@@ -32,38 +32,44 @@ namespace Entity.Inventory
             }
         }
 
+        public bool TryAddItem(PotionData data, int quantity)
+        {
+            if (data == null || quantity <= 0)
+            {
+                return false;
+            }
+
+            if (_itemFinder.TryGetValue(data, out int existingIndex))
+            {
+                _inventorySlots[existingIndex].AddQuantity(quantity);
+                return true;
+            }
+
+            if (_occupiedSlots >= _maxSlotSize)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < _inventorySlots.Length; i++)
+            {
+                if (!_inventorySlots[i].IsDataEmpty())
+                {
+                    continue;
+                }
+
+                _inventorySlots[i].SetItem(data, quantity);
+                _itemFinder.Add(data, i);
+                _occupiedSlots++;
+
+                return true;
+            }
+
+            return false;
+        }
+
         public void AddItem(PotionData data, int quantity)
         {
-            if(data == null || quantity <= 0)
-            {
-                return;
-            }
-
-            if (CheckItemExists(data))
-            {
-                int index = _itemFinder[data];
-                _inventorySlots[index].AddQuantity(quantity);
-            }
-            else
-            {
-                if(_occupiedSlots >= _maxSlotSize)
-                {
-                    Debug.LogWarning("Inventory is full. Cannot add more items.");
-                    return;
-                }
-
-                for(int i = 0 ; i < _maxSlotSize; i++)
-                {
-                    if(_inventorySlots[i].IsDataEmpty())
-                    {
-                        _inventorySlots[i].SetItem(data, quantity);
-                        _itemFinder[data] = i;
-                        _occupiedSlots++;
-
-                        break;
-                    }
-                }
-            }
+            TryAddItem(data, quantity);
         }
 
         public bool TryConsumeItem(int slotIndex, int quantity, out PotionData consumedPotion)

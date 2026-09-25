@@ -3,7 +3,7 @@ using Entity.Inventory;
 using System;
 
 [RequireComponent(typeof(EntityInventory))]
-public class PlayerInventoryModule : MonoBehaviour
+public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
 {
     [SerializeField] private EntityInventory _inventory;
     private int _selectedSlotIndex = -1;
@@ -43,5 +43,8 @@ public class PlayerInventoryModule : MonoBehaviour
         return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedPotion);
     }
 
-    
+    public bool TryReceive(PotionData data, int quantity)
+    {
+        return _inventory.TryAddItem(data, quantity);
+    }
 }
