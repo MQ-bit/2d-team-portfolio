@@ -13,9 +13,9 @@ public static class PotionEffectResolver
     public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target)
     {
         if (data == null || target == null) return;
-
+    
         ApplyHealthEffect(data.Element, data.DrinkEffectAmount, target);
-        target.RestoreThirst(data.DrinkThirstRecoveryAmount);
+        target.RestoreThirst(data.DrinkThirstRecoveryAmount); //TODO : 포션을 마시면 Thirsty는 감소해야한다! 근데 여긴 증가되므로 수정하기
         ApplyStatusEffect(data, target);
     }
 

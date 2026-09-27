@@ -3,13 +3,15 @@ using UnityEngine;
 
 public class PlayerStatus : MonoBehaviour, IThirstable
 {
-    [Header("Potion Effect Receiver")]
+    [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
 
-    [Header("Player Thirst Settings")] //인터페이스 분리?
-    [SerializeField, Min(1f)] private float _maxThirst = 100f;
-    [SerializeField, Min(0f)] private float _initThirst = 100f;
-    [SerializeField] private EntityThirst _thirstInstance;
+    [Header("Player Thirst Settings")] //TODO: 하나의 ScriptableObject로 두는게..?
+    [SerializeField, Min(1f)] private float _initMaxThirst = 100f;
+    [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
+    [SerializeField, Min(0f)] private float _itnitThirstIncreaseAmount = 1f; //초당 감소 정도
+    [SerializeField] private float _initThirstIncreaseInterval = 10f; //감소 간격
+    [SerializeField] private EntityThirst _thirstStatInstance;
 
     [Header("Movement Settings")]
     [SerializeField] private float _speed = 5f;
@@ -22,17 +24,14 @@ public class PlayerStatus : MonoBehaviour, IThirstable
     [Header("Throw Settings")]
     [SerializeField] private float _maxThrowDistance = 6f;
 
-    public float CurrentThirst => _thirstInstance.CurrentThirst;
-    public float MaxThirst => _thirstInstance.MaxThirst;
-
-    public bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+    public bool CanMove => _potionEffectReceiver.CanAct;
     public float Speed => CanMove ? _speed : 0f;
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
     public float DashDuration => _dashDuration;
     public float DashCooltime => _dashCooltime;
     public float MaxThrowDistance => _maxThrowDistance;
 
-    public event Action<float, float, float> OnThirstChanged; //previous, current, max
+    public event Action<float, float> OnThirstChanged; //current, max
 
 
     private void Awake()
@@ -47,8 +46,16 @@ public class PlayerStatus : MonoBehaviour, IThirstable
 
     private void InitiateStatus()
     {
-        _thirstInstance = new EntityThirst(_initThirst, _maxThirst);
+        _thirstStatInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
         //_health = new EntityHealth(_initHealth, _maxHealth);
+    }
+
+    private void Update()
+    {
+        if (_thirstStatInstance.IncreaseTick(Time.deltaTime))
+        {
+            OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
+        }
     }
 
 
@@ -64,17 +71,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable
 
     public void RestoreThirst(float amount)
     {
-        float previousThirst = _thirstInstance.CurrentThirst;
-        _thirstInstance.RestoreThirst(amount);       
+        _thirstStatInstance.RestoreThirst(amount);       
 
-        OnThirstChanged?.Invoke(previousThirst, _thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+        OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
     }
 
     public void DecreaseThirst(float amount)
     {
-        float previousThirst = _thirstInstance.CurrentThirst;
-        _thirstInstance.DecreaseThirst(amount);
+        _thirstStatInstance.DecreaseThirst(amount);
 
-        OnThirstChanged?.Invoke(previousThirst, _thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+        OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
     }
 }

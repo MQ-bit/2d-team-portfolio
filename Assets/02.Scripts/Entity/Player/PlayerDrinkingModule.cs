@@ -9,7 +9,6 @@ public class PlayerDrinkingModule : MonoBehaviour
     
     [Header("Drink Settings")]
     [SerializeField] private float _drinkDuration = 1f; //TODO: Scriptable Object로 초기화하는 로직 반영
-
     [SerializeField] private float _drinkTimer = 0f; //TODO: Progress를 확인하고자 SerializeField로 노출함. 디버그 끝나고 롤백시키기
 
     public bool IsDrinking {get; private set;}
@@ -97,7 +96,7 @@ public class PlayerDrinkingModule : MonoBehaviour
             return;
         }
 
-        PotionEffectResolver.ApplyDrinkEffect(consumedPotion, _effectReceiver); //TODO: 굳이 이 클래스를 Static으로 둘 필요가 있는지 고려 
+        PotionEffectResolver.ApplyDrinkEffect(consumedPotion, _effectReceiver); //TODO: 굳이 이 클래스를 Static으로 둘 필요가 있는지 고려. 뭔가 Receiver가 Potion효과적용 + Status Thirsty 증가 를 해줬으면 좋을지도
         ResetState();
     }
 
