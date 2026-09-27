@@ -1,14 +1,15 @@
 using System;
 using UnityEngine;
 
-public class PlayerStatus : MonoBehaviour
+public class PlayerStatus : MonoBehaviour, IThirstable
 {
-    [Header("Potion Effect")]
+    [Header("Potion Effect Receiver")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
 
-    [Header("Player Thirst")]
+    [Header("Player Thirst Settings")] //인터페이스 분리?
     [SerializeField, Min(1f)] private float _maxThirst = 100f;
-    [SerializeField, Min(0f)] private float _currentThirst = 100f;
+    [SerializeField, Min(0f)] private float _initThirst = 100f;
+    [SerializeField] private EntityThirst _thirstInstance;
 
     [Header("Movement Settings")]
     [SerializeField] private float _speed = 5f;
@@ -21,10 +22,9 @@ public class PlayerStatus : MonoBehaviour
     [Header("Throw Settings")]
     [SerializeField] private float _maxThrowDistance = 6f;
 
-    public event Action<float, float> ThirstChanged;
+    public float CurrentThirst => _thirstInstance.CurrentThirst;
+    public float MaxThirst => _thirstInstance.MaxThirst;
 
-    public float CurrentThirst => _currentThirst;
-    public float MaxThirst => _maxThirst;
     public bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
     public float Speed => CanMove ? _speed : 0f;
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
@@ -32,9 +32,12 @@ public class PlayerStatus : MonoBehaviour
     public float DashCooltime => _dashCooltime;
     public float MaxThrowDistance => _maxThrowDistance;
 
+    public event Action<float, float, float> OnThirstChanged; //previous, current, max
+
+
     private void Awake()
     {
-        _currentThirst = Mathf.Clamp(_currentThirst, 0f, _maxThirst);
+        InitiateStatus();
 
         if (_potionEffectReceiver == null)
         {
@@ -42,9 +45,36 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
+    private void InitiateStatus()
+    {
+        _thirstInstance = new EntityThirst(_initThirst, _maxThirst);
+        //_health = new EntityHealth(_initHealth, _maxHealth);
+    }
+
+
+    // public void RestoreHealth(float amount)
+    // {
+    //     _health.RestoreHealth(amount);
+    // }
+
+    // public void DecreaseHealth(float amount)
+    // {
+    //     _health.DecreaseHealth(amount);
+    // }
+
     public void RestoreThirst(float amount)
     {
-        _currentThirst = Mathf.Clamp(_currentThirst + Mathf.Max(0f, amount), 0f, _maxThirst);
-        ThirstChanged?.Invoke(_currentThirst, _maxThirst);
+        float previousThirst = _thirstInstance.CurrentThirst;
+        _thirstInstance.RestoreThirst(amount);       
+
+        OnThirstChanged?.Invoke(previousThirst, _thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+    }
+
+    public void DecreaseThirst(float amount)
+    {
+        float previousThirst = _thirstInstance.CurrentThirst;
+        _thirstInstance.DecreaseThirst(amount);
+
+        OnThirstChanged?.Invoke(previousThirst, _thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
     }
 }
