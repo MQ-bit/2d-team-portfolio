@@ -31,7 +31,7 @@ public sealed class PotionData : ScriptableObject
 
     [Header("Drink Effect")]
     [SerializeField, Min(0f)] private float _drinkEffectAmount;
-
+    [Tooltip("Positive values restore hydration; negative values reduce it.")]
     [SerializeField] private float _drinkThirstRecoveryAmount;
 
     [Header("Visual")]
@@ -41,6 +41,7 @@ public sealed class PotionData : ScriptableObject
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
     public PotionElement Element => _element;
     public float AreaWidth => _areaWidth;
+    public float AreaRadius => AreaWidth * 0.5f;
     public float AreaDuration => _areaDuration;
     public float AreaEffectAmount => _areaEffectAmount;
     public float TickInterval => _tickInterval;
@@ -49,8 +50,8 @@ public sealed class PotionData : ScriptableObject
     public float DrinkThirstRecoveryAmount => _drinkThirstRecoveryAmount;
     public PotionVisualData VisualData => _visualData;
 
-    public bool HasAreaEffect => AreaDuration > 0f && AreaWidth > 0f;
-    public bool HasPeriodicAreaEffect => AreaEffectAmount > 0f && TickInterval > 0f;
+    public bool CreatesGroundArea => Element != PotionElement.Vaporization && AreaDuration > 0f && AreaWidth > 0f;
+    public bool HasPeriodicAreaEffect => CreatesGroundArea && AreaEffectAmount > 0f && TickInterval > 0f;
 
     private void OnValidate()
     {

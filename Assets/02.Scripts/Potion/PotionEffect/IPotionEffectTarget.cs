@@ -1,9 +1,3 @@
-public enum PotionTargetKind
-{
-    Player,
-    Enemy
-}
-
 public enum PotionStatusEffect
 {
     Burning,
@@ -14,7 +8,6 @@ public enum PotionStatusEffect
 
 public interface IPotionEffectTarget
 {
-    PotionTargetKind TargetKind { get; }
     void ModifyHealth(float amount);
     void RestoreThirst(float amount);
     void ApplyStatus(PotionStatusEffect status, float duration);

@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Health))]
 public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 {
-    [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
+    [SerializeField] private bool _enableDebugLogs = true;
     [SerializeField] private Health _health;
     [SerializeField] private PlayerStatus _playerStatus;
 
@@ -13,8 +13,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     private float _burningUntil;
     private float _poisonedUntil;
 
-    public PotionTargetKind TargetKind => _targetKind;
-    public Health Health => _health;
     public bool IsBurning => Time.time < _burningUntil;
     public bool IsPoisoned => Time.time < _poisonedUntil;
     public bool IsFrozen => Time.time < _frozenUntil;
@@ -28,7 +26,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
             _health = GetComponent<Health>();
         }
 
-        if (_targetKind == PotionTargetKind.Player && _playerStatus == null)
+        if (_playerStatus == null)
         {
             _playerStatus = GetComponent<PlayerStatus>();
         }
@@ -44,10 +42,13 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
         float previousHealth = _health.Current;
         _health.Modify(amount);
-        Debug.Log(
-            $"[PotionEffectReceiver] Health changed: target={name}, " +
-            $"amount={amount}, {previousHealth} -> {_health.Current}",
-            this);
+        if (_enableDebugLogs)
+        {
+            Debug.Log(
+                $"[PotionEffectReceiver] Health changed: target={name}, " +
+                $"amount={amount}, {previousHealth} -> {_health.Current}",
+                this);
+        }
     }
 
     public void RestoreThirst(float amount)
@@ -57,7 +58,12 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void ApplyStatus(PotionStatusEffect status, float duration)
     {
-        float expiresAt = Time.time + Mathf.Max(0f, duration);
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        float expiresAt = Time.time + duration;
         switch (status)
         {
             case PotionStatusEffect.Burning:

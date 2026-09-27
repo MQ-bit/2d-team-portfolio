@@ -13,7 +13,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
-    [SerializeField] private float _throwSpeed = 8f;
+    [SerializeField, Min(0.01f)] private float _throwSpeed = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
@@ -150,8 +150,10 @@ public class PlayerThrowingModule : MonoBehaviour
         if (_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
-            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-            proj.Launch(consumedPotion, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+            float distance = Vector2.Distance(startPosition, targetPosition);
+            float flightDuration = distance / Mathf.Max(0.01f, _throwSpeed);
+            PotionProjectile projectile = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+            projectile.Launch(consumedPotion, targetPosition, flightDuration, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()

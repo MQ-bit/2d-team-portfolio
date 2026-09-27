@@ -106,8 +106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71fe3b7eb6ff3694e897ff2b8a39435c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionGroundArea
-  _radius: 1.5
-  _duration: 3
 --- !u!58 &6075459067124031843
 CircleCollider2D:
   m_ObjectHideFlags: 0

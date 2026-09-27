@@ -1,32 +1,41 @@
 using UnityEngine;
 
-public class PotionDrinkEffect : MonoBehaviour
+public sealed class PotionDrinkEffect : MonoBehaviour
 {
+    [SerializeField] private bool _enableDebugLogs = true;
+
     public bool Apply(PotionData data, GameObject targetObject)
     {
         if (data == null || targetObject == null)
         {
-            Debug.LogWarning(
-                $"[PotionDrinkEffect] Apply failed: dataMissing={data == null}, " +
-                $"targetMissing={targetObject == null}",
+            LogWarning(
+                $"Apply failed: dataMissing={data == null}, targetMissing={targetObject == null}",
                 this);
             return false;
         }
 
-        IPotionEffectTarget target = PotionEffectResolver.FindTarget(targetObject.transform);
-        if (target == null)
+        if (!PotionEffectResolver.TryFindTarget(targetObject.transform, out IPotionEffectTarget target))
         {
-            Debug.LogWarning(
-                $"[PotionDrinkEffect] Apply failed: target={targetObject.name} has no IPotionEffectTarget.",
-                targetObject);
+            LogWarning($"Apply failed: target={targetObject.name} has no IPotionEffectTarget.", targetObject);
             return false;
         }
 
-        Debug.Log(
-            $"[PotionDrinkEffect] Apply: potion={data.Name}, target={targetObject.name}, " +
-            $"healthAmount={data.DrinkEffectAmount}, thirstAmount={data.DrinkThirstRecoveryAmount}",
-            targetObject);
+        if (_enableDebugLogs)
+        {
+            Debug.Log(
+                $"[PotionDrinkEffect] Apply: potion={data.Name}, target={targetObject.name}, " +
+                $"healthAmount={data.DrinkEffectAmount}, thirstAmount={data.DrinkThirstRecoveryAmount}",
+                targetObject);
+        }
         PotionEffectResolver.ApplyDrinkEffect(data, target);
         return true;
+    }
+
+    private void LogWarning(string message, Object context)
+    {
+        if (_enableDebugLogs)
+        {
+            Debug.LogWarning($"[PotionDrinkEffect] {message}", context);
+        }
     }
 }

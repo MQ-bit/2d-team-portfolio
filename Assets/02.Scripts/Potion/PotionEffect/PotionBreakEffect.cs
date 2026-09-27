@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class PotionBreakEffect : MonoBehaviour
+public sealed class PotionBreakEffect : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform _visual;

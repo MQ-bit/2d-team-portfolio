@@ -7,7 +7,6 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
 {
     [SerializeField] private EntityInventory _inventory;
     private int _selectedSlotIndex = -1;
-    private PotionData _selctedPotionData;
 
     public event Action<int> OnSelectedSlotChanged; // TODO : UI 연결 
     public int SelectedSlotIndex => _selectedSlotIndex;
@@ -29,7 +28,6 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         if (_selectedSlotIndex == index) return;
 
         _selectedSlotIndex = index;
-        _selctedPotionData = _inventory.GetPotionData(index);
         OnSelectedSlotChanged?.Invoke(index);
     }
 

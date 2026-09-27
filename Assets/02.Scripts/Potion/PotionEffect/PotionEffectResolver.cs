@@ -4,7 +4,10 @@ public static class PotionEffectResolver
 {
     public static void ApplyAreaEffect(PotionData data, IPotionEffectTarget target)
     {
-        if (data == null || target == null) return;
+        if (data == null || target == null)
+        {
+            return;
+        }
 
         ApplyHealthEffect(data.Element, data.AreaEffectAmount, target);
         ApplyStatusEffect(data, target);
@@ -12,34 +15,43 @@ public static class PotionEffectResolver
 
     public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target)
     {
-        if (data == null || target == null) return;
+        if (data == null || target == null)
+        {
+            return;
+        }
 
         ApplyHealthEffect(data.Element, data.DrinkEffectAmount, target);
         target.RestoreThirst(data.DrinkThirstRecoveryAmount);
         ApplyStatusEffect(data, target);
     }
 
-    public static IPotionEffectTarget FindTarget(Component component)
+    public static bool TryFindTarget(Component component, out IPotionEffectTarget target)
     {
         Transform current = component == null ? null : component.transform;
         while (current != null)
         {
-            MonoBehaviour[] behaviours = current.GetComponents<MonoBehaviour>();
-            for (int i = 0; i < behaviours.Length; i++)
+            target = current.GetComponent<IPotionEffectTarget>();
+            if (target != null)
             {
-                if (behaviours[i] is IPotionEffectTarget target) return target;
+                return true;
             }
 
             current = current.parent;
         }
 
-        return null;
+        target = null;
+        return false;
     }
 
     private static void ApplyHealthEffect(PotionElement element, float amount, IPotionEffectTarget target)
     {
-        if (amount <= 0f) return;
-        target.ModifyHealth(element == PotionElement.Heal ? amount : -amount);
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        float signedAmount = element == PotionElement.Heal ? amount : -amount;
+        target.ModifyHealth(signedAmount);
     }
 
     private static void ApplyStatusEffect(PotionData data, IPotionEffectTarget target)

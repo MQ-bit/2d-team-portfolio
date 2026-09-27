@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1516075911550833291}
   - component: {fileID: 5589788109317256324}
   - component: {fileID: -9193516370213306757}
+  - component: {fileID: 5000000000000000001}
   m_Layer: 0
   m_Name: TestPotion
   m_TagString: Untagged
@@ -160,5 +161,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71fe3b7eb6ff3694e897ff2b8a39435c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionGroundArea
-  _duration: 3
-  _radius: 1.5
+--- !u!114 &5000000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4122200703236666151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9685648d4064e344eae75e7c190e5197, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PotionAreaEffect
+  _enableDebugLogs: 1
