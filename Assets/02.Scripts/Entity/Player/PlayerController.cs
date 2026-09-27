@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerMovementModule _movementModule;
     [SerializeField] private PlayerThrowingModule _throwingModule;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
+    [SerializeField] private PlayerDrinkingModule _drinkingModule;
 
     private void Awake()
     {
@@ -22,22 +23,18 @@ public class PlayerController : MonoBehaviour
         if (_movementModule == null)
         {
             _movementModule = GetComponent<PlayerMovementModule>();
-            if (_movementModule == null)
-            {
-                Debug.LogError($"{gameObject.name} : PlayerMovementModule 이 할당 안됨");
-            }
         }
         if (_throwingModule == null)
         {
             _throwingModule = GetComponent<PlayerThrowingModule>();
-            if (_throwingModule == null)
-            {
-                Debug.LogError($"{gameObject.name} : PlayerThrowingModule 이 할당 안됨");
-            }
         }
         if (_inventoryModule == null)
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
+        }
+        if ( _drinkingModule == null)
+        {
+            _drinkingModule = GetComponent<PlayerDrinkingModule>();
         }
     }
 
@@ -61,6 +58,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnThrowStart += HandleThrowStarted;
         _inputSO.OnThrowEnd += HandleThrowReleased;
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
+        _inputSO.OnDrinkInputChanged += HandleDrinkInputChanged;
     }
 
     private void UnLinkInputEvents()
@@ -69,6 +67,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnThrowStart -= HandleThrowStarted;
         _inputSO.OnThrowEnd -= HandleThrowReleased;
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
+        _inputSO.OnDrinkInputChanged -= HandleDrinkInputChanged;
     }
 
     private void FixedUpdate()
@@ -96,11 +95,19 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        _movementModule.TryStartDash(moveInput);
+
+        if (_movementModule.TryStartDash(moveInput))
+        {
+            _drinkingModule.CancelDrink();
+        }
     }
 
     private void HandleThrowStarted(Vector2 screenPosition)
     {
+        if (_drinkingModule.IsDrinking)
+        {
+            return;
+        }
         _throwingModule.BeginAim(screenPosition);
     }
 
@@ -111,6 +118,27 @@ public class PlayerController : MonoBehaviour
 
     private void HandleItemSlotChanged(int newSlotIndex)
     {
+        if(_drinkingModule.IsDrinking)
+        {
+            return;
+        }
+
         _inventoryModule.SelectSlot(newSlotIndex);
+    }
+
+    private void HandleDrinkInputChanged(bool isHolding)
+    {
+        if (!isHolding)
+        {
+            _drinkingModule.CancelDrink();
+            return;
+        }
+
+        if(_throwingModule.IsAiming || _movementModule.IsDashing)
+        {
+            return;
+        }
+
+        _drinkingModule.TryBeginDrink();
     }
 }

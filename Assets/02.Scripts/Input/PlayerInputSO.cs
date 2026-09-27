@@ -12,17 +12,20 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     private Vector2 _moveInput = Vector2.zero;
     private Vector2 _mousePosition = Vector2.zero;
     private bool _isThrowHolding = false;
+    private bool _isDrinkingHolding = false;
 
     //Properties
     public Vector2 MoveInput => _moveInput;
     public Vector2 MousePosition => _mousePosition;
     public bool IsThrowHolding => _isThrowHolding;
+    public bool IsDrinkingHolding => _isDrinkingHolding;
 
     //Events
     public event Action OnMoveInput;
     public event Action<Vector2> OnThrowStart;
     public event Action<Vector2> OnThrowEnd;
     public event Action<int> OnItemSlotChanged;
+    public event Action<bool> OnDrinkInputChanged;
 
     private void OnEnable()
     {
@@ -38,6 +41,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     private void OnDisable()
     {
         _isThrowHolding = false;
+        _isDrinkingHolding = false;
         _playerInput.Player.Disable();
     }
 
@@ -111,6 +115,24 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
             {
                 OnItemSlotChanged?.Invoke(slotIndex);
             }
+        }
+    }
+
+    public void OnPotionDrink(CallbackContext context)
+    {
+        if(context.performed)
+        {
+            if(_isDrinkingHolding) return;
+
+            _isDrinkingHolding = true;
+            OnDrinkInputChanged?.Invoke(true);
+            return;
+        }
+
+        if(context.canceled && _isDrinkingHolding)
+        {
+            _isDrinkingHolding = false;
+            OnDrinkInputChanged?.Invoke(false);
         }
     }
 }
