@@ -44,7 +44,7 @@ public class PlayerStatus : MonoBehaviour
 
     public void RestoreThirst(float amount)
     {
-        _currentThirst = Mathf.Clamp(_currentThirst + Mathf.Max(0f, amount), 0f, _maxThirst);
+        _currentThirst = Mathf.Clamp(_currentThirst + amount, 0f, _maxThirst);
         ThirstChanged?.Invoke(_currentThirst, _maxThirst);
     }
 }

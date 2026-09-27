@@ -50,8 +50,6 @@ public static class PotionEffectResolver
             PotionElement.Poison => PotionStatusEffect.Poisoned,
             PotionElement.Ice => PotionStatusEffect.Frozen,
             PotionElement.Lightning => PotionStatusEffect.Paralyzed,
-            PotionElement.Flash when target.TargetKind == PotionTargetKind.Player => PotionStatusEffect.Revealed,
-            PotionElement.Flash => PotionStatusEffect.Blinded,
             _ => null
         };
 

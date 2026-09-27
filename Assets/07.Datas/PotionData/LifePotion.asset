@@ -16,12 +16,12 @@ MonoBehaviour:
   _displayName: 생명의 물약
   _element: 4
   _areaWidth: 3
-  _areaDuration: 3
-  _areaEffectAmount: 20
-  _tickInterval: 1
-  _effectDuration: 3
-  _drinkEffectAmount: 20
-  _drinkThirstRecoveryAmount: 10
+  _areaDuration: 0
+  _areaEffectAmount: 30
+  _tickInterval: 0
+  _effectDuration: 0
+  _drinkEffectAmount: 0
+  _drinkThirstRecoveryAmount: 40
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 0.3, g: 1, b: 0.45, a: 0.65}

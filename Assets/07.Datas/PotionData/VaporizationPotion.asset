@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f95fa3d42bbd1cc4b91d522442a7e369, type: 3}
-  m_Name: FlashPotion
+  m_Name: VaporizationPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
-  _id: flash_potion
-  _displayName: 섬광의 물약
+  _id: vaporization_potion
+  _displayName: 기화의 물약
   _element: 6
   _areaWidth: 3
-  _areaDuration: 3
-  _areaEffectAmount: 1
+  _areaDuration: 0
+  _areaEffectAmount: 0
   _tickInterval: 0
-  _effectDuration: 3
-  _drinkEffectAmount: 1
-  _drinkThirstRecoveryAmount: 10
+  _effectDuration: 0
+  _drinkEffectAmount: 0
+  _drinkThirstRecoveryAmount: -30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 1, b: 0.8, a: 0.65}

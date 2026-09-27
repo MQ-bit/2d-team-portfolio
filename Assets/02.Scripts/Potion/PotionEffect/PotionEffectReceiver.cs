@@ -10,8 +10,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private float _frozenUntil;
     private float _paralyzedUntil;
-    private float _blindedUntil;
-    private float _revealedUntil;
     private float _burningUntil;
     private float _poisonedUntil;
 
@@ -21,8 +19,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public bool IsPoisoned => Time.time < _poisonedUntil;
     public bool IsFrozen => Time.time < _frozenUntil;
     public bool IsParalyzed => Time.time < _paralyzedUntil;
-    public bool IsBlinded => Time.time < _blindedUntil;
-    public bool IsRevealed => Time.time < _revealedUntil;
     public bool CanAct => !IsFrozen && !IsParalyzed;
 
     private void Awake()
@@ -40,7 +36,18 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void ModifyHealth(float amount)
     {
-        _health?.Modify(amount);
+        if (_health == null)
+        {
+            Debug.LogWarning($"[PotionEffectReceiver] Health is missing: target={name}", this);
+            return;
+        }
+
+        float previousHealth = _health.Current;
+        _health.Modify(amount);
+        Debug.Log(
+            $"[PotionEffectReceiver] Health changed: target={name}, " +
+            $"amount={amount}, {previousHealth} -> {_health.Current}",
+            this);
     }
 
     public void RestoreThirst(float amount)
@@ -64,12 +71,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
                 break;
             case PotionStatusEffect.Paralyzed:
                 _paralyzedUntil = Mathf.Max(_paralyzedUntil, expiresAt);
-                break;
-            case PotionStatusEffect.Blinded:
-                _blindedUntil = Mathf.Max(_blindedUntil, expiresAt);
-                break;
-            case PotionStatusEffect.Revealed:
-                _revealedUntil = Mathf.Max(_revealedUntil, expiresAt);
                 break;
         }
     }

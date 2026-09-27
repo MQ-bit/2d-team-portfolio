@@ -16,12 +16,12 @@ MonoBehaviour:
   _displayName: 화염의 물약
   _element: 1
   _areaWidth: 3
-  _areaDuration: 5
-  _areaEffectAmount: 10
+  _areaDuration: 4
+  _areaEffectAmount: 8
   _tickInterval: 1
-  _effectDuration: 5
-  _drinkEffectAmount: 10
-  _drinkThirstRecoveryAmount: 10
+  _effectDuration: 4
+  _drinkEffectAmount: 25
+  _drinkThirstRecoveryAmount: 30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 0.2, b: 0.05, a: 0.65}

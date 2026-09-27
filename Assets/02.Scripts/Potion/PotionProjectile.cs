@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PotionProjectile : MonoBehaviour
@@ -74,7 +75,15 @@ public class PotionProjectile : MonoBehaviour
             breakEffect.Play();
         }
 
-        if (_groundAreaPrefab != null)
+        if (_potionData != null && _potionData.Element == PotionElement.Vaporization)
+        {
+            RemoveGroundAreas();
+        }
+        else if (_potionData != null && _potionData.AreaDuration <= 0f)
+        {
+            ApplyInstantAreaEffect();
+        }
+        else if (_groundAreaPrefab != null)
         {
             PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
             groundArea.Initialize(_potionData);
@@ -82,5 +91,35 @@ public class PotionProjectile : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    private void ApplyInstantAreaEffect()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(_targetPosition, _potionData.AreaWidth * 0.5f);
+        HashSet<IPotionEffectTarget> affectedTargets = new();
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            IPotionEffectTarget target = PotionEffectResolver.FindTarget(hits[i]);
+            if (target != null && affectedTargets.Add(target))
+            {
+                PotionEffectResolver.ApplyAreaEffect(_potionData, target);
+            }
+        }
+    }
+
+    private void RemoveGroundAreas()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(_targetPosition, _potionData.AreaWidth * 0.5f);
+        HashSet<PotionGroundArea> groundAreas = new();
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            PotionGroundArea groundArea = hits[i].GetComponentInParent<PotionGroundArea>();
+            if (groundArea != null && groundAreas.Add(groundArea))
+            {
+                Destroy(groundArea.gameObject);
+            }
+        }
     }
 }

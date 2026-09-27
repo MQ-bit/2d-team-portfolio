@@ -16,12 +16,12 @@ MonoBehaviour:
   _displayName: 서리의 물약
   _element: 3
   _areaWidth: 3
-  _areaDuration: 3
-  _areaEffectAmount: 3
+  _areaDuration: 2
+  _areaEffectAmount: 10
   _tickInterval: 0
-  _effectDuration: 3
-  _drinkEffectAmount: 3
-  _drinkThirstRecoveryAmount: 10
+  _effectDuration: 2
+  _drinkEffectAmount: 15
+  _drinkThirstRecoveryAmount: 30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 0.2, g: 0.75, b: 1, a: 0.65}

@@ -20,8 +20,8 @@ MonoBehaviour:
   _areaEffectAmount: 5
   _tickInterval: 1
   _effectDuration: 5
-  _drinkEffectAmount: 5
-  _drinkThirstRecoveryAmount: 10
+  _drinkEffectAmount: 30
+  _drinkThirstRecoveryAmount: 30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 0.55, g: 0.15, b: 0.8, a: 0.65}

@@ -9,9 +9,7 @@ public enum PotionStatusEffect
     Burning,
     Poisoned,
     Frozen,
-    Paralyzed,
-    Blinded,
-    Revealed
+    Paralyzed
 }
 
 public interface IPotionEffectTarget

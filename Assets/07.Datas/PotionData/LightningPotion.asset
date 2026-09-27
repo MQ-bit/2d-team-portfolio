@@ -16,12 +16,12 @@ MonoBehaviour:
   _displayName: 전기의 물약
   _element: 5
   _areaWidth: 3
-  _areaDuration: 3
-  _areaEffectAmount: 5
+  _areaDuration: 2
+  _areaEffectAmount: 12
   _tickInterval: 0
-  _effectDuration: 3
-  _drinkEffectAmount: 5
-  _drinkThirstRecoveryAmount: 10
+  _effectDuration: 2
+  _drinkEffectAmount: 20
+  _drinkThirstRecoveryAmount: 30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}
