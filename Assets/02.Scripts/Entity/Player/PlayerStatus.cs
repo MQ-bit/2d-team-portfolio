@@ -1,10 +1,16 @@
 using System;
 using UnityEngine;
 
-public class PlayerStatus : MonoBehaviour, IThirstable
+public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 {
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
+
+    [Header("Player Health Settings")]
+    [SerializeField, Min(1f)] private float _maxHealth = 100f;
+    [SerializeField, Min(0f)] private float _initHealth = 100f;
+    [SerializeField] private EntityHealth _healthInstance;
+
 
     [Header("Player Thirst Settings")] //TODO: 하나의 ScriptableObject로 두는게..?
     [SerializeField, Min(1f)] private float _initMaxThirst = 100f;
@@ -18,8 +24,6 @@ public class PlayerStatus : MonoBehaviour, IThirstable
 
     [Header("Dash Settings")]
     [SerializeField] private float _dashSpeed = 15f;
-    [SerializeField] private float _dashDuration = 0.2f;
-    [SerializeField] private float _dashCooltime = 1f;
 
     [Header("Throw Settings")]
     [SerializeField] private float _maxThrowDistance = 6f;
@@ -27,12 +31,13 @@ public class PlayerStatus : MonoBehaviour, IThirstable
     public bool CanMove => _potionEffectReceiver.CanAct;
     public float Speed => CanMove ? _speed : 0f;
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
-    public float DashDuration => _dashDuration;
-    public float DashCooltime => _dashCooltime;
     public float MaxThrowDistance => _maxThrowDistance;
 
-    public event Action<float, float> OnThirstChanged; //current, max
+    public bool IsDead => _healthInstance.IsDead;
 
+    public event Action<float, float> OnThirstChanged; //current, max
+    public event Action<float, float> OnHealthChanged; //current, max
+    public event Action OnDeath;
 
     private void Awake()
     {
@@ -47,7 +52,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable
     private void InitiateStatus()
     {
         _thirstStatInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
-        //_health = new EntityHealth(_initHealth, _maxHealth);
+        _healthInstance = new EntityHealth(_initHealth, _maxHealth);
     }
 
     private void Update()
@@ -58,16 +63,22 @@ public class PlayerStatus : MonoBehaviour, IThirstable
         }
     }
 
+    public void RestoreHealth(float amount)
+    {
+        _healthInstance.RestoreHealth(amount);
+        OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
+    }
 
-    // public void RestoreHealth(float amount)
-    // {
-    //     _health.RestoreHealth(amount);
-    // }
+    public void DecreaseHealth(float amount)
+    {
+        _healthInstance.DecreaseHealth(amount);
+        OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
 
-    // public void DecreaseHealth(float amount)
-    // {
-    //     _health.DecreaseHealth(amount);
-    // }
+        if( _healthInstance.IsDead)
+        {
+            OnDeath?.Invoke();
+        }
+    }
 
     public void RestoreThirst(float amount)
     {

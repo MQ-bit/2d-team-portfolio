@@ -1,11 +1,9 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-[RequireComponent(typeof(Health))]
 public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 {
     [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
-    [SerializeField] private Health _health;
     [SerializeField] private PlayerStatus _playerStatus;
 
     private float _frozenUntil;
@@ -16,7 +14,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     private float _poisonedUntil;
 
     public PotionTargetKind TargetKind => _targetKind;
-    public Health Health => _health;
     public bool IsBurning => Time.time < _burningUntil;
     public bool IsPoisoned => Time.time < _poisonedUntil;
     public bool IsFrozen => Time.time < _frozenUntil;
@@ -27,11 +24,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void Awake()
     {
-        if (_health == null)
-        {
-            _health = GetComponent<Health>();
-        }
-
         if (_targetKind == PotionTargetKind.Player && _playerStatus == null)
         {
             _playerStatus = GetComponent<PlayerStatus>();
@@ -40,7 +32,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void ModifyHealth(float amount)
     {
-        _health?.Modify(amount);
+        _playerStatus.RestoreHealth(amount);
     }
 
     public void RestoreThirst(float amount)
