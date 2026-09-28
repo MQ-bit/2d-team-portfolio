@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplodingEnemyController : MonoBehaviour, IDamageable
+public class ExplodingEnemyController : MonoBehaviour
 {
     private enum State
     {
@@ -19,11 +18,7 @@ public class ExplodingEnemyController : MonoBehaviour, IDamageable
     [SerializeField] private EnemyMovementModule _movementModule;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
     [SerializeField] private SpriteRenderer _spriteRenderer;
-
-    [Header("Health")]
-    [SerializeField, Min(1f)] private float _maxHealth = 100f;
-    [SerializeField, Min(0f)] private float _initHealth = 100f;
-    [SerializeField] private EntityHealth _health;
+    [SerializeField] private EnemyStatus _status;
 
     [Header("Fuse Visual")]
     [SerializeField] private Color _fuseBlinkColor = Color.white;
@@ -39,15 +34,11 @@ public class ExplodingEnemyController : MonoBehaviour, IDamageable
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
 
-    public bool IsDead => _health.IsDead;
-    public event Action<float, float> OnHealthChanged;
-    public event Action OnDeath;
-
     private void Awake()
     {
-        _health = new EntityHealth(_initHealth, _maxHealth);
-
         GetModules();
+
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
 
         if (_spriteRenderer != null)
         {
@@ -77,31 +68,36 @@ public class ExplodingEnemyController : MonoBehaviour, IDamageable
         {
             _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+        if (_status == null)
+        {
+            _status = GetComponent<EnemyStatus>();
+            if (_status == null)
+            {
+                Debug.LogError($"{gameObject.name} : EnemyStatus 가 할당 안됨");
+            }
+        }
     }
 
-    public void RestoreHealth(float amount)
+    private void OnEnable()
     {
-        _health.RestoreHealth(amount);
-        OnHealthChanged?.Invoke(_health.Current, _health.Max);
+        _status.OnDeath += HandleDeath;
+    }
+
+    private void OnDisable()
+    {
+        _status.OnDeath -= HandleDeath;
     }
 
     // 포션 등으로 죽으면 폭발하지 않고 그냥 사라진다.
-    public void DecreaseHealth(float amount)
+    private void HandleDeath()
     {
         if (_state == State.Exploded)
         {
             return;
         }
 
-        _health.DecreaseHealth(amount);
-        OnHealthChanged?.Invoke(_health.Current, _health.Max);
-
-        if (_health.IsDead)
-        {
-            _state = State.Exploded;
-            OnDeath?.Invoke();
-            Destroy(gameObject);
-        }
+        _state = State.Exploded;
+        Destroy(gameObject);
     }
 
     private void FixedUpdate()

@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangedEnemyController : MonoBehaviour, IDamageable
+public class RangedEnemyController : MonoBehaviour
 {
     private enum State
     {
@@ -18,11 +17,7 @@ public class RangedEnemyController : MonoBehaviour, IDamageable
     [Header("Module References")]
     [SerializeField] private EnemyMovementModule _movementModule;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
-
-    [Header("Health")]
-    [SerializeField, Min(1f)] private float _maxHealth = 100f;
-    [SerializeField, Min(0f)] private float _initHealth = 100f;
-    [SerializeField] private EntityHealth _health;
+    [SerializeField] private EnemyStatus _status;
 
     [Header("Attack")]
     [SerializeField] private Transform _firePoint;
@@ -36,15 +31,11 @@ public class RangedEnemyController : MonoBehaviour, IDamageable
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
 
-    public bool IsDead => _health.IsDead;
-    public event Action<float, float> OnHealthChanged;
-    public event Action OnDeath;
-
     private void Awake()
     {
-        _health = new EntityHealth(_initHealth, _maxHealth);
-
         GetModules();
+
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
     }
 
     private void GetModules()
@@ -69,31 +60,36 @@ public class RangedEnemyController : MonoBehaviour, IDamageable
         {
             _firePoint = transform;
         }
+        if (_status == null)
+        {
+            _status = GetComponent<EnemyStatus>();
+            if (_status == null)
+            {
+                Debug.LogError($"{gameObject.name} : EnemyStatus 가 할당 안됨");
+            }
+        }
     }
 
-    public void RestoreHealth(float amount)
+    private void OnEnable()
     {
-        _health.RestoreHealth(amount);
-        OnHealthChanged?.Invoke(_health.Current, _health.Max);
+        _status.OnDeath += HandleDeath;
+    }
+
+    private void OnDisable()
+    {
+        _status.OnDeath -= HandleDeath;
     }
 
     // 포션 등으로 죽으면 그냥 사라진다.
-    public void DecreaseHealth(float amount)
+    private void HandleDeath()
     {
         if (_state == State.Dead)
         {
             return;
         }
 
-        _health.DecreaseHealth(amount);
-        OnHealthChanged?.Invoke(_health.Current, _health.Max);
-
-        if (_health.IsDead)
-        {
-            _state = State.Dead;
-            OnDeath?.Invoke();
-            Destroy(gameObject);
-        }
+        _state = State.Dead;
+        Destroy(gameObject);
     }
 
     private void FixedUpdate()

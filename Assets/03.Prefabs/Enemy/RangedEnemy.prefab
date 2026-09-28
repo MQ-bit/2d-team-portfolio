@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3123679725305364599}
   - component: {fileID: 3824663352301433379}
   - component: {fileID: 8398785202606945658}
+  - component: {fileID: 8195223905280176764}
   m_Layer: 0
   m_Name: RangedEnemy
   m_TagString: Untagged
@@ -201,10 +202,18 @@ MonoBehaviour:
   _data: {fileID: 11400000, guid: f335248cfdfe5ef439ad2f65fccdac06, type: 2}
   _movementModule: {fileID: 0}
   _potionEffectReceiver: {fileID: 0}
-  _maxHealth: 100
-  _initHealth: 100
-  _health:
-    _maxHealth: 0
-    _currentHealth: 0
+  _status: {fileID: 8195223905280176764}
   _firePoint: {fileID: 0}
   _projectilePrefab: {fileID: 1859200759718798549, guid: 6be78a08af071b24d86d3306ef2ebd5b, type: 3}
+--- !u!114 &8195223905280176764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a7691435084b0741a3719a876b4d1e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStatus

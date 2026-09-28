@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449dd970b02c9c64285fcac6c9404098, type: 3}
   m_Name: RangedEnemy
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
+  _maxHealth: 100
   _moveSpeed: 2.5
   _detectRange: 9999
   _attackRange: 4

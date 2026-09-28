@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2535699552048040419}
   - component: {fileID: 7796905842450013095}
   - component: {fileID: 7609875869182641865}
+  - component: {fileID: 8569971679628304962}
   m_Layer: 0
   m_Name: EliteExplodingEnemy
   m_TagString: Untagged
@@ -202,10 +203,18 @@ MonoBehaviour:
   _movementModule: {fileID: 7796905842450013095}
   _potionEffectReceiver: {fileID: 2535699552048040419}
   _spriteRenderer: {fileID: 537129846284718508}
-  _maxHealth: 100
-  _initHealth: 100
-  _health:
-    _maxHealth: 0
-    _currentHealth: 0
+  _status: {fileID: 8569971679628304962}
   _fuseBlinkColor: {r: 1, g: 1, b: 1, a: 1}
   _fuseBlinkSpeed: 12
+--- !u!114 &8569971679628304962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860674803404275474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a7691435084b0741a3719a876b4d1e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStatus
