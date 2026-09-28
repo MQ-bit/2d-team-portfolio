@@ -15,6 +15,7 @@ public class PotionAreaEffect : MonoBehaviour
     private PotionCombinationEffectResolver.Result _combination;
     private IDamageable _combinationOwner;
     private float _combinationExpiresAt;
+    private bool _removeCombinationStatusesOnDisable = true;
 
     public bool HasCombination => _hasCombination;
     private float TickInterval => _hasCombination ? _combination.TickInterval : _data.TickInterval;
@@ -30,7 +31,7 @@ public class PotionAreaEffect : MonoBehaviour
     }
 
     public void ReplaceWithCombination(PotionCombinationEffectResolver.Result combination,
-        IDamageable owner, float expiresAt)
+        IDamageable owner, float expiresAt, bool removeStatusesOnDisable = true)
     {
         StopAllCoroutines();
         _tickRoutines.Clear();
@@ -39,6 +40,7 @@ public class PotionAreaEffect : MonoBehaviour
         _combination = combination;
         _combinationOwner = owner;
         _combinationExpiresAt = expiresAt;
+        _removeCombinationStatusesOnDisable = removeStatusesOnDisable;
 
         // 교체 순간 이미 장판 안에 있던 대상도 다시 진입할 필요 없이 적용된다.
         var targets = new List<IPotionEffectTarget>(_overlapCounts.Keys);
@@ -46,6 +48,16 @@ public class PotionAreaEffect : MonoBehaviour
         {
             if (isActiveAndEnabled && _overlapCounts.ContainsKey(target)) StartTargetEffect(target);
         }
+    }
+
+    public void DisableForCombination()
+    {
+        StopAllCoroutines();
+        RemoveAppliedStatuses();
+        _overlapCounts.Clear();
+        _tickRoutines.Clear();
+        _targetsByCollider.Clear();
+        enabled = false;
     }
 
     private void StartTargetEffect(IPotionEffectTarget target)
@@ -143,10 +155,11 @@ public class PotionAreaEffect : MonoBehaviour
     private void OnDisable()
     {
         StopAllCoroutines();
-        if (_hasCombination) RemoveAppliedStatuses();
+        if (_hasCombination && _removeCombinationStatusesOnDisable) RemoveAppliedStatuses();
         _affectedTargets.Clear();
         _hasCombination = false;
         _combinationOwner = null;
+        _removeCombinationStatusesOnDisable = true;
         _overlapCounts.Clear();
         _tickRoutines.Clear();
         _targetsByCollider.Clear();

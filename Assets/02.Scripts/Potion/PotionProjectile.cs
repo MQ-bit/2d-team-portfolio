@@ -15,6 +15,7 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
     private float _verticalVelocity;
     private float _gravity;
     private PotionData _potionData;
+    private IDamageable _owner;
     private readonly List<Collider2D> _areaHits = new();
 
     private void Awake()
@@ -41,9 +42,11 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
         }
     }
 
-    public void Launch(PotionData potionData, Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
+    public void Launch(PotionData potionData, IDamageable owner, Vector3 targetPosition,
+        float flightDuration, float arcHeight, float rotationSpeed)
     {
         _potionData = potionData;
+        _owner = owner;
         _startPosition = transform.position;
         _targetPosition = targetPosition;
         _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -79,16 +82,30 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
 
         if (_potionData != null && _potionData.Element == PotionElement.Vaporization)
         {
-            RemoveGroundAreas();
+            // Give Purifying Life a chance to resolve through the same area-combination path.
+            PotionGroundArea probeArea = CreateGroundArea();
+            if (probeArea == null || !probeArea.IsCombined)
+            {
+                RemoveGroundAreas();
+            }
         }
         else if (_groundAreaPrefab != null)
         {
-            PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
-            groundArea.Initialize(_potionData);
-            groundArea.Activate();
+            CreateGroundArea();
         }
 
         Destroy(gameObject);
+    }
+
+    private PotionGroundArea CreateGroundArea()
+    {
+        if (_groundAreaPrefab == null || _potionData == null) return null;
+
+        PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
+        groundArea.SetOwner(_owner);
+        groundArea.Initialize(_potionData);
+        groundArea.Activate();
+        return groundArea;
     }
 
     private void RemoveGroundAreas()

@@ -20,6 +20,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private PotionProjectile _potionPrefab;
 
     private Vector2 _aimWorldPosition;
+    private IDamageable _potionEffectOwner;
     public bool IsAiming { get; private set; }
 
 
@@ -57,6 +58,8 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
+
+        _potionEffectOwner = GetComponent<IDamageable>();
     }
 
     public void BeginAim(Vector2 screenPosition)
@@ -153,7 +156,7 @@ public class PlayerThrowingModule : MonoBehaviour
             float distance = Vector2.Distance(startPosition, targetPosition);
             float flightDuration = distance / Mathf.Max(0.01f, _throwSpeed);
             PotionProjectile projectile = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
-            projectile.Launch(consumedPotion, targetPosition, flightDuration, _arcHeight, _rotationSpeed);
+            projectile.Launch(consumedPotion, _potionEffectOwner, targetPosition, flightDuration, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()

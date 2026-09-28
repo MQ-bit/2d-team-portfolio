@@ -26,9 +26,11 @@ public enum PotionCombinationEffectKind
 {
     Damage = 0,
     PeriodicDamage = 1,
-    RestorePlayerHealth = 2,
-    ApplyStatus = 3,
-    Stagger = 4
+    AreaDamage = 2,
+    RestorePlayerHealth = 3,
+    ApplyStatus = 4,
+    Stagger = 5,
+    RemoveGroundAreas = 6
 }
 
 [Serializable]
@@ -43,6 +45,7 @@ public sealed class PotionCombinationEffect
 
     [Header("Damage")]
     [Tooltip("고정 피해량 대신 조합에 사용된 해당 속성 포션의 피해량을 사용할지 여부")]
+    [UnityEngine.Serialization.FormerlySerializedAs("_useSourcePotionDamage")]
     [SerializeField] private bool _useSourceElementDamage;
     [Tooltip("고정 피해량 또는 플레이어 회복량")]
     [SerializeField, Min(0f)] private float _amount;

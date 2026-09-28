@@ -12,7 +12,10 @@ GameObject:
   - component: {fileID: 809758540992096771}
   - component: {fileID: 8441354467153822698}
   - component: {fileID: 6075459067124031843}
+  - component: {fileID: 6075459067124031844}
   - component: {fileID: 5000000000000000001}
+  - component: {fileID: 5000000000000000002}
+  - component: {fileID: 5000000000000000003}
   m_Layer: 0
   m_Name: PotionGroundArea
   m_TagString: Untagged
@@ -155,3 +158,73 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PotionAreaEffect
   _enableDebugLogs: 1
+--- !u!60 &6075459067124031844
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3194369027581450948}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Points:
+    m_Paths:
+    - - {x: -0.5, y: -0.5}
+      - {x: 0.5, y: -0.5}
+      - {x: 0.5, y: 0.5}
+      - {x: -0.5, y: 0.5}
+  m_UseDelaunayMesh: 0
+--- !u!114 &5000000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3194369027581450948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34ce4d529a0f43e0a2e765584ece8b61, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PotionAreaCombiner
+  _database: {fileID: 11400000, guid: b8179579df2d8eb940c6859328160cac, type: 2}
+  _combinedAreaShape: {fileID: 5000000000000000003}
+--- !u!114 &5000000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3194369027581450948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a4eb937668c4c999af4a0e11805ea6f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCombinedAreaShape
+  _combinationCollider: {fileID: 6075459067124031844}
+  _ellipseMinCenterDistance: 0.1
