@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca59b7b0e87040eabf92c2366f48c21c, type: 3}
+  m_Name: 02_VampiricPoison
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
+  _combination: 2
+  _displayName: 흡혈의 독
+  _description: 독 피해량의 30%를 플레이어 HP로 흡수
+  _elementA: 4
+  _elementB: 2
+  _resultPotion: {fileID: 0}
+  _effects:
+  - _kind: 0
+    _element: 2
+    _useSourcePotionDamage: 1
+    _amount: 0
+    _lifeStealRatio: 0.3
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _radius: 0
+    _removeAllGroundAreas: 0

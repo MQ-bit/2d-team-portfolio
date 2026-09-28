@@ -29,7 +29,7 @@ public class PotionAreaEffect : MonoBehaviour
             return;
         }
 
-        PotionEffectResolver.ApplyAreaEffect(_data, target);
+        PotionEffectResolver.ApplyAreaEffect(_data, target, GetInstanceID());
         if (_data.TickInterval > 0f)
         {
             _tickRoutines[target] = StartCoroutine(ApplyPeriodicEffect(target));
@@ -67,7 +67,7 @@ public class PotionAreaEffect : MonoBehaviour
 
             if (_overlapCounts.ContainsKey(target))
             {
-                PotionEffectResolver.ApplyAreaEffect(_data, target);
+                PotionEffectResolver.ApplyAreaEffect(_data, target, GetInstanceID());
             }
         }
     }

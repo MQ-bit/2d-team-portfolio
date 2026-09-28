@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca59b7b0e87040eabf92c2366f48c21c, type: 3}
+  m_Name: 10_FrostPoison
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
+  _combination: 10
+  _displayName: 동상독
+  _description: 독 피해 + 빙결
+  _elementA: 2
+  _elementB: 3
+  _resultPotion: {fileID: 0}
+  _effects:
+  - _kind: 0
+    _element: 2
+    _useSourcePotionDamage: 1
+    _amount: 0
+    _lifeStealRatio: 0
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _radius: 0
+    _removeAllGroundAreas: 0
+  - _kind: 4
+    _element: 0
+    _useSourcePotionDamage: 0
+    _amount: 0
+    _lifeStealRatio: 0
+    _status: 2
+    _duration: 0
+    _tickInterval: 0
+    _radius: 0
+    _removeAllGroundAreas: 0

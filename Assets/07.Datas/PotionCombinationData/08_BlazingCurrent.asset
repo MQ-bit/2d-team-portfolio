@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca59b7b0e87040eabf92c2366f48c21c, type: 3}
+  m_Name: 08_BlazingCurrent
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
+  _combination: 8
+  _displayName: 폭염전류
+  _description: 화염 피해 + 마비
+  _elementA: 1
+  _elementB: 5
+  _resultPotion: {fileID: 0}
+  _effects:
+  - _kind: 0
+    _element: 1
+    _useSourcePotionDamage: 1
+    _amount: 0
+    _lifeStealRatio: 0
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _radius: 0
+    _removeAllGroundAreas: 0
+  - _kind: 4
+    _element: 0
+    _useSourcePotionDamage: 0
+    _amount: 0
+    _lifeStealRatio: 0
+    _status: 3
+    _duration: 0
+    _tickInterval: 0
+    _radius: 0
+    _removeAllGroundAreas: 0
