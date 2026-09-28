@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 537129846284718508}
   - component: {fileID: 8953123798328453576}
   - component: {fileID: 577113197063582520}
-  - component: {fileID: 2378955546962389622}
   - component: {fileID: 2535699552048040419}
   - component: {fileID: 7796905842450013095}
   - component: {fileID: 7609875869182641865}
@@ -160,20 +159,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &2378955546962389622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2860674803404275474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ee51b7321b14ee5a4409ed407561b11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  _maxHealth: 100
-  _currentHealth: 100
 --- !u!114 &2535699552048040419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,7 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
   _targetKind: 1
-  _health: {fileID: 2378955546962389622}
   _playerStatus: {fileID: 0}
 --- !u!114 &7796905842450013095
 MonoBehaviour:
@@ -216,7 +200,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyController
   _data: {fileID: 11400000, guid: c9d431501394f54498a044914b98e2c3, type: 2}
   _movementModule: {fileID: 7796905842450013095}
-  _health: {fileID: 2378955546962389622}
   _potionEffectReceiver: {fileID: 2535699552048040419}
   _spriteRenderer: {fileID: 537129846284718508}
   _fuseBlinkColor: {r: 1, g: 1, b: 1, a: 1}

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 59889287155527166}
   - component: {fileID: 5615845311215283480}
   - component: {fileID: 6832661958139286944}
-  - component: {fileID: 2558758744337420160}
   - component: {fileID: 3123679725305364599}
   - component: {fileID: 3824663352301433379}
   - component: {fileID: 8398785202606945658}
@@ -160,20 +159,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &2558758744337420160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2431504601183298083}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ee51b7321b14ee5a4409ed407561b11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  _maxHealth: 100
-  _currentHealth: 100
 --- !u!114 &3123679725305364599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,7 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
   _targetKind: 1
-  _health: {fileID: 0}
   _playerStatus: {fileID: 0}
 --- !u!114 &3824663352301433379
 MonoBehaviour:
@@ -216,7 +200,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyController
   _data: {fileID: 11400000, guid: f335248cfdfe5ef439ad2f65fccdac06, type: 2}
   _movementModule: {fileID: 0}
-  _health: {fileID: 0}
   _potionEffectReceiver: {fileID: 0}
   _firePoint: {fileID: 0}
   _projectilePrefab: {fileID: 1859200759718798549, guid: 6be78a08af071b24d86d3306ef2ebd5b, type: 3}

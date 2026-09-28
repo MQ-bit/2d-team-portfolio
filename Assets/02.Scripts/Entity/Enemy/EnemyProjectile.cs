@@ -59,7 +59,8 @@ public class EnemyProjectile : MonoBehaviour
             return;
         }
 
-        receiver.ModifyHealth(-_damage);
+        IDamageable damageable = other.GetComponentInParent<IDamageable>();
+        damageable?.DecreaseHealth(_damage);
         Destroy(gameObject);
     }
 

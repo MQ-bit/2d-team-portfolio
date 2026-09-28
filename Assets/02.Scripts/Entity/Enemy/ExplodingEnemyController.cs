@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Health))]
-public class ExplodingEnemyController : MonoBehaviour
+public class ExplodingEnemyController : MonoBehaviour, IDamageable
 {
     private enum State
     {
@@ -17,9 +17,13 @@ public class ExplodingEnemyController : MonoBehaviour
 
     [Header("Module References")]
     [SerializeField] private EnemyMovementModule _movementModule;
-    [SerializeField] private Health _health;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
     [SerializeField] private SpriteRenderer _spriteRenderer;
+
+    [Header("Health")]
+    [SerializeField, Min(1f)] private float _maxHealth = 100f;
+    [SerializeField, Min(0f)] private float _initHealth = 100f;
+    [SerializeField] private EntityHealth _health;
 
     [Header("Fuse Visual")]
     [SerializeField] private Color _fuseBlinkColor = Color.white;
@@ -35,8 +39,14 @@ public class ExplodingEnemyController : MonoBehaviour
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
 
+    public bool IsDead => _health.IsDead;
+    public event Action<float, float> OnHealthChanged;
+    public event Action OnDeath;
+
     private void Awake()
     {
+        _health = new EntityHealth(_initHealth, _maxHealth);
+
         GetModules();
 
         if (_spriteRenderer != null)
@@ -59,10 +69,6 @@ public class ExplodingEnemyController : MonoBehaviour
                 Debug.LogError($"{gameObject.name} : EnemyMovementModule 이 할당 안됨");
             }
         }
-        if (_health == null)
-        {
-            _health = GetComponent<Health>();
-        }
         if (_potionEffectReceiver == null)
         {
             _potionEffectReceiver = GetComponent<PotionEffectReceiver>();
@@ -73,14 +79,29 @@ public class ExplodingEnemyController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    public void RestoreHealth(float amount)
     {
-        _health.Changed += HandleHealthChanged;
+        _health.RestoreHealth(amount);
+        OnHealthChanged?.Invoke(_health.Current, _health.Max);
     }
 
-    private void OnDisable()
+    // 포션 등으로 죽으면 폭발하지 않고 그냥 사라진다.
+    public void DecreaseHealth(float amount)
     {
-        _health.Changed -= HandleHealthChanged;
+        if (_state == State.Exploded)
+        {
+            return;
+        }
+
+        _health.DecreaseHealth(amount);
+        OnHealthChanged?.Invoke(_health.Current, _health.Max);
+
+        if (_health.IsDead)
+        {
+            _state = State.Exploded;
+            OnDeath?.Invoke();
+            Destroy(gameObject);
+        }
     }
 
     private void FixedUpdate()
@@ -187,7 +208,9 @@ public class ExplodingEnemyController : MonoBehaviour
             }
 
             _damagedTargets.Add(receiver);
-            receiver.ModifyHealth(-_data.ExplosionDamage);
+
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+            damageable?.DecreaseHealth(_data.ExplosionDamage);
         }
 
         Destroy(gameObject);
@@ -207,18 +230,6 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         return null;
-    }
-
-    // 포션 등으로 죽으면 폭발하지 않고 그냥 사라진다.
-    private void HandleHealthChanged(float current, float max)
-    {
-        if (_state == State.Exploded || !_health.IsDead)
-        {
-            return;
-        }
-
-        _state = State.Exploded;
-        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

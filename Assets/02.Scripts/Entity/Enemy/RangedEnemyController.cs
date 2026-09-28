@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Health))]
-public class RangedEnemyController : MonoBehaviour
+public class RangedEnemyController : MonoBehaviour, IDamageable
 {
     private enum State
     {
@@ -17,8 +17,12 @@ public class RangedEnemyController : MonoBehaviour
 
     [Header("Module References")]
     [SerializeField] private EnemyMovementModule _movementModule;
-    [SerializeField] private Health _health;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
+
+    [Header("Health")]
+    [SerializeField, Min(1f)] private float _maxHealth = 100f;
+    [SerializeField, Min(0f)] private float _initHealth = 100f;
+    [SerializeField] private EntityHealth _health;
 
     [Header("Attack")]
     [SerializeField] private Transform _firePoint;
@@ -32,8 +36,14 @@ public class RangedEnemyController : MonoBehaviour
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
 
+    public bool IsDead => _health.IsDead;
+    public event Action<float, float> OnHealthChanged;
+    public event Action OnDeath;
+
     private void Awake()
     {
+        _health = new EntityHealth(_initHealth, _maxHealth);
+
         GetModules();
     }
 
@@ -51,10 +61,6 @@ public class RangedEnemyController : MonoBehaviour
                 Debug.LogError($"{gameObject.name} : EnemyMovementModule 이 할당 안됨");
             }
         }
-        if (_health == null)
-        {
-            _health = GetComponent<Health>();
-        }
         if (_potionEffectReceiver == null)
         {
             _potionEffectReceiver = GetComponent<PotionEffectReceiver>();
@@ -65,14 +71,29 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    public void RestoreHealth(float amount)
     {
-        _health.Changed += HandleHealthChanged;
+        _health.RestoreHealth(amount);
+        OnHealthChanged?.Invoke(_health.Current, _health.Max);
     }
 
-    private void OnDisable()
+    // 포션 등으로 죽으면 그냥 사라진다.
+    public void DecreaseHealth(float amount)
     {
-        _health.Changed -= HandleHealthChanged;
+        if (_state == State.Dead)
+        {
+            return;
+        }
+
+        _health.DecreaseHealth(amount);
+        OnHealthChanged?.Invoke(_health.Current, _health.Max);
+
+        if (_health.IsDead)
+        {
+            _state = State.Dead;
+            OnDeath?.Invoke();
+            Destroy(gameObject);
+        }
     }
 
     private void FixedUpdate()
@@ -174,18 +195,6 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         return null;
-    }
-
-    // 포션 등으로 죽으면 그냥 사라진다.
-    private void HandleHealthChanged(float current, float max)
-    {
-        if (_state == State.Dead || !_health.IsDead)
-        {
-            return;
-        }
-
-        _state = State.Dead;
-        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()
