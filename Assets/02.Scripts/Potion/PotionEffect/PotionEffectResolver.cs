@@ -30,6 +30,8 @@ public static class PotionEffectResolver
     {
         if (data == null || target == null) return;
 
+        ApplyThirstEffect(data.DrinkThirstRecoveryAmount, target);
+
         if (data.Element == PotionElement.Vaporization)
         {
             target.ClearStatuses();
@@ -70,9 +72,26 @@ public static class PotionEffectResolver
         applyEffect(damageable, amount);
     }
 
-    private static void ApplyStatusEffect(PotionData data, IPotionEffectTarget target)
+    private static void ApplyThirstEffect(float amount, IPotionEffectTarget target)
     {
-        ApplyStatusEffect(data, target, 0);
+        if (amount == 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
+
+        IThirstable thirstable = target as IThirstable;
+        if (thirstable == null && target is Component component && component != null)
+        {
+            thirstable = component.GetComponentInParent<IThirstable>();
+        }
+
+        if (thirstable == null) return;
+
+        if (amount > 0f)
+        {
+            thirstable.RestoreThirst(amount);
+        }
+        else
+        {
+            thirstable.DecreaseThirst(-amount);
+        }
     }
 
     private static void ApplyStatusEffect(PotionData data, IPotionEffectTarget target, int sourceId)
