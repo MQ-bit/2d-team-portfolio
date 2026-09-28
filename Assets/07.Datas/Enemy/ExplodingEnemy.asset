@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ExplodingEnemy
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
   _moveSpeed: 2.5
-  _detectRange: 6
+  _detectRange: 9999
   _fuseTriggerRange: 1.2
   _fuseDuration: 1
   _explosionRadius: 2

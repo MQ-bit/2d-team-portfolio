@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RangedEnemy
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
   _moveSpeed: 2.5
-  _detectRange: 6
+  _detectRange: 9999
   _attackRange: 4
   _chaseResumeBuffer: 0.5
   _attackCooldown: 1.5
