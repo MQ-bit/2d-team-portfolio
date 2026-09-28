@@ -51,10 +51,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         }
     }
 
-    public void RestoreThirst(float amount)
-    {
-        _playerStatus?.RestoreThirst(amount);
-    }
 
     public void ApplyStatus(PotionStatusEffect status, float duration)
     {

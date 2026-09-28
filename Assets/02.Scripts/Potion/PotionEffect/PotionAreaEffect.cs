@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
+
 public sealed class PotionAreaEffect : MonoBehaviour
 {
     [SerializeField] private bool _enableDebugLogs = true;

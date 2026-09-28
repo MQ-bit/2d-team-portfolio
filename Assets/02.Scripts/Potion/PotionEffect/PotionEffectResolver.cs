@@ -12,18 +12,7 @@ public static class PotionEffectResolver
         ApplyHealthEffect(data.Element, data.AreaEffectAmount, target);
         ApplyStatusEffect(data, target);
     }
-
-    public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target)
-    {
-        if (data == null || target == null)
-        {
-            return;
-        }
-
-        ApplyHealthEffect(data.Element, data.DrinkEffectAmount, target);
-        target.RestoreThirst(data.DrinkThirstRecoveryAmount);
-        ApplyStatusEffect(data, target);
-    }
+    
 
     public static bool TryFindTarget(Component component, out IPotionEffectTarget target)
     {
