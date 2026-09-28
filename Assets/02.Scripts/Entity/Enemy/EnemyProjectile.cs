@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 임시 투사체: 전용 스프라이트가 없으면 원형 텍스처를 직접 생성해서 사용한다.
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CircleCollider2D))]
 public class EnemyProjectile : MonoBehaviour
