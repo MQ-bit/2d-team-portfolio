@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public enum PotionStatusEffect
@@ -32,6 +32,11 @@ public sealed class PotionStatusEffectState
     public bool IsActive(PotionStatusEffect status)
     {
         return _expiresAtByStatus.TryGetValue(status, out float expiresAt) && Time.time < expiresAt;
+    }
+
+    public void Clear()
+    {
+        _expiresAtByStatus.Clear();
     }
 
     public void Apply(PotionStatusEffect status, float duration)

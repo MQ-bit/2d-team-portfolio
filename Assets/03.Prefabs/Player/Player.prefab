@@ -18,8 +18,8 @@ GameObject:
   - component: {fileID: 8625112247451139820}
   - component: {fileID: 7774034623503532432}
   - component: {fileID: 6544000177656053045}
-  - component: {fileID: 910000000000000001}
   - component: {fileID: 910000000000000003}
+  - component: {fileID: 6935868058329909207}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -41,6 +41,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2905248735513423768}
+  - {fileID: 709273465586148263}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8202211321121358976
@@ -178,12 +179,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   _potionEffectReceiver: {fileID: 910000000000000003}
-  _maxThirst: 100
-  _currentThirst: 100
+  _maxHealth: 100
+  _initHealth: 10
+  _healthInstance:
+    _maxHealth: 0
+    _currentHealth: 0
+  _initMaxThirst: 100
+  _initCurrentThirst: 0
+  _itnitThirstIncreaseAmount: 1
+  _initThirstIncreaseInterval: 10
+  _thirstStatInstance:
+    _maxThirst: 0
+    _currentThirst: 0
+    _increaseAmountPerTick: 0
+    _increaseInterval: 0
   _speed: 5
   _dashSpeed: 30
-  _dashDuration: 0.1
-  _dashCooltime: 0.5
   _maxThrowDistance: 6
 --- !u!114 &1377203738665982733
 MonoBehaviour:
@@ -199,6 +210,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveModule
   _playerStatus: {fileID: 409094873972115548}
   _rigid: {fileID: 8955322128090660171}
+  _dashDuration: 0.2
+  _dashCooltime: 1
 --- !u!114 &353974945982132991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,6 +228,7 @@ MonoBehaviour:
   _movementModule: {fileID: 1377203738665982733}
   _throwingModule: {fileID: 8625112247451139820}
   _inventoryModule: {fileID: 0}
+  _drinkingModule: {fileID: 0}
 --- !u!114 &8625112247451139820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,11 +263,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Entity.Inventory.EntityInventory
   _inventorySlots:
-  - _quantity: 0
-  - _quantity: 0
-  - _quantity: 0
-  - _quantity: 0
-  _maxSlotSize: 4
+  - _data: {fileID: 0}
+    _quantity: 0
+  - _data: {fileID: 0}
+    _quantity: 0
+  _maxSlotSize: 2
 --- !u!114 &6544000177656053045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,7 +280,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 382a2bf1bfbd584468d247d8983d747b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventoryModule
-  _inventory: {fileID: 0}
+  _inventory: {fileID: 7774034623503532432}
+--- !u!114 &910000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a86d4ce1d2e249f6840e2d2cc25784da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
+  _targetKind: 0
+  _playerStatus: {fileID: 409094873972115548}
+--- !u!114 &6935868058329909207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d15d6c41dbf0d6458778707dac554df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDrinkingModule
+  _effectReceiver: {fileID: 910000000000000003}
+  _inventoryModule: {fileID: 6544000177656053045}
+  _drinkDuration: 1
+  _drinkTimer: 0
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,32 +342,86 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3612528117417103380}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &910000000000000001
+--- !u!1 &8163925126203938842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 709273465586148263}
+  - component: {fileID: 1528889229369568083}
+  - component: {fileID: 7988546234201702494}
+  m_Layer: 0
+  m_Name: ItemCollector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &709273465586148263
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8163925126203938842}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3612528117417103380}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1528889229369568083
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3045028924572124315}
+  m_GameObject: {fileID: 8163925126203938842}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ee51b7321b14ee5a4409ed407561b11, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Health
-  _maxHealth: 100
-  _currentHealth: 100
---- !u!114 &910000000000000003
-MonoBehaviour:
+  m_Script: {fileID: 11500000, guid: 67ca846ca671832479cba85d78e8c4ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerItemCollector
+  _inventoryModule: {fileID: 0}
+  _collectTarget: {fileID: 0}
+--- !u!58 &7988546234201702494
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3045028924572124315}
+  m_GameObject: {fileID: 8163925126203938842}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86d4ce1d2e249f6840e2d2cc25784da, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
-  _enableDebugLogs: 1
-  _health: {fileID: 910000000000000001}
-  _playerStatus: {fileID: 409094873972115548}
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 3

@@ -141,6 +141,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""PotionDrink"",
+                    ""type"": ""Button"",
+                    ""id"": ""9e996025-85b4-4ac7-956f-f91cb415ffd2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -297,6 +307,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ItemSlotChange"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""29c9aa49-5b74-4981-9123-63ec88ab9ddf"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""PotionDrink"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -316,6 +337,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
         m_Player_AimPosition = m_Player.FindAction("AimPosition", throwIfNotFound: true);
         m_Player_ItemSlotChange = m_Player.FindAction("ItemSlotChange", throwIfNotFound: true);
+        m_Player_PotionDrink = m_Player.FindAction("PotionDrink", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -401,6 +423,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Throw;
     private readonly InputAction m_Player_AimPosition;
     private readonly InputAction m_Player_ItemSlotChange;
+    private readonly InputAction m_Player_PotionDrink;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -432,6 +455,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ItemSlotChange".
         /// </summary>
         public InputAction @ItemSlotChange => m_Wrapper.m_Player_ItemSlotChange;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PotionDrink".
+        /// </summary>
+        public InputAction @PotionDrink => m_Wrapper.m_Player_PotionDrink;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -473,6 +500,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ItemSlotChange.started += instance.OnItemSlotChange;
             @ItemSlotChange.performed += instance.OnItemSlotChange;
             @ItemSlotChange.canceled += instance.OnItemSlotChange;
+            @PotionDrink.started += instance.OnPotionDrink;
+            @PotionDrink.performed += instance.OnPotionDrink;
+            @PotionDrink.canceled += instance.OnPotionDrink;
         }
 
         /// <summary>
@@ -499,6 +529,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ItemSlotChange.started -= instance.OnItemSlotChange;
             @ItemSlotChange.performed -= instance.OnItemSlotChange;
             @ItemSlotChange.canceled -= instance.OnItemSlotChange;
+            @PotionDrink.started -= instance.OnPotionDrink;
+            @PotionDrink.performed -= instance.OnPotionDrink;
+            @PotionDrink.canceled -= instance.OnPotionDrink;
         }
 
         /// <summary>
@@ -587,5 +620,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnItemSlotChange(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PotionDrink" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPotionDrink(InputAction.CallbackContext context);
     }
 }

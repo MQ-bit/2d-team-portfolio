@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VaporizationPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: vaporization_potion
-  _displayName: 기화의 물약
+  _displayName: 기화의 포션
   _element: 6
   _areaWidth: 3
   _areaDuration: 0
@@ -21,7 +21,7 @@ MonoBehaviour:
   _tickInterval: 0
   _effectDuration: 0
   _drinkEffectAmount: 0
-  _drinkThirstRecoveryAmount: -30
+  _drinkThirstRecoveryAmount: 30
   _visualData:
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 1, b: 0.8, a: 0.65}

@@ -1,48 +1,43 @@
 using UnityEngine;
 
-public static class PotionEffectResolver// 포션 데이터를 읽고 체력 변화·상태이상 전달
+public static class PotionEffectResolver
 {
-    public static void ApplyAreaEffect(PotionData data, PotionEffectReceiver target)
+    public static void ApplyAreaEffect(PotionData data, IPotionEffectTarget target) //장판에 닿았을 때 호출
     {
-        if (data == null || target == null)
-        {
-            return;
-        }
+        if (data == null || target == null) return;
 
-        ApplyHealthEffect(data.Element, data.AreaEffectAmount, target);
         ApplyStatusEffect(data, target);
     }
 
-    public static bool TryFindTarget(Component component, out PotionEffectReceiver target)
+    public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target) //포션 섭취 시 호출
+    {
+        if (data == null || target == null) return;
+
+        if (data.Element == PotionElement.Vaporization)
+        {
+            target.ClearStatuses();
+            return;
+        }
+
+        ApplyStatusEffect(data, target);
+    }
+
+    public static IPotionEffectTarget FindTarget(Component component)
     {
         Transform current = component == null ? null : component.transform;
         while (current != null)
         {
-            // Avoid Editor allocations when this object has no matching component.
-            if (current.TryGetComponent(out target))
+            if (current.TryGetComponent<IPotionEffectTarget>(out var target))
             {
-                return true;
+                return target;
             }
 
             current = current.parent;
         }
 
-        target = null;
-        return false;
+        return null;
     }
-
-    private static void ApplyHealthEffect(PotionElement element, float amount, PotionEffectReceiver target)
-    {
-        if (amount <= 0f)
-        {
-            return;
-        }
-
-        float signedAmount = element == PotionElement.Heal ? amount : -amount;
-        target.ModifyHealth(signedAmount);
-    }
-
-    private static void ApplyStatusEffect(PotionData data, PotionEffectReceiver target)
+    private static void ApplyStatusEffect(PotionData data, IPotionEffectTarget target)
     {
         if (data.EffectDuration > 0f &&
             PotionStatusEffectState.TryGetStatus(data.Element, out PotionStatusEffect status))
