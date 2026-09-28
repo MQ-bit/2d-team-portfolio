@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerThrowingModule _throwingModule;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
+    [SerializeField] private PlayerMeleeModule _meleeModule;
 
     private void Awake()
     {
@@ -36,6 +37,10 @@ public class PlayerController : MonoBehaviour
         {
             _drinkingModule = GetComponent<PlayerDrinkingModule>();
         }
+        if (_meleeModule == null)
+        {
+            _meleeModule = GetComponent<PlayerMeleeModule>();
+        }
     }
 
     private void OnEnable()
@@ -55,19 +60,21 @@ public class PlayerController : MonoBehaviour
     private void LinkInputEvents()
     {
         _inputSO.OnMoveInput += HandleDashInput;
-        _inputSO.OnThrowStart += HandleThrowStarted;
-        _inputSO.OnThrowEnd += HandleThrowReleased;
+        _inputSO.OnPrimaryActionStart += HandlePrimaryActionStart;
+        _inputSO.OnPrimaryActionEnd += HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
         _inputSO.OnDrinkInputChanged += HandleDrinkInputChanged;
+        _inputSO.OnMeleeToggleRequested += HandleMeleeToggleRequested;
     }
 
     private void UnLinkInputEvents()
     {
         _inputSO.OnMoveInput -= HandleDashInput;
-        _inputSO.OnThrowStart -= HandleThrowStarted;
-        _inputSO.OnThrowEnd -= HandleThrowReleased;
+        _inputSO.OnPrimaryActionStart -= HandlePrimaryActionStart;
+        _inputSO.OnPrimaryActionEnd -= HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
         _inputSO.OnDrinkInputChanged -= HandleDrinkInputChanged;
+        _inputSO.OnMeleeToggleRequested -= HandleMeleeToggleRequested;
     }
 
     private void FixedUpdate()
@@ -77,7 +84,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (_inputSO.IsThrowHolding)
+        if (_throwingModule.IsAiming)
         {
             _throwingModule.UpdateAim(_inputSO.MousePosition);
         }
@@ -85,35 +92,27 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMoveInput()
     {
+        if (_meleeModule.IsSwinging) return;
+
         _movementModule.MovePosition(_inputSO.MoveInput);
     }
 
     private void HandleDashInput()
     {
         Vector2 moveInput = _inputSO.MoveInput;
+
         if (moveInput == Vector2.zero)
         {
             return;
         }
 
-        if (_movementModule.TryStartDash(moveInput))
-        {
-            _drinkingModule.CancelDrink();
-        }
-    }
-
-    private void HandleThrowStarted(Vector2 screenPosition)
-    {
-        if (_drinkingModule.IsDrinking)
+        if (!_movementModule.TryStartDash(moveInput))
         {
             return;
         }
-        _throwingModule.BeginAim(screenPosition);
-    }
-
-    private void HandleThrowReleased(Vector2 screenPosition)
-    {
-        _throwingModule.ReleaseThrow(screenPosition);
+        _meleeModule.CancelSwing();
+        _drinkingModule.CancelDrink();
+        _throwingModule.CancelAim();
     }
 
     private void HandleItemSlotChanged(int newSlotIndex)
@@ -134,11 +133,47 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (_throwingModule.IsAiming || _movementModule.IsDashing)
+        if (_throwingModule.IsAiming || _movementModule.IsDashing || _meleeModule.IsSwinging)
         {
             return;
         }
 
         _drinkingModule.TryBeginDrink();
+    }
+
+    private void HandlePrimaryActionStart(Vector2 mousePosition)
+    {
+        if (_drinkingModule.IsDrinking) return;
+
+        if (_meleeModule.IsMeleeModeActivated)
+        {
+            if (_movementModule.IsDashing) return;
+
+            _meleeModule.TryAttack(mousePosition);
+            return;
+        }
+        else //potionThrow
+        {
+            if (_meleeModule.IsSwinging) return;
+            _throwingModule.BeginAim(mousePosition);
+        }
+    }
+
+    private void HandlePrimaryActionEnd(Vector2 mousePosition)
+    {
+        _throwingModule.ReleaseThrow(mousePosition);
+    }
+
+    private void HandleMeleeToggleRequested()
+    {
+        if (!_meleeModule.TryToggleMeleeMode())
+        {
+            return;
+        }
+
+        if (_meleeModule.IsMeleeModeActivated)
+        {
+            _throwingModule.CancelAim();
+        }
     }
 }

@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 6544000177656053045}
   - component: {fileID: 910000000000000003}
   - component: {fileID: 6935868058329909207}
+  - component: {fileID: 4706277357270954568}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -227,8 +228,9 @@ MonoBehaviour:
   _inputSO: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
   _movementModule: {fileID: 1377203738665982733}
   _throwingModule: {fileID: 8625112247451139820}
-  _inventoryModule: {fileID: 0}
-  _drinkingModule: {fileID: 0}
+  _inventoryModule: {fileID: 6544000177656053045}
+  _drinkingModule: {fileID: 6935868058329909207}
+  _meleeModule: {fileID: 4706277357270954568}
 --- !u!114 &8625112247451139820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +313,30 @@ MonoBehaviour:
   _inventoryModule: {fileID: 6544000177656053045}
   _drinkDuration: 1
   _drinkTimer: 0
+--- !u!114 &4706277357270954568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be1738f29ed7164d9787d7029bbab5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMeleeModule
+  _worldCamera: {fileID: 0}
+  _attackOrigin: {fileID: 0}
+  _status: {fileID: 0}
+  _attackDamage: 10
+  _attackRange: 2
+  _attackAngle: 90
+  _attackCooltime: 0.5
+  _swingDuration: 0.3
+  _knockbackForce: 5
+  _targetLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0

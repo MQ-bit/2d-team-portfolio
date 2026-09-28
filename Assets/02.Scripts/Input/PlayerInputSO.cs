@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using static UnityEngine.InputSystem.InputAction;
@@ -11,21 +11,22 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     private Vector2 _moveInput = Vector2.zero;
     private Vector2 _mousePosition = Vector2.zero;
-    private bool _isThrowHolding = false;
+    private bool _isPrimaryActionHolding = false;
     private bool _isDrinkingHolding = false;
 
     //Properties
     public Vector2 MoveInput => _moveInput;
     public Vector2 MousePosition => _mousePosition;
-    public bool IsThrowHolding => _isThrowHolding;
+    public bool IsPrimaryActionHolding => _isPrimaryActionHolding;
     public bool IsDrinkingHolding => _isDrinkingHolding;
 
     //Events
     public event Action OnMoveInput;
-    public event Action<Vector2> OnThrowStart;
-    public event Action<Vector2> OnThrowEnd;
+    public event Action<Vector2> OnPrimaryActionStart;
+    public event Action<Vector2> OnPrimaryActionEnd;
     public event Action<int> OnItemSlotChanged;
     public event Action<bool> OnDrinkInputChanged;
+    public event Action OnMeleeToggleRequested;
 
     private void OnEnable()
     {
@@ -40,7 +41,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     private void OnDisable()
     {
-        _isThrowHolding = false;
+        _isPrimaryActionHolding = false;
         _isDrinkingHolding = false;
         _playerInput.Player.Disable();
     }
@@ -70,24 +71,24 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         }
     }
 
-    public void OnThrow(CallbackContext context)
+    public void OnPrimaryAction(CallbackContext context)
     {
         if (context.performed)
         {
-            if (_isThrowHolding) return;
+            if (_isPrimaryActionHolding) return;
 
-            _isThrowHolding = true;
+            _isPrimaryActionHolding = true;
             UpdateMousePosition();
 
-            OnThrowStart?.Invoke(_mousePosition);
+            OnPrimaryActionStart?.Invoke(_mousePosition);
             return;
         }
 
-        if (context.canceled && _isThrowHolding)
+        if (context.canceled && _isPrimaryActionHolding)
         {
             UpdateMousePosition();
-            _isThrowHolding = false;
-            OnThrowEnd?.Invoke(_mousePosition);
+            _isPrimaryActionHolding = false;
+            OnPrimaryActionEnd?.Invoke(_mousePosition);
         }
     }
 
@@ -133,6 +134,14 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         {
             _isDrinkingHolding = false;
             OnDrinkInputChanged?.Invoke(false);
+        }
+    }
+
+    public void OnToggleAttackMode(CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnMeleeToggleRequested?.Invoke();
         }
     }
 }
