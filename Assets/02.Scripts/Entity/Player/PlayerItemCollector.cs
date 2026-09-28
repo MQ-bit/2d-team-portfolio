@@ -1,5 +1,4 @@
 using UnityEngine;
-using Entity.Inventory;
 
 public class PlayerItemCollector : MonoBehaviour
 {

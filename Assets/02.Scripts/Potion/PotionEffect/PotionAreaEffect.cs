@@ -39,6 +39,7 @@ public class PotionAreaEffect : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         IPotionEffectTarget target = PotionEffectResolver.FindTarget(other);
+
         if (target == null || !_overlapCounts.TryGetValue(target, out int overlapCount))
         {
             return;

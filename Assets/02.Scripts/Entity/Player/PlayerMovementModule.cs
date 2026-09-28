@@ -7,11 +7,15 @@ public class PlayerMovementModule : MonoBehaviour
     [SerializeField] private PlayerStatus _playerStatus;
     [SerializeField] private Rigidbody2D _rigid;
 
+    [Header("Dash Settings")]
+    [SerializeField] private float _dashDuration = 0.2f;
+    [SerializeField] private float _dashCooltime = 1f;
+
     //Dash 관련 변수
     private Coroutine _dashCoroutine;
     private bool _isDashing;
     private float _nextDashAvailableTime;
-    WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
+    private readonly WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
 
     public bool IsDashing => _isDashing;
 
@@ -41,7 +45,7 @@ public class PlayerMovementModule : MonoBehaviour
         }
 
         _isDashing = true;
-        _nextDashAvailableTime = Time.time + _playerStatus.DashCooltime;
+        _nextDashAvailableTime = Time.time + _dashCooltime;
 
         _dashCoroutine = StartCoroutine(DashCoroutine(moveInput.normalized));
         return true;
@@ -49,7 +53,7 @@ public class PlayerMovementModule : MonoBehaviour
 
     private IEnumerator DashCoroutine(Vector2 direction)
     {
-        float dashRemainingTime = _playerStatus.DashDuration;
+        float dashRemainingTime = _dashDuration;
         while (dashRemainingTime > 0f)
         {
             yield return _waitForFixedUpdate;
