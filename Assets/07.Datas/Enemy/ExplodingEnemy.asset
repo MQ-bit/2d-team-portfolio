@@ -15,6 +15,6 @@ MonoBehaviour:
   _moveSpeed: 2.5
   _detectRange: 9999
   _fuseTriggerRange: 1.2
-  _fuseDuration: 1
+  _fuseDuration: 0.333
   _explosionRadius: 2
   _explosionDamage: 30
