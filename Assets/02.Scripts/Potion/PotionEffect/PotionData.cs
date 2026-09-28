@@ -9,7 +9,7 @@ public enum PotionElement
     Ice,
     Heal,
     Lightning,
-    Flash
+    Vaporization
 }
 
 [CreateAssetMenu(fileName = "PotionData", menuName = "Potion/Potion Data")]
@@ -31,7 +31,7 @@ public sealed class PotionData : ScriptableObject
 
     [Header("Drink Effect")]
     [SerializeField, Min(0f)] private float _drinkEffectAmount;
-    [SerializeField, Min(0f)] private float _drinkThirstRecoveryAmount;
+    [SerializeField] private float _drinkThirstRecoveryAmount;
 
     [Header("Visual")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.red);
@@ -48,8 +48,8 @@ public sealed class PotionData : ScriptableObject
     public float DrinkThirstRecoveryAmount => _drinkThirstRecoveryAmount;
     public PotionVisualData VisualData => _visualData;
 
-    public bool HasAreaEffect => AreaDuration > 0f && AreaWidth > 0f;
-    public bool HasPeriodicAreaEffect => AreaEffectAmount > 0f && TickInterval > 0f;
+    public bool HasAreaEffect => Element != PotionElement.Vaporization && AreaDuration > 0f && AreaWidth > 0f;
+    public bool HasPeriodicAreaEffect => Element != PotionElement.Vaporization && AreaEffectAmount > 0f && TickInterval > 0f;
 
     private void OnValidate()
     {
@@ -61,9 +61,12 @@ public sealed class PotionData : ScriptableObject
         _areaDuration = SanitizeNonNegative(_areaDuration);
         _effectDuration = SanitizeNonNegative(_effectDuration);
         _drinkEffectAmount = SanitizeNonNegative(_drinkEffectAmount);
-        _drinkThirstRecoveryAmount = SanitizeNonNegative(_drinkThirstRecoveryAmount);
+        _drinkThirstRecoveryAmount = SanitizeFinite(_drinkThirstRecoveryAmount);
     }
 
     private static float SanitizeNonNegative(float value) =>
         float.IsNaN(value) || float.IsInfinity(value) ? 0f : Mathf.Max(0f, value);
+
+    private static float SanitizeFinite(float value) =>
+        float.IsNaN(value) || float.IsInfinity(value) ? 0f : value;
 }

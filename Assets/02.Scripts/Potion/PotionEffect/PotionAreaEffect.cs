@@ -74,6 +74,7 @@ public class PotionAreaEffect : MonoBehaviour
 
     private void OnDisable()
     {
+        StopAllCoroutines();
         _overlapCounts.Clear();
         _tickRoutines.Clear();
     }

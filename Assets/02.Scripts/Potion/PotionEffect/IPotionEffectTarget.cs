@@ -4,20 +4,12 @@ public enum PotionTargetKind
     Enemy
 }
 
-public enum PotionStatusEffect
-{
-    Burning,
-    Poisoned,
-    Frozen,
-    Paralyzed,
-    Blinded,
-    Revealed
-}
-
 public interface IPotionEffectTarget
 {
     PotionTargetKind TargetKind { get; }
-    void ModifyHealth(float amount);
-    void RestoreThirst(float amount);
+
+    // Applies status effects only. Health and thirst are handled by the player.
+
     void ApplyStatus(PotionStatusEffect status, float duration);
+    void ClearStatuses();
 }
