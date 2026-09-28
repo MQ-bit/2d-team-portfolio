@@ -31,7 +31,6 @@ public sealed class PotionData : ScriptableObject
 
     [Header("Drink Effect")]
     [SerializeField, Min(0f)] private float _drinkEffectAmount;
-    [Tooltip("Positive values restore hydration; negative values reduce it.")]
     [SerializeField] private float _drinkThirstRecoveryAmount;
 
     [Header("Visual")]

@@ -126,11 +126,11 @@ public sealed class PotionProjectile : MonoBehaviour
     private void ApplyInstantAreaEffect()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(_targetPosition, _potionData.AreaRadius);
-        HashSet<IPotionEffectTarget> affectedTargets = new();
+        HashSet<PotionEffectReceiver> affectedTargets = new();
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (PotionEffectResolver.TryFindTarget(hits[i], out IPotionEffectTarget target) &&
+            if (PotionEffectResolver.TryFindTarget(hits[i], out PotionEffectReceiver target) &&
                 affectedTargets.Add(target))
             {
                 PotionEffectResolver.ApplyAreaEffect(_potionData, target);

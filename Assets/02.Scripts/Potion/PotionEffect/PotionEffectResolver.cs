@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public static class PotionEffectResolver
+public static class PotionEffectResolver// 포션 데이터를 읽고 체력 변화·상태이상 전달
 {
-    public static void ApplyAreaEffect(PotionData data, IPotionEffectTarget target)
+    public static void ApplyAreaEffect(PotionData data, PotionEffectReceiver target)
     {
         if (data == null || target == null)
         {
@@ -12,15 +12,14 @@ public static class PotionEffectResolver
         ApplyHealthEffect(data.Element, data.AreaEffectAmount, target);
         ApplyStatusEffect(data, target);
     }
-    
 
-    public static bool TryFindTarget(Component component, out IPotionEffectTarget target)
+    public static bool TryFindTarget(Component component, out PotionEffectReceiver target)
     {
         Transform current = component == null ? null : component.transform;
         while (current != null)
         {
-            target = current.GetComponent<IPotionEffectTarget>();
-            if (target != null)
+            // Avoid Editor allocations when this object has no matching component.
+            if (current.TryGetComponent(out target))
             {
                 return true;
             }
@@ -32,7 +31,7 @@ public static class PotionEffectResolver
         return false;
     }
 
-    private static void ApplyHealthEffect(PotionElement element, float amount, IPotionEffectTarget target)
+    private static void ApplyHealthEffect(PotionElement element, float amount, PotionEffectReceiver target)
     {
         if (amount <= 0f)
         {
@@ -43,20 +42,12 @@ public static class PotionEffectResolver
         target.ModifyHealth(signedAmount);
     }
 
-    private static void ApplyStatusEffect(PotionData data, IPotionEffectTarget target)
+    private static void ApplyStatusEffect(PotionData data, PotionEffectReceiver target)
     {
-        PotionStatusEffect? status = data.Element switch
+        if (data.EffectDuration > 0f &&
+            PotionStatusEffectState.TryGetStatus(data.Element, out PotionStatusEffect status))
         {
-            PotionElement.Fire => PotionStatusEffect.Burning,
-            PotionElement.Poison => PotionStatusEffect.Poisoned,
-            PotionElement.Ice => PotionStatusEffect.Frozen,
-            PotionElement.Lightning => PotionStatusEffect.Paralyzed,
-            _ => null
-        };
-
-        if (status.HasValue && data.EffectDuration > 0f)
-        {
-            target.ApplyStatus(status.Value, data.EffectDuration);
+            target.ApplyStatus(status, data.EffectDuration);
         }
     }
 }

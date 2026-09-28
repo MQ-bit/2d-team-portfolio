@@ -7,8 +7,8 @@ public sealed class PotionAreaEffect : MonoBehaviour
 {
     [SerializeField] private bool _enableDebugLogs = true;
 
-    private readonly Dictionary<IPotionEffectTarget, int> _overlapCounts = new();
-    private readonly Dictionary<IPotionEffectTarget, Coroutine> _tickRoutines = new();
+    private readonly Dictionary<PotionEffectReceiver, int> _overlapCounts = new();
+    private readonly Dictionary<PotionEffectReceiver, Coroutine> _tickRoutines = new();
     private PotionData _data;
 
     public void Initialize(PotionData data)
@@ -25,7 +25,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!TryResolveTarget(other, out IPotionEffectTarget target))
+        if (!TryResolveTarget(other, out PotionEffectReceiver target))
         {
             return;
         }
@@ -42,7 +42,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
     private void OnTriggerStay2D(Collider2D other)
     {
         if (_data == null ||
-            !PotionEffectResolver.TryFindTarget(other, out IPotionEffectTarget target) ||
+            !PotionEffectResolver.TryFindTarget(other, out PotionEffectReceiver target) ||
             _overlapCounts.ContainsKey(target))
         {
             return;
@@ -54,7 +54,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!PotionEffectResolver.TryFindTarget(other, out IPotionEffectTarget target) ||
+        if (!PotionEffectResolver.TryFindTarget(other, out PotionEffectReceiver target) ||
             !_overlapCounts.TryGetValue(target, out int overlapCount))
         {
             return;
@@ -69,7 +69,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
         StopEffect(target);
     }
 
-    private bool TryResolveTarget(Collider2D other, out IPotionEffectTarget target)
+    private bool TryResolveTarget(Collider2D other, out PotionEffectReceiver target)
     {
         bool targetFound = PotionEffectResolver.TryFindTarget(other, out target);
         if (_data != null && targetFound)
@@ -83,7 +83,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
         return false;
     }
 
-    private void StartEffect(IPotionEffectTarget target)
+    private void StartEffect(PotionEffectReceiver target)
     {
         LogApplication("Enter", target);
         PotionEffectResolver.ApplyAreaEffect(_data, target);
@@ -94,7 +94,7 @@ public sealed class PotionAreaEffect : MonoBehaviour
         }
     }
 
-    private void StopEffect(IPotionEffectTarget target)
+    private void StopEffect(PotionEffectReceiver target)
     {
         _overlapCounts.Remove(target);
         if (_tickRoutines.Remove(target, out Coroutine routine) && routine != null)
@@ -103,15 +103,15 @@ public sealed class PotionAreaEffect : MonoBehaviour
         }
     }
 
-    private IEnumerator ApplyPeriodicEffect(IPotionEffectTarget target)
+    private IEnumerator ApplyPeriodicEffect(PotionEffectReceiver target)
     {
         WaitForSeconds wait = new(Mathf.Max(0.01f, _data.TickInterval));
 
-        while (_overlapCounts.ContainsKey(target) && IsTargetAlive(target))
+        while (target != null && _overlapCounts.ContainsKey(target))
         {
             yield return wait;
 
-            if (_overlapCounts.ContainsKey(target) && IsTargetAlive(target))
+            if (target != null && _overlapCounts.ContainsKey(target))
             {
                 LogApplication("Tick", target);
                 PotionEffectResolver.ApplyAreaEffect(_data, target);
@@ -122,15 +122,9 @@ public sealed class PotionAreaEffect : MonoBehaviour
         _tickRoutines.Remove(target);
     }
 
-    private static bool IsTargetAlive(IPotionEffectTarget target)
+    private void LogApplication(string phase, PotionEffectReceiver target)
     {
-        return target is not Object unityObject || unityObject != null;
-    }
-
-    private void LogApplication(string phase, IPotionEffectTarget target)
-    {
-        string targetName = target is Component component ? component.name : target.ToString();
-        Log($"{phase}: potion={GetPotionName()}, target={targetName}, amount={_data.AreaEffectAmount}");
+        Log($"{phase}: potion={GetPotionName()}, target={target.name}, amount={_data.AreaEffectAmount}");
     }
 
     private string GetPotionName() => _data == null ? "None" : _data.Name;
