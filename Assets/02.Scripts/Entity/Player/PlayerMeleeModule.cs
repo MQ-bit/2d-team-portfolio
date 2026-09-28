@@ -32,6 +32,7 @@ public class PlayerMeleeModule : MonoBehaviour
     private void Awake()
     {
         InitiateComponents();
+        _currentAttackTime = 0f;
     }
 
     private void InitiateComponents()
@@ -60,7 +61,7 @@ public class PlayerMeleeModule : MonoBehaviour
     {
         return IsMeleeModeActivated && !IsSwinging
             && Time.time - _currentAttackTime >= _attackCooltime
-            && _status == null && _status.CanMove;
+            && _status != null && _status.CanMove;
     }
 
     public bool TryToggleMeleeMode()
