@@ -44,8 +44,14 @@ public class PlayerMeleeModule : MonoBehaviour
     {
         if (_attackIndicator == null)
         {
-            Canvas playerUI = GetComponentInChildren<Canvas>();
-            _attackIndicator = Instantiate(_indicatorPrefab, playerUI.transform);
+            Canvas playerCanvas = GetComponentInChildren<Canvas>();
+            if (playerCanvas == null)
+            {
+                Debug.LogError($"{gameObject.name} : Can't Find Player's Field UI Canvas!");
+                return;
+            }
+            playerCanvas.worldCamera = Camera.main;
+            _attackIndicator = Instantiate(_indicatorPrefab, playerCanvas.transform);
         }
 
         _attackIndicator.SetIndicatorSize(_attackRange, _attackAngle);
