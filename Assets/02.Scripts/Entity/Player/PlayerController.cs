@@ -88,6 +88,10 @@ public class PlayerController : MonoBehaviour
         {
             _throwingModule.UpdateAim(_inputSO.MousePosition);
         }
+        else if (_meleeModule.IsMeleeModeActivated)
+        {
+            _meleeModule.UpdateIndicator(_inputSO.MousePosition);
+        }
     }
 
     private void HandleMoveInput()
