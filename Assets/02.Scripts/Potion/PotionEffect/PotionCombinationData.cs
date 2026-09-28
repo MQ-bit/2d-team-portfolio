@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public enum PotionCombination
 {
@@ -22,50 +22,49 @@ public enum PotionCombination
     [InspectorName("15. 방전")] Discharge = 15
 }
 
-
-
 public enum PotionCombinationEffectKind
 {
     Damage = 0,
     PeriodicDamage = 1,
-    AreaDamage = 2,
-    RestorePlayerHealth = 3,
-    ApplyStatus = 4,
-    Stagger = 5,
-    RemoveGroundAreas = 6
+    RestorePlayerHealth = 2,
+    ApplyStatus = 3,
+    Stagger = 4
 }
 
 [Serializable]
 public sealed class PotionCombinationEffect
 {
+    [Header("Effect Type")]
     [SerializeField] private PotionCombinationEffectKind _kind;
-    [Tooltip("피해 속성 또는 제거할 장판의 속성")]
+
+    [Header("Element")]
+    [Tooltip("피해 속성. 피해 효과가 아닌 경우 None")]
     [SerializeField] private PotionElement _element;
-    [Tooltip("피해량을 해당 속성의 재료 포션에서 가져올지 여부")]
-    [SerializeField] private bool _useSourcePotionDamage;
-    [Tooltip("고정 피해량 또는 플레이어 회복량. 미지정 수치는 0으로 두고 설정 필요")]
+
+    [Header("Damage")]
+    [Tooltip("고정 피해량 대신 조합에 사용된 해당 속성 포션의 피해량을 사용할지 여부")]
+    [SerializeField] private bool _useSourceElementDamage;
+    [Tooltip("고정 피해량 또는 플레이어 회복량")]
     [SerializeField, Min(0f)] private float _amount;
-    [Tooltip("실제로 입힌 피해 중 플레이어 HP로 회복할 비율")]
+    [Tooltip("실제로 입힌 피해량 중 플레이어 HP로 회복되는 비율")]
     [SerializeField, Range(0f, 1f)] private float _lifeStealRatio;
+    [Header("Status")]
     [SerializeField] private PotionStatusEffect _status;
-    [Tooltip("상태이상, 경직 또는 지속 피해의 유지 시간. 0은 미설정")]
+    [Tooltip("상태이상, 경직 또는 지속 피해의 유지 시간")]
     [SerializeField, Min(0f)] private float _duration;
-    [Tooltip("지속 피해 간격. 0은 미설정")]
+    [Tooltip("지속 피해 적용 간격")]
     [SerializeField, Min(0f)] private float _tickInterval;
-    [Tooltip("범위 피해 또는 장판 제거 반경. 0은 미설정")]
-    [SerializeField, Min(0f)] private float _radius;
-    [SerializeField] private bool _removeAllGroundAreas;
 
     public PotionCombinationEffectKind Kind => _kind;
     public PotionElement Element => _element;
-    public bool UseSourcePotionDamage => _useSourcePotionDamage;
+
+    public bool UseSourceElementDamage => _useSourceElementDamage;
     public float Amount => _amount;
     public float LifeStealRatio => _lifeStealRatio;
+
     public PotionStatusEffect Status => _status;
     public float Duration => _duration;
     public float TickInterval => _tickInterval;
-    public float Radius => _radius;
-    public bool RemoveAllGroundAreas => _removeAllGroundAreas;
 }
 
 [CreateAssetMenu(fileName = "PotionCombinationData", menuName = "Potion/Potion Combination Data")]
@@ -80,44 +79,69 @@ public sealed class PotionCombinationData : ScriptableObject
     [SerializeField] private PotionElement _elementA;
     [SerializeField] private PotionElement _elementB;
 
-    [Header("Result")]
-    [SerializeField] private PotionData _resultPotion;
-
-    [Header("Combination Settings")]
-    [Tooltip("두 장판이 겹쳐 조합이 발동한 순간부터 유지되는 시간")]
+    [Header("Combination Area")]
+    [Tooltip("조합 타원 장판이 유지되는 시간")]
     [SerializeField, Min(0f)] private float _combinationDuration = 4f;
+    [Tooltip("즉발 효과만 적용하고 조합 장판을 거의 즉시 제거할지 여부")]
+    [SerializeField] private bool _instantOnly;
+    [Tooltip("조합 장판의 시각 데이터")]
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.white);
 
-    [Header("Combination Effects (목록 순서대로 적용)")]
+    [Header("Effects")]
+    [Tooltip("조합 장판 범위 안에 적용할 효과. 위에서부터 순서대로 적용")]
     [SerializeField] private List<PotionCombinationEffect> _effects = new();
 
     public PotionCombination Combination => _combination;
-    public string Name => _displayName;
+    public string Name => string.IsNullOrWhiteSpace(_displayName) ? _combination.ToString() : _displayName;
     public string Description => _description;
     public PotionElement ElementA => _elementA;
     public PotionElement ElementB => _elementB;
-    public PotionData ResultPotion => _resultPotion;
+
     public float CombinationDuration => _combinationDuration;
+    public bool InstantOnly => _instantOnly;
+    public PotionVisualData VisualData => _visualData;
+
     public IReadOnlyList<PotionCombinationEffect> Effects => _effects;
-
-    public bool TryGetEffect(PotionCombinationEffectKind kind, out PotionCombinationEffect result)
-    {
-        foreach (PotionCombinationEffect effect in _effects)
-        {
-            if (effect != null && effect.Kind == kind)
-            {
-                result = effect;
-                return true;
-            }
-        }
-
-        result = null;
-        return false;
-    }
 
     public bool IsMatch(PotionElement a, PotionElement b)
     {
         return
             (_elementA == a && _elementB == b) ||
             (_elementA == b && _elementB == a);
+    }
+
+    public bool TryGetEffect(PotionCombinationEffectKind kind, out PotionCombinationEffect result)
+    {
+        foreach (PotionCombinationEffect effect in _effects)
+        {
+            if (effect == null)
+                continue;
+
+            if (effect.Kind != kind)
+                continue;
+
+            result = effect;
+            return true;
+        }
+
+        result = null;
+        return false;
+    }
+
+    private void OnValidate()
+    {
+        _displayName = _displayName?.Trim();
+        _description = _description?.Trim();
+
+        _combinationDuration =
+            SanitizeNonNegative(_combinationDuration);
+    }
+
+    private static float SanitizeNonNegative(float value)
+    {
+        if (float.IsNaN(value) || float.IsInfinity(value))
+            return 0f;
+
+        return Mathf.Max(0f, value);
     }
 }
