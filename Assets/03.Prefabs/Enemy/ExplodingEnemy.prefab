@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7796905842450013095}
   - component: {fileID: 7609875869182641865}
   - component: {fileID: 484566710926521964}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ExplodingEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83,8 +83,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -507127363
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
