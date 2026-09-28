@@ -8,6 +8,8 @@ public class PlayerMeleeModule : MonoBehaviour
     [SerializeField] private Camera _worldCamera; //어짜피 싱글톤인데 CameraController 참조하는건 어떤지 체크
     [SerializeField] private Transform _attackOrigin;
     [SerializeField] private PlayerStatus _status;
+    [SerializeField] private MeleeAttackIndicator _attackIndicator;
+
 
     [Header("Melee Settings")]
     [SerializeField] private float _attackDamage = 10f;
@@ -17,6 +19,9 @@ public class PlayerMeleeModule : MonoBehaviour
     [SerializeField] private float _swingDuration = 0.3f;
     [SerializeField] private float _knockbackForce = 5f;
     [SerializeField] private LayerMask _targetLayer = ~0;
+
+    [Header("Melee Indicator Settings")]
+    [SerializeField] private MeleeAttackIndicator _indicatorPrefab;
 
     private readonly HashSet<IDamageable> _damagedTarget = new HashSet<IDamageable>();
     private float _currentAttackTime;
@@ -33,6 +38,20 @@ public class PlayerMeleeModule : MonoBehaviour
     {
         InitiateComponents();
         _currentAttackTime = 0f;
+    }
+
+    private void Start()
+    {
+        if (_attackIndicator == null)
+        {
+            Canvas playerUI = GetComponentInChildren<Canvas>();
+            _attackIndicator = Instantiate(_indicatorPrefab, playerUI.transform);
+        }
+
+        _attackIndicator.SetIndicatorSize(_attackRange, _attackAngle);
+
+        IsMeleeModeActivated = false;
+        _attackIndicator.Hide();
     }
 
     private void InitiateComponents()
@@ -98,9 +117,25 @@ public class PlayerMeleeModule : MonoBehaviour
 
     private void SetMeleeMode(bool isActive)
     {
-        if (IsMeleeModeActivated == isActive) return;
+        if (IsMeleeModeActivated == isActive)
+        {
+            return;
+        }
 
         IsMeleeModeActivated = isActive;
+
+        if (_attackIndicator != null)
+        {
+            if (isActive)
+            {
+                _attackIndicator.Show();
+            }
+            else
+            {
+                _attackIndicator.Hide();
+            }
+        }
+
         OnMeleeModeChanged?.Invoke(isActive);
     }
 
@@ -108,7 +143,7 @@ public class PlayerMeleeModule : MonoBehaviour
     {
         if (_worldCamera == null)
         {
-            Debug.LogWarning($"{gameObject.name} : _world camera dosen't Exist!");
+            Debug.LogWarning($"{gameObject.name} : _world camera doesn't Exist!");
             return Vector2.right;
         }
 
@@ -210,5 +245,16 @@ public class PlayerMeleeModule : MonoBehaviour
             previousPoint = currentPoint;
         }
         Gizmos.DrawLine(origin, previousPoint);
+    }
+
+    public void UpdateIndicator(Vector2 mousePosition)
+    {
+        if (!IsMeleeModeActivated || _attackIndicator == null)
+        {
+            return;
+        }
+
+        Vector2 direction = GetAttackDirection(mousePosition);
+        _attackIndicator.Draw(_attackOrigin.position, direction);
     }
 }
