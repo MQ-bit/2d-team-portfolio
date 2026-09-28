@@ -1,14 +1,14 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CircleCollider2D))]
-[RequireComponent(typeof(PotionAreaEffect))]
-public sealed class PotionGroundArea : MonoBehaviour
+public class PotionGroundArea : MonoBehaviour
 {
+    [SerializeField, Min(0f)] private float _duration = 3f;
+    [SerializeField, Min(0f)] private float _radius = 1.5f;
+
     private CircleCollider2D _collider;
     private SpriteRenderer _renderer;
     private PotionAreaEffect _areaEffect;
-    private float _duration;
-    private bool _initialized;
 
     private void Awake()
     {
@@ -16,7 +16,7 @@ public sealed class PotionGroundArea : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
         _areaEffect = GetComponent<PotionAreaEffect>();
         _collider.isTrigger = true;
-        _collider.enabled = false;
+        _collider.radius = _radius;
     }
 
     public void Initialize(PotionData data)
@@ -28,26 +28,22 @@ public sealed class PotionGroundArea : MonoBehaviour
         }
 
         _duration = data.AreaDuration;
-        _collider.radius = data.AreaRadius;
+        _radius = data.AreaWidth * 0.5f;
+        _collider.radius = _radius;
 
         if (_renderer != null)
         {
             _renderer.color = data.VisualData.AreaColor;
         }
 
-        _areaEffect.Initialize(data);
-        _initialized = true;
-        _collider.enabled = true;
+        if (_areaEffect != null)
+        {
+            _areaEffect.Initialize(data);
+        }
     }
 
     public void Activate()
     {
-        if (!_initialized)
-        {
-            Debug.LogError("PotionGroundArea must be initialized before activation.", this);
-            return;
-        }
-
         Destroy(gameObject, _duration);
     }
 }
