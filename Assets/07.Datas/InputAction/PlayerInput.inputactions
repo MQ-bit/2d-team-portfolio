@@ -55,6 +55,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "PotionDrink",
+                    "type": "Button",
+                    "id": "9e996025-85b4-4ac7-956f-f91cb415ffd2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -209,6 +219,17 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "ItemSlotChange",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "29c9aa49-5b74-4981-9123-63ec88ab9ddf",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "PotionDrink",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
