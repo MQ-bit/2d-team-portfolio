@@ -5,12 +5,12 @@ public class PlayerDrinkingModule : MonoBehaviour
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _effectReceiver;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
-    
+
     [Header("Drink Settings")]
     [SerializeField] private float _drinkDuration = 1f; //TODO: Scriptable Object로 초기화하는 로직 반영
     [SerializeField] private float _drinkTimer = 0f; //TODO: Progress를 확인하고자 SerializeField로 노출함. 디버그 끝나고 롤백시키기
 
-    public bool IsDrinking {get; private set;}
+    public bool IsDrinking { get; private set; }
 
     public float DrinkProgress
     {
@@ -27,11 +27,11 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void Awake()
     {
-        if(_inventoryModule == null)
+        if (_inventoryModule == null)
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
-        if(_effectReceiver == null)
+        if (_effectReceiver == null)
         {
             _effectReceiver = GetComponent<PotionEffectReceiver>();
         }
@@ -39,10 +39,10 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void Update()
     {
-        if(!IsDrinking) return;
+        if (!IsDrinking) return;
 
         _drinkTimer += Time.deltaTime;
-        if(_drinkTimer >= _drinkDuration)
+        if (_drinkTimer >= _drinkDuration)
         {
             CompleteDrink();
         }
@@ -55,15 +55,15 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     public bool TryBeginDrink()
     {
-        if(IsDrinking || _inventoryModule == null)
+        if (IsDrinking || _inventoryModule == null)
         {
             return false;
         }
         PotionData selectedPotion = _inventoryModule.SelectedPotion;
-        
-        if(selectedPotion == null) return false;
 
-        if(PotionEffectResolver.FindTarget(transform) == null)
+        if (selectedPotion == null) return false;
+
+        if (PotionEffectResolver.FindTarget(transform) == null)
         {
             return false;
         }
@@ -76,20 +76,20 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     public void CancelDrink()
     {
-        if(!IsDrinking) return;
+        if (!IsDrinking) return;
 
         ResetState();
     }
 
     private void CompleteDrink()
     {
-        if(PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectResolver.FindTarget(transform) == null)
         {
             ResetState();
             return;
         }
 
-        if(!_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
+        if (!_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
         {
             ResetState();
             return;

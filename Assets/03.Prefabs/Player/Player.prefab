@@ -181,7 +181,7 @@ MonoBehaviour:
   _potionEffectReceiver: {fileID: 910000000000000003}
   _maxHealth: 100
   _initHealth: 10
-  _health:
+  _healthInstance:
     _maxHealth: 0
     _currentHealth: 0
   _initMaxThirst: 100

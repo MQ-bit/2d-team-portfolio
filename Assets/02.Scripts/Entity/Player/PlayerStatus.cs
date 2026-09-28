@@ -74,7 +74,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
         _healthInstance.DecreaseHealth(amount);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
 
-        if( _healthInstance.IsDead)
+        if (_healthInstance.IsDead)
         {
             OnDeath?.Invoke();
         }
@@ -82,7 +82,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     public void RestoreThirst(float amount)
     {
-        _thirstStatInstance.RestoreThirst(amount);       
+        _thirstStatInstance.RestoreThirst(amount);
 
         OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
     }

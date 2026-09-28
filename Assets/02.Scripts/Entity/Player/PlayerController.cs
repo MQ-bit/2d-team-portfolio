@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
-        if ( _drinkingModule == null)
+        if (_drinkingModule == null)
         {
             _drinkingModule = GetComponent<PlayerDrinkingModule>();
         }
@@ -118,7 +118,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleItemSlotChanged(int newSlotIndex)
     {
-        if(_drinkingModule.IsDrinking)
+        if (_drinkingModule.IsDrinking)
         {
             return;
         }
@@ -134,7 +134,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if(_throwingModule.IsAiming || _movementModule.IsDashing)
+        if (_throwingModule.IsAiming || _movementModule.IsDashing)
         {
             return;
         }

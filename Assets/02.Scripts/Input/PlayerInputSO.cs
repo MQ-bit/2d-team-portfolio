@@ -120,16 +120,16 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     public void OnPotionDrink(CallbackContext context)
     {
-        if(context.performed)
+        if (context.performed)
         {
-            if(_isDrinkingHolding) return;
+            if (_isDrinkingHolding) return;
 
             _isDrinkingHolding = true;
             OnDrinkInputChanged?.Invoke(true);
             return;
         }
 
-        if(context.canceled && _isDrinkingHolding)
+        if (context.canceled && _isDrinkingHolding)
         {
             _isDrinkingHolding = false;
             OnDrinkInputChanged?.Invoke(false);
