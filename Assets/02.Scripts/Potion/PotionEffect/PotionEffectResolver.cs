@@ -57,6 +57,46 @@ public static class PotionEffectResolver
 
         return null;
     }
+
+    public static bool IsTargetAlive(IPotionEffectTarget target)
+    {
+        return target != null && !(target is UnityEngine.Object unityObject && unityObject == null);
+    }
+
+    public static void ApplyCombinationEffect(PotionCombinationEffectResolver.Result effect,
+        IPotionEffectTarget target, IDamageable owner, int sourceId, float remainingDuration)
+    {
+        if (!IsTargetAlive(target) || remainingDuration <= 0f) return;
+
+        IDamageable health = target.Damageable;
+        bool hasHealth = health != null && !(health is UnityEngine.Object healthObject && healthObject == null);
+        if (hasHealth && health.IsDead) return;
+
+        if (hasHealth && effect.DamagePerTick > 0f)
+        {
+            float previousHealth = health.CurrentHealth;
+            health.DecreaseHealth(effect.DamagePerTick);
+            float actualDamage = Mathf.Max(0f, previousHealth - health.CurrentHealth);
+            RestoreCombinationOwner(owner, effect.CalculateLifeSteal(actualDamage));
+        }
+
+        if (effect.Status.HasValue && IsTargetAlive(target) && (!hasHealth || !health.IsDead))
+        {
+            target.ApplyStatus(effect.Status.Value,
+                Mathf.Min(effect.StatusDuration, remainingDuration), sourceId);
+        }
+    }
+
+    public static void RestoreCombinationOwner(IDamageable owner, float amount)
+    {
+        if (amount <= 0f || owner == null ||
+            (owner is UnityEngine.Object ownerObject && ownerObject == null) || owner.IsDead)
+        {
+            return;
+        }
+
+        owner.RestoreHealth(amount);
+    }
     private static void ApplyHealthEffect(PotionElement element, float amount, IPotionEffectTarget target)
     {
         if (amount <= 0f || !HealthEffectByElement.TryGetValue(element, out var applyEffect)) return;

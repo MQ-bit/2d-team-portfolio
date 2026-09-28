@@ -153,6 +153,7 @@ public class PlayerThrowingModule : MonoBehaviour
             float distance = Vector2.Distance(startPosition, targetPosition);
             float flightDuration = distance / Mathf.Max(0.01f, _throwSpeed);
             PotionProjectile projectile = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+            projectile.SetOwner(_status);
             projectile.Launch(consumedPotion, targetPosition, flightDuration, _arcHeight, _rotationSpeed);
         }
     }

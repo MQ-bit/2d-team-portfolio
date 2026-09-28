@@ -9,12 +9,24 @@ public class PotionGroundArea : MonoBehaviour
     private CircleCollider2D _collider;
     private SpriteRenderer _renderer;
     private PotionAreaEffect _areaEffect;
+    private PotionAreaCombiner _combiner;
+    private float _expiresAt;
+    private bool _activated;
+
+    public PotionData Data { get; private set; }
+    public IDamageable Owner { get; private set; }
+    public CircleCollider2D AreaCollider => _collider;
+    public PotionAreaEffect AreaEffect => _areaEffect;
+    public bool IsCombined => _combiner != null && _combiner.IsCombined;
+
+    public void SetOwner(IDamageable owner) => Owner = owner;
 
     private void Awake()
     {
         _collider = GetComponent<CircleCollider2D>();
         _renderer = GetComponent<SpriteRenderer>();
         _areaEffect = GetComponent<PotionAreaEffect>();
+        _combiner = GetComponent<PotionAreaCombiner>();
         _collider.isTrigger = true;
         _collider.radius = _radius;
     }
@@ -27,6 +39,7 @@ public class PotionGroundArea : MonoBehaviour
             return;
         }
 
+        Data = data;
         _duration = data.AreaDuration;
         _radius = data.AreaWidth * 0.5f;
         _collider.radius = _radius;
@@ -44,6 +57,25 @@ public class PotionGroundArea : MonoBehaviour
 
     public void Activate()
     {
-        Destroy(gameObject, _duration);
+        if (Data == null || _activated) return;
+        _activated = true;
+        _expiresAt = Time.time + _duration;
+        if (_combiner != null) _combiner.RegisterArea();
+    }
+
+    public void SetExpiration(float expiresAt)
+    {
+        _expiresAt = expiresAt;
+    }
+
+    private void Update()
+    {
+        if (_activated && Time.time >= _expiresAt) Remove();
+    }
+
+    public void Remove()
+    {
+        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

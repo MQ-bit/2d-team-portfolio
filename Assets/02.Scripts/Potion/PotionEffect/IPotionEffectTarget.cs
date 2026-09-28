@@ -14,4 +14,5 @@ public interface IPotionEffectTarget
 
     void ApplyStatus(PotionStatusEffect status, float duration, int sourceId);
     void ClearStatuses();
+    void RemoveStatusesFromSource(int sourceId);
 }

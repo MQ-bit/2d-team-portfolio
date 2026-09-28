@@ -83,6 +83,10 @@ public sealed class PotionCombinationData : ScriptableObject
     [Header("Result")]
     [SerializeField] private PotionData _resultPotion;
 
+    [Header("Combination Settings")]
+    [Tooltip("두 장판이 겹쳐 조합이 발동한 순간부터 유지되는 시간")]
+    [SerializeField, Min(0f)] private float _combinationDuration = 4f;
+
     [Header("Combination Effects (목록 순서대로 적용)")]
     [SerializeField] private List<PotionCombinationEffect> _effects = new();
 
@@ -92,7 +96,23 @@ public sealed class PotionCombinationData : ScriptableObject
     public PotionElement ElementA => _elementA;
     public PotionElement ElementB => _elementB;
     public PotionData ResultPotion => _resultPotion;
+    public float CombinationDuration => _combinationDuration;
     public IReadOnlyList<PotionCombinationEffect> Effects => _effects;
+
+    public bool TryGetEffect(PotionCombinationEffectKind kind, out PotionCombinationEffect result)
+    {
+        foreach (PotionCombinationEffect effect in _effects)
+        {
+            if (effect != null && effect.Kind == kind)
+            {
+                result = effect;
+                return true;
+            }
+        }
+
+        result = null;
+        return false;
+    }
 
     public bool IsMatch(PotionElement a, PotionElement b)
     {

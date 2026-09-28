@@ -29,6 +29,11 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         _statusEffects.Clear();
     }
 
+    public void RemoveStatusesFromSource(int sourceId)
+    {
+        _statusEffects.RemoveSource(sourceId);
+    }
+
     public void ApplyStatus(PotionStatusEffect status, float duration, int sourceId)
     {
         _statusEffects.Apply(status, duration, sourceId);

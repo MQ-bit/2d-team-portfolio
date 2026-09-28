@@ -67,6 +67,14 @@ public sealed class PotionStatusEffectState
         _expiredSources.Clear();
     }
 
+    public void RemoveSource(int sourceId)
+    {
+        foreach (var stacks in _expiresAtByStatus.Values)
+        {
+            stacks.Remove(sourceId);
+        }
+    }
+
 
     public void Apply(PotionStatusEffect status, float duration, int sourceId)
     {

@@ -34,6 +34,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public float MaxThrowDistance => _maxThrowDistance;
 
     public bool IsDead => _healthInstance.IsDead;
+    public float CurrentHealth => _healthInstance.Current;
 
     public event Action<float, float> OnThirstChanged; //current, max
     public event Action<float, float> OnHealthChanged; //current, max
