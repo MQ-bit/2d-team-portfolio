@@ -113,7 +113,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""Throw"",
+                    ""name"": ""PrimaryAction"",
                     ""type"": ""Button"",
                     ""id"": ""a6aecb34-8836-428e-bb4d-759871155665"",
                     ""expectedControlType"": """",
@@ -146,6 +146,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""PotionDrink"",
                     ""type"": ""Button"",
                     ""id"": ""9e996025-85b4-4ac7-956f-f91cb415ffd2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleAttackMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""0fd27b1d-d3d9-4ac2-b956-d4f48f5c5032"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -227,7 +237,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";PC"",
-                    ""action"": ""Throw"",
+                    ""action"": ""PrimaryAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -318,6 +328,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""PotionDrink"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""684d5f22-61c1-42ca-86e4-d25f445d4bcd"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ToggleAttackMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -334,10 +355,11 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
-        m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
+        m_Player_PrimaryAction = m_Player.FindAction("PrimaryAction", throwIfNotFound: true);
         m_Player_AimPosition = m_Player.FindAction("AimPosition", throwIfNotFound: true);
         m_Player_ItemSlotChange = m_Player.FindAction("ItemSlotChange", throwIfNotFound: true);
         m_Player_PotionDrink = m_Player.FindAction("PotionDrink", throwIfNotFound: true);
+        m_Player_ToggleAttackMode = m_Player.FindAction("ToggleAttackMode", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -420,10 +442,11 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Dash;
-    private readonly InputAction m_Player_Throw;
+    private readonly InputAction m_Player_PrimaryAction;
     private readonly InputAction m_Player_AimPosition;
     private readonly InputAction m_Player_ItemSlotChange;
     private readonly InputAction m_Player_PotionDrink;
+    private readonly InputAction m_Player_ToggleAttackMode;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -444,9 +467,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Throw".
+        /// Provides access to the underlying input action "Player/PrimaryAction".
         /// </summary>
-        public InputAction @Throw => m_Wrapper.m_Player_Throw;
+        public InputAction @PrimaryAction => m_Wrapper.m_Player_PrimaryAction;
         /// <summary>
         /// Provides access to the underlying input action "Player/AimPosition".
         /// </summary>
@@ -459,6 +482,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/PotionDrink".
         /// </summary>
         public InputAction @PotionDrink => m_Wrapper.m_Player_PotionDrink;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleAttackMode".
+        /// </summary>
+        public InputAction @ToggleAttackMode => m_Wrapper.m_Player_ToggleAttackMode;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -491,9 +518,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
-            @Throw.started += instance.OnThrow;
-            @Throw.performed += instance.OnThrow;
-            @Throw.canceled += instance.OnThrow;
+            @PrimaryAction.started += instance.OnPrimaryAction;
+            @PrimaryAction.performed += instance.OnPrimaryAction;
+            @PrimaryAction.canceled += instance.OnPrimaryAction;
             @AimPosition.started += instance.OnAimPosition;
             @AimPosition.performed += instance.OnAimPosition;
             @AimPosition.canceled += instance.OnAimPosition;
@@ -503,6 +530,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @PotionDrink.started += instance.OnPotionDrink;
             @PotionDrink.performed += instance.OnPotionDrink;
             @PotionDrink.canceled += instance.OnPotionDrink;
+            @ToggleAttackMode.started += instance.OnToggleAttackMode;
+            @ToggleAttackMode.performed += instance.OnToggleAttackMode;
+            @ToggleAttackMode.canceled += instance.OnToggleAttackMode;
         }
 
         /// <summary>
@@ -520,9 +550,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
-            @Throw.started -= instance.OnThrow;
-            @Throw.performed -= instance.OnThrow;
-            @Throw.canceled -= instance.OnThrow;
+            @PrimaryAction.started -= instance.OnPrimaryAction;
+            @PrimaryAction.performed -= instance.OnPrimaryAction;
+            @PrimaryAction.canceled -= instance.OnPrimaryAction;
             @AimPosition.started -= instance.OnAimPosition;
             @AimPosition.performed -= instance.OnAimPosition;
             @AimPosition.canceled -= instance.OnAimPosition;
@@ -532,6 +562,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @PotionDrink.started -= instance.OnPotionDrink;
             @PotionDrink.performed -= instance.OnPotionDrink;
             @PotionDrink.canceled -= instance.OnPotionDrink;
+            @ToggleAttackMode.started -= instance.OnToggleAttackMode;
+            @ToggleAttackMode.performed -= instance.OnToggleAttackMode;
+            @ToggleAttackMode.canceled -= instance.OnToggleAttackMode;
         }
 
         /// <summary>
@@ -600,12 +633,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDash(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Throw" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "PrimaryAction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnThrow(InputAction.CallbackContext context);
+        void OnPrimaryAction(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "AimPosition" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -627,5 +660,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPotionDrink(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleAttackMode" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleAttackMode(InputAction.CallbackContext context);
     }
 }

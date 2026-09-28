@@ -27,7 +27,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Throw",
+                    "name": "PrimaryAction",
                     "type": "Button",
                     "id": "a6aecb34-8836-428e-bb4d-759871155665",
                     "expectedControlType": "",
@@ -60,6 +60,16 @@
                     "name": "PotionDrink",
                     "type": "Button",
                     "id": "9e996025-85b4-4ac7-956f-f91cb415ffd2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "ToggleAttackMode",
+                    "type": "Button",
+                    "id": "0fd27b1d-d3d9-4ac2-b956-d4f48f5c5032",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -141,7 +151,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";PC",
-                    "action": "Throw",
+                    "action": "PrimaryAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -230,6 +240,17 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "PotionDrink",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "684d5f22-61c1-42ca-86e4-d25f445d4bcd",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ToggleAttackMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
