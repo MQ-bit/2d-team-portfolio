@@ -39,7 +39,7 @@ public static class PotionEffectResolver
         }
 
         ApplyHealthEffect(data.Element, data.DrinkEffectAmount, target);
-        ApplyStatusEffect(data, target);
+        ApplyStatusEffect(data, target, 0);
     }
 
     public static IPotionEffectTarget FindTarget(Component component)
@@ -61,13 +61,9 @@ public static class PotionEffectResolver
     {
         if (amount <= 0f || !HealthEffectByElement.TryGetValue(element, out var applyEffect)) return;
 
-        IDamageable damageable = target as IDamageable;
-        if (damageable == null && target is Component component && component != null)
-        {
-            damageable = component.GetComponentInParent<IDamageable>();
-        }
-
-        if (damageable == null || damageable.IsDead) return;
+        IDamageable damageable = target.Damageable;
+        if (damageable == null || (damageable is UnityEngine.Object healthObject && healthObject == null)) return;
+        if (damageable.IsDead) return;
 
         applyEffect(damageable, amount);
     }
@@ -76,13 +72,8 @@ public static class PotionEffectResolver
     {
         if (amount == 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return;
 
-        IThirstable thirstable = target as IThirstable;
-        if (thirstable == null && target is Component component && component != null)
-        {
-            thirstable = component.GetComponentInParent<IThirstable>();
-        }
-
-        if (thirstable == null) return;
+        IThirstable thirstable = target.Thirstable;
+        if (thirstable == null || (thirstable is UnityEngine.Object thirstObject && thirstObject == null)) return;
 
         if (amount > 0f)
         {

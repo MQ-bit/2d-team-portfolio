@@ -7,7 +7,14 @@ public class PotionAreaEffect : MonoBehaviour
 {
     private readonly Dictionary<IPotionEffectTarget, int> _overlapCounts = new();
     private readonly Dictionary<IPotionEffectTarget, Coroutine> _tickRoutines = new();
+    private readonly Dictionary<Collider2D, IPotionEffectTarget> _targetsByCollider = new();
     private PotionData _data;
+    private int _sourceId;
+
+    private void Awake()
+    {
+        _sourceId = GetInstanceID();
+    }
 
     public void Initialize(PotionData data)
     {
@@ -16,12 +23,15 @@ public class PotionAreaEffect : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (_data == null || _targetsByCollider.ContainsKey(other)) return;
+
         IPotionEffectTarget target = PotionEffectResolver.FindTarget(other);
-        if (_data == null || target == null)
+        if (target == null)
         {
             return;
         }
 
+        _targetsByCollider.Add(other, target);
         _overlapCounts.TryGetValue(target, out int overlapCount);
         _overlapCounts[target] = overlapCount + 1;
         if (overlapCount > 0)
@@ -29,7 +39,7 @@ public class PotionAreaEffect : MonoBehaviour
             return;
         }
 
-        PotionEffectResolver.ApplyAreaEffect(_data, target, GetInstanceID());
+        PotionEffectResolver.ApplyAreaEffect(_data, target, _sourceId);
         if (_data.TickInterval > 0f)
         {
             _tickRoutines[target] = StartCoroutine(ApplyPeriodicEffect(target));
@@ -38,9 +48,8 @@ public class PotionAreaEffect : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        IPotionEffectTarget target = PotionEffectResolver.FindTarget(other);
-
-        if (target == null || !_overlapCounts.TryGetValue(target, out int overlapCount))
+        if (!_targetsByCollider.Remove(other, out IPotionEffectTarget target) ||
+            !_overlapCounts.TryGetValue(target, out int overlapCount))
         {
             return;
         }
@@ -67,7 +76,7 @@ public class PotionAreaEffect : MonoBehaviour
 
             if (_overlapCounts.ContainsKey(target))
             {
-                PotionEffectResolver.ApplyAreaEffect(_data, target, GetInstanceID());
+                PotionEffectResolver.ApplyAreaEffect(_data, target, _sourceId);
             }
         }
     }
@@ -77,5 +86,6 @@ public class PotionAreaEffect : MonoBehaviour
         StopAllCoroutines();
         _overlapCounts.Clear();
         _tickRoutines.Clear();
+        _targetsByCollider.Clear();
     }
 }

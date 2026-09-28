@@ -9,10 +9,15 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     private readonly PotionStatusEffectState _statusEffects = new();
 
     public PotionTargetKind TargetKind => _targetKind;
+    public IDamageable Damageable { get; private set; }
+    public IThirstable Thirstable { get; private set; }
     public bool CanAct => _statusEffects.CanAct;
 
     private void Awake()
     {
+        Damageable = GetComponentInParent<IDamageable>();
+        Thirstable = GetComponentInParent<IThirstable>();
+
         if (_targetKind == PotionTargetKind.Player && _playerStatus == null)
         {
             _playerStatus = GetComponent<PlayerStatus>();
