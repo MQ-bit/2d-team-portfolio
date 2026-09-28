@@ -19,11 +19,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         }
     }
 
-    public void ApplyStatus(PotionStatusEffect status, float duration)
-    {
-        _statusEffects.Apply(status, duration);
-    }
-
     public void ClearStatuses()
     {
         _statusEffects.Clear();

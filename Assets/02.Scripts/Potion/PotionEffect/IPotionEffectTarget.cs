@@ -10,7 +10,6 @@ public interface IPotionEffectTarget
 
     // Applies status effects only. Health and thirst are handled by the player.
 
-    void ApplyStatus(PotionStatusEffect status, float duration);
     void ApplyStatus(PotionStatusEffect status, float duration, int sourceId);
     void ClearStatuses();
 }

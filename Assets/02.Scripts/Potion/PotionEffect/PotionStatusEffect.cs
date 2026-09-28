@@ -67,10 +67,6 @@ public sealed class PotionStatusEffectState
         _expiredSources.Clear();
     }
 
-    public void Apply(PotionStatusEffect status, float duration)
-    {
-        Apply(status, duration, 0);
-    }
 
     public void Apply(PotionStatusEffect status, float duration, int sourceId)
     {
