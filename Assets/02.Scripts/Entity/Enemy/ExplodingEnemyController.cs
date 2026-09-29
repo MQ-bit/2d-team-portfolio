@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +34,9 @@ public class ExplodingEnemyController : MonoBehaviour
     private Color _originalColor;
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+
+    // 예열이 끝나 자폭하는 순간. 체력으로 죽는 EnemyStatus.OnDeath와는 별개다.
+    public event Action OnExploded;
 
     private void Awake()
     {
@@ -192,6 +196,7 @@ public class ExplodingEnemyController : MonoBehaviour
     private void Explode()
     {
         _state = State.Exploded;
+        OnExploded?.Invoke();
         _damagedTargets.Clear();
 
         Physics2D.OverlapCircle(transform.position, _data.ExplosionRadius, ContactFilter2D.noFilter, _overlapResults);
