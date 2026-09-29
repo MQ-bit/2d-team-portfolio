@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 적이 피해를 입으면(EnemyStatus.OnHealthChanged에서 체력이 줄었을 때) 그 자리에 피격 이펙트를 생성한다.
+// 적이 피해를 입으면(EnemyStatus.OnDamaged) 그 자리에 피격 이펙트를 생성한다.
 // 이펙트는 적과 별개 오브젝트로 만들어 적이 움직이거나 파괴돼도 끝까지 재생되고, 일정 시간 후 스스로 정리된다.
 public class EnemyHitEffect : MonoBehaviour
 {
@@ -10,8 +10,6 @@ public class EnemyHitEffect : MonoBehaviour
     [Header("Effect")]
     [SerializeField] private GameObject _effectPrefab;
     [SerializeField, Min(0.1f)] private float _effectLifetime = 1f;
-
-    private float _lastHealth = float.MaxValue;
 
     private void Awake()
     {
@@ -33,7 +31,7 @@ public class EnemyHitEffect : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged += HandleHealthChanged;
+            _status.OnDamaged += HandleDamaged;
         }
     }
 
@@ -41,18 +39,14 @@ public class EnemyHitEffect : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged -= HandleHealthChanged;
+            _status.OnDamaged -= HandleDamaged;
         }
     }
 
-    // 회복할 때도 OnHealthChanged가 불리므로 체력이 줄었을 때만 재생한다.
-    // 죽는 타격에서는 사망 이펙트(EnemyDeathEffect)가 대신 재생되므로 건너뛴다.
-    private void HandleHealthChanged(float current, float max)
+    // 죽는 타격에서는 OnDamaged 대신 OnDeath가 불리므로 사망 이펙트(EnemyDeathEffect)만 재생된다.
+    private void HandleDamaged()
     {
-        bool isDamaged = current < _lastHealth;
-        _lastHealth = current;
-
-        if (!isDamaged || current <= 0f || _effectPrefab == null)
+        if (_effectPrefab == null)
         {
             return;
         }

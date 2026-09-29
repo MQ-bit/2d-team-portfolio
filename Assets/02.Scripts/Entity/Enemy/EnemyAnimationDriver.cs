@@ -3,7 +3,7 @@ using UnityEngine;
 // 적의 이동/피격 상태를 Animator(자식 Visual)에 전달한다. 컨트롤러 상태에 직접 접근하지 않고 관찰만 한다.
 // - 이동: FixedUpdate마다 Rigidbody2D 위치 변화로 판단 (MovePosition은 velocity를 남기지 않으므로)
 // - 방향: 가로 이동 방향에 따라 스프라이트를 좌우 반전 (에셋은 오른쪽을 바라봄)
-// - 피격: EnemyStatus.OnHealthChanged에서 체력이 줄었을 때 Hurt 트리거
+// - 피격: EnemyStatus.OnDamaged에서 Hurt 트리거
 public class EnemyAnimationDriver : MonoBehaviour
 {
     private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
@@ -19,7 +19,6 @@ public class EnemyAnimationDriver : MonoBehaviour
     [SerializeField, Min(0f)] private float _moveThreshold = 0.1f; // 초당 이동량이 이 값보다 커야 걷는 것으로 본다.
 
     private Vector2 _lastPosition;
-    private float _lastHealth = float.MaxValue;
 
     private void Awake()
     {
@@ -51,18 +50,19 @@ public class EnemyAnimationDriver : MonoBehaviour
         {
             _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
-
-        if (_rigid != null)
-        {
-            _lastPosition = _rigid.position;
-        }
     }
 
     private void OnEnable()
     {
+        // 재활성화(풀링, 순간이동 등) 직후 첫 프레임에 이전 위치와의 차이를 이동으로 오인하지 않도록 기준점을 다시 잡는다.
+        if (_rigid != null)
+        {
+            _lastPosition = _rigid.position;
+        }
+
         if (_status != null)
         {
-            _status.OnHealthChanged += HandleHealthChanged;
+            _status.OnDamaged += HandleDamaged;
         }
     }
 
@@ -70,7 +70,7 @@ public class EnemyAnimationDriver : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged -= HandleHealthChanged;
+            _status.OnDamaged -= HandleDamaged;
         }
     }
 
@@ -94,13 +94,9 @@ public class EnemyAnimationDriver : MonoBehaviour
         }
     }
 
-    // 회복할 때도 OnHealthChanged가 불리므로 체력이 줄었을 때만 재생한다.
-    private void HandleHealthChanged(float current, float max)
+    private void HandleDamaged()
     {
-        bool isDamaged = current < _lastHealth;
-        _lastHealth = current;
-
-        if (!isDamaged || current <= 0f || _animator == null)
+        if (_animator == null)
         {
             return;
         }

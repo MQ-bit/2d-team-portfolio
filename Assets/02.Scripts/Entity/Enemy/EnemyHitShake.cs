@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-// 적이 피해를 입으면(EnemyStatus.OnHealthChanged에서 체력이 줄었을 때) 외형을 잠깐 흔든다.
+// 적이 피해를 입으면(EnemyStatus.OnDamaged) 외형을 잠깐 흔든다.
 // 루트에는 Rigidbody2D가 있어 직접 흔들면 물리 이동과 충돌하므로, 스프라이트가 붙은 자식(Visual)만 흔든다.
 public class EnemyHitShake : MonoBehaviour
 {
@@ -15,7 +15,6 @@ public class EnemyHitShake : MonoBehaviour
 
     private Vector3 _originalLocalPosition;
     private Coroutine _shakeRoutine;
-    private float _lastHealth = float.MaxValue;
 
     private void Awake()
     {
@@ -43,7 +42,7 @@ public class EnemyHitShake : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged += HandleHealthChanged;
+            _status.OnDamaged += Shake;
         }
     }
 
@@ -51,24 +50,10 @@ public class EnemyHitShake : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged -= HandleHealthChanged;
+            _status.OnDamaged -= Shake;
         }
 
         StopShake();
-    }
-
-    // 회복할 때도 OnHealthChanged가 불리므로 체력이 줄었을 때만 흔든다.
-    private void HandleHealthChanged(float current, float max)
-    {
-        bool isDamaged = current < _lastHealth;
-        _lastHealth = current;
-
-        if (!isDamaged || current <= 0f)
-        {
-            return;
-        }
-
-        Shake();
     }
 
     private void Shake()

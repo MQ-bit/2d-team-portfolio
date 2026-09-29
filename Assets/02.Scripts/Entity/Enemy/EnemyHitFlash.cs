@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-// 적이 피해를 입으면(EnemyStatus.OnHealthChanged에서 체력이 줄었을 때) 스프라이트를 잠깐 번쩍이게 한다.
+// 적이 피해를 입으면(EnemyStatus.OnDamaged) 스프라이트를 잠깐 번쩍이게 한다.
 // SpriteRenderer.color는 곱연산이라 흰색으로 만들 수 없어서, 번쩍이는 동안만 단색 머티리얼로 교체한다.
 public class EnemyHitFlash : MonoBehaviour
 {
@@ -16,7 +16,6 @@ public class EnemyHitFlash : MonoBehaviour
     private Material _originalMaterial;
     private WaitForSeconds _waitForFlash;
     private Coroutine _flashRoutine;
-    private float _lastHealth = float.MaxValue;
 
     private void Awake()
     {
@@ -52,7 +51,7 @@ public class EnemyHitFlash : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged += HandleHealthChanged;
+            _status.OnDamaged += Flash;
         }
     }
 
@@ -60,24 +59,10 @@ public class EnemyHitFlash : MonoBehaviour
     {
         if (_status != null)
         {
-            _status.OnHealthChanged -= HandleHealthChanged;
+            _status.OnDamaged -= Flash;
         }
 
         StopFlash();
-    }
-
-    // 회복할 때도 OnHealthChanged가 불리므로 체력이 줄었을 때만 번쩍인다.
-    private void HandleHealthChanged(float current, float max)
-    {
-        bool isDamaged = current < _lastHealth;
-        _lastHealth = current;
-
-        if (!isDamaged || current <= 0f)
-        {
-            return;
-        }
-
-        Flash();
     }
 
     private void Flash()
