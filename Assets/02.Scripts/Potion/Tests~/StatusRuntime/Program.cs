@@ -22,6 +22,11 @@ internal static class Program
         Run("Damage callback may clear or refresh safely", Reentrant);
         Run("Player walk slows, dash ignores slow and respects freeze", PlayerMovement);
         Run("Interface dispatch directions and finite inputs", Dispatch);
+        Run("Single floor totals and lifetime boundary", SingleFloorTotals);
+        Run("Area timeline deduplicates overlap and exits once", AreaTimelineBoundary);
+        Run("Drink profiles, thirst direction, and legacy entry point", DrinkProfiles);
+        Run("Six persistent combination profiles", PersistentCombinations);
+        Run("Vampiric inheritance, residual owner, and vapor impacts", StageSevenProfiles);
         Console.WriteLine($"PASS: {_passed} scenarios");
     }
     private static void Run(string name, Action action)
@@ -230,7 +235,7 @@ internal static class Program
         Check(ReferenceEquals(potion, actual.Source.Potion), "potion attribution lost");
         Check(ReferenceEquals(combination, actual.Source.Combination), "combination attribution lost");
         Check(ReferenceEquals(owner, actual.Source.Owner), "owner attribution lost");
-        Equal(20, owner.CurrentHealth); // 지급은 7단계에서 연결한다.
+        Equal(20.6f, owner.CurrentHealth);
     }
     private static void Disable()
     {
@@ -301,6 +306,331 @@ internal static class Program
         PotionStatDispatcher.ChangeThirst(health, float.PositiveInfinity);
         Equal(50, health.Thirst);
     }
+
+    private static void SingleFloorTotals()
+    {
+        Equal(124, RunFloor(PotionEffectOperation.Heal, PotionElement.Heal, 6, 4, 1));
+        Equal(68, RunFloor(PotionEffectOperation.Damage, PotionElement.Fire, 8, 4, 1));
+        Equal(75, RunFloor(PotionEffectOperation.Damage, PotionElement.Poison, 5, 5, 1));
+        Equal(80, RunFloor(PotionEffectOperation.Damage, PotionElement.Ice, 5, 4, 1, true));
+        Equal(76, RunFloor(PotionEffectOperation.Damage, PotionElement.Lightning, 6, 2, 0.5f));
+    }
+
+    private static float RunFloor(PotionEffectOperation operation, PotionElement element,
+        float amount, float duration, float interval, bool frost = false)
+    {
+        Time.timeAsDouble = 0;
+        var health = new FakeHealth();
+        var receiver = Receiver(health);
+        PotionEffectProfile profile = Profile(interval,
+            Definition(PotionEffectPhase.FloorTick, operation, element, amount));
+        if (frost)
+        {
+            AddEffect(profile, Definition(PotionEffectPhase.FloorTick,
+                PotionEffectOperation.AddFrostStacks, PotionElement.Ice, 0));
+        }
+        var source = new PotionEffectSource(41);
+        var timeline = new PotionAreaTimeline<PotionEffectReceiver>(duration, interval, true,
+            _ => true,
+            target => target.EnterFloor(profile, source),
+            target => target.PulseFloor(source.SourceId),
+            (target, residual) => target.ExitFloor(source.SourceId, residual));
+        for (double now = 0; now <= duration; now += interval)
+        {
+            Time.timeAsDouble = now;
+            timeline.Synchronize(new[] { receiver, receiver }, now);
+        }
+        Check(!frost || receiver.FrostStackCount == 0, "frost stacks must reset when floor expires");
+        return health.CurrentHealth;
+    }
+
+    private static void AreaTimelineBoundary()
+    {
+        int enters = 0, ticks = 0, exits = 0;
+        var timeline = new PotionAreaTimeline<int>(2, 1, true, _ => true,
+            _ => enters++, _ => ticks++, (_, residual) => { if (residual) exits++; });
+        timeline.Synchronize(new[] { 7, 7 }, 0);
+        timeline.Synchronize(new[] { 7, 7 }, 1);
+        timeline.Synchronize(new[] { 7 }, 2);
+        timeline.Synchronize(Array.Empty<int>(), 3);
+        Equal(1, enters);
+        Equal(2, ticks);
+        Equal(1, exits);
+    }
+
+    private static void DrinkProfiles()
+    {
+        DrinkCase(130, 10, -40,
+            Definition(PotionEffectPhase.Drink, PotionEffectOperation.Heal, PotionElement.Heal, 30));
+        DrinkDotCase(PotionStatusEffect.Burning, PotionElement.Fire, 6, 4, 76);
+        DrinkDotCase(PotionStatusEffect.Poisoned, PotionElement.Poison, 5, 5, 75);
+
+        var frozen = Definition(PotionEffectPhase.Drink, PotionEffectOperation.ApplyStatus,
+            PotionElement.Ice, 0, PotionStatusEffect.Frozen, 2, moveMultiplier: 0);
+        var ice = DrinkCase(85, 20, -30,
+            Definition(PotionEffectPhase.Drink, PotionEffectOperation.Damage, PotionElement.Ice, 15), frozen);
+        Check(!ice.CanMove, "frost drink must freeze immediately");
+
+        var paralysis = Definition(PotionEffectPhase.Drink, PotionEffectOperation.ApplyStatus,
+            PotionElement.Lightning, 0, PotionStatusEffect.Paralyzed, 2, 0.4f, true, 0, 0.1f);
+        var lightning = DrinkCase(80, 20, -30,
+            Definition(PotionEffectPhase.Drink, PotionEffectOperation.Damage, PotionElement.Lightning, 20),
+            paralysis);
+        Check(!lightning.CanMove, "lightning drink must start paralysis immediately");
+
+        var vaporHealth = new FakeHealth();
+        var vaporReceiver = Receiver(vaporHealth);
+        vaporReceiver.ApplyStatus(Dot(duration: 10));
+        PotionEffectProfile vaporProfile = Profile(1,
+            Definition(PotionEffectPhase.Drink, PotionEffectOperation.Damage,
+                PotionElement.Vaporization, 15));
+        Set(vaporProfile, "_thirstDelta", 30f);
+        PotionEffectApplier.ApplyDrinkEffect(
+            new PotionData { ThrownProfile = vaporProfile }, vaporReceiver);
+        Equal(85, vaporHealth.CurrentHealth);
+        Equal(80, vaporHealth.Thirst);
+        Equal(1, vaporReceiver.GetStatusStackCount(PotionStatusEffect.Burning));
+    }
+
+    private static void DrinkDotCase(PotionStatusEffect status, PotionElement element,
+        float amount, int duration, float expectedHealth)
+    {
+        var dot = Definition(PotionEffectPhase.Drink, PotionEffectOperation.ApplyStatus,
+            element, amount, status, duration, 1);
+        var receiver = DrinkCase(100, 20, -30, dot);
+        var health = (FakeHealth)receiver.Damageable;
+        Time.timeAsDouble = duration;
+        Call(receiver, "Update");
+        Equal(expectedHealth, health.CurrentHealth);
+    }
+
+    private static PotionEffectReceiver DrinkCase(float expectedHealth, float expectedThirst,
+        float thirstDelta, params PotionEffectDefinition[] effects)
+    {
+        Time.timeAsDouble = 0;
+        var health = new FakeHealth();
+        var receiver = Receiver(health); // 기본 Enemy이므로 투척 TargetType 필터를 사용하면 실패한다.
+        PotionEffectProfile profile = Profile(1, effects);
+        Set(profile, "_thirstDelta", thirstDelta);
+        var potion = new PotionData { ThrownProfile = profile };
+        PotionEffectApplier.ApplyDrinkEffect(potion, receiver);
+        Equal(expectedHealth, health.CurrentHealth);
+        Equal(expectedThirst, health.Thirst);
+        return receiver;
+    }
+
+    private static void PersistentCombinations()
+    {
+        PotionEffectDefinition burnExit = Definition(PotionEffectPhase.FloorExit,
+            PotionEffectOperation.ApplyStatus, PotionElement.Fire, 4,
+            PotionStatusEffect.Burning, 2, 1);
+        PotionEffectDefinition poisonExit = Definition(PotionEffectPhase.FloorExit,
+            PotionEffectOperation.ApplyStatus, PotionElement.Poison, 5,
+            PotionStatusEffect.Poisoned, 3, 1);
+        PotionEffectDefinition frost = Definition(PotionEffectPhase.FloorTick,
+            PotionEffectOperation.AddFrostStacks, PotionElement.Ice, 0);
+        PotionEffectDefinition shortParalysis = Definition(PotionEffectPhase.FloorTick,
+            PotionEffectOperation.ApplyStatus, PotionElement.Lightning, 0,
+            PotionStatusEffect.Paralyzed, 0.15f, moveMultiplier: 0, immobilizeDuration: 0.15f);
+
+        var toxicFlame = CombinationCase(5,
+            new[] {
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Fire, 6),
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Poison, 4),
+                burnExit, poisonExit
+            }, 150);
+        Equal(1, toxicFlame.GetStatusStackCount(PotionStatusEffect.Burning));
+        Equal(1, toxicFlame.GetStatusStackCount(PotionStatusEffect.Poisoned));
+
+        var thermal = CombinationCase(4,
+            new[] {
+                Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage, PotionElement.Fire, 25),
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Fire, 5),
+                frost
+            }, 155, expectFreezeOnThirdPulse: true);
+
+        var blazing = CombinationCase(4,
+            new[] {
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Fire, 6),
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Lightning, 12),
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.ApplyStatus,
+                    PotionElement.Lightning, 0, PotionStatusEffect.Paralyzed, 0.1f,
+                    moveMultiplier: 0, immobilizeDuration: 0.1f),
+                burnExit
+            }, 128, expectFirstPulseStop: true);
+        Equal(1, blazing.GetStatusStackCount(PotionStatusEffect.Burning));
+
+        var frostPoison = CombinationCase(5,
+            new[] {
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Poison, 5),
+                frost, poisonExit
+            }, 175, expectFreezeOnThirdPulse: true);
+
+        var toxicCurrent = CombinationCase(5,
+            new[] {
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Poison, 5),
+                shortParalysis, poisonExit
+            }, 175, expectFirstPulseStop: true);
+        Equal(1, toxicCurrent.GetStatusStackCount(PotionStatusEffect.Poisoned));
+
+        var frozenCurrent = CombinationCase(4,
+            new[] {
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Fire, 4),
+                Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage, PotionElement.Lightning, 8),
+                frost, shortParalysis
+            }, 152, expectFirstPulseStop: true, expectFreezeOnThirdPulse: true);
+    }
+
+    private static PotionEffectReceiver CombinationCase(float duration,
+        PotionEffectDefinition[] effects, float expectedHealth, bool expectFirstPulseStop = false,
+        bool expectFreezeOnThirdPulse = false)
+    {
+        Time.timeAsDouble = 0;
+        var health = new FakeHealth(200);
+        var receiver = Receiver(health);
+        PotionEffectProfile profile = Profile(1, effects);
+        Set(profile, "_targetType", PotionTargetType.Enemy);
+        var source = new PotionEffectSource(71, combination: new PotionCombinationData());
+        PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact, receiver, source);
+        var timeline = new PotionAreaTimeline<PotionEffectReceiver>(duration, 1, true,
+            _ => true,
+            target => target.EnterFloor(profile, source),
+            target => target.PulseFloor(source.SourceId),
+            (target, residual) => target.ExitFloor(source.SourceId, residual));
+        for (int now = 0; now <= duration; now++)
+        {
+            Time.timeAsDouble = now;
+            timeline.Synchronize(new[] { receiver }, now);
+            if (now == 0 && expectFirstPulseStop)
+                Check(!receiver.CanMove, "combination paralysis missing on first pulse");
+            if (now == 2 && expectFreezeOnThirdPulse)
+                Check(!receiver.CanMove, "combination frost did not freeze on third pulse");
+        }
+        Equal(expectedHealth, health.CurrentHealth);
+        return receiver;
+    }
+
+    private static void StageSevenProfiles()
+    {
+        PotionEffectDefinition burnExit = Definition(PotionEffectPhase.FloorExit,
+            PotionEffectOperation.ApplyStatus, PotionElement.Fire, 4,
+            PotionStatusEffect.Burning, 2, 1);
+        PotionEffectDefinition poisonExit = Definition(PotionEffectPhase.FloorExit,
+            PotionEffectOperation.ApplyStatus, PotionElement.Poison, 5,
+            PotionStatusEffect.Poisoned, 3, 1);
+
+        Equal(18, VampiricCase(4, 1, 2,
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage,
+                PotionElement.Fire, 8), burnExit));
+        Equal(18, VampiricCase(5, 1, 3,
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage,
+                PotionElement.Poison, 5), poisonExit));
+        Equal(14, VampiricCase(4, 1, 0,
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage,
+                PotionElement.Ice, 5),
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.AddFrostStacks,
+                PotionElement.Ice, 0)));
+        Equal(14.8f, VampiricCase(2, 0.5f, 0,
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.Damage,
+                PotionElement.Lightning, 6),
+            Definition(PotionEffectPhase.FloorTick, PotionEffectOperation.ApplyStatus,
+                PotionElement.Lightning, 0, PotionStatusEffect.Paralyzed, 0.1f,
+                moveMultiplier: 0, immobilizeDuration: 0.1f)));
+
+        foreach (PotionElement element in new[] {
+                     PotionElement.Fire, PotionElement.Poison,
+                     PotionElement.Ice, PotionElement.Lightning })
+        {
+            Time.timeAsDouble = 0;
+            var health = new FakeHealth();
+            var receiver = Receiver(health);
+            PotionEffectProfile profile = Profile(1,
+                Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage, element, 30));
+            Set(profile, "_targetType", PotionTargetType.Enemy);
+            PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact,
+                receiver, new PotionEffectSource(99, combination: new PotionCombinationData()));
+            Equal(70, health.CurrentHealth);
+            Equal(0, receiver.GetStatusStackCount(PotionStatusEffect.Burning));
+            Equal(0, receiver.GetStatusStackCount(PotionStatusEffect.Poisoned));
+        }
+
+        var cappedTarget = new FakeHealth(3);
+        var cappedOwner = new FakeHealth(10);
+        var cappedReceiver = Receiver(cappedTarget);
+        PotionEffectProfile cappedProfile = Profile(1,
+            Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage,
+                PotionElement.Fire, 30));
+        Set(cappedProfile, "_targetType", PotionTargetType.Enemy);
+        PotionEffectApplier.ApplyProfilePhase(cappedProfile, PotionEffectPhase.Impact,
+            cappedReceiver, new PotionEffectSource(100, owner: cappedOwner, lifeStealRatio: 0.2f));
+        Equal(10.6f, cappedOwner.CurrentHealth);
+    }
+
+    private static float VampiricCase(float duration, float interval, float residualDuration,
+        params PotionEffectDefinition[] effects)
+    {
+        Time.timeAsDouble = 0;
+        var targetHealth = new FakeHealth(200);
+        var owner = new FakeHealth(10);
+        var receiver = Receiver(targetHealth);
+        PotionEffectProfile profile = Profile(interval, effects);
+        var source = new PotionEffectSource(81, combination: new PotionCombinationData(),
+            owner: owner, lifeStealRatio: 0.2f);
+        var timeline = new PotionAreaTimeline<PotionEffectReceiver>(duration, interval, true,
+            _ => true,
+            target => target.EnterFloor(profile, source),
+            target => target.PulseFloor(source.SourceId),
+            (target, residual) => target.ExitFloor(source.SourceId, residual));
+        for (double now = 0; now <= duration; now += interval)
+        {
+            Time.timeAsDouble = now;
+            timeline.Synchronize(new[] { receiver }, now);
+        }
+        if (residualDuration > 0)
+        {
+            Time.timeAsDouble = duration + residualDuration;
+            Call(receiver, "Update");
+        }
+        return owner.CurrentHealth;
+    }
+
+    private static PotionEffectProfile Profile(float interval, params PotionEffectDefinition[] effects)
+    {
+        var profile = new PotionEffectProfile();
+        Set(profile, "_tickInterval", interval);
+        Set(profile, "_applyOnEnter", true);
+        Set(profile, "_effects", new List<PotionEffectDefinition>(effects));
+        return profile;
+    }
+
+    private static PotionEffectDefinition Definition(PotionEffectPhase phase,
+        PotionEffectOperation operation, PotionElement element, float amount,
+        PotionStatusEffect status = default, float duration = 0, float tickInterval = 0,
+        bool applyImmediately = false, float moveMultiplier = 1, float immobilizeDuration = 0)
+    {
+        var effect = new PotionEffectDefinition();
+        Set(effect, "_phase", phase);
+        Set(effect, "_operation", operation);
+        Set(effect, "_element", element);
+        Set(effect, "_amount", amount);
+        Set(effect, "_status", status);
+        Set(effect, "_duration", duration);
+        Set(effect, "_tickInterval", tickInterval);
+        Set(effect, "_applyImmediately", applyImmediately);
+        Set(effect, "_moveSpeedMultiplier", moveMultiplier);
+        Set(effect, "_immobilizeDuration", immobilizeDuration);
+        return effect;
+    }
+
+    private static void AddEffect(PotionEffectProfile profile, PotionEffectDefinition effect) =>
+        ((List<PotionEffectDefinition>)Get(profile, "_effects")).Add(effect);
+
+    private static object Get(object target, string name) => target.GetType()
+        .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target);
+
+    private static void Set(object target, string name, object value) => target.GetType()
+        .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
+
     private static void Call(object target, string name) => target.GetType()
         .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, null);
 

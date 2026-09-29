@@ -3,8 +3,6 @@ using UnityEngine;
 // 조합 수치만 계산한다. 피해 주기 실행, HP 변경, 장판 제거는 호출자가 담당한다.
 public static class PotionCombinationEffectCalculator
 {
-    private const float FixedDamageDuration = 4f;
-    private const float CombinationDamageMultiplier = 1.2f;
     private const float CombinationTickInterval = 1f;
 
     private static readonly System.Collections.Generic.Dictionary<PotionCombination, PotionElement> SourceElements = new()
@@ -69,7 +67,7 @@ public static class PotionCombinationEffectCalculator
 
             bool removeGroundAreas = combination.TryGetEffect(PotionCombinationEffectKind.RemoveGroundAreas, out _);
             result = new Result(combination.Combination, PotionElement.None,
-                0f, 0f, FixedDamageDuration, 0f,
+                0f, 0f, combination.CombinationDuration, 0f,
                 NonNegativeFinite(recovery.Amount), removeGroundAreas, null, 0f);
             return true;
         }
@@ -107,7 +105,7 @@ public static class PotionCombinationEffectCalculator
 
         result = new Result(combination.Combination, sourceElement,
             NonNegativeFinite(damageAmount), tickInterval,
-            FixedDamageDuration,
+            combination.CombinationDuration,
             Mathf.Clamp01(NonNegativeFinite(damage.LifeStealRatio)), 0f, false, status, statusDuration);
         return true;
     }
@@ -123,13 +121,13 @@ public static class PotionCombinationEffectCalculator
             return false;
         }
 
-        float damagePerSecond = (CalculateAreaDamagePerSecond(first) +
-                                 CalculateAreaDamagePerSecond(second)) * CombinationDamageMultiplier;
+        float damagePerSecond = CalculateAreaDamagePerSecond(first) +
+                                CalculateAreaDamagePerSecond(second);
         if (damagePerSecond <= 0f) return false;
 
         ResolveStatus(combination, first, second, out PotionStatusEffect? status, out float statusDuration);
         result = new Result(combination.Combination, ResolveDamageElement(combination, first),
-            damagePerSecond, CombinationTickInterval, FixedDamageDuration,
+            damagePerSecond, CombinationTickInterval, combination.CombinationDuration,
             0f, 0f, false, status, statusDuration);
         return true;
     }
@@ -145,13 +143,13 @@ public static class PotionCombinationEffectCalculator
             return false;
         }
 
-        float instantDamage = CalculateTotalAreaDamage(source) * CombinationDamageMultiplier;
+        float instantDamage = CalculateTotalAreaDamage(source);
         if (instantDamage <= 0f) return false;
 
         ResolveStatus(combination, first, second, out PotionStatusEffect? status, out float statusDuration);
         bool removeGroundAreas = combination.TryGetEffect(PotionCombinationEffectKind.RemoveGroundAreas, out _);
         result = new Result(combination.Combination, source.Element,
-            instantDamage, 0f, FixedDamageDuration,
+            instantDamage, 0f, combination.CombinationDuration,
             0f, 0f, removeGroundAreas, status, statusDuration);
         return true;
     }

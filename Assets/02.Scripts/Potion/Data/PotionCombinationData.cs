@@ -117,6 +117,41 @@ public sealed class PotionCombinationData : ScriptableObject
     public PotionEffectProfile EffectProfile => _effectProfile;
     public PotionElement InheritThrownEffectsFrom => _inheritThrownEffectsFrom;
 
+    // 외부 레거시 조합 에셋을 수정하지 않고 Potion 내부 기준 프로필을 사용한다.
+    private PotionCombinationData _defaultRuntimeData;
+    public PotionEffectProfile RuntimeProfile
+    {
+        get
+        {
+            if (HasEffectProfile) return _effectProfile;
+            LoadDefaultRuntimeData();
+            return _defaultRuntimeData != null && _defaultRuntimeData.HasEffectProfile
+                ? _defaultRuntimeData.EffectProfile : null;
+        }
+    }
+
+    public float RuntimeCombinationDuration
+    {
+        get
+        {
+            if (HasEffectProfile) return _combinationDuration;
+            LoadDefaultRuntimeData();
+            return _defaultRuntimeData != null && _defaultRuntimeData.HasEffectProfile
+                ? _defaultRuntimeData.CombinationDuration : _combinationDuration;
+        }
+    }
+
+    public PotionElement RuntimeInheritThrownEffectsFrom
+    {
+        get
+        {
+            if (HasEffectProfile) return _inheritThrownEffectsFrom;
+            LoadDefaultRuntimeData();
+            return _defaultRuntimeData != null && _defaultRuntimeData.HasEffectProfile
+                ? _defaultRuntimeData.InheritThrownEffectsFrom : _inheritThrownEffectsFrom;
+        }
+    }
+
     public bool IsMatch(PotionElement a, PotionElement b)
     {
         return
@@ -144,6 +179,7 @@ public sealed class PotionCombinationData : ScriptableObject
 
     private void OnValidate()
     {
+        _defaultRuntimeData = null;
         _displayName = _displayName?.Trim();
         _description = _description?.Trim();
 
@@ -151,6 +187,15 @@ public sealed class PotionCombinationData : ScriptableObject
             SanitizeNonNegative(_combinationDuration);
         _effectProfile ??= new PotionEffectProfile();
         _effectProfile.Validate();
+    }
+
+    private void LoadDefaultRuntimeData()
+    {
+        if (_defaultRuntimeData == null && _combination != PotionCombination.None)
+        {
+            _defaultRuntimeData = Resources.Load<PotionCombinationData>(
+                "CombinationDefaults/" + _combination);
+        }
     }
 
     private static float SanitizeNonNegative(float value)

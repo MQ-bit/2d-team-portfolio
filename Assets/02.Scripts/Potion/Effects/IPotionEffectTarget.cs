@@ -13,6 +13,10 @@ public interface IPotionEffectTarget
     IThirstable Thirstable { get; }
 
     void ApplyStatus(PotionStatusEffect status, float duration, int sourceId);
+    void EnterFloor(PotionEffectProfile profile, PotionEffectSource source);
+    void PulseFloor(int sourceId);
+    void ExitFloor(int sourceId, bool applyResidual);
+    void ApplyEffect(PotionEffectDefinition effect, PotionEffectProfile profile, PotionEffectSource source);
     void ClearStatuses();
     void RemoveStatusesFromSource(int sourceId);
 }

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
-    private const float CombinationDuration = 4f;
     [SerializeField] private PotionCombinationDatabase _database;
     [SerializeField] private PotionCombinedAreaShape _combinedAreaShape;
 
@@ -80,11 +79,25 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         PotionCombinationDatabase database = _database != null ? _database : otherCombiner._database;
         if (database == null ||
-            !database.TryGetCombination(_area.Data.Element, other.Data.Element, out PotionCombinationData data) ||
-            !PotionCombinationEffectCalculator.TryCalculate(data, _area.Data, other.Data, out var result))
+            !database.TryGetCombination(_area.Data.Element, other.Data.Element, out PotionCombinationData data))
         {
             return false;
         }
+
+        PotionEffectProfile runtimeProfile = data.RuntimeProfile;
+        if (runtimeProfile != null)
+        {
+            if (runtimeProfile.CreatesFloor ||
+                data.RuntimeInheritThrownEffectsFrom != PotionElement.None)
+            {
+                return CreateProfileCombination(other, otherCombiner, data, runtimeProfile);
+            }
+
+            return CreateInstantProfileCombination(other, otherCombiner, data, runtimeProfile);
+        }
+
+        if (!PotionCombinationEffectCalculator.TryCalculate(data, _area.Data, other.Data, out var result))
+            return false;
 
         // Claim both areas before applying anything so the mirrored trigger callback cannot duplicate the combination.
         IsCombined = true;
@@ -124,12 +137,79 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             return true;
         }
 
-        float expiresAt = Time.time + CombinationDuration;
+        float expiresAt = Time.time + data.CombinationDuration;
         _combinedAreaShape.Create(_area, other, data.VisualData);
         IDamageable combinationOwner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
         _area.AreaEffect.ReplaceWithCombination(result, combinationOwner, expiresAt);
         _area.SetExpiration(expiresAt);
         other.SetExpiration(expiresAt);
+        return true;
+    }
+
+    private bool CreateProfileCombination(PotionGroundArea other,
+        PotionAreaCombiner otherCombiner, PotionCombinationData data,
+        PotionEffectProfile templateProfile)
+    {
+        PotionEffectProfile effectProfile = templateProfile;
+        float duration = data.RuntimeCombinationDuration;
+        PotionElement inheritedElement = data.RuntimeInheritThrownEffectsFrom;
+        if (inheritedElement != PotionElement.None)
+        {
+            PotionData inheritedPotion = _area.Data.Element == inheritedElement ? _area.Data :
+                other.Data.Element == inheritedElement ? other.Data : null;
+            effectProfile = inheritedPotion == null ? null : inheritedPotion.ThrownProfile;
+            if (effectProfile == null) return false;
+            duration = effectProfile.FloorDuration;
+        }
+
+        // 양쪽을 먼저 선점한다. 미러 Trigger와 세 번째 포션은 이후 IsCombined에서 차단된다.
+        IsCombined = true;
+        otherCombiner.IsCombined = true;
+
+        _combinedAreaShape.Create(_area, other, data.VisualData);
+        float expiresAt = Time.time + duration;
+        IDamageable owner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
+        _area.AreaEffect.ReplaceWithCombinationProfile(data, effectProfile, owner,
+            templateProfile.LifeStealRatio, expiresAt, _combinedAreaShape.CombinationCollider);
+        _area.SetExpiration(expiresAt);
+        other.SetExpiration(expiresAt);
+        return true;
+    }
+
+    private bool CreateInstantProfileCombination(PotionGroundArea other,
+        PotionAreaCombiner otherCombiner, PotionCombinationData data,
+        PotionEffectProfile profile)
+    {
+        IsCombined = true;
+        otherCombiner.IsCombined = true;
+
+        PotionGroundArea impactArea = _area.Data.Element == PotionElement.Vaporization
+            ? _area : other;
+        IDamageable owner = IsAlive(impactArea.Owner) ? impactArea.Owner :
+            IsAlive(_area.Owner) ? _area.Owner : other.Owner;
+        var source = new PotionEffectSource(_area.GetInstanceID(), combination: data,
+            owner: owner, lifeStealRatio: profile.LifeStealRatio);
+
+        Physics2D.SyncTransforms();
+        Vector3 scale = impactArea.transform.lossyScale;
+        float radiusScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
+        float radius = profile.EffectRadius * radiusScale;
+        var hits = new List<Collider2D>();
+        var targets = new HashSet<IPotionEffectTarget>();
+        ContactFilter2D filter = new() { useTriggers = true };
+        Physics2D.OverlapCircle(impactArea.transform.position, radius, filter, hits);
+        foreach (Collider2D hit in hits)
+        {
+            IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
+            if (!PotionEffectApplier.CanAffect(profile.TargetType, target) || !targets.Add(target)) continue;
+            PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact, target, source);
+        }
+
+        // 기화는 원본 장판의 FloorExit 잔류 효과까지 제거한다.
+        _area.AreaEffect.DisableForCombination();
+        other.AreaEffect.DisableForCombination();
+        _area.Remove();
+        other.Remove();
         return true;
     }
 

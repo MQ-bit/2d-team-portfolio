@@ -15,6 +15,9 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private IDamageable _combinationOwner;
     private float _combinationExpiresAt;
     private bool _removeCombinationStatusesOnDisable = true;
+    private PotionEffectProfile _singleProfile;
+    private PotionEffectSource _singleSource;
+    private PotionAreaTimeline<IPotionEffectTarget> _singleTimeline;
 
     public bool HasCombination => _hasCombination;
     private float TickInterval => _hasCombination ? _combination.TickInterval : _data.TickInterval;
@@ -29,9 +32,68 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         _data = data;
     }
 
+    public void ActivateSingleProfile(IDamageable owner, float expiresAt)
+    {
+        _singleProfile = _data == null ? null : _data.ThrownProfile;
+        if (_singleProfile == null) return;
+
+        _singleSource = new PotionEffectSource(_sourceId, _data, owner: owner,
+            lifeStealRatio: _singleProfile.LifeStealRatio);
+        if (_singleProfile.CreatesFloor)
+        {
+            _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
+                _singleProfile.TickInterval, _singleProfile.ApplyOnEnter,
+                IsValidSingleTarget, EnterSingleFloor, PulseSingleFloor, ExitSingleFloor);
+            SynchronizeSingleTimeline();
+        }
+    }
+
+    public void ApplySingleImpact(Collider2D effectCollider = null)
+    {
+        if (_singleProfile == null) return;
+
+        Physics2D.SyncTransforms();
+        Collider2D areaCollider = effectCollider != null ? effectCollider : GetComponent<Collider2D>();
+        if (areaCollider == null) return;
+
+        var hits = new List<Collider2D>();
+        var targets = new HashSet<IPotionEffectTarget>();
+        ContactFilter2D filter = new() { useTriggers = true };
+        areaCollider.Overlap(filter, hits);
+        foreach (Collider2D hit in hits)
+        {
+            IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
+            if (!IsValidSingleTarget(target) || !targets.Add(target)) continue;
+            PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
+                target, _singleSource);
+        }
+    }
+
+    public void ReplaceWithCombinationProfile(PotionCombinationData combination,
+        PotionEffectProfile profile, IDamageable owner, float lifeStealRatio,
+        float expiresAt, Collider2D effectCollider)
+    {
+        EndSingleTimeline(false);
+        StopAllCoroutines();
+        _tickRoutines.Clear();
+        RemoveAppliedStatuses();
+
+        _hasCombination = true;
+        _singleProfile = profile;
+        if (_singleProfile == null) return;
+        _singleSource = new PotionEffectSource(_sourceId, combination: combination,
+            owner: owner, lifeStealRatio: lifeStealRatio);
+        _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
+            _singleProfile.TickInterval, _singleProfile.ApplyOnEnter,
+            IsValidSingleTarget, EnterSingleFloor, PulseSingleFloor, ExitSingleFloor);
+        SynchronizeSingleTimeline();
+        ApplySingleImpact(effectCollider);
+    }
+
     public void ReplaceWithCombination(PotionCombinationEffectCalculator.Result combination,
         IDamageable owner, float expiresAt, bool removeStatusesOnDisable = true)
     {
+        EndSingleTimeline(false);
         StopAllCoroutines();
         _tickRoutines.Clear();
         RemoveAppliedStatuses();
@@ -51,6 +113,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
 
     public void DisableForCombination()
     {
+        EndSingleTimeline(false);
         StopAllCoroutines();
         RemoveAppliedStatuses();
         _overlapCounts.Clear();
@@ -111,6 +174,15 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             return;
         }
 
+        if (_singleTimeline != null)
+        {
+            SynchronizeSingleTimeline();
+            return;
+        }
+        // Initialize와 Activate 사이에 물리 콜백이 먼저 와도 새 프로필을 레거시 수치로 실행하지 않는다.
+        if (!_hasCombination && _data.ThrownProfile != null)
+            return;
+
         StartTargetEffect(target);
     }
 
@@ -129,6 +201,13 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         }
 
         _overlapCounts.Remove(target);
+        if (_singleTimeline != null)
+        {
+            SynchronizeSingleTimeline();
+            return;
+        }
+        if (!_hasCombination && _data != null && _data.ThrownProfile != null)
+            return;
         if (_tickRoutines.Remove(target, out Coroutine routine))
         {
             StopCoroutine(routine);
@@ -151,8 +230,38 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         _tickRoutines.Remove(target);
     }
 
+    private void Update()
+    {
+        SynchronizeSingleTimeline();
+    }
+
+    private bool IsValidSingleTarget(IPotionEffectTarget target) =>
+        _singleProfile != null && PotionEffectApplier.CanAffect(_singleProfile.TargetType, target);
+
+    private void EnterSingleFloor(IPotionEffectTarget target) =>
+        target.EnterFloor(_singleProfile, _singleSource);
+
+    private void PulseSingleFloor(IPotionEffectTarget target) => target.PulseFloor(_sourceId);
+
+    private void ExitSingleFloor(IPotionEffectTarget target, bool applyResidual) =>
+        target.ExitFloor(_sourceId, applyResidual);
+
+    private void SynchronizeSingleTimeline()
+    {
+        _singleTimeline?.Synchronize(_overlapCounts.Keys, Time.timeAsDouble);
+    }
+
+    private void EndSingleTimeline(bool applyResidual)
+    {
+        _singleTimeline?.End(applyResidual);
+        _singleTimeline = null;
+        _singleProfile = null;
+    }
+
     private void OnDisable()
     {
+        // 조합 전환은 DisableForCombination에서 false로 먼저 끝낸다. 자연 종료는 잔류 효과를 남긴다.
+        EndSingleTimeline(true);
         StopAllCoroutines();
         if (_hasCombination && _removeCombinationStatusesOnDisable) RemoveAppliedStatuses();
         _affectedTargets.Clear();

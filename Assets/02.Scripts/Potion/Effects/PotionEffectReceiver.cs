@@ -74,7 +74,11 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         {
             case PotionEffectOperation.Damage:
                 PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, effect.Amount, source, effect.Element);
-                if (result.ActualDamage > 0f) DamageApplied?.Invoke(result);
+                if (result.ActualDamage > 0f)
+                {
+                    PotionEffectApplier.RestoreCombinationOwner(source.Owner, result.LifeStealAmount);
+                    DamageApplied?.Invoke(result);
+                }
                 break;
             case PotionEffectOperation.Heal:
                 PotionStatDispatcher.Heal(Damageable, effect.Amount);
@@ -155,6 +159,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
             tick.Source, tick.Application.Element);
         if (result.ActualDamage > 0f)
         {
+            PotionEffectApplier.RestoreCombinationOwner(tick.Source.Owner, result.LifeStealAmount);
             StatusDamageApplied?.Invoke(result);
             DamageApplied?.Invoke(result);
         }

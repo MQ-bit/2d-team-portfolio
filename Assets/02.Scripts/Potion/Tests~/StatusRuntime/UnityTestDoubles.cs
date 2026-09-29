@@ -4,8 +4,28 @@ using System.Collections.Generic;
 
 namespace UnityEngine
 {
-    public class Object { }
-    public class MonoBehaviour : Object
+    public class Object
+    {
+        private static int _nextId;
+        private readonly int _id = ++_nextId;
+        public int GetInstanceID() => _id;
+    }
+    public class Component : Object
+    {
+        private Transform _transform;
+        public Transform transform => this as Transform ?? (_transform ??= new Transform());
+    }
+    public class Transform : Component
+    {
+        public Transform parent;
+        public readonly List<object> Components = new();
+        public bool TryGetComponent<T>(out T value) where T : class
+        {
+            value = Components.Find(item => item is T) as T;
+            return value != null;
+        }
+    }
+    public class MonoBehaviour : Component
     {
         public bool isActiveAndEnabled = true;
         public readonly List<object> Components = new();
@@ -34,6 +54,26 @@ namespace UnityEngine
 }
 
 // 상태 실행기는 이 에셋들을 읽지 않고 출처 참조로만 보존한다.
-public class PotionData : UnityEngine.Object { }
+public class PotionData : UnityEngine.Object
+{
+    public PotionEffectProfile ThrownProfile;
+    public PotionElement Element;
+    public float AreaEffectAmount;
+    public float DrinkEffectAmount;
+    public float DrinkThirstRecoveryAmount;
+    public float EffectDuration;
+}
 public class PotionCombinationData : UnityEngine.Object { }
 public enum PotionElement { None, Fire, Poison, Ice, Heal, Lightning, Vaporization }
+
+public static class PotionCombinationEffectCalculator
+{
+    public readonly struct Result
+    {
+        public float TickInterval => 0;
+        public float DamagePerTick => 0;
+        public PotionStatusEffect? Status => null;
+        public float StatusDuration => 0;
+        public float CalculateLifeSteal(float actualDamage) => 0;
+    }
+}
