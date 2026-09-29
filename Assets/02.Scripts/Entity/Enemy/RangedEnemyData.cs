@@ -1,0 +1,25 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "RangedEnemyData", menuName = "Enemy/Ranged Enemy Data")]
+public class RangedEnemyData : EnemyData
+{
+    [Header("Attack")]
+    [Tooltip("플레이어가 이 거리 안에 들어오면 멈추고 공격한다.")]
+    [SerializeField, Min(0f)] private float _attackRange = 4f;
+    [Tooltip("공격 상태에서 추적으로 되돌아가기까지 AttackRange에 더해지는 여유 거리. " +
+             "AttackRange와 같은 값이면 경계선에서 추적/공격이 매 프레임 반복되며 버벅거릴 수 있다.")]
+    [SerializeField, Min(0f)] private float _chaseResumeBuffer = 0.5f;
+    [SerializeField, Min(0f)] private float _attackCooldown = 1.5f;
+
+    [Header("Projectile")]
+    [SerializeField, Min(0f)] private float _projectileSpeed = 8f;
+    [SerializeField, Min(0f)] private float _projectileDamage = 10f;
+    [SerializeField, Min(0f)] private float _projectileLifetime = 3f;
+
+    public float AttackRange => _attackRange;
+    public float ChaseResumeRange => _attackRange + _chaseResumeBuffer;
+    public float AttackCooldown => _attackCooldown;
+    public float ProjectileSpeed => _projectileSpeed;
+    public float ProjectileDamage => _projectileDamage;
+    public float ProjectileLifetime => _projectileLifetime;
+}
