@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // 조합 수치만 계산한다. 피해 주기 실행, HP 변경, 장판 제거는 호출자가 담당한다.
-public static class PotionCombinationEffectResolver
+public static class PotionCombinationEffectCalculator
 {
     private const float FixedDamageDuration = 4f;
     private const float CombinationDamageMultiplier = 1.2f;

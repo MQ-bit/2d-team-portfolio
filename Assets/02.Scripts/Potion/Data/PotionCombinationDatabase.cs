@@ -61,10 +61,7 @@ public sealed class PotionCombinationDatabase : ScriptableObject
                 if (!current.IsMatch(other.ElementA, other.ElementB))
                     continue;
 
-                Debug.LogWarning(
-                    $"Duplicate potion combination: " +
-                    $"{current.ElementA} + {current.ElementB}",
-                    this);
+                Debug.LogWarning($"Duplicate potion combination: " + $"{current.ElementA} + {current.ElementB}", this);
             }
         }
     }

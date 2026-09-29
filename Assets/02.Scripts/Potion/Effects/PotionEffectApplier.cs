@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class PotionEffectResolver
+public static class PotionEffectApplier
 {
     private static readonly Dictionary<PotionElement, Action<IDamageable, float>> HealthEffectByElement = new()
     {
@@ -12,11 +12,6 @@ public static class PotionEffectResolver
         { PotionElement.Ice, (target, amount) => target.DecreaseHealth(amount) },
         { PotionElement.Lightning, (target, amount) => target.DecreaseHealth(amount) }
     };
-
-    public static void ApplyAreaEffect(PotionData data, IPotionEffectTarget target) //장판에 닿았을 때 호출
-    {
-        ApplyAreaEffect(data, target, 0);
-    }
 
     public static void ApplyAreaEffect(PotionData data, IPotionEffectTarget target, int sourceId)
     {
@@ -63,7 +58,7 @@ public static class PotionEffectResolver
         return target != null && !(target is UnityEngine.Object unityObject && unityObject == null);
     }
 
-    public static void ApplyCombinationEffect(PotionCombinationEffectResolver.Result effect,
+    public static void ApplyCombinationEffect(PotionCombinationEffectCalculator.Result effect,
         IPotionEffectTarget target, IDamageable owner, int sourceId, float remainingDuration)
     {
         if (!IsTargetAlive(target) || remainingDuration <= 0f) return;

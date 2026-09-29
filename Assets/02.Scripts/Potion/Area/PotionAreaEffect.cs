@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
-public class PotionAreaEffect : MonoBehaviour
+public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·상태이상 적용
 {
     private readonly Dictionary<IPotionEffectTarget, int> _overlapCounts = new();
     private readonly Dictionary<IPotionEffectTarget, Coroutine> _tickRoutines = new();
@@ -12,7 +11,7 @@ public class PotionAreaEffect : MonoBehaviour
     private PotionData _data;
     private int _sourceId;
     private bool _hasCombination;
-    private PotionCombinationEffectResolver.Result _combination;
+    private PotionCombinationEffectCalculator.Result _combination;
     private IDamageable _combinationOwner;
     private float _combinationExpiresAt;
     private bool _removeCombinationStatusesOnDisable = true;
@@ -30,7 +29,7 @@ public class PotionAreaEffect : MonoBehaviour
         _data = data;
     }
 
-    public void ReplaceWithCombination(PotionCombinationEffectResolver.Result combination,
+    public void ReplaceWithCombination(PotionCombinationEffectCalculator.Result combination,
         IDamageable owner, float expiresAt, bool removeStatusesOnDisable = true)
     {
         StopAllCoroutines();
@@ -62,7 +61,7 @@ public class PotionAreaEffect : MonoBehaviour
 
     private void StartTargetEffect(IPotionEffectTarget target)
     {
-        if (!PotionEffectResolver.IsTargetAlive(target)) return;
+        if (!PotionEffectApplier.IsTargetAlive(target)) return;
         ApplyToTarget(target);
         if (isActiveAndEnabled && _overlapCounts.ContainsKey(target) && TickInterval > 0f)
         {
@@ -72,16 +71,16 @@ public class PotionAreaEffect : MonoBehaviour
 
     private void ApplyToTarget(IPotionEffectTarget target)
     {
-        if (!PotionEffectResolver.IsTargetAlive(target)) return;
+        if (!PotionEffectApplier.IsTargetAlive(target)) return;
         _affectedTargets.Add(target);
         if (_hasCombination)
         {
-            PotionEffectResolver.ApplyCombinationEffect(_combination, target,
+            PotionEffectApplier.ApplyCombinationEffect(_combination, target,
                 _combinationOwner, _sourceId, _combinationExpiresAt - Time.time);
         }
         else
         {
-            PotionEffectResolver.ApplyAreaEffect(_data, target, _sourceId);
+            PotionEffectApplier.ApplyAreaEffect(_data, target, _sourceId);
         }
     }
 
@@ -89,7 +88,7 @@ public class PotionAreaEffect : MonoBehaviour
     {
         foreach (IPotionEffectTarget target in _affectedTargets)
         {
-            if (PotionEffectResolver.IsTargetAlive(target)) target.RemoveStatusesFromSource(_sourceId);
+            if (PotionEffectApplier.IsTargetAlive(target)) target.RemoveStatusesFromSource(_sourceId);
         }
         _affectedTargets.Clear();
     }
@@ -98,7 +97,7 @@ public class PotionAreaEffect : MonoBehaviour
     {
         if (_data == null || _targetsByCollider.ContainsKey(other)) return;
 
-        IPotionEffectTarget target = PotionEffectResolver.FindTarget(other);
+        IPotionEffectTarget target = PotionEffectApplier.FindTarget(other);
         if (target == null)
         {
             return;
@@ -139,7 +138,7 @@ public class PotionAreaEffect : MonoBehaviour
     private IEnumerator ApplyPeriodicEffect(IPotionEffectTarget target)
     {
         WaitForSeconds wait = new(Mathf.Max(0.01f, TickInterval));
-        while (_overlapCounts.ContainsKey(target) && PotionEffectResolver.IsTargetAlive(target))
+        while (_overlapCounts.ContainsKey(target) && PotionEffectApplier.IsTargetAlive(target))
         {
             yield return wait;
 

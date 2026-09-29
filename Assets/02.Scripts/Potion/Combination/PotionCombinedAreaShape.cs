@@ -8,6 +8,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
     [SerializeField, Min(0f)] private float _ellipseMinCenterDistance = 0.1f;
 
     public bool IsReady => _combinationCollider != null;
+    public PolygonCollider2D CombinationCollider => _combinationCollider;
 
     private void Awake()
     {

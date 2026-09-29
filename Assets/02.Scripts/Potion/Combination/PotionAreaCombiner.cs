@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class PotionAreaCombiner : MonoBehaviour
+public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
     private const float CombinationDuration = 4f;
-    private const float FixedInstantWindow = 0.02f;
     [SerializeField] private PotionCombinationDatabase _database;
     [SerializeField] private PotionCombinedAreaShape _combinedAreaShape;
 
@@ -45,6 +44,8 @@ public sealed class PotionAreaCombiner : MonoBehaviour
 
     private void FindExistingOverlap()
     {
+        // 착탄 프레임에 생성된 장판의 위치와 크기를 즉시 반영한다.
+        Physics2D.SyncTransforms();
         CircleCollider2D areaCollider = _area.AreaCollider;
         Vector3 scale = areaCollider.transform.lossyScale;
         float radiusScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
@@ -80,7 +81,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour
         PotionCombinationDatabase database = _database != null ? _database : otherCombiner._database;
         if (database == null ||
             !database.TryGetCombination(_area.Data.Element, other.Data.Element, out PotionCombinationData data) ||
-            !PotionCombinationEffectResolver.TryCalculate(data, _area.Data, other.Data, out var result))
+            !PotionCombinationEffectCalculator.TryCalculate(data, _area.Data, other.Data, out var result))
         {
             return false;
         }
@@ -90,7 +91,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour
         otherCombiner.IsCombined = true;
 
         IDamageable primaryOwner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
-        PotionEffectResolver.RestoreCombinationOwner(primaryOwner, result.PlayerHealthRecovery);
+        PotionEffectApplier.RestoreCombinationOwner(primaryOwner, result.PlayerHealthRecovery);
 
         bool hasTargetEffect = result.DamagePerTick > 0f || result.Status.HasValue;
         if (result.RemoveGroundAreas || data.InstantOnly)
@@ -99,8 +100,23 @@ public sealed class PotionAreaCombiner : MonoBehaviour
             {
                 PotionGroundArea sourceArea = _area.Data.Element == PotionElement.Vaporization ? other : _area;
                 IDamageable sourceOwner = IsAlive(sourceArea.Owner) ? sourceArea.Owner : primaryOwner;
-                sourceArea.AreaEffect.ReplaceWithCombination(result, sourceOwner,
-                    Time.time + FixedInstantWindow, false);
+                _combinedAreaShape.Create(_area, other, data.VisualData);
+                Physics2D.SyncTransforms();
+
+                // 트리거 진입 이력 대신 완성된 타원 전체를 착탄 순간에 조회한다.
+                var hits = new List<Collider2D>();
+                var targets = new HashSet<IPotionEffectTarget>();
+                ContactFilter2D filter = new() { useTriggers = true };
+                _combinedAreaShape.CombinationCollider.Overlap(filter, hits);
+                foreach (Collider2D hit in hits)
+                {
+                    IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
+                    if (!PotionEffectApplier.IsTargetAlive(target) || !targets.Add(target)) continue;
+
+                    // 장판은 유지하지 않으며, 부가 상태이상은 자체 지속시간을 사용한다.
+                    PotionEffectApplier.ApplyCombinationEffect(result, target, sourceOwner,
+                        _area.GetInstanceID(), float.PositiveInfinity);
+                }
             }
 
             _area.Remove();

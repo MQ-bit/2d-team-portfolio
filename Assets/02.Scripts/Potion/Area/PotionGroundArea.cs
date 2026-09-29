@@ -61,6 +61,12 @@ public class PotionGroundArea : MonoBehaviour
         _activated = true;
         _expiresAt = Time.time + _duration;
         if (_combiner != null) _combiner.RegisterArea();
+
+        // 기화는 착탄 순간의 조합 판정에만 사용하고 독립 장판을 남기지 않는다.
+        if (Data.Element == PotionElement.Vaporization && !IsCombined)
+        {
+            Remove();
+        }
     }
 
     public void SetExpiration(float expiresAt)

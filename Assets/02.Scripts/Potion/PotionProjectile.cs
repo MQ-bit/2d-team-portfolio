@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화로 장판 제거 기능 추가
+public class PotionProjectile : MonoBehaviour
 {
     [SerializeField] private Transform _visual;
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
@@ -16,7 +15,6 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
     private float _gravity;
     private PotionData _potionData;
     private IDamageable _owner;
-    private readonly List<Collider2D> _areaHits = new();
 
     private void Awake()
     {
@@ -80,19 +78,7 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
             breakEffect.Play();
         }
 
-        if (_potionData != null && _potionData.Element == PotionElement.Vaporization)
-        {
-            // Give Purifying Life a chance to resolve through the same area-combination path.
-            PotionGroundArea probeArea = CreateGroundArea();
-            if (probeArea == null || !probeArea.IsCombined)
-            {
-                RemoveGroundAreas();
-            }
-        }
-        else if (_groundAreaPrefab != null)
-        {
-            CreateGroundArea();
-        }
+        CreateGroundArea();
 
         Destroy(gameObject);
     }
@@ -108,25 +94,4 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
         return groundArea;
     }
 
-    private void RemoveGroundAreas()
-    {
-        float radius = _potionData.AreaWidth * 0.5f;
-        if (radius <= 0f) return;
-
-        // Include trigger colliders regardless of the global queriesHitTriggers setting.
-        ContactFilter2D filter = new() { useTriggers = true };
-        Physics2D.OverlapCircle(_targetPosition, radius, filter, _areaHits);
-
-        foreach (Collider2D hit in _areaHits)
-        {
-            PotionGroundArea area = hit.GetComponentInParent<PotionGroundArea>();
-            if (area == null || !area.gameObject.activeSelf) continue;
-
-            // Stop collisions and periodic effects before deferred destruction.
-            area.gameObject.SetActive(false);
-            Destroy(area.gameObject);
-        }
-
-        _areaHits.Clear();
-    }
 }

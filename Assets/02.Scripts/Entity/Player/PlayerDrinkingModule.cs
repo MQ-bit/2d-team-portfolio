@@ -63,7 +63,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         if (selectedPotion == null) return false;
 
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             return false;
         }
@@ -83,7 +83,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void CompleteDrink()
     {
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             ResetState();
             return;
@@ -95,7 +95,7 @@ public class PlayerDrinkingModule : MonoBehaviour
             return;
         }
 
-        PotionEffectResolver.ApplyDrinkEffect(consumedPotion, _effectReceiver); //TODO: 굳이 이 클래스를 Static으로 둘 필요가 있는지 고려. 뭔가 Receiver가 Potion효과적용 + Status Thirsty 증가 를 해줬으면 좋을지도
+        PotionEffectApplier.ApplyDrinkEffect(consumedPotion, _effectReceiver); //TODO: 굳이 이 클래스를 Static으로 둘 필요가 있는지 고려. 뭔가 Receiver가 Potion효과적용 + Status Thirsty 증가 를 해줬으면 좋을지도
         ResetState();
     }
 
