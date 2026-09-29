@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: af740b4b10db73942b0667bd9cc74461
+guid: 7b2a6e86ba23a59428a6f7aaabba495a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8234795638328950718
-    second: Aura_Sprite__0
+      213: 7840392335819879883
+    second: Potion Aura Sprites_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -126,89 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Aura_Sprite__0
+      name: Potion Aura Sprites_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 64
-        width: 64
-        height: 64
+        y: 79
+        width: 769
+        height: 401
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ebf7884d00fd74270800000000000000
-      internalID: 8234795638328950718
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Aura_Sprite__1
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 64
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 50037db4a9dfe0247adf79f29fbb480a
-      internalID: 579820705
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Aura_Sprite__2
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e6d1c014794fdcd408b57e8b6dab3769
-      internalID: 791111167
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Aura_Sprite__3
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 64
-        height: 64
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ab2ebe4892f089142be6dc69d90e0b3f
-      internalID: -135406380
+      spriteID: bc53d3c0a4baecc60800000000000000
+      internalID: 7840392335819879883
       vertices: []
       indices: 
       edges: []
@@ -217,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f0b1f3e86185ff646abf356bec4c253b
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -225,14 +159,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      Aura_Sprite__0: 8234795638328950718
-      Aura_Sprite__1: 579820705
-      Aura_Sprite__2: 791111167
-      Aura_Sprite__3: -135406380
+      Potion Aura Sprites_0: 7840392335819879883
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
