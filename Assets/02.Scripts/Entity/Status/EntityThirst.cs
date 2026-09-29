@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 [Serializable]
 public class EntityThirst
 {
@@ -25,7 +25,7 @@ public class EntityThirst
 
     public bool IncreaseTick(float deltaTime)
     {
-        if (_currentThirst <= 0f)
+        if (_currentThirst >= MaxThirst)
         {
             return false;
         }
