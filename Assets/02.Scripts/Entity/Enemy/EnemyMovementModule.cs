@@ -45,7 +45,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
     public void ApplyKnockback(Vector2 direction, float force)
     {
         _rigid.linearVelocity = direction * force / _knockbackDuration;
-        _knockbackEndTime = Time.time + _knockbackDuration;
+        _knockbackEndTime = Time.fixedTime + _knockbackDuration; // Update에서 호출돼도 물리 시간 기준으로 맞춘다.
         _isKnockedBack = true;
     }
 
@@ -58,7 +58,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
             return false;
         }
 
-        if (Time.time < _knockbackEndTime)
+        if (Time.fixedTime < _knockbackEndTime)
         {
             return true;
         }
