@@ -20,6 +20,8 @@ GameObject:
   - component: {fileID: 8481885698714305256}
   - component: {fileID: 449064611839832322}
   - component: {fileID: 8619155157741263886}
+  - component: {fileID: 8929402969502685051}
+  - component: {fileID: 3803763781328297615}
   m_Layer: 8
   m_Name: ExplodingEnemy
   m_TagString: Untagged
@@ -150,7 +152,7 @@ MonoBehaviour:
   _potionEffectReceiver: {fileID: 2535699552048040419}
   _spriteRenderer: {fileID: 2321117110662664653}
   _status: {fileID: 484566710926521964}
-  _fuseBlinkColor: {r: 1, g: 1, b: 1, a: 1}
+  _fuseBlinkColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   _fuseBlinkSpeed: 12
 --- !u!114 &484566710926521964
 MonoBehaviour:
@@ -247,6 +249,38 @@ MonoBehaviour:
   _status: {fileID: 0}
   _effectPrefab: {fileID: 3905996241888050708, guid: 81da5d5637b19c9489cf6f52bec98f7e, type: 3}
   _effectLifetime: 1
+--- !u!114 &8929402969502685051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860674803404275474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83617c1658ee5b7408e61d7ef4ca449e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationDriver
+  _status: {fileID: 484566710926521964}
+  _rigid: {fileID: 8953123798328453576}
+  _animator: {fileID: 2610078227831761634}
+  _spriteRenderer: {fileID: 2321117110662664653}
+  _moveThreshold: 0.1
+--- !u!114 &3803763781328297615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860674803404275474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eaad8bfe86f2d84482c846f33158ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathEffect
+  _status: {fileID: 484566710926521964}
+  _effectPrefab: {fileID: 2723619675027131727, guid: f0c212f1536b5af43932bd2d1dad63d8, type: 3}
+  _effectLifetime: 1.2
 --- !u!1 &8966026657430943315
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,6 +291,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3910490072977745002}
   - component: {fileID: 2321117110662664653}
+  - component: {fileID: 2610078227831761634}
   m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
@@ -328,8 +363,8 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
-  m_Color: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+  m_Sprite: {fileID: -9150489477472823759, guid: edef43021562362418a946e13fb3a6f0, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -338,3 +373,25 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &2610078227831761634
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8966026657430943315}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: dbda1e5d1b843d940ba0688e2bd02739, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

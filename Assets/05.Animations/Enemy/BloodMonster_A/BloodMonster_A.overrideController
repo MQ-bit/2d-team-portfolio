@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BloodMonster_A
+  m_Controller: {fileID: 9100000, guid: cd983a2f374dc0d4682cf42b3492da0c, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 1c5b6257b2c78c4459e646caa1f52a76, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 36fd5073e0fc0b04d961f1ba8592c251, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: d91a3ec529a90284abce9822c81b066c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 241e9c046e19a88429e73ee22d2d355b, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 07f2301e12b6acb47804c09abe5a429c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 5367d3363f819a341b788a43c4e10537, type: 2}

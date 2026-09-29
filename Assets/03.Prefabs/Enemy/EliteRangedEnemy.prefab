@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1614535153895095376}
   - component: {fileID: 7318488646979938706}
+  - component: {fileID: 8027122424528666638}
   m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
@@ -81,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
+  m_Sprite: {fileID: 4610576671343732192, guid: 7a95d5e19398907478f00b88b0d51f0f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -91,6 +92,28 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &8027122424528666638
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2273741889440626352}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 25b0a07bce81f594da78859e5b45a947, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2431504601183298083
 GameObject:
   m_ObjectHideFlags: 0
@@ -111,6 +134,8 @@ GameObject:
   - component: {fileID: 5302139404092916397}
   - component: {fileID: 6498387533039199398}
   - component: {fileID: 2892481127610985930}
+  - component: {fileID: 7580705943662525815}
+  - component: {fileID: 3857489014571699543}
   m_Layer: 8
   m_Name: EliteRangedEnemy
   m_TagString: Untagged
@@ -337,3 +362,35 @@ MonoBehaviour:
   _status: {fileID: 0}
   _effectPrefab: {fileID: 3905996241888050708, guid: 81da5d5637b19c9489cf6f52bec98f7e, type: 3}
   _effectLifetime: 1
+--- !u!114 &7580705943662525815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83617c1658ee5b7408e61d7ef4ca449e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationDriver
+  _status: {fileID: 6146089858196585820}
+  _rigid: {fileID: 5615845311215283480}
+  _animator: {fileID: 8027122424528666638}
+  _spriteRenderer: {fileID: 7318488646979938706}
+  _moveThreshold: 0.1
+--- !u!114 &3857489014571699543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eaad8bfe86f2d84482c846f33158ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathEffect
+  _status: {fileID: 6146089858196585820}
+  _effectPrefab: {fileID: 5746806123603419787, guid: 1f823de718ce305478dcdab1e8a5d0ad, type: 3}
+  _effectLifetime: 1.3

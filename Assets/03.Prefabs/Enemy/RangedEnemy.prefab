@@ -20,6 +20,8 @@ GameObject:
   - component: {fileID: 8134696504830953540}
   - component: {fileID: 5406306367398074854}
   - component: {fileID: 6332851346663768075}
+  - component: {fileID: 8680663160417452451}
+  - component: {fileID: 1315381151204622027}
   m_Layer: 8
   m_Name: RangedEnemy
   m_TagString: Untagged
@@ -246,6 +248,38 @@ MonoBehaviour:
   _status: {fileID: 0}
   _effectPrefab: {fileID: 3905996241888050708, guid: 81da5d5637b19c9489cf6f52bec98f7e, type: 3}
   _effectLifetime: 1
+--- !u!114 &8680663160417452451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83617c1658ee5b7408e61d7ef4ca449e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationDriver
+  _status: {fileID: 8195223905280176764}
+  _rigid: {fileID: 5615845311215283480}
+  _animator: {fileID: 5922897121853330929}
+  _spriteRenderer: {fileID: 2971321821474806601}
+  _moveThreshold: 0.1
+--- !u!114 &1315381151204622027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eaad8bfe86f2d84482c846f33158ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDeathEffect
+  _status: {fileID: 8195223905280176764}
+  _effectPrefab: {fileID: 6409413262950486661, guid: 1473f8503529112409b9a08cbcc4cd90, type: 3}
+  _effectLifetime: 1
 --- !u!1 &5096949587063836541
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,6 +290,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5068007619371979021}
   - component: {fileID: 2971321821474806601}
+  - component: {fileID: 5922897121853330929}
   m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
@@ -327,7 +362,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
+  m_Sprite: {fileID: -6959240526762826261, guid: 4e8e2bd8dd495104f91080d640d416a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -337,3 +372,25 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &5922897121853330929
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5096949587063836541}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 063fbc39aa4154e418e1864ece766514, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
