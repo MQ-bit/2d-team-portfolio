@@ -42,6 +42,13 @@ public class SpriteSheetPlayer : MonoBehaviour
     void Build()
     {
         Release();
+        _sprites = CreateSprites();
+        Tick();
+    }
+
+    // 시트/프레임 설정으로 재생용 스프라이트 배열을 만든다. 호출한 쪽이 다 쓰면 파괴해야 한다.
+    public Sprite[] CreateSprites()
+    {
         var list = new List<Sprite>();
         var pivot = new Vector2(0.5f, 0.5f);
         if (sheet != null)
@@ -57,8 +64,7 @@ public class SpriteSheetPlayer : MonoBehaviour
                 if (t != null) list.Add(Sprite.Create(t, new Rect(0, 0, t.width, t.height), pivot, pixelsPerUnit));
         }
         foreach (var s in list) s.hideFlags = HideFlags.DontSave;
-        _sprites = list.ToArray();
-        Tick();
+        return list.ToArray();
     }
 
     void Release()
