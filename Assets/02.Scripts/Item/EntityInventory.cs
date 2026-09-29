@@ -1,5 +1,5 @@
+using System;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace Entity.Inventory
 {
@@ -7,10 +7,11 @@ namespace Entity.Inventory
     {
         [Header("Inventory Settings")]
         [SerializeField] private ItemSlot[] _inventorySlots;
-        [SerializeField] private int _maxSlotSize = 10;
+        [SerializeField] private int _maxSlotSize = 6;
 
-        private Dictionary<PotionData, int> _itemFinder; // (아이템 / 슬롯 인덱스)
-        private int _occupiedSlots = 0;
+        private int _occupiedSlots;
+
+        public event Action<int> OnSlotChanged;
 
         public int MaxSlotSize => _maxSlotSize;
 
@@ -21,26 +22,34 @@ namespace Entity.Inventory
 
         private void InitializeInventory()
         {
-            _itemFinder = new Dictionary<PotionData, int>();
+            _occupiedSlots = 0;
             _inventorySlots = new ItemSlot[_maxSlotSize];
 
             for (int i = 0; i < _maxSlotSize; i++)
             {
                 _inventorySlots[i] = new ItemSlot();
-                //_inventorySlots[i].ClearSlot();
             }
         }
 
-        public bool TryAddItem(PotionData data, int quantity)
+        public bool TryAddItem(PotionItem item, int quantity)
         {
-            if (data == null || quantity <= 0)
+            if (item.IsEmpty || quantity <= 0)
             {
                 return false;
             }
 
-            if (CheckItemExists(data))
+            for (int i = 0; i < _inventorySlots.Length; i++)
             {
-                _inventorySlots[_itemFinder[data]].AddQuantity(quantity);
+                ItemSlot slot = _inventorySlots[i];
+
+                if (!slot.CanStackItem(item))
+                {
+                    continue;
+                }
+
+                slot.AddQuantity(quantity);
+                OnSlotChanged?.Invoke(i);
+
                 return true;
             }
 
@@ -49,16 +58,20 @@ namespace Entity.Inventory
                 return false;
             }
 
+            // 합칠 슬롯이 없으면 첫 번째 빈 슬롯에 저장한다.
             for (int i = 0; i < _inventorySlots.Length; i++)
             {
-                if (!_inventorySlots[i].IsDataEmpty())
+                ItemSlot slot = _inventorySlots[i];
+
+                if (!slot.IsEmpty())
                 {
                     continue;
                 }
 
-                _inventorySlots[i].SetItem(data, quantity);
-                _itemFinder.Add(data, i);
+                slot.SetItem(item, quantity);
                 _occupiedSlots++;
+
+                OnSlotChanged?.Invoke(i);
 
                 return true;
             }
@@ -66,60 +79,64 @@ namespace Entity.Inventory
             return false;
         }
 
-        public bool TryConsumeItem(int slotIndex, int quantity, out PotionData consumedPotion)
+        public bool TryConsumeItem(int slotIndex, int quantity, out PotionItem consumedItem)
         {
-            consumedPotion = null;
+            consumedItem = default;
 
-            if (slotIndex < 0 || slotIndex >= _maxSlotSize || quantity <= 0)
+            if (!IsValidSlotIndex(slotIndex) || quantity <= 0)
             {
                 return false;
             }
 
             ItemSlot slot = _inventorySlots[slotIndex];
 
-            if (slot == null || slot.Data == null || slot.Quantity < quantity)
+            if (slot == null || slot.IsEmpty() || slot.Quantity < quantity)
             {
                 return false;
             }
 
-            consumedPotion = slot.Data;
+            consumedItem = slot.Item;
+
             slot.RemoveQuantity(quantity);
 
             if (slot.Quantity == 0)
             {
                 slot.ClearSlot();
-                _itemFinder.Remove(consumedPotion);
                 _occupiedSlots--;
             }
+
+            OnSlotChanged?.Invoke(slotIndex);
 
             return true;
         }
 
-        private bool CheckItemExists(PotionData data)
+        public PotionItem GetPotionItem(int index)
         {
-            if (data == null)
+            if (!IsValidSlotIndex(index))
             {
-                Debug.LogWarning("Item Data should not be null.");
-                return false;
+                return default;
             }
 
-            return _itemFinder.ContainsKey(data);
+            ItemSlot slot = _inventorySlots[index];
+
+            if (slot == null || slot.IsEmpty())
+            {
+                return default;
+            }
+
+            return slot.Item;
         }
 
+        // 기존 게임플레이 코드와의 호환용이다.
         public PotionData GetPotionData(int index)
         {
-            if (index < 0 || index >= _maxSlotSize)
-            {
-                Debug.LogWarning($"{index} is out of bounds for inventory slots.");
-                return null;
-            }
+            return GetPotionItem(index).PotionData;
+        }
 
-            if (_inventorySlots[index].IsDataEmpty())
-            {
-                return null;
-            }
-
-            return _inventorySlots[index].Data;
+        private bool IsValidSlotIndex(int index)
+        {
+            return index >= 0 &&
+                   index < _inventorySlots.Length;
         }
     }
 }

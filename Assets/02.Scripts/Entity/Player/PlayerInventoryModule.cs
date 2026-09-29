@@ -1,21 +1,35 @@
-using UnityEngine;
-using Entity.Inventory;
 using System;
+using Entity.Inventory;
+using UnityEngine;
 
 [RequireComponent(typeof(EntityInventory))]
 public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
 {
     [SerializeField] private EntityInventory _inventory;
-    private int _selectedSlotIndex = -1;
-    private PotionData _selctedPotionData;
 
-    public event Action<int> OnSelectedSlotChanged; // TODO : UI 연결 
+    private int _selectedSlotIndex = -1;
+    private bool _isSubscribed;
+
+    public event Action<int> OnSelectedSlotChanged;
+    public event Action<int> OnSlotChanged;
+
     public int SelectedSlotIndex => _selectedSlotIndex;
-    public PotionData SelectedPotion => _inventory.GetPotionData(_selectedSlotIndex);
+    public int SlotCount => _inventory.MaxSlotSize;
+
+    public PotionItem SelectedPotionItem => _selectedSlotIndex >= 0 ? _inventory.GetPotionItem(_selectedSlotIndex) : default;
+    public PotionData SelectedPotion => SelectedPotionItem.PotionData;
 
     private void Awake()
     {
-        _inventory = GetComponent<EntityInventory>();
+        if (_inventory == null)
+        {
+            _inventory = GetComponent<EntityInventory>();
+        }
+    }
+
+    private void OnEnable()
+    {
+        LinkEvents();
     }
 
     private void Start()
@@ -23,28 +37,79 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         SelectSlot(0);
     }
 
+    private void OnDisable()
+    {
+        UnlinkEvents();
+    }
+
     public void SelectSlot(int index)
     {
-        if (index < 0 || index >= _inventory.MaxSlotSize) return;
-        if (_selectedSlotIndex == index) return;
+        if (index < 0 || index >= _inventory.MaxSlotSize)
+        {
+            return;
+        }
+
+        if (_selectedSlotIndex == index)
+        {
+            return;
+        }
 
         _selectedSlotIndex = index;
-        _selctedPotionData = _inventory.GetPotionData(index);
         OnSelectedSlotChanged?.Invoke(index);
     }
 
-    public bool TryConsumeSelectedPotion()
+    public bool TryTakeItem(PotionItem item, int quantity)
     {
-        return TryConsumeSelectedPotion(out _);
+        return _inventory.TryAddItem(item, quantity);
     }
 
     public bool TryConsumeSelectedPotion(out PotionData consumedPotion)
     {
-        return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedPotion);
+        consumedPotion = null;
+
+        if (!TryConsumeSelectedItem(out PotionItem consumedItem))
+        {
+            return false;
+        }
+
+        consumedPotion = consumedItem.PotionData;
+        return true;
     }
 
-    public bool TryTakeItem(PotionData data, int quantity)
+    public bool TryConsumeSelectedItem(out PotionItem consumedItem)
     {
-        return _inventory.TryAddItem(data, quantity);
+        return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedItem);
+    }
+
+    public PotionItem GetItemAt(int index)
+    {
+        return _inventory.GetPotionItem(index);
+    }
+
+    private void LinkEvents()
+    {
+        if (_inventory == null || _isSubscribed)
+        {
+            return;
+        }
+
+        _inventory.OnSlotChanged += HandleSlotChanged;
+        _isSubscribed = true;
+    }
+
+    private void UnlinkEvents()
+    {
+        if (_inventory == null || !_isSubscribed)
+        {
+            return;
+        }
+
+        _inventory.OnSlotChanged -= HandleSlotChanged;
+        _isSubscribed = false;
+    }
+
+    private void HandleSlotChanged(int slotIndex)
+    {
+        OnSlotChanged?.Invoke(slotIndex);
     }
 }
