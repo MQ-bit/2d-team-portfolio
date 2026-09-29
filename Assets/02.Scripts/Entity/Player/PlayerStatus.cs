@@ -28,8 +28,9 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     [Header("Throw Settings")]
     [SerializeField] private float _maxThrowDistance = 6f;
 
-    public bool CanMove => _potionEffectReceiver.CanAct;
-    public float Speed => CanMove ? _speed : 0f;
+    public bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
+    public float Speed => _potionEffectReceiver != null
+        ? _potionEffectReceiver.GetMovementSpeed(_speed) : _speed;
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
     public float MaxThrowDistance => _maxThrowDistance;
 

@@ -23,5 +23,6 @@ MonoBehaviour:
   _drinkEffectAmount: 15
   _drinkThirstRecoveryAmount: 30
   _visualData:
+    _areaSprite: {fileID: 1626052245, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _potionSprite: {fileID: 0}
     _areaColor: {r: 0.2, g: 0.75, b: 1, a: 0.65}

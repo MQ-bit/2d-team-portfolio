@@ -103,7 +103,8 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         visualTransform.rotation = Quaternion.Euler(0f, 0f,
             Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
 
-        Vector2 spriteSize = firstRenderer.sprite.bounds.size;
+        Sprite areaSprite = visualData.AreaSprite != null ? visualData.AreaSprite : firstRenderer.sprite;
+        Vector2 spriteSize = areaSprite.bounds.size;
         Vector3 parentScale = first.transform.lossyScale;
         visualTransform.localScale = new Vector3(
             visualWidth / Mathf.Max(0.001f, spriteSize.x * Mathf.Abs(parentScale.x)),
@@ -111,7 +112,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
             1f);
 
         SpriteRenderer ellipseRenderer = visualObject.AddComponent<SpriteRenderer>();
-        ellipseRenderer.sprite = firstRenderer.sprite;
+        ellipseRenderer.sprite = areaSprite;
         ellipseRenderer.color = visualData.AreaColor;
         ellipseRenderer.sharedMaterial = firstRenderer.sharedMaterial;
         ellipseRenderer.sortingLayerID = firstRenderer.sortingLayerID;

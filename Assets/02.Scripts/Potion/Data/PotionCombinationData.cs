@@ -5,17 +5,17 @@ using UnityEngine;
 public enum PotionCombination
 {
     None = 0,
-    [InspectorName("01. 흡혈의 불꽃")] VampiricFire = 1,
+    [InspectorName("01. 흡혈의 화염")] VampiricFire = 1,
     [InspectorName("02. 흡혈의 독")] VampiricPoison = 2,
     [InspectorName("03. 흡혈의 서리")] VampiricFrost = 3,
     [InspectorName("04. 흡혈의 전류")] VampiricLightning = 4,
     [InspectorName("05. 정화의 생명")] PurifyingLife = 5,
     [InspectorName("06. 맹독화염")] ToxicFlame = 6,
     [InspectorName("07. 열충격")] ThermalShock = 7,
-    [InspectorName("08. 폭염전류")] BlazingCurrent = 8,
+    [InspectorName("08. 과충전")] BlazingCurrent = 8,
     [InspectorName("09. 화염 폭발")] FireExplosion = 9,
-    [InspectorName("10. 동상독")] FrostPoison = 10,
-    [InspectorName("11. 독성 전류")] ToxicCurrent = 11,
+    [InspectorName("10. 맹독 서리")] FrostPoison = 10,
+    [InspectorName("11. 신경독")] ToxicCurrent = 11,
     [InspectorName("12. 독성 증기")] ToxicSteam = 12,
     [InspectorName("13. 빙전")] FrozenCurrent = 13,
     [InspectorName("14. 빙결 폭발")] FrostExplosion = 14,
@@ -78,6 +78,13 @@ public sealed class PotionCombinationData : ScriptableObject
     [SerializeField] private string _displayName;
     [SerializeField, TextArea] private string _description;
 
+    [Header("New Effect Data (runtime connection in later steps)")]
+    [Tooltip("새 기획 설정을 작성한 에셋 표시. 기존 효과 목록과 API는 변경하지 않는다.")]
+    [SerializeField] private bool _hasEffectProfile;
+    [SerializeField] private PotionEffectProfile _effectProfile = new();
+    [Tooltip("흡혈 조합용. None이면 자체 설정 사용. 지정 원소의 투척/잔류/서리 설정을 재사용하고 이 조합의 LifeStealRatio만 추가한다. 섭취는 상속하지 않는다.")]
+    [SerializeField] private PotionElement _inheritThrownEffectsFrom = PotionElement.None;
+
     [Header("Input")]
     [SerializeField] private PotionElement _elementA;
     [SerializeField] private PotionElement _elementB;
@@ -88,7 +95,7 @@ public sealed class PotionCombinationData : ScriptableObject
     [Tooltip("즉발 효과만 적용하고 조합 장판을 거의 즉시 제거할지 여부")]
     [SerializeField] private bool _instantOnly;
     [Tooltip("조합 장판의 시각 데이터")]
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.white);
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null);
 
     [Header("Effects")]
     [Tooltip("조합 장판 범위 안에 적용할 효과. 위에서부터 순서대로 적용")]
@@ -105,6 +112,10 @@ public sealed class PotionCombinationData : ScriptableObject
     public PotionVisualData VisualData => _visualData;
 
     public IReadOnlyList<PotionCombinationEffect> Effects => _effects;
+
+    public bool HasEffectProfile => _hasEffectProfile && _effectProfile != null;
+    public PotionEffectProfile EffectProfile => _effectProfile;
+    public PotionElement InheritThrownEffectsFrom => _inheritThrownEffectsFrom;
 
     public bool IsMatch(PotionElement a, PotionElement b)
     {
@@ -138,6 +149,8 @@ public sealed class PotionCombinationData : ScriptableObject
 
         _combinationDuration =
             SanitizeNonNegative(_combinationDuration);
+        _effectProfile ??= new PotionEffectProfile();
+        _effectProfile.Validate();
     }
 
     private static float SanitizeNonNegative(float value)

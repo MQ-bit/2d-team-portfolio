@@ -38,3 +38,7 @@ MonoBehaviour:
     _duration: 0
     _tickInterval: 0
     _radius: 0
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaSprite: {fileID: 580293463, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 1, g: 1, b: 1, a: 1}

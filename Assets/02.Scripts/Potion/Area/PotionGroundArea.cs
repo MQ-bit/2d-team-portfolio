@@ -46,6 +46,10 @@ public class PotionGroundArea : MonoBehaviour
 
         if (_renderer != null)
         {
+            if (data.VisualData.AreaSprite != null)
+            {
+                _renderer.sprite = data.VisualData.AreaSprite;
+            }
             _renderer.color = data.VisualData.AreaColor;
         }
 

@@ -1,96 +1,235 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public enum PotionStatusEffect // 상태이상 종류와 유지 시간, 행동 가능 여부만 관리
+public enum PotionStatusEffect
 {
-    Burning,
-    Poisoned,
-    Frozen,
-    Paralyzed
+    Burning = 0,
+    Poisoned = 1,
+    Frozen = 2,
+    Paralyzed = 3,
+    Slowed = 4
 }
 
+// 시간과 상태만 계산한다. HP/갈증 및 실제 이동은 변경하지 않는다.
 public sealed class PotionStatusEffectState
 {
-    private static readonly Dictionary<PotionElement, PotionStatusEffect> StatusByElement = new()
+    private sealed class ActiveStatus
     {
-        { PotionElement.Fire, PotionStatusEffect.Burning },
-        { PotionElement.Poison, PotionStatusEffect.Poisoned },
-        { PotionElement.Ice, PotionStatusEffect.Frozen },
-        { PotionElement.Lightning, PotionStatusEffect.Paralyzed }
-    };
+        public PotionStatusApplication Application;
+        public double ExpiresAt;
+        public double NextTickAt;
+        public double PulseStartedAt;
+    }
 
-    // 각 장판은 독립적으로 중첩된다. 같은 장판의 재적용은 해당 중첩만 갱신한다.
-    private readonly Dictionary<PotionStatusEffect, Dictionary<int, float>> _expiresAtByStatus = new(4);
-    private readonly List<int> _expiredSources = new();
+    private readonly Func<double> _clock;
+    private readonly Dictionary<PotionStatusEffect, ActiveStatus> _statuses = new();
+    private readonly HashSet<int> _frostAreas = new();
+    private readonly Dictionary<int, float> _areaSlows = new();
+    private readonly HashSet<PotionElement> _suppressedDamageElements = new();
+    private readonly List<KeyValuePair<PotionStatusEffect, ActiveStatus>> _tickSnapshot = new();
+    private int _frostStacks;
+    private float _frostMultiplier = 1f;
+    private double _nextFrostStackAt = double.NegativeInfinity;
+    private bool _isTicking;
 
-    public bool CanAct => !IsActive(PotionStatusEffect.Frozen) && !IsActive(PotionStatusEffect.Paralyzed);
+    public PotionStatusEffectState() : this(() => Time.timeAsDouble) { }
+    public PotionStatusEffectState(Func<double> clock) => _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+
+    // 둔화는 대시를 차단하지 않는다. 빙결/마비만 이 bool을 변경한다.
+    public bool CanMove => !IsImmobilized(_clock());
+    public int FrostStackCount => _frostStacks;
+    public float MoveSpeedMultiplier
+    {
+        get
+        {
+            double now = _clock();
+            if (IsImmobilized(now)) return 0f;
+            float multiplier = _frostMultiplier;
+            if (TryGetActive(PotionStatusEffect.Slowed, now, out ActiveStatus slow))
+                multiplier = Mathf.Min(multiplier, slow.Application.MoveSpeedMultiplier);
+            foreach (float areaSlow in _areaSlows.Values) multiplier = Mathf.Min(multiplier, areaSlow);
+            return multiplier;
+        }
+    }
 
     public static bool TryGetStatus(PotionElement element, out PotionStatusEffect status)
     {
-        return StatusByElement.TryGetValue(element, out status);
-    }
-
-    public bool IsActive(PotionStatusEffect status)
-    {
-        return GetStackCount(status) > 0;
-    }
-
-    public int GetStackCount(PotionStatusEffect status)
-    {
-        if (!_expiresAtByStatus.TryGetValue(status, out var stacks)) return 0;
-
-        _expiredSources.Clear();
-        foreach (var stack in stacks)
+        switch (element)
         {
-            if (Time.time >= stack.Value)
+            case PotionElement.Fire: status = PotionStatusEffect.Burning; return true;
+            case PotionElement.Poison: status = PotionStatusEffect.Poisoned; return true;
+            case PotionElement.Ice: status = PotionStatusEffect.Frozen; return true;
+            case PotionElement.Lightning: status = PotionStatusEffect.Paralyzed; return true;
+            default: status = default; return false;
+        }
+    }
+
+    public bool IsActive(PotionStatusEffect status) => TryGetActive(status, _clock(), out _);
+    public int GetStackCount(PotionStatusEffect status) => IsActive(status) ? 1 : 0;
+
+    // 기존 호출 호환. 수치 없는 화상/중독에 임의 피해량을 만들지 않는다.
+    public void Apply(PotionStatusEffect status, float duration, int sourceId)
+    {
+        bool paralysis = status == PotionStatusEffect.Paralyzed;
+        Apply(new PotionStatusApplication(status, duration, new PotionEffectSource(sourceId),
+            tickInterval: paralysis ? 0.4f : 0f, applyImmediately: paralysis,
+            immobilizeDuration: paralysis ? 0.1f : 0f));
+    }
+
+    public void Apply(PotionStatusApplication application)
+    {
+        if (application.Duration <= 0f) return;
+        double now = _clock();
+        bool refreshing = TryGetActive(application.Status, now, out ActiveStatus previous);
+        PotionStatusApplication selected = application;
+        if (refreshing && Strength(previous.Application) > Strength(application))
+            selected = previous.Application;
+
+        double nextTick = selected.TickInterval > 0f
+            ? now + (selected.ApplyImmediately ? 0d : selected.TickInterval)
+            : double.PositiveInfinity;
+        double pulseStart = now + (selected.ApplyImmediately ? 0d : selected.TickInterval);
+        if (refreshing)
+        {
+            // 즉시 Tick을 반복하거나 다음 Tick을 계속 미루지 않는다.
+            nextTick = previous.NextTickAt;
+            pulseStart = previous.PulseStartedAt;
+            if (double.IsPositiveInfinity(nextTick) && selected.TickInterval > 0f)
+                nextTick = now + selected.TickInterval;
+        }
+        _statuses[application.Status] = new ActiveStatus
+        {
+            Application = selected,
+            ExpiresAt = now + application.Duration,
+            NextTickAt = nextTick,
+            PulseStartedAt = pulseStart
+        };
+        if (application.Status == PotionStatusEffect.Frozen) ResetFrostStacks();
+    }
+
+    // Receiver는 재적용 전에 Tick을 호출해 만료 경계의 마지막 정규 피해를 정산한다.
+    public void Tick(Action<PotionStatusDamage> onDamage)
+    {
+        if (_isTicking) return;
+        _isTicking = true;
+        try
+        {
+            double now = _clock();
+            _tickSnapshot.Clear();
+            foreach (var pair in _statuses) _tickSnapshot.Add(pair);
+            foreach (var pair in _tickSnapshot)
             {
-                _expiredSources.Add(stack.Key);
+                ActiveStatus active = pair.Value;
+                while (IsCurrent(pair.Key, active) && active.Application.DamagePerTick > 0f &&
+                       active.Application.TickInterval > 0f && active.NextTickAt <= now &&
+                       active.NextTickAt <= active.ExpiresAt)
+                {
+                    active.NextTickAt += active.Application.TickInterval;
+                    if (!_suppressedDamageElements.Contains(active.Application.Element))
+                        onDamage?.Invoke(new PotionStatusDamage(active.Application));
+                }
+                if (IsCurrent(pair.Key, active) && now >= active.ExpiresAt) _statuses.Remove(pair.Key);
             }
         }
+        finally { _isTicking = false; }
+    }
 
-        foreach (int sourceId in _expiredSources)
+    public void EnterFrostArea(int sourceId) => _frostAreas.Add(sourceId);
+    public void ExitFrostArea(int sourceId)
+    {
+        if (_frostAreas.Remove(sourceId) && _frostAreas.Count == 0) ResetFrostStacks();
+    }
+
+    public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
+        int amount = 1, float tickInterval = 1f)
+    {
+        if (settings == null || amount <= 0) return;
+        EnterFrostArea(source.SourceId);
+        double now = _clock();
+        if (IsActive(PotionStatusEffect.Frozen) || now < _nextFrostStackAt) return;
+        _nextFrostStackAt = now + Math.Max(0.01d, PotionDataValidation.NonNegative(tickInterval));
+        int threshold = Math.Max(1, settings.FreezeThreshold);
+        _frostStacks = (int)Math.Min(threshold, (long)_frostStacks + amount);
+        if (_frostStacks >= threshold)
         {
-            stacks.Remove(sourceId);
+            Apply(new PotionStatusApplication(PotionStatusEffect.Frozen, settings.FreezeDuration, source));
+            ResetFrostStacks();
+            return;
         }
+        var multipliers = settings.MoveSpeedMultipliers;
+        _frostMultiplier = multipliers != null && _frostStacks <= multipliers.Count
+            ? PotionDataValidation.Multiplier(multipliers[_frostStacks - 1]) : 1f;
+    }
 
-        if (stacks.Count == 0)
-        {
-            _expiresAtByStatus.Remove(status);
-        }
+    public void SetAreaSlow(int sourceId, float multiplier) =>
+        _areaSlows[sourceId] = PotionDataValidation.Multiplier(multiplier);
 
-        return stacks.Count;
+    public void SuppressDamage(PotionElement element, bool suppressed)
+    {
+        if (suppressed) _suppressedDamageElements.Add(element);
+        else _suppressedDamageElements.Remove(element);
+    }
+
+    // 장판 이탈/삭제에서는 이미 적용한 잔류 상태를 지우지 않는다.
+    public void RemoveAreaSource(int sourceId)
+    {
+        _areaSlows.Remove(sourceId);
+        ExitFrostArea(sourceId);
+    }
+
+    // 명시적 해제 및 기존 조합 교체 호환용.
+    public void RemoveSource(int sourceId)
+    {
+        var remove = new List<PotionStatusEffect>();
+        foreach (var pair in _statuses)
+            if (pair.Value.Application.Source.SourceId == sourceId) remove.Add(pair.Key);
+        foreach (var status in remove) _statuses.Remove(status);
+        RemoveAreaSource(sourceId);
     }
 
     public void Clear()
     {
-        _expiresAtByStatus.Clear();
-        _expiredSources.Clear();
+        _statuses.Clear();
+        _areaSlows.Clear();
+        _suppressedDamageElements.Clear();
+        _frostAreas.Clear();
+        ResetFrostStacks();
     }
 
-    public void RemoveSource(int sourceId)
+    private void ResetFrostStacks()
     {
-        foreach (var stacks in _expiresAtByStatus.Values)
-        {
-            stacks.Remove(sourceId);
-        }
+        _frostStacks = 0;
+        _frostMultiplier = 1f;
+        _nextFrostStackAt = double.NegativeInfinity;
     }
 
+    private bool TryGetActive(PotionStatusEffect status, double now, out ActiveStatus active) =>
+        _statuses.TryGetValue(status, out active) && now < active.ExpiresAt;
 
-    public void Apply(PotionStatusEffect status, float duration, int sourceId)
+    private bool IsCurrent(PotionStatusEffect status, ActiveStatus active) =>
+        _statuses.TryGetValue(status, out ActiveStatus current) && ReferenceEquals(current, active);
+
+    private bool IsImmobilized(double now)
     {
-        if (duration <= 0f)
+        if (TryGetActive(PotionStatusEffect.Frozen, now, out _)) return true;
+        if (!TryGetActive(PotionStatusEffect.Paralyzed, now, out ActiveStatus paralysis)) return false;
+        var effect = paralysis.Application;
+        if (effect.TickInterval <= 0f) return true;
+        if (now < paralysis.PulseStartedAt) return false;
+        double phase = (now - paralysis.PulseStartedAt) % effect.TickInterval;
+        return phase < effect.ImmobilizeDuration;
+    }
+
+    private static double Strength(PotionStatusApplication application)
+    {
+        if (application.Status == PotionStatusEffect.Slowed) return 1d - application.MoveSpeedMultiplier;
+        if (application.Status == PotionStatusEffect.Paralyzed)
         {
-            return;
+            return application.TickInterval > 0f
+                ? application.ImmobilizeDuration / application.TickInterval : 1d;
         }
 
-        GetStackCount(status);
-        if (!_expiresAtByStatus.TryGetValue(status, out var stacks))
-        {
-            stacks = new Dictionary<int, float>();
-            _expiresAtByStatus.Add(status, stacks);
-        }
-
-        stacks.TryGetValue(sourceId, out float previousExpiresAt);
-        stacks[sourceId] = Mathf.Max(previousExpiresAt, Time.time + duration);
+        return application.TickInterval > 0f ? application.DamagePerTick / application.TickInterval : 0d;
     }
 }
