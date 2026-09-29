@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3824663352301433379}
   - component: {fileID: 8398785202606945658}
   - component: {fileID: 6146089858196585820}
+  - component: {fileID: 694216231633796101}
   m_Layer: 8
   m_Name: EliteRangedEnemy
   m_TagString: Untagged
@@ -217,3 +218,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a7691435084b0741a3719a876b4d1e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatus
+--- !u!114 &694216231633796101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2431504601183298083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4969deccb0d77d54fbfd50fc95e73b84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPotionDropper
+  _status: {fileID: 0}
+  _dropPrefabs:
+  - {fileID: 4738305527283598493, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
+  - {fileID: 4738305527283598493, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+  - {fileID: 4738305527283598493, guid: 99302c7fa3697994da75d3389b0f1574, type: 3}
+  - {fileID: 4738305527283598493, guid: d383bf58296081842ab70d4c17bc02de, type: 3}
+  - {fileID: 4738305527283598493, guid: 958a5e70eef5e244b839e18f92f6bb54, type: 3}
+  - {fileID: 4738305527283598493, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
+  _dropChance: 1
