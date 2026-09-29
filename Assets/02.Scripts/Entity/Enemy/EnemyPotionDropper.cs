@@ -11,7 +11,7 @@ public class EnemyPotionDropper : MonoBehaviour
 
     [Header("Drop Table")]
     [SerializeField] private List<PotionFieldItem> _dropPrefabs = new List<PotionFieldItem>();
-    [SerializeField, Range(0f, 1f)] private float _dropChance = 1f;
+    [SerializeField, Range(0f, 1f)] private float _dropChance = 0.3f;
 
     private void Awake()
     {
@@ -47,7 +47,7 @@ public class EnemyPotionDropper : MonoBehaviour
 
     private void HandleDeath()
     {
-        // Random.value는 1을 포함하므로 >로 비교해야 100%일 때 항상 드랍된다.
+        // Random.value는 1을 포함하므로 >로 비교해야 확률이 1일 때 항상 드랍된다.
         if (_dropPrefabs.Count == 0 || _dropChance <= 0f || Random.value > _dropChance)
         {
             return;
