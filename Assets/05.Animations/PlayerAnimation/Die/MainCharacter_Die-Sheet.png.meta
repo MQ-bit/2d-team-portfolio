@@ -83,9 +83,6 @@ TextureImporter:
   - first:
       213: 4009224030657691951
     second: MainCharacter_Die-Sheet_26
-  - first:
-      213: -8174150086561307432
-    second: MainCharacter_Die-Sheet_27
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -212,7 +209,7 @@ TextureImporter:
         serializedVersion: 2
         x: 27
         y: 9
-        width: 65
+        width: 64
         height: 113
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -233,9 +230,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 155
-        y: 9
+        y: 10
         width: 64
-        height: 113
+        height: 97
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -254,10 +251,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_2
       rect:
         serializedVersion: 2
-        x: 283
-        y: 10
-        width: 64
-        height: 97
+        x: 176
+        y: 95
+        width: 25
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -276,10 +273,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_3
       rect:
         serializedVersion: 2
-        x: 304
-        y: 95
-        width: 25
-        height: 26
+        x: 295
+        y: 91
+        width: 14
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -298,10 +295,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_4
       rect:
         serializedVersion: 2
-        x: 423
-        y: 91
-        width: 14
-        height: 16
+        x: 306
+        y: 109
+        width: 11
+        height: 12
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -320,10 +317,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_5
       rect:
         serializedVersion: 2
-        x: 434
-        y: 109
-        width: 11
-        height: 12
+        x: 306
+        y: 92
+        width: 17
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -342,10 +339,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_6
       rect:
         serializedVersion: 2
-        x: 434
-        y: 92
-        width: 17
-        height: 24
+        x: 317
+        y: 107
+        width: 11
+        height: 14
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -364,10 +361,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_7
       rect:
         serializedVersion: 2
-        x: 445
-        y: 107
-        width: 11
-        height: 14
+        x: 320
+        y: 94
+        width: 10
+        height: 15
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -386,10 +383,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_8
       rect:
         serializedVersion: 2
-        x: 448
-        y: 94
-        width: 10
-        height: 15
+        x: 419
+        y: 49
+        width: 52
+        height: 72
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -408,10 +405,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_9
       rect:
         serializedVersion: 2
-        x: 547
-        y: 49
-        width: 52
-        height: 72
+        x: 798
+        y: 9
+        width: 72
+        height: 100
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -433,7 +430,7 @@ TextureImporter:
         x: 926
         y: 9
         width: 72
-        height: 100
+        height: 103
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -452,10 +449,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_11
       rect:
         serializedVersion: 2
-        x: 1054
-        y: 9
-        width: 72
-        height: 103
+        x: 289
+        y: 43
+        width: 44
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -474,10 +471,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_12
       rect:
         serializedVersion: 2
-        x: 417
-        y: 43
-        width: 44
-        height: 48
+        x: 291
+        y: 88
+        width: 12
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -496,10 +493,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_13
       rect:
         serializedVersion: 2
-        x: 419
-        y: 88
-        width: 12
-        height: 8
+        x: 315
+        y: 89
+        width: 6
+        height: 6
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -518,10 +515,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_14
       rect:
         serializedVersion: 2
-        x: 443
-        y: 89
-        width: 6
-        height: 6
+        x: 322
+        y: 87
+        width: 15
+        height: 13
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -540,10 +537,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_15
       rect:
         serializedVersion: 2
-        x: 450
-        y: 87
-        width: 15
-        height: 13
+        x: 542
+        y: 9
+        width: 72
+        height: 90
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -565,7 +562,7 @@ TextureImporter:
         x: 670
         y: 9
         width: 72
-        height: 90
+        height: 92
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -584,10 +581,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_17
       rect:
         serializedVersion: 2
-        x: 798
-        y: 9
-        width: 72
-        height: 92
+        x: 283
+        y: 53
+        width: 14
+        height: 31
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -606,10 +603,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_18
       rect:
         serializedVersion: 2
-        x: 411
-        y: 53
-        width: 14
-        height: 31
+        x: 331
+        y: 52
+        width: 12
+        height: 17
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -628,10 +625,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_19
       rect:
         serializedVersion: 2
-        x: 459
-        y: 52
-        width: 12
-        height: 17
+        x: 332
+        y: 68
+        width: 10
+        height: 19
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -650,10 +647,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_20
       rect:
         serializedVersion: 2
-        x: 460
-        y: 68
-        width: 10
-        height: 19
+        x: 428
+        y: 60
+        width: 14
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -672,10 +669,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_21
       rect:
         serializedVersion: 2
-        x: 556
-        y: 60
-        width: 14
-        height: 16
+        x: 441
+        y: 66
+        width: 7
+        height: 7
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -694,10 +691,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_22
       rect:
         serializedVersion: 2
-        x: 569
-        y: 66
-        width: 7
-        height: 7
+        x: 448
+        y: 60
+        width: 12
+        height: 14
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -716,10 +713,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_23
       rect:
         serializedVersion: 2
-        x: 576
-        y: 60
-        width: 12
-        height: 14
+        x: 211
+        y: 34
+        width: 7
+        height: 19
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -738,10 +735,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_24
       rect:
         serializedVersion: 2
-        x: 339
-        y: 34
-        width: 7
-        height: 19
+        x: 288
+        y: 10
+        width: 66
+        height: 44
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -760,10 +757,10 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_25
       rect:
         serializedVersion: 2
-        x: 416
-        y: 10
-        width: 66
-        height: 44
+        x: 413
+        y: 53
+        width: 7
+        height: 11
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -782,29 +779,7 @@ TextureImporter:
       name: MainCharacter_Die-Sheet_26
       rect:
         serializedVersion: 2
-        x: 541
-        y: 53
-        width: 7
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f21cf4c9300a3a730800000000000000
-      internalID: 4009224030657691951
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MainCharacter_Die-Sheet_27
-      rect:
-        serializedVersion: 2
-        x: 542
+        x: 414
         y: 9
         width: 72
         height: 43
@@ -816,8 +791,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8d4e8c50ec59f8e80800000000000000
-      internalID: -8174150086561307432
+      spriteID: f21cf4c9300a3a730800000000000000
+      internalID: 4009224030657691951
       vertices: []
       indices: 
       edges: []
@@ -856,7 +831,6 @@ TextureImporter:
       MainCharacter_Die-Sheet_24: 1408452345740532769
       MainCharacter_Die-Sheet_25: -2048767618242570997
       MainCharacter_Die-Sheet_26: 4009224030657691951
-      MainCharacter_Die-Sheet_27: -8174150086561307432
       MainCharacter_Die-Sheet_3: -7440493711908401360
       MainCharacter_Die-Sheet_4: -3630880223691252560
       MainCharacter_Die-Sheet_5: -2425715013680948217
