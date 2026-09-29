@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 8997101854529659685}
   - component: {fileID: 4660633287933414143}
   - component: {fileID: 6877277040972402246}
+  - component: {fileID: 1681507672752994052}
   m_Layer: 8
   m_Name: EliteExplodingEnemy
   m_TagString: Untagged
@@ -281,6 +282,21 @@ MonoBehaviour:
   _status: {fileID: 8569971679628304962}
   _effectPrefab: {fileID: 1896945627568203028, guid: 1e838146f45fbe14aba31aaa45e214be, type: 3}
   _effectLifetime: 1
+--- !u!114 &1681507672752994052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860674803404275474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 382c5ccda10c82541aa9af2b51a4b89a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyExplosionEffect
+  _controller: {fileID: 7609875869182641865}
+  _effectPrefab: {fileID: 6038294298135730153, guid: 60b242f93f6bdcc4486274a6b659ac96, type: 3}
+  _effectLifetime: 2
 --- !u!1 &4949332651527946146
 GameObject:
   m_ObjectHideFlags: 0

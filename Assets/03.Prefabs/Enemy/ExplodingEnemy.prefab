@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 8619155157741263886}
   - component: {fileID: 8929402969502685051}
   - component: {fileID: 3803763781328297615}
+  - component: {fileID: 4212852899782835133}
   m_Layer: 8
   m_Name: ExplodingEnemy
   m_TagString: Untagged
@@ -281,6 +282,21 @@ MonoBehaviour:
   _status: {fileID: 484566710926521964}
   _effectPrefab: {fileID: 2723619675027131727, guid: f0c212f1536b5af43932bd2d1dad63d8, type: 3}
   _effectLifetime: 1.2
+--- !u!114 &4212852899782835133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2860674803404275474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 382c5ccda10c82541aa9af2b51a4b89a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyExplosionEffect
+  _controller: {fileID: 7609875869182641865}
+  _effectPrefab: {fileID: 6038294298135730153, guid: 60b242f93f6bdcc4486274a6b659ac96, type: 3}
+  _effectLifetime: 2
 --- !u!1 &8966026657430943315
 GameObject:
   m_ObjectHideFlags: 0

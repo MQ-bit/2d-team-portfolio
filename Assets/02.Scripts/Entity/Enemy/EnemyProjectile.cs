@@ -53,6 +53,12 @@ public class EnemyProjectile : MonoBehaviour
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // 플레이어의 아이템 수집 범위 같은 트리거 영역은 몸통이 아니므로 무시한다.
+        if (other.isTrigger)
+        {
+            return;
+        }
+
         PotionEffectReceiver receiver = other.GetComponentInParent<PotionEffectReceiver>();
         if (receiver == null || receiver.TargetKind != PotionTargetKind.Player)
         {
