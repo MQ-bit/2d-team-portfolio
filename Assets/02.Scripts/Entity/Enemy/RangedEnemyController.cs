@@ -136,7 +136,7 @@ public class RangedEnemyController : MonoBehaviour
             case State.Idle:
             case State.Chase:
                 _state = State.Chase;
-                _movementModule.MoveTowards(_target.position, _data.MoveSpeed);
+                _movementModule.MoveTowards(_target.position, _status.Speed);
                 break;
             case State.Attack:
                 _movementModule.Stop();

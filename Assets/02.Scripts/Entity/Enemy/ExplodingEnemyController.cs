@@ -155,7 +155,7 @@ public class ExplodingEnemyController : MonoBehaviour
             return;
         }
 
-        _movementModule.MoveTowards(targetPosition, _data.MoveSpeed);
+        _movementModule.MoveTowards(targetPosition, _status.Speed);
     }
 
     private void StartFuse()
