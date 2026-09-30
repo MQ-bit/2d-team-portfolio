@@ -1,3 +1,4 @@
+using Coffee.UIExtensions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,15 @@ public class PotionDictionaryView : MonoBehaviour
     [Header("Slot Images")]
     [SerializeField] private Image _potionIcon;
     [SerializeField] private Image _potionTypeIcon;
+    [SerializeField] private UIParticle _identifyEffect;
+
+    private void Awake()
+    {
+        if (_identifyEffect == null)
+        {
+            _identifyEffect = GetComponentInChildren<UIParticle>(true);
+        }
+    }
 
     public void SetPotion(PotionItem item, bool isIdentified, Sprite unidentifiedIcon)
     {
@@ -22,6 +32,10 @@ public class PotionDictionaryView : MonoBehaviour
         if (typeIcon == null)
         {
             typeIcon = unidentifiedIcon;
+        }
+        if (isIdentified == true)
+        {
+            _identifyEffect.Play();
         }
 
         SetImage(_potionTypeIcon, typeIcon);

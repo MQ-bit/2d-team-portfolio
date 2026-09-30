@@ -84,7 +84,6 @@ public class PotionCatralogPresenter : MonoBehaviour
             return;
         }
 
-        // OnIdentified에서 받은 index는 도감의 외형 인덱스와 동일하다.
         _slots[appearanceIndex].SetPotion(identifiedItem, true, _unidentifiedIcon);
     }
 
