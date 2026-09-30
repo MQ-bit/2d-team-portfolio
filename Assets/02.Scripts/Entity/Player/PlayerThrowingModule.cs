@@ -20,6 +20,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private PotionProjectile _potionPrefab;
 
     private Vector2 _aimWorldPosition;
+    private IDamageable _potionEffectOwner;
     public bool IsAiming { get; private set; }
 
 
@@ -57,6 +58,8 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
+
+        _potionEffectOwner = GetComponent<IDamageable>();
     }
 
     public void BeginAim(Vector2 screenPosition)
@@ -151,7 +154,7 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             Vector3 startPosition = _throwPoint.position;
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
-            proj.Launch(consumedPotion, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+            proj.Launch(consumedPotion, _potionEffectOwner, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()
