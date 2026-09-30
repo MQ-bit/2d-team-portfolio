@@ -17,7 +17,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
     [SerializeField, Min(0f)] private float _itnitThirstIncreaseAmount = 1f; //초당 감소 정도
     [SerializeField] private float _initThirstIncreaseInterval = 10f; //감소 간격
-    [SerializeField] private EntityThirst _thirstStatInstance;
+    [SerializeField] private EntityThirst _thirstInstance;
 
     [Header("Movement Settings")]
     [SerializeField] private float _speed = 5f;
@@ -33,6 +33,10 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
     public float MaxThrowDistance => _maxThrowDistance;
 
+    public float CurrentHealth => _healthInstance.Current;
+    public float MaxHealth => _healthInstance.Max;
+    public float CurrentThirst => _thirstInstance.CurrentThirst;
+    public float MaxThirst => _thirstInstance.MaxThirst;
     public bool IsDead => _healthInstance.IsDead;
 
     public event Action<float, float> OnThirstChanged; //current, max
@@ -51,15 +55,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     private void InitiateStatus()
     {
-        _thirstStatInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
+        _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
         _healthInstance = new EntityHealth(_initHealth, _maxHealth);
     }
 
     private void Update()
     {
-        if (_thirstStatInstance.IncreaseTick(Time.deltaTime))
+        if (_thirstInstance.IncreaseTick(Time.deltaTime))
         {
-            OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
+            OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
         }
     }
 
@@ -82,15 +86,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     public void RestoreThirst(float amount)
     {
-        _thirstStatInstance.RestoreThirst(amount);
+        _thirstInstance.RestoreThirst(amount);
 
-        OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
+        OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
     }
 
     public void DecreaseThirst(float amount)
     {
-        _thirstStatInstance.DecreaseThirst(amount);
+        _thirstInstance.DecreaseThirst(amount);
 
-        OnThirstChanged?.Invoke(_thirstStatInstance.CurrentThirst, _thirstStatInstance.MaxThirst);
+        OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
     }
 }
