@@ -11,7 +11,7 @@ public class MeleeAttackView : MonoBehaviour
     private void Awake()
     {
         _attackIcon.sprite = _icons[0];
-        if (_enableSquare == null)
+        if (_attackIcon == null)
         {
             _attackIcon = GetComponentInChildren<Image>();
         }
