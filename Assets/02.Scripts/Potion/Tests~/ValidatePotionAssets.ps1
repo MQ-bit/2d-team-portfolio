@@ -76,27 +76,23 @@ $combinationDefinitions = @(
 foreach ($definition in $singleDefinitions) {
     $path = Join-Path $singleRoot ($definition.Name + '.asset')
     $text = Read-Text $path
-    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($definition.Name): effect profile is disabled"
     Assert-Match $text "(?m)^  _element: $($definition.Element)$" "$($definition.Name): element mismatch"
-    Assert-Match $text "(?m)^    _effectRadius: $([regex]::Escape($definition.Radius))$" "$($definition.Name): radius mismatch"
-    Assert-Match $text "(?m)^    _floorDuration: $([regex]::Escape($definition.Duration))$" "$($definition.Name): floor duration mismatch"
-    Assert-Match $text "(?m)^    _tickInterval: $([regex]::Escape($definition.Interval))$" "$($definition.Name): tick interval mismatch"
-    Assert-Match $text "(?m)^    _thirstDelta: $([regex]::Escape($definition.Thirst))$" "$($definition.Name): thirst delta mismatch"
-    Assert-Match $text '(?m)^  _flightSpeed: 10$' "$($definition.Name): flight speed mismatch"
-    Assert-Match $text '(?m)^  _maxThrowDistance: 8$' "$($definition.Name): max throw distance mismatch"
+    Assert-Match $text "(?m)^  _effectRadius: $([regex]::Escape($definition.Radius))$" "$($definition.Name): radius mismatch"
+    Assert-Match $text "(?m)^  _floorDuration: $([regex]::Escape($definition.Duration))$" "$($definition.Name): floor duration mismatch"
+    Assert-Match $text "(?m)^  _tickInterval: $([regex]::Escape($definition.Interval))$" "$($definition.Name): tick interval mismatch"
+    Assert-Match $text "(?m)^  _thirstDelta: $([regex]::Escape($definition.Thirst))$" "$($definition.Name): thirst delta mismatch"
 }
 
 foreach ($definition in $combinationDefinitions) {
     $path = Join-Path $combinationRoot ($definition.Name + '.asset')
     $text = Read-Text $path
-    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($definition.Name): effect profile is disabled"
     Assert-Match $text "(?m)^  _combination: $($definition.Id)$" "$($definition.Name): combination id mismatch"
     Assert-Match $text "(?m)^  _elementA: $($definition.A)$" "$($definition.Name): element A mismatch"
     Assert-Match $text "(?m)^  _elementB: $($definition.B)$" "$($definition.Name): element B mismatch"
-    Assert-Match $text "(?m)^  _combinationDuration: $([regex]::Escape($definition.Duration))$" "$($definition.Name): duration mismatch"
-    Assert-Match $text "(?m)^    _effectRadius: $([regex]::Escape($definition.Radius))$" "$($definition.Name): radius mismatch"
-    Assert-Match $text "(?m)^    _createsFloor: $($definition.Floor)$" "$($definition.Name): floor mode mismatch"
-    Assert-Match $text "(?m)^    _lifeStealRatio: $([regex]::Escape($definition.LifeSteal))$" "$($definition.Name): life steal mismatch"
+    Assert-Match $text "(?m)^  _floorDuration: $([regex]::Escape($definition.Duration))$" "$($definition.Name): duration mismatch"
+    Assert-Match $text "(?m)^  _effectRadius: $([regex]::Escape($definition.Radius))$" "$($definition.Name): radius mismatch"
+    Assert-Match $text "(?m)^  _createsFloor: $($definition.Floor)$" "$($definition.Name): floor mode mismatch"
+    Assert-Match $text "(?m)^  _lifeStealRatio: $([regex]::Escape($definition.LifeSteal))$" "$($definition.Name): life steal mismatch"
 
     if ($definition.Inherit -ne 0) {
         Assert-Match $text "(?m)^  _inheritThrownEffectsFrom: $($definition.Inherit)$" "$($definition.Name): inherited element mismatch"
@@ -133,14 +129,7 @@ foreach ($asset in $externalPotionAssets) {
         Add-Failure "PotionDatabase does not reference $($asset.Name)."
     }
     $text = Read-Text $asset.FullName
-    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($asset.Name): own effect profile is disabled"
-    $elementId = [int][regex]::Match($text, '(?m)^  _element: (\d+)$').Groups[1].Value
-    $definition = $singleDefinitions | Where-Object { $_.Element -eq $elementId }
-    $reference = Read-Text (Join-Path $singleRoot ($definition.Name + '.asset'))
-    $profilePattern = '(?ms)^  _effectProfile:.*?(?=^  [A-Za-z_]|\z)'
-    if ([regex]::Match($text, $profilePattern).Value.Trim() -cne [regex]::Match($reference, $profilePattern).Value.Trim()) {
-        Add-Failure "$($asset.Name): migrated profile does not match the planned default"
-    }
+
 }
 
 $externalCombinationAssets = @(
@@ -160,15 +149,7 @@ foreach ($asset in $externalCombinationAssets) {
     if ($guid -and $combinationDatabase -notmatch [regex]::Escape("guid: $guid")) {
         Add-Failure "PotionCombinationDatabase does not reference $($asset.Name)."
     }
-    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($asset.Name): own effect profile is disabled"
-    Assert-Match $text '(?m)^  _effects: \[\]$' "$($asset.Name): stale legacy effects remain"
-    $reference = Read-Text (Join-Path $combinationRoot ($asset.Name.Substring(3)))
-    foreach ($key in @('_effectProfile', '_combinationDuration', '_instantOnly')) {
-        $pattern = '(?ms)^  ' + $key + ':.*?(?=^  [A-Za-z_]|\z)'
-        if ([regex]::Match($text, $pattern).Value.Trim() -cne [regex]::Match($reference, $pattern).Value.Trim()) {
-            Add-Failure "$($asset.Name): $key does not match the planned default"
-        }
-    }
+
 }
 if ([regex]::Matches($combinationDatabase, '(?m)^  - .*guid:').Count -ne 14) {
     Add-Failure 'Expected exactly 14 active combinations in the database.'
@@ -193,6 +174,25 @@ if ($combinationDatabaseGuid) {
 $playerPrefab = Read-Text (Join-Path $ProjectRoot 'Assets/03.Prefabs/Player/Player.prefab')
 Assert-Match $playerPrefab 'Assembly-CSharp::PotionEffectReceiver' 'Player prefab is missing PotionEffectReceiver.'
 
+# Data is editable per asset; external assets need not match the defaults.
+foreach ($asset in @($assetFiles) + @($externalPotionAssets) + @($externalCombinationAssets)) {
+    $text = Read-Text $asset.FullName
+    if ($text -match '(?m)^  _(effectProfile|hasEffectProfile|flightSpeed|maxThrowDistance|areaWidth|areaDuration|areaEffectAmount|effectDuration|drinkEffectAmount|drinkThirstRecoveryAmount|combinationDuration|instantOnly):') {
+        Add-Failure "$($asset.Name): obsolete serialized field remains"
+    }
+    $keys = [regex]::Matches($text, '(?m)^  (_\w+):') | ForEach-Object { $_.Groups[1].Value }
+    if (@($keys | Select-Object -Unique).Count -ne @($keys).Count) {
+        Add-Failure "$($asset.Name): duplicate serialized fields"
+    }
+    foreach ($key in @('_targetType', '_effectRadius', '_createsFloor', '_floorDuration', '_tickInterval', '_applyOnEnter', '_lifeStealRatio', '_effects', '_frost')) {
+        Assert-Match $text ("(?m)^  " + $key + ':') "$($asset.Name): missing $key"
+    }
+    if ($text -match 'Assembly-CSharp::PotionCombinationData') {
+        if ($text -match '_thirstDelta:') { Add-Failure "$($asset.Name): combination thirst remains" }
+    } else {
+        Assert-Match $text '(?m)^  _thirstDelta:' "$($asset.Name): missing drink thirst"
+    }
+}
 if ($failures.Count -gt 0) {
     Write-Host "Potion asset validation FAILED ($($failures.Count))" -ForegroundColor Red
     foreach ($failure in $failures) { Write-Host " - $failure" -ForegroundColor Red }
@@ -204,5 +204,5 @@ Write-Host " - Internal defaults: $($singleDefinitions.Count) single + $($combin
 Write-Host " - Unique internal asset GUIDs: $($validGuids.Count)"
 Write-Host " - External databases: $($externalPotionAssets.Count) potions + $($externalCombinationAssets.Count) combinations"
 Write-Host ' - Prefab entry points: ground area/database and player receiver connected'
-Write-Host ' - Active Datas assets: 6 single + 14 combinations use their own new effect profiles'
-Write-Host ' - PurifyingLife retained as inactive asset; legacy throw distance/speed accepted by user'
+Write-Host ' - Data assets store their effects directly; no nested profiles or legacy fields'
+Write-Host ' - PurifyingLife retained as inactive asset; combination thirst and potion flight settings removed'

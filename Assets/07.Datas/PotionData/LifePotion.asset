@@ -15,53 +15,44 @@ MonoBehaviour:
   _id: life_potion
   _displayName: 생명의 물약
   _element: 4
-  _areaWidth: 4
-  _areaDuration: 4
-  _areaEffectAmount: 6
-  _tickInterval: 1
-  _effectDuration: 0
-  _drinkEffectAmount: 30
-  _drinkThirstRecoveryAmount: -40
   _visualData:
     _areaSprite: {fileID: 7840392335819879883, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _potionSprite: {fileID: 0}
     _areaColor: {r: 0.3, g: 1, b: 0.45, a: 0.65}
-  _hasEffectProfile: 1
-  _effectProfile:
-    _targetType: 0
-    _effectRadius: 2
-    _createsFloor: 1
-    _floorDuration: 4
-    _tickInterval: 1
-    _applyOnEnter: 1
-    _lifeStealRatio: 0
-    _thirstDelta: -40
-    _effects:
-    - _phase: 1
-      _operation: 1
-      _element: 4
-      _amount: 6
-      _status: 0
-      _duration: 0
-      _tickInterval: 0
-      _applyImmediately: 0
-      _moveSpeedMultiplier: 1
-      _immobilizeDuration: 0
-      _frostStackAmount: 1
-    - _phase: 3
-      _operation: 1
-      _element: 4
-      _amount: 30
-      _status: 0
-      _duration: 0
-      _tickInterval: 0
-      _applyImmediately: 0
-      _moveSpeedMultiplier: 1
-      _immobilizeDuration: 0
-      _frostStackAmount: 1
-    _frost:
-      _freezeThreshold: 3
-      _moveSpeedMultipliers:
-      - 0.85
-      - 0.7
-      _freezeDuration: 2
+  _targetType: 0
+  _effectRadius: 2
+  _createsFloor: 1
+  _floorDuration: 4
+  _tickInterval: 1
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _thirstDelta: -40
+  _effects:
+  - _phase: 1
+    _operation: 1
+    _element: 4
+    _amount: 6
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 3
+    _operation: 1
+    _element: 4
+    _amount: 30
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2

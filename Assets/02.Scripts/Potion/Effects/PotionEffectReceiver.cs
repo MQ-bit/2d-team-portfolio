@@ -34,7 +34,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         RefreshDamageSuppression();
     }
 
-    public void EnterFloor(PotionEffectProfile profile, PotionEffectSource source)
+    public void EnterFloor(IPotionEffectData profile, PotionEffectSource source)
     {
         if (!CanReceiveStatus()) return;
         TickStatuses();
@@ -68,7 +68,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         }
     }
 
-    public void ApplyEffect(PotionEffectDefinition effect, PotionEffectProfile profile, PotionEffectSource source)
+    public void ApplyEffect(PotionEffectDefinition effect, IPotionEffectData profile, PotionEffectSource source)
     {
         if (!CanReceiveStatus()) return;
         switch (effect.Operation)

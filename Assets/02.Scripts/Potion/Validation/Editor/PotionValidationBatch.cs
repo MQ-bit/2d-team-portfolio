@@ -134,7 +134,7 @@ public static class PotionValidationBatch
         };
         eventReceiver.DamageApplied += result => notifications.Add("damage");
         var eventSource = new PotionEffectSource(9001, owner: eventOwner, lifeStealRatio: .2f);
-        PotionEffectApplier.ApplyProfilePhase(Data(PotionElement.Vaporization).ThrownProfile,
+        PotionEffectApplier.ApplyProfilePhase(Data(PotionElement.Vaporization),
             PotionEffectPhase.Impact, eventReceiver, eventSource);
         Record(string.Join(",", notifications) == "damage", "direct damage emits only shared event");
         Equal(5, eventOwner.Healing, "direct damage restores life steal once");

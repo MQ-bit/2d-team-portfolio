@@ -11,7 +11,11 @@
     <Compile Include="UnityTestDoubles.cs" />
     <Compile Include="../../Effects/*.cs" />
     <Compile Include="../../Area/PotionAreaTimeline.cs" />
-    <Compile Include="../../Data/PotionEffectProfile.cs" />
+    <Compile Include="../../Data/PotionEffectDefinition.cs" />
+    <Compile Include="../../Data/IPotionEffectData.cs" />
+    <Compile Include="../../Data/PotionData.cs" />
+    <Compile Include="../../Data/PotionCombinationData.cs" />
+    <Compile Include="../../Data/PotionVisualData.cs" />
     <Compile Include="../../../Entity/Status/Interface/*.cs" />
     <Compile Include="../../../Entity/Status/EntityHealth.cs" />
     <Compile Include="../../../Entity/Status/EntityThirst.cs" />

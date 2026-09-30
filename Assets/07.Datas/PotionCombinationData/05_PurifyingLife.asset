@@ -17,10 +17,16 @@ MonoBehaviour:
   _description: 새 기획에 없는 미확정 조합. 활성 DB에서 제외했으며 기존 회복·장판 제거 효과는 비활성화했다.
   _elementA: 4
   _elementB: 6
-  _combinationDuration: 0
-  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
-  _hasEffectProfile: 0
+  _targetType: 0
+  _effectRadius: 0
+  _createsFloor: 0
+  _floorDuration: 0
+  _tickInterval: 0
+  _applyOnEnter: 0
+  _lifeStealRatio: 0
+  _effects: []
+  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}

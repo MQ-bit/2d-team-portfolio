@@ -40,8 +40,7 @@ public class PotionGroundArea : MonoBehaviour
         }
 
         Data = data;
-        PotionEffectProfile profile = data.ThrownProfile;
-        _duration = profile != null ? profile.FloorDuration : data.AreaDuration;
+        _duration = data.FloorDuration;
         _radius = data.AreaWidth * 0.5f;
         _collider.radius = _radius;
 
@@ -67,14 +66,14 @@ public class PotionGroundArea : MonoBehaviour
         _expiresAt = Time.time + _duration;
         if (_combiner != null) _combiner.RegisterArea();
 
-        if (!IsCombined && _areaEffect != null && Data.ThrownProfile != null)
+        if (!IsCombined && _areaEffect != null)
         {
             _areaEffect.ActivateSingleProfile(Owner, _expiresAt);
             _areaEffect.ApplySingleImpact();
         }
 
-        // 기화처럼 CreatesFloor=false인 프로필은 착탄 효과만 적용하고 장판을 남기지 않는다.
-        if (!IsCombined && Data.ThrownProfile != null && !Data.ThrownProfile.CreatesFloor)
+        // 기화처럼 CreatesFloor=false인 포션은 착탄 효과만 적용하고 장판을 남기지 않는다.
+        if (!IsCombined && !Data.CreatesFloor)
         {
             Remove();
         }

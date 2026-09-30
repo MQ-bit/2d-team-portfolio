@@ -6,9 +6,9 @@ public sealed class PotionFloorEffectState
 {
     private readonly struct Entry
     {
-        public readonly PotionEffectProfile Profile;
+        public readonly IPotionEffectData Profile;
         public readonly PotionEffectSource Source;
-        public Entry(PotionEffectProfile profile, PotionEffectSource source) { Profile = profile; Source = source; }
+        public Entry(IPotionEffectData profile, PotionEffectSource source) { Profile = profile; Source = source; }
     }
 
     private readonly struct Key : IEquatable<Key>
@@ -30,7 +30,7 @@ public sealed class PotionFloorEffectState
     private readonly Dictionary<int, Entry> _sources = new();
     private readonly Dictionary<Key, double> _nextTicks = new();
 
-    public void Enter(PotionEffectProfile profile, PotionEffectSource source) =>
+    public void Enter(IPotionEffectData profile, PotionEffectSource source) =>
         _sources[source.SourceId] = new Entry(profile, source);
 
     public bool HasDamageElement(PotionElement element)
@@ -45,7 +45,7 @@ public sealed class PotionFloorEffectState
     }
 
     public void Pulse(int sourceId, double now,
-        Action<PotionEffectDefinition, PotionEffectProfile, PotionEffectSource> apply)
+        Action<PotionEffectDefinition, IPotionEffectData, PotionEffectSource> apply)
     {
         if (!_sources.TryGetValue(sourceId, out Entry caller)) return;
         var handled = new HashSet<Key>();
@@ -60,7 +60,7 @@ public sealed class PotionFloorEffectState
         }
     }
 
-    public bool Exit(int sourceId, out PotionEffectProfile profile, out PotionEffectSource source)
+    public bool Exit(int sourceId, out IPotionEffectData profile, out PotionEffectSource source)
     {
         profile = null;
         source = default;

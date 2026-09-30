@@ -17,23 +17,17 @@ MonoBehaviour:
   _description: 전기 원본 장판·마비를 유지하고 실제 피해의 20%를 시전자에게 회복한다.
   _elementA: 4
   _elementB: 5
-  _combinationDuration: 0
-  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: -2003827210, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
-  _hasEffectProfile: 1
-  _effectProfile:
-    _targetType: 1
-    _effectRadius: 2
-    _createsFloor: 1
-    _floorDuration: 0
-    _tickInterval: 1
-    _applyOnEnter: 1
-    _lifeStealRatio: 0.2
-    _thirstDelta: 0
-    _effects: []
-    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
-  _instantOnly: 0
   _inheritThrownEffectsFrom: 5
+  _targetType: 1
+  _effectRadius: 2
+  _createsFloor: 1
+  _floorDuration: 0
+  _tickInterval: 1
+  _applyOnEnter: 1
+  _lifeStealRatio: 0.2
+  _effects: []
+  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}

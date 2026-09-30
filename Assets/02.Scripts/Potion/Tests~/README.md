@@ -1,5 +1,11 @@
 # 상태 실행기 검증
 
+## 데이터 통합 (2026-09-30)
+
+효과 설정은 `PotionData`와 `PotionCombinationData`에 직접 저장한다. 기존 중첩 프로필의 값을 우선 이관했으며, 공통 실행기는 `IPotionEffectData`로 두 에셋을 읽는다. 구형 효과 수치와 기본 프로필 폴백은 제거했다. 갈증 변화량은 단일 포션에만 있고, 포션별 비행 속도·최대 투척 거리 필드는 없다. 실제 투척 거리 설정은 기존 `PlayerStatus`가 담당한다.
+
+이번 변경은 Unity 참조를 사용한 전체 C# 소스 컴파일, 20개 결정적 시나리오, 41개 에셋 구조 검사로 확인했다. 기존 프로필이 있던 40개 에셋의 효과 값·시각 정보·식별 정보 보존도 확인했다. 아래 Unity 플레이 검증 기록은 이전 실행 결과이며 이번 변경 후 다시 실행한 결과는 아니다.
+
 ## Unity 실제 프리팹 통합 검증 (2026-09-30 추가)
 
 `Validation/Editor/PotionValidationBatch.cs`는 Unity 플레이 모드에서 기존 `07.Datas` 에셋과 `03.Prefabs` 프리팹을 로드한다. 실제 Physics2D Trigger, 중복 Collider, 장판 수명/잔류, 6종 섭취, 14종 조합, 흡혈, 기화, 서리 단계, 재진입, PlayerStatus와 투사체 연결, Collider와 SpriteRenderer의 크기를 검사한다. 적 대신 `PotionValidationTarget` 인터페이스 구현을 사용한다. 이 대상은 에디터 전용이며 빌드에는 포함되지 않는다.
@@ -39,4 +45,4 @@ dotnet run --project Assets/02.Scripts/Potion/Tests~/StatusRuntime/StatusRuntime
 powershell -ExecutionPolicy Bypass -File Assets/02.Scripts/Potion/Tests~/ValidatePotionAssets.ps1
 ```
 
-내부 기본 에셋 6+14종의 이름·핵심 수치·GUID, 외부 DB의 6+15종 참조, 장판 프리팹의 실행 컴포넌트/DB 참조, 플레이어 Receiver 연결을 검사한다. 새 데이터의 투척 거리 8·비행 속도 10은 외부 플레이어 투척 흐름에 아직 연결되지 않았으므로 실패가 아닌 인계 항목으로 출력한다.
+내부 기본 에셋 6+14종의 이름·핵심 수치·GUID, 외부 DB의 6+15종 참조, 장판 프리팹의 실행 컴포넌트/DB 참조, 플레이어 Receiver 연결을 검사한다. 모든 포션 에셋의 통합 필드, 중복 키와 구형 필드 제거, 조합 갈증 필드 제거도 확인한다. 외부 에셋의 커스텀 수치는 기본 에셋과 달라도 허용한다.

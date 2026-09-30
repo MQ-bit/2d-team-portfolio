@@ -84,80 +84,24 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             return false;
         }
 
-        PotionEffectProfile runtimeProfile = data.RuntimeProfile;
-        if (runtimeProfile != null)
-        {
-            if (runtimeProfile.CreatesFloor ||
-                data.RuntimeInheritThrownEffectsFrom != PotionElement.None)
-            {
-                return CreateProfileCombination(other, otherCombiner, data, runtimeProfile);
-            }
+        if (data.CreatesFloor || data.InheritThrownEffectsFrom != PotionElement.None)
+            return CreateProfileCombination(other, otherCombiner, data, data);
 
-            return CreateInstantProfileCombination(other, otherCombiner, data, runtimeProfile);
-        }
-
-        if (!PotionCombinationEffectCalculator.TryCalculate(data, _area.Data, other.Data, out var result))
-            return false;
-
-        // Claim both areas before applying anything so the mirrored trigger callback cannot duplicate the combination.
-        IsCombined = true;
-        otherCombiner.IsCombined = true;
-
-        IDamageable primaryOwner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
-        PotionEffectApplier.RestoreCombinationOwner(primaryOwner, result.PlayerHealthRecovery);
-
-        bool hasTargetEffect = result.DamagePerTick > 0f || result.Status.HasValue;
-        if (result.RemoveGroundAreas || data.InstantOnly)
-        {
-            if (hasTargetEffect)
-            {
-                PotionGroundArea sourceArea = _area.Data.Element == PotionElement.Vaporization ? other : _area;
-                IDamageable sourceOwner = IsAlive(sourceArea.Owner) ? sourceArea.Owner : primaryOwner;
-                _combinedAreaShape.Create(_area, other, data.VisualData);
-                Physics2D.SyncTransforms();
-
-                // 트리거 진입 이력 대신 완성된 타원 전체를 착탄 순간에 조회한다.
-                var hits = new List<Collider2D>();
-                var targets = new HashSet<IPotionEffectTarget>();
-                ContactFilter2D filter = new() { useTriggers = true };
-                _combinedAreaShape.CombinationCollider.Overlap(filter, hits);
-                foreach (Collider2D hit in hits)
-                {
-                    IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
-                    if (!PotionEffectApplier.IsTargetAlive(target) || !targets.Add(target)) continue;
-
-                    // 장판은 유지하지 않으며, 부가 상태이상은 자체 지속시간을 사용한다.
-                    PotionEffectApplier.ApplyCombinationEffect(result, target, sourceOwner,
-                        _area.GetInstanceID(), float.PositiveInfinity);
-                }
-            }
-
-            _area.Remove();
-            other.Remove();
-            return true;
-        }
-
-        float expiresAt = Time.time + data.CombinationDuration;
-        _combinedAreaShape.Create(_area, other, data.VisualData);
-        IDamageable combinationOwner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
-        _area.AreaEffect.ReplaceWithCombination(result, combinationOwner, expiresAt);
-        _area.SetExpiration(expiresAt);
-        other.SetExpiration(expiresAt);
-        return true;
+        return CreateInstantProfileCombination(other, otherCombiner, data, data);
     }
 
     private bool CreateProfileCombination(PotionGroundArea other,
         PotionAreaCombiner otherCombiner, PotionCombinationData data,
-        PotionEffectProfile templateProfile)
+        IPotionEffectData templateProfile)
     {
-        PotionEffectProfile effectProfile = templateProfile;
-        float duration = data.RuntimeCombinationDuration;
-        PotionElement inheritedElement = data.RuntimeInheritThrownEffectsFrom;
+        IPotionEffectData effectProfile = templateProfile;
+        float duration = data.FloorDuration;
+        PotionElement inheritedElement = data.InheritThrownEffectsFrom;
         if (inheritedElement != PotionElement.None)
         {
             PotionData inheritedPotion = _area.Data.Element == inheritedElement ? _area.Data :
                 other.Data.Element == inheritedElement ? other.Data : null;
-            effectProfile = inheritedPotion == null ? null : inheritedPotion.ThrownProfile;
+            effectProfile = inheritedPotion;
             if (effectProfile == null) return false;
             duration = effectProfile.FloorDuration;
         }
@@ -178,7 +122,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
     private bool CreateInstantProfileCombination(PotionGroundArea other,
         PotionAreaCombiner otherCombiner, PotionCombinationData data,
-        PotionEffectProfile profile)
+        IPotionEffectData profile)
     {
         IsCombined = true;
         otherCombiner.IsCombined = true;

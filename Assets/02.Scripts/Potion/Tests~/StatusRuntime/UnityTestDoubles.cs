@@ -10,6 +10,23 @@ namespace UnityEngine
         private readonly int _id = ++_nextId;
         public int GetInstanceID() => _id;
     }
+    public class ScriptableObject : Object
+    {
+        public static T CreateInstance<T>() where T : ScriptableObject, new() => new T();
+    }
+    public class Sprite : Object { }
+    public struct Color
+    {
+        public static Color red => default;
+        public static Color white => default;
+    }
+    public sealed class CreateAssetMenuAttribute : Attribute
+    {
+        public string fileName;
+        public string menuName;
+    }
+    public sealed class TextAreaAttribute : Attribute { }
+    public sealed class InspectorNameAttribute : Attribute { public InspectorNameAttribute(string _) { } }
     public class Component : Object
     {
         private Transform _transform;
@@ -51,29 +68,4 @@ namespace UnityEngine
     public sealed class MinAttribute : Attribute { public MinAttribute(float _) { } }
     public sealed class RangeAttribute : Attribute { public RangeAttribute(float a, float b) { } }
     public sealed class DisallowMultipleComponent : Attribute { }
-}
-
-// 상태 실행기는 이 에셋들을 읽지 않고 출처 참조로만 보존한다.
-public class PotionData : UnityEngine.Object
-{
-    public PotionEffectProfile ThrownProfile;
-    public PotionElement Element;
-    public float AreaEffectAmount;
-    public float DrinkEffectAmount;
-    public float DrinkThirstRecoveryAmount;
-    public float EffectDuration;
-}
-public class PotionCombinationData : UnityEngine.Object { }
-public enum PotionElement { None, Fire, Poison, Ice, Heal, Lightning, Vaporization }
-
-public static class PotionCombinationEffectCalculator
-{
-    public readonly struct Result
-    {
-        public float TickInterval => 0;
-        public float DamagePerTick => 0;
-        public PotionStatusEffect? Status => null;
-        public float StatusDuration => 0;
-        public float CalculateLifeSteal(float actualDamage) => 0;
-    }
 }

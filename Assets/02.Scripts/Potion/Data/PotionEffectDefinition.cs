@@ -26,7 +26,7 @@ public enum PotionEffectOperation
     AddFrostStacks = 3
 }
 
-/// <summary>한 시점에 실행할 수치 설정. 대상, 남은 시간, 현재 스택은 저장하지 않는다.</summary>
+/// 한 시점에 실행할 수치 설정. 대상, 남은 시간, 현재 스택은 저장하지 않는다
 [Serializable]
 public sealed class PotionEffectDefinition
 {
@@ -75,7 +75,7 @@ public sealed class PotionEffectDefinition
     }
 }
 
-/// <summary> 서리의 공유 설정. 스택 초기화 및 빙결 중 누적 금지는 실행기의 규칙이다. </summary>
+/// 서리의 공유 설정. 스택 초기화 및 빙결 중 누적 금지
 [Serializable]
 public sealed class PotionFrostSettings
 {
@@ -100,68 +100,6 @@ public sealed class PotionFrostSettings
         while (_moveSpeedMultipliers.Count < stageCount) _moveSpeedMultipliers.Add(1f);
         for (int i = 0; i < _moveSpeedMultipliers.Count; i++)
             _moveSpeedMultipliers[i] = PotionDataValidation.Multiplier(_moveSpeedMultipliers[i]);
-    }
-}
-
-/// <summary>
-/// 새 기획용 공통 데이터. 기존 API의 값을 자동으로 대체하지 않는다.
-/// HP/갈증 적용은 후속 실행기가 계산한 수치만 기존 인터페이스에 전달한다.
-/// </summary>
-[Serializable]
-public sealed class PotionEffectProfile
-{
-    [Header("Thrown Effect")]
-    [Tooltip("투척 대상만 선택한다. 섭취 효과는 섭취자에게 적용한다.")]
-    [SerializeField] private PotionTargetType _targetType = PotionTargetType.Enemy;
-    [Tooltip("단일 장판/즉발 폭발 반경. 지속형 조합은 이 값 대신 두 원본의 타원 형태를 사용한다.")]
-    [SerializeField, Min(0f)] private float _effectRadius = 2f;
-    [SerializeField] private bool _createsFloor = true;
-    [SerializeField, Min(0f)] private float _floorDuration = 4f;
-    [SerializeField, Min(0f)] private float _tickInterval = 1f;
-    [SerializeField] private bool _applyOnEnter = true;
-    [Tooltip("실제 투척 피해 및 그 잔류 피해에 대한 회복 비율. 섭취에는 적용하지 않는다.")]
-    [SerializeField, Range(0f, 1f)] private float _lifeStealRatio;
-
-    [Header("Drink")]
-    [Tooltip("음수는 갈증 감소, 양수는 증가. 기존 RecoveryAmount의 부호를 자동 변환하지 않는다.")]
-    [SerializeField] private float _thirstDelta;
-
-    [Header("Effects By Phase")]
-    [Tooltip("같은 시점에 여러 원소/상태를 순서대로 표현한다. FloorExit 상태가 잔류 효과다.")]
-    [SerializeField] private List<PotionEffectDefinition> _effects = new();
-    [SerializeField] private PotionFrostSettings _frost = new();
-
-    public PotionTargetType TargetType => _targetType;
-    public float EffectRadius => _effectRadius;
-    public bool CreatesFloor => _createsFloor;
-    public float FloorDuration => _floorDuration;
-    public float TickInterval => _tickInterval;
-    public bool ApplyOnEnter => _applyOnEnter;
-    public float LifeStealRatio => _lifeStealRatio;
-    public float ThirstDelta => _thirstDelta;
-    public IReadOnlyList<PotionEffectDefinition> Effects => _effects;
-    public PotionFrostSettings Frost => _frost;
-
-    public IEnumerable<PotionEffectDefinition> GetEffects(PotionEffectPhase phase)
-    {
-        if (_effects == null) yield break;
-        foreach (PotionEffectDefinition effect in _effects)
-        {
-            if (effect != null && effect.Phase == phase) yield return effect;
-        }
-    }
-
-    internal void Validate()
-    {
-        _effectRadius = PotionDataValidation.NonNegative(_effectRadius);
-        _floorDuration = PotionDataValidation.NonNegative(_floorDuration);
-        _tickInterval = PotionDataValidation.NonNegative(_tickInterval);
-        _lifeStealRatio = Mathf.Clamp01(PotionDataValidation.Finite(_lifeStealRatio));
-        _thirstDelta = PotionDataValidation.Finite(_thirstDelta);
-        _effects ??= new List<PotionEffectDefinition>();
-        foreach (PotionEffectDefinition effect in _effects) effect?.Validate();
-        _frost ??= new PotionFrostSettings();
-        _frost.Validate();
     }
 }
 

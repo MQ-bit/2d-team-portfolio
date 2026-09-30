@@ -14,22 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 10
   _displayName: 맹독 서리
-  _hasEffectProfile: 1
-  _effectProfile:
-    _targetType: 1
-    _effectRadius: 2
-    _createsFloor: 1
-    _floorDuration: 5
-    _tickInterval: 1
-    _applyOnEnter: 1
-    _lifeStealRatio: 0
-    _thirstDelta: 0
-    _effects:
-    - {_phase: 1, _operation: 0, _element: 2, _amount: 5, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    - {_phase: 1, _operation: 3, _element: 3, _amount: 0, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    - {_phase: 2, _operation: 2, _element: 2, _amount: 5, _status: 1, _duration: 3, _tickInterval: 1, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
   _elementA: 2
   _elementB: 3
-  _combinationDuration: 5
-  _instantOnly: 0
+  _targetType: 1
+  _effectRadius: 2
+  _createsFloor: 1
+  _floorDuration: 5
+  _tickInterval: 1
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _effects:
+  - {_phase: 1, _operation: 0, _element: 2, _amount: 5, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  - {_phase: 1, _operation: 3, _element: 3, _amount: 0, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  - {_phase: 2, _operation: 2, _element: 2, _amount: 5, _status: 1, _duration: 3, _tickInterval: 1, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}

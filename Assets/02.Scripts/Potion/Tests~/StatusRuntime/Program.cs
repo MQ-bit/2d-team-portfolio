@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -24,10 +24,39 @@ internal static class Program
         Run("Interface dispatch directions and finite inputs", Dispatch);
         Run("Single floor totals and lifetime boundary", SingleFloorTotals);
         Run("Area timeline deduplicates overlap and exits once", AreaTimelineBoundary);
-        Run("Drink profiles, thirst direction, and legacy entry point", DrinkProfiles);
+        Run("Drink data, thirst direction, and entry point", DrinkProfiles);
         Run("Six persistent combination profiles", PersistentCombinations);
         Run("Vampiric inheritance, residual owner, and vapor impacts", StageSevenProfiles);
+        Run("Merged data validation and combination effect dispatch", MergedData);
         Console.WriteLine($"PASS: {_passed} scenarios");
+    }
+    private static void MergedData()
+    {
+        var potion = Profile(0.5f);
+        Set(potion, "_effectRadius", 3f);
+        Equal(6f, potion.AreaWidth);
+        Set(potion, "_thirstDelta", float.NaN);
+        Set(potion, "_floorDuration", -1f);
+        Call(potion, "OnValidate");
+        Equal(0, potion.ThirstDelta);
+        Equal(0, potion.FloorDuration);
+
+        var combination = ScriptableObject.CreateInstance<PotionCombinationData>();
+        Set(combination, "_targetType", PotionTargetType.Enemy);
+        Set(combination, "_effects", new List<PotionEffectDefinition> {
+            Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage, PotionElement.Fire, 30)
+        });
+        var health = new FakeHealth();
+        PotionEffectApplier.ApplyProfilePhase(combination, PotionEffectPhase.Impact,
+            Receiver(health), new PotionEffectSource(1, combination: combination));
+        Equal(70, health.CurrentHealth);
+        Set(combination, "_tickInterval", float.PositiveInfinity);
+        Set(combination, "_lifeStealRatio", 2f);
+        Call(combination, "OnValidate");
+        Equal(0, combination.TickInterval);
+        Equal(1, combination.LifeStealRatio);
+        Check(typeof(PotionCombinationData).GetProperty("ThirstDelta") == null,
+            "Combination data must not expose thirst");
     }
     private static void Run(string name, Action action)
     {
@@ -221,7 +250,7 @@ internal static class Program
     {
         var health = new FakeHealth(3);
         var owner = new FakeHealth(20);
-        var potion = new PotionData();
+        var potion = ScriptableObject.CreateInstance<PotionData>();
         var combination = new PotionCombinationData();
         var receiver = Receiver(health);
         PotionDamageResult actual = default;
@@ -322,7 +351,7 @@ internal static class Program
         Time.timeAsDouble = 0;
         var health = new FakeHealth();
         var receiver = Receiver(health);
-        PotionEffectProfile profile = Profile(interval,
+        PotionData profile = Profile(interval,
             Definition(PotionEffectPhase.FloorTick, operation, element, amount));
         if (frost)
         {
@@ -381,12 +410,12 @@ internal static class Program
         var vaporHealth = new FakeHealth();
         var vaporReceiver = Receiver(vaporHealth);
         vaporReceiver.ApplyStatus(Dot(duration: 10));
-        PotionEffectProfile vaporProfile = Profile(1,
+        PotionData vaporProfile = Profile(1,
             Definition(PotionEffectPhase.Drink, PotionEffectOperation.Damage,
                 PotionElement.Vaporization, 15));
         Set(vaporProfile, "_thirstDelta", 30f);
         PotionEffectApplier.ApplyDrinkEffect(
-            new PotionData { ThrownProfile = vaporProfile }, vaporReceiver);
+            vaporProfile, vaporReceiver);
         Equal(85, vaporHealth.CurrentHealth);
         Equal(80, vaporHealth.Thirst);
         Equal(1, vaporReceiver.GetStatusStackCount(PotionStatusEffect.Burning));
@@ -410,9 +439,9 @@ internal static class Program
         Time.timeAsDouble = 0;
         var health = new FakeHealth();
         var receiver = Receiver(health); // 기본 Enemy이므로 투척 TargetType 필터를 사용하면 실패한다.
-        PotionEffectProfile profile = Profile(1, effects);
+        PotionData profile = Profile(1, effects);
         Set(profile, "_thirstDelta", thirstDelta);
-        var potion = new PotionData { ThrownProfile = profile };
+        var potion = profile;
         PotionEffectApplier.ApplyDrinkEffect(potion, receiver);
         Equal(expectedHealth, health.CurrentHealth);
         Equal(expectedThirst, health.Thirst);
@@ -488,7 +517,7 @@ internal static class Program
         Time.timeAsDouble = 0;
         var health = new FakeHealth(200);
         var receiver = Receiver(health);
-        PotionEffectProfile profile = Profile(1, effects);
+        PotionData profile = Profile(1, effects);
         Set(profile, "_targetType", PotionTargetType.Enemy);
         var source = new PotionEffectSource(71, combination: new PotionCombinationData());
         PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact, receiver, source);
@@ -544,7 +573,7 @@ internal static class Program
             Time.timeAsDouble = 0;
             var health = new FakeHealth();
             var receiver = Receiver(health);
-            PotionEffectProfile profile = Profile(1,
+            PotionData profile = Profile(1,
                 Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage, element, 30));
             Set(profile, "_targetType", PotionTargetType.Enemy);
             PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact,
@@ -557,7 +586,7 @@ internal static class Program
         var cappedTarget = new FakeHealth(3);
         var cappedOwner = new FakeHealth(10);
         var cappedReceiver = Receiver(cappedTarget);
-        PotionEffectProfile cappedProfile = Profile(1,
+        PotionData cappedProfile = Profile(1,
             Definition(PotionEffectPhase.Impact, PotionEffectOperation.Damage,
                 PotionElement.Fire, 30));
         Set(cappedProfile, "_targetType", PotionTargetType.Enemy);
@@ -573,7 +602,7 @@ internal static class Program
         var targetHealth = new FakeHealth(200);
         var owner = new FakeHealth(10);
         var receiver = Receiver(targetHealth);
-        PotionEffectProfile profile = Profile(interval, effects);
+        PotionData profile = Profile(interval, effects);
         var source = new PotionEffectSource(81, combination: new PotionCombinationData(),
             owner: owner, lifeStealRatio: 0.2f);
         var timeline = new PotionAreaTimeline<PotionEffectReceiver>(duration, interval, true,
@@ -594,9 +623,9 @@ internal static class Program
         return owner.CurrentHealth;
     }
 
-    private static PotionEffectProfile Profile(float interval, params PotionEffectDefinition[] effects)
+    private static PotionData Profile(float interval, params PotionEffectDefinition[] effects)
     {
-        var profile = new PotionEffectProfile();
+        var profile = ScriptableObject.CreateInstance<PotionData>();
         Set(profile, "_tickInterval", interval);
         Set(profile, "_applyOnEnter", true);
         Set(profile, "_effects", new List<PotionEffectDefinition>(effects));
@@ -622,7 +651,7 @@ internal static class Program
         return effect;
     }
 
-    private static void AddEffect(PotionEffectProfile profile, PotionEffectDefinition effect) =>
+    private static void AddEffect(PotionData profile, PotionEffectDefinition effect) =>
         ((List<PotionEffectDefinition>)Get(profile, "_effects")).Add(effect);
 
     private static object Get(object target, string name) => target.GetType()

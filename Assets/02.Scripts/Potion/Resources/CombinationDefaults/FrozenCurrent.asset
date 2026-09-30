@@ -14,23 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 13
   _displayName: 빙전
-  _hasEffectProfile: 1
-  _effectProfile:
-    _targetType: 1
-    _effectRadius: 2
-    _createsFloor: 1
-    _floorDuration: 4
-    _tickInterval: 1
-    _applyOnEnter: 1
-    _lifeStealRatio: 0
-    _thirstDelta: 0
-    _effects:
-    - {_phase: 1, _operation: 0, _element: 3, _amount: 4, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    - {_phase: 1, _operation: 0, _element: 5, _amount: 8, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    - {_phase: 1, _operation: 3, _element: 3, _amount: 0, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-    - {_phase: 1, _operation: 2, _element: 5, _amount: 0, _status: 3, _duration: 0.15, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 0, _immobilizeDuration: 0.15, _frostStackAmount: 1}
-    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
   _elementA: 3
   _elementB: 5
-  _combinationDuration: 4
-  _instantOnly: 0
+  _targetType: 1
+  _effectRadius: 2
+  _createsFloor: 1
+  _floorDuration: 4
+  _tickInterval: 1
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _effects:
+  - {_phase: 1, _operation: 0, _element: 3, _amount: 4, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  - {_phase: 1, _operation: 0, _element: 5, _amount: 8, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  - {_phase: 1, _operation: 3, _element: 3, _amount: 0, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+  - {_phase: 1, _operation: 2, _element: 5, _amount: 0, _status: 3, _duration: 0.15, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 0, _immobilizeDuration: 0.15, _frostStackAmount: 1}
+  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}

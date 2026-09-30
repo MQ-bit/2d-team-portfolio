@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public enum PotionElement
 {
@@ -13,32 +13,31 @@ public enum PotionElement
 }
 
 [CreateAssetMenu(fileName = "PotionData", menuName = "Potion/Potion Data")]
-public sealed class PotionData : ScriptableObject
+public sealed class PotionData : ScriptableObject, IPotionEffectData
 {
     [Header("Identity")]
     [SerializeField] private string _id;
     [SerializeField] private string _displayName;
-
-    [Header("New Effect Data")]
-    [Tooltip("켜면 이 에셋의 Effect Profile을 실행한다. 끄면 Resources의 원소별 기본 프로필을 사용한다.")]
-    [SerializeField] private bool _hasEffectProfile;
-    [SerializeField] private PotionEffectProfile _effectProfile = new();
-    [SerializeField, Min(0f)] private float _flightSpeed = 10f;
-    [SerializeField, Min(0f)] private float _maxThrowDistance = 8f;
-
-    [Header("Area Effect")]
     [SerializeField] private PotionElement _element;
-    [FormerlySerializedAs("_radius")]
-    [SerializeField, HideInInspector, Min(0f)] private float _areaWidth;
-    [SerializeField, HideInInspector, Min(0f)] private float _areaDuration;
-    [FormerlySerializedAs("_damage")]
-    [SerializeField, HideInInspector, Min(0f)] private float _areaEffectAmount;
-    [SerializeField, HideInInspector, Min(0f)] private float _tickInterval;
-    [SerializeField, HideInInspector, Min(0f)] private float _effectDuration;
 
-    [Header("Drink Effect")]
-    [SerializeField, HideInInspector, Min(0f)] private float _drinkEffectAmount;
-    [SerializeField, HideInInspector] private float _drinkThirstRecoveryAmount;
+    [Header("Thrown Effect")]
+    [Tooltip("투척 효과의 대상. 섭취 효과는 마신 대상에게 적용한다.")]
+    [SerializeField] private PotionTargetType _targetType = PotionTargetType.Enemy;
+    [SerializeField, Min(0f)] private float _effectRadius = 2f;
+    [SerializeField] private bool _createsFloor = true;
+    [SerializeField, Min(0f)] private float _floorDuration = 4f;
+    [SerializeField, Min(0f)] private float _tickInterval = 1f;
+    [SerializeField] private bool _applyOnEnter = true;
+    [Tooltip("실제 투척 및 잔류 피해에 대한 체력 흡혈 비율")]
+    [SerializeField, Range(0f, 1f)] private float _lifeStealRatio;
+
+    [Header("Effects By Phase")]
+    [SerializeField] private List<PotionEffectDefinition> _effects = new();
+    [SerializeField] private PotionFrostSettings _frost = new();
+
+    [Header("Drink")]
+    [Tooltip("양수는 갈증 감소, 음수는 갈증 증가")]
+    [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
@@ -46,59 +45,31 @@ public sealed class PotionData : ScriptableObject
     public string Id => _id;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
     public PotionElement Element => _element;
-    public float AreaWidth => ThrownProfile != null ? ThrownProfile.EffectRadius * 2f : _areaWidth;
-    public float AreaDuration => _areaDuration;
-    public float AreaEffectAmount => _areaEffectAmount;
-    public float TickInterval => _tickInterval;
-    public float EffectDuration => _effectDuration;
-    public float DrinkEffectAmount => _drinkEffectAmount;
-    public float DrinkThirstRecoveryAmount => _drinkThirstRecoveryAmount;
+    public float AreaWidth => _effectRadius * 2f;
+    public float ThirstDelta => _thirstDelta;
     public PotionVisualData VisualData => _visualData;
-
-    // 새 실행기는 HasEffectProfile을 확인한 뒤 사용한다. 레거시 필드와 자동 동기화하지 않는다.
-    public bool HasEffectProfile => _hasEffectProfile && _effectProfile != null;
-    public PotionEffectProfile EffectProfile => _effectProfile;
-    public float FlightSpeed => _flightSpeed;
-    public float MaxThrowDistance => _maxThrowDistance;
-
-    // 프로필을 가진 에셋은 자체 설정을 사용하고, 이전 에셋만 기본 설정으로 폴백한다.
-    private PotionData _defaultThrownData;
-    public PotionEffectProfile ThrownProfile
-    {
-        get
-        {
-            if (HasEffectProfile) return _effectProfile;
-            if (_defaultThrownData == null)
-                _defaultThrownData = Resources.Load<PotionData>("SinglePotionDefaults/" + _element);
-            return _defaultThrownData != null && _defaultThrownData.HasEffectProfile
-                ? _defaultThrownData.EffectProfile : null;
-        }
-    }
-
-    public bool HasAreaEffect => Element != PotionElement.Vaporization && AreaDuration > 0f && AreaWidth > 0f;
-    public bool HasPeriodicAreaEffect => Element != PotionElement.Vaporization && AreaEffectAmount > 0f && TickInterval > 0f;
+    public PotionTargetType TargetType => _targetType;
+    public float EffectRadius => _effectRadius;
+    public bool CreatesFloor => _createsFloor;
+    public float FloorDuration => _floorDuration;
+    public float TickInterval => _tickInterval;
+    public bool ApplyOnEnter => _applyOnEnter;
+    public float LifeStealRatio => _lifeStealRatio;
+    public IReadOnlyList<PotionEffectDefinition> Effects => _effects;
+    public PotionFrostSettings Frost => _frost;
 
     private void OnValidate()
     {
-        _defaultThrownData = null;
         _id = _id?.Trim();
         _displayName = _displayName?.Trim();
-        _areaWidth = SanitizeNonNegative(_areaWidth);
-        _areaEffectAmount = SanitizeNonNegative(_areaEffectAmount);
-        _tickInterval = SanitizeNonNegative(_tickInterval);
-        _areaDuration = SanitizeNonNegative(_areaDuration);
-        _effectDuration = SanitizeNonNegative(_effectDuration);
-        _drinkEffectAmount = SanitizeNonNegative(_drinkEffectAmount);
-        _drinkThirstRecoveryAmount = SanitizeFinite(_drinkThirstRecoveryAmount);
-        _flightSpeed = SanitizeNonNegative(_flightSpeed);
-        _maxThrowDistance = SanitizeNonNegative(_maxThrowDistance);
-        _effectProfile ??= new PotionEffectProfile();
-        _effectProfile.Validate();
+        _thirstDelta = PotionDataValidation.Finite(_thirstDelta);
+        _effectRadius = PotionDataValidation.NonNegative(_effectRadius);
+        _floorDuration = PotionDataValidation.NonNegative(_floorDuration);
+        _tickInterval = PotionDataValidation.NonNegative(_tickInterval);
+        _lifeStealRatio = Mathf.Clamp01(PotionDataValidation.Finite(_lifeStealRatio));
+        _effects ??= new List<PotionEffectDefinition>();
+        foreach (PotionEffectDefinition effect in _effects) effect?.Validate();
+        _frost ??= new PotionFrostSettings();
+        _frost.Validate();
     }
-
-    private static float SanitizeNonNegative(float value) =>
-        float.IsNaN(value) || float.IsInfinity(value) ? 0f : Mathf.Max(0f, value);
-
-    private static float SanitizeFinite(float value) =>
-        float.IsNaN(value) || float.IsInfinity(value) ? 0f : value;
 }
