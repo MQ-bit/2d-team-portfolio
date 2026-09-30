@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PoisonPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: poison_potion
-  _displayName: 독의 물약
+  _displayName: "\uB3C5\uC758 \uBB3C\uC57D"
   _element: 2
   _areaWidth: 3
   _areaDuration: 5
@@ -23,5 +23,5 @@ MonoBehaviour:
   _drinkEffectAmount: 5
   _drinkThirstRecoveryAmount: 10
   _visualData:
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: -1902372172, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaColor: {r: 0.55, g: 0.15, b: 0.8, a: 0.65}

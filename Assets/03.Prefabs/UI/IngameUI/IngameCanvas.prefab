@@ -267,6 +267,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3713747393283819536}
+  - component: {fileID: 1777591223590717899}
   m_Layer: 5
   m_Name: PotionDictionary
   m_TagString: Untagged
@@ -294,6 +295,21 @@ RectTransform:
   m_AnchoredPosition: {x: 174.69206, y: -50}
   m_SizeDelta: {x: 640, y: 140}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1777591223590717899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1890691790930279688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e496d792e0afa42b4732e3c7a5f5cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCatralogPresenter
+  _runCatalog: {fileID: 0}
+  _slots: []
+  _unidentifiedIcon: {fileID: 21300000, guid: e2acc1b1b397bac4b96c1e863ce0d931, type: 3}
 --- !u!1 &7418160297848343055
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,7 +875,7 @@ PrefabInstance:
     - target: {fileID: 2170233492660703567, guid: 2b90af9c0c7a3094e872328f6822e6e9, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1282592493069875958, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 6008003440168570145, guid: 2b90af9c0c7a3094e872328f6822e6e9, type: 3}
       propertyPath: m_Name
       value: PotionDictionarySlot (1)
@@ -1375,6 +1391,10 @@ PrefabInstance:
     - target: {fileID: 4510898565533712543, guid: 77de3a8ef394a8d4899901fd7afad705, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5173848542429273165, guid: 77de3a8ef394a8d4899901fd7afad705, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -11.589966
       objectReference: {fileID: 0}
     - target: {fileID: 6282269252002750700, guid: 77de3a8ef394a8d4899901fd7afad705, type: 3}
       propertyPath: m_Pivot.x

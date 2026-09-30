@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LightningPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: lightning_potion
-  _displayName: 전기의 물약
+  _displayName: "\uC804\uAE30\uC758 \uBB3C\uC57D"
   _element: 5
   _areaWidth: 3
   _areaDuration: 3
@@ -23,5 +23,5 @@ MonoBehaviour:
   _drinkEffectAmount: 5
   _drinkThirstRecoveryAmount: 10
   _visualData:
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: 1178551025, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}
