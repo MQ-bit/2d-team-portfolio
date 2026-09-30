@@ -14,31 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 6
   _displayName: 맹독화염
-  _description: 화염 + 독의 지속 피해
+  _description: 5초 장판. 매초 화염 6 + 독 4. 이탈 후 화상 2초 및 중독 3초(중독 시간은 임시 기준).
   _elementA: 1
   _elementB: 2
-  _resultPotion: {fileID: 0}
-  _combinationDuration: 4
-  _effects:
-  - _kind: 1
-    _element: 1
-    _useSourcePotionDamage: 1
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
-  - _kind: 1
-    _element: 2
-    _useSourcePotionDamage: 1
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
+  _combinationDuration: 5
+  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: 275802821, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+  _hasEffectProfile: 1
+  _effectProfile:
+    _targetType: 1
+    _effectRadius: 2
+    _createsFloor: 1
+    _floorDuration: 5
+    _tickInterval: 1
+    _applyOnEnter: 1
+    _lifeStealRatio: 0
+    _thirstDelta: 0
+    _effects:
+    - {_phase: 1, _operation: 0, _element: 1, _amount: 6, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    - {_phase: 1, _operation: 0, _element: 2, _amount: 4, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    - {_phase: 2, _operation: 2, _element: 1, _amount: 4, _status: 0, _duration: 2, _tickInterval: 1, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    - {_phase: 2, _operation: 2, _element: 2, _amount: 5, _status: 1, _duration: 3, _tickInterval: 1, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
+  _instantOnly: 0
+  _inheritThrownEffectsFrom: 0

@@ -5,7 +5,6 @@ using UnityEngine;
 public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 {
     [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
-    [SerializeField] private PlayerStatus _playerStatus;
 
     private readonly PotionStatusEffectState _statusEffects = new();
     private readonly PotionFloorEffectState _floorEffects = new();
@@ -27,11 +26,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         Damageable = GetComponentInParent<IDamageable>();
         Thirstable = GetComponentInParent<IThirstable>();
-
-        if (_targetKind == PotionTargetKind.Player && _playerStatus == null)
-        {
-            _playerStatus = GetComponent<PlayerStatus>();
-        }
     }
 
     public void ClearStatuses()
@@ -46,7 +40,11 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         TickStatuses();
         _floorEffects.Enter(profile, source);
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorTick))
-            if (effect.Operation == PotionEffectOperation.AddFrostStacks) EnterFrostArea(source.SourceId);
+        {
+            if (effect.Operation == PotionEffectOperation.AddFrostStacks)
+                EnterFrostArea(source.SourceId);
+        }
+
         RefreshDamageSuppression();
     }
 
@@ -64,7 +62,10 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         RefreshDamageSuppression();
         if (!applyResidual || !CanReceiveStatus()) return;
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorExit))
-            if (!_floorEffects.HasDamageElement(effect.Element)) ApplyEffect(effect, profile, source);
+        {
+            if (!_floorEffects.HasDamageElement(effect.Element))
+                ApplyEffect(effect, profile, source);
+        }
     }
 
     public void ApplyEffect(PotionEffectDefinition effect, PotionEffectProfile profile, PotionEffectSource source)
@@ -73,12 +74,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         switch (effect.Operation)
         {
             case PotionEffectOperation.Damage:
-                PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, effect.Amount, source, effect.Element);
-                if (result.ActualDamage > 0f)
-                {
-                    PotionEffectApplier.RestoreCombinationOwner(source.Owner, result.LifeStealAmount);
-                    DamageApplied?.Invoke(result);
-                }
+                ApplyDamage(effect.Amount, source, effect.Element, false);
                 break;
             case PotionEffectOperation.Heal:
                 PotionStatDispatcher.Heal(Damageable, effect.Amount);
@@ -105,15 +101,13 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void ApplyStatus(PotionStatusEffect status, float duration, int sourceId)
     {
-        TickStatuses();
-        if (!CanReceiveStatus()) return;
+        if (!PrepareStatusApplication()) return;
         _statusEffects.Apply(status, duration, sourceId);
     }
 
     public void ApplyStatus(PotionStatusApplication application)
     {
-        TickStatuses();
-        if (!CanReceiveStatus()) return;
+        if (!PrepareStatusApplication()) return;
         _statusEffects.Apply(application);
         TickStatuses();
     }
@@ -125,18 +119,23 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     }
 
     public void EnterFrostArea(int sourceId) => _statusEffects.EnterFrostArea(sourceId);
-    public void ExitFrostArea(int sourceId) => _statusEffects.ExitFrostArea(sourceId);
     public void RemoveAreaEffectsFromSource(int sourceId) => _statusEffects.RemoveAreaSource(sourceId);
     public void SetAreaSlow(int sourceId, float multiplier) => _statusEffects.SetAreaSlow(sourceId, multiplier);
 
     public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
         int amount = 1, float tickInterval = 1f)
     {
+        if (PrepareStatusApplication()) _statusEffects.AddFrostStacks(settings, source, amount, tickInterval);
+    }
+
+    private bool PrepareStatusApplication()
+    {
         TickStatuses();
-        if (CanReceiveStatus()) _statusEffects.AddFrostStacks(settings, source, amount, tickInterval);
+        return CanReceiveStatus();
     }
 
     private void Update() => TickStatuses();
+
     private void OnDisable()
     {
         _floorEffects.Clear();
@@ -144,26 +143,40 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     }
 
     private bool CanReceiveStatus() => isActiveAndEnabled &&
-        (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
+                                       (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
 
     private void TickStatuses()
     {
-        if (!CanReceiveStatus()) { _floorEffects.Clear(); ClearStatuses(); return; }
+        if (!CanReceiveStatus())
+        {
+            _floorEffects.Clear();
+            ClearStatuses();
+            return;
+        }
+
         _statusEffects.Tick(ApplyStatusDamage);
     }
 
     private void ApplyStatusDamage(PotionStatusDamage tick)
     {
-        if (!CanReceiveStatus()) { ClearStatuses(); return; }
-        PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, tick.Amount,
-            tick.Source, tick.Application.Element);
-        if (result.ActualDamage > 0f)
+        if (!CanReceiveStatus())
         {
-            PotionEffectApplier.RestoreCombinationOwner(tick.Source.Owner, result.LifeStealAmount);
-            StatusDamageApplied?.Invoke(result);
-            DamageApplied?.Invoke(result);
+            ClearStatuses();
+            return;
         }
+
+        ApplyDamage(tick.Amount, tick.Source, tick.Application.Element, true);
         if (!CanReceiveStatus()) ClearStatuses();
+    }
+
+    private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
+    {
+        PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, amount, source, element);
+        if (result.ActualDamage <= 0f) return;
+
+        PotionEffectApplier.RestoreCombinationOwner(source.Owner, result.LifeStealAmount);
+        if (isStatusDamage) StatusDamageApplied?.Invoke(result);
+        DamageApplied?.Invoke(result);
     }
 
     public int GetStatusStackCount(PotionStatusEffect status)

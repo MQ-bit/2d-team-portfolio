@@ -19,8 +19,8 @@ public sealed class PotionData : ScriptableObject
     [SerializeField] private string _id;
     [SerializeField] private string _displayName;
 
-    [Header("New Effect Data (runtime connection in later steps)")]
-    [Tooltip("새 기획 설정을 작성한 에셋 표시. 기존 에셋은 false이며 기존 API/실행은 그대로 유지된다.")]
+    [Header("New Effect Data")]
+    [Tooltip("켜면 이 에셋의 Effect Profile을 실행한다. 끄면 Resources의 원소별 기본 프로필을 사용한다.")]
     [SerializeField] private bool _hasEffectProfile;
     [SerializeField] private PotionEffectProfile _effectProfile = new();
     [SerializeField, Min(0f)] private float _flightSpeed = 10f;
@@ -29,16 +29,16 @@ public sealed class PotionData : ScriptableObject
     [Header("Area Effect")]
     [SerializeField] private PotionElement _element;
     [FormerlySerializedAs("_radius")]
-    [SerializeField, Min(0f)] private float _areaWidth;
-    [SerializeField, Min(0f)] private float _areaDuration;
+    [SerializeField, HideInInspector, Min(0f)] private float _areaWidth;
+    [SerializeField, HideInInspector, Min(0f)] private float _areaDuration;
     [FormerlySerializedAs("_damage")]
-    [SerializeField, Min(0f)] private float _areaEffectAmount;
-    [SerializeField, Min(0f)] private float _tickInterval;
-    [SerializeField, Min(0f)] private float _effectDuration;
+    [SerializeField, HideInInspector, Min(0f)] private float _areaEffectAmount;
+    [SerializeField, HideInInspector, Min(0f)] private float _tickInterval;
+    [SerializeField, HideInInspector, Min(0f)] private float _effectDuration;
 
     [Header("Drink Effect")]
-    [SerializeField, Min(0f)] private float _drinkEffectAmount;
-    [SerializeField] private float _drinkThirstRecoveryAmount;
+    [SerializeField, HideInInspector, Min(0f)] private float _drinkEffectAmount;
+    [SerializeField, HideInInspector] private float _drinkThirstRecoveryAmount;
 
     [Header("Visual")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
@@ -61,8 +61,7 @@ public sealed class PotionData : ScriptableObject
     public float FlightSpeed => _flightSpeed;
     public float MaxThrowDistance => _maxThrowDistance;
 
-    // 외부 레거시 에셋을 덮어쓰지 않고 Potion 내부의 직렬화된 기본 설정을 사용한다.
-    // 섭취/조합 레거시 API는 후속 단계에서 전환한다.
+    // 프로필을 가진 에셋은 자체 설정을 사용하고, 이전 에셋만 기본 설정으로 폴백한다.
     private PotionData _defaultThrownData;
     public PotionEffectProfile ThrownProfile
     {

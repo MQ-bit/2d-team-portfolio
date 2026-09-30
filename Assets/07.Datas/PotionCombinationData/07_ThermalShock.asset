@@ -14,31 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 7
   _displayName: 열충격
-  _description: 즉시 추가 피해 + 짧은 경직
+  _description: 착탄 피해 25. 4초 장판에서 매초 냉기 5 + 서리 1스택.
   _elementA: 1
   _elementB: 3
-  _resultPotion: {fileID: 0}
   _combinationDuration: 4
-  _effects:
-  - _kind: 0
-    _element: 0
-    _useSourcePotionDamage: 0
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
-  - _kind: 5
-    _element: 0
-    _useSourcePotionDamage: 0
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
+  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: -1337912425, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+  _hasEffectProfile: 1
+  _effectProfile:
+    _targetType: 1
+    _effectRadius: 2
+    _createsFloor: 1
+    _floorDuration: 4
+    _tickInterval: 1
+    _applyOnEnter: 1
+    _lifeStealRatio: 0
+    _thirstDelta: 0
+    _effects:
+    - {_phase: 0, _operation: 0, _element: 1, _amount: 25, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    - {_phase: 1, _operation: 0, _element: 3, _amount: 5, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    - {_phase: 1, _operation: 3, _element: 3, _amount: 0, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
+    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
+  _instantOnly: 0
+  _inheritThrownEffectsFrom: 0

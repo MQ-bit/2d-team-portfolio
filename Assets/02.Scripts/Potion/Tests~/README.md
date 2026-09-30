@@ -1,5 +1,23 @@
 # 상태 실행기 검증
 
+## Unity 실제 프리팹 통합 검증 (2026-09-30 추가)
+
+`Validation/Editor/PotionValidationBatch.cs`는 Unity 플레이 모드에서 기존 `07.Datas` 에셋과 `03.Prefabs` 프리팹을 로드한다. 실제 Physics2D Trigger, 중복 Collider, 장판 수명/잔류, 6종 섭취, 14종 조합, 흡혈, 기화, 서리 단계, 재진입, PlayerStatus와 투사체 연결, Collider와 SpriteRenderer의 크기를 검사한다. 적 대신 `PotionValidationTarget` 인터페이스 구현을 사용한다. 이 대상은 에디터 전용이며 빌드에는 포함되지 않는다.
+
+열린 프로젝트와 충돌하지 않도록 Assets/Packages/ProjectSettings를 복사한 별도 프로젝트에서 실행한다. 테스트는 빈 씬에서 실행하고 씬이나 프리팹을 저장하지 않는다. 원본 Library는 실행 중인 에디터의 프로세스 정보를 포함하므로 복사하지 않는다.
+
+```powershell
+& 'C:/Program Files/Unity/Hub/Editor/6000.3.22f1/Editor/Unity.exe' `
+  -batchmode -nographics -projectPath '<검증용 프로젝트 절대 경로>' `
+  -executeMethod PotionValidationBatch.Run -logFile '<로그 절대 경로>'
+```
+
+`-quit`은 지정하지 않는다. 플레이 검증이 끝나면 자동 종료하며 실패가 있으면 종료 코드 1을 반환한다. 결과는 검증 프로젝트의 `Assets/02.Scripts/Potion/Tests~/unity-integration-results.txt`에 기록된다. 해당 폴더를 먼저 만든다. `-nographics` 실행이므로 크기 비교는 Renderer bounds 기준이며 렌더링된 화면·VFX·입력 애니메이션의 시각 검증을 대신하지 않는다.
+
+현재 결과와 한계는 `../POTION_TEST_REPORT.md`를 참조한다.
+
+## .NET 결정적 상태 검증
+
 실행 위치는 프로젝트 루트다. .NET 9 이상 SDK가 필요하며 NuGet 패키지는 사용하지 않는다.
 
 ```powershell

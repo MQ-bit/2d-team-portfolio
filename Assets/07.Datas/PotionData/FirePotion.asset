@@ -15,14 +15,64 @@ MonoBehaviour:
   _id: fire_potion
   _displayName: 화염의 물약
   _element: 1
-  _areaWidth: 3
+  _areaWidth: 4
   _areaDuration: 4
   _areaEffectAmount: 8
   _tickInterval: 1
-  _effectDuration: 4
-  _drinkEffectAmount: 25
-  _drinkThirstRecoveryAmount: 30
+  _effectDuration: 0
+  _drinkEffectAmount: 0
+  _drinkThirstRecoveryAmount: -30
   _visualData:
     _areaSprite: {fileID: -1821161386, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 0.2, b: 0.05, a: 0.65}
+  _hasEffectProfile: 1
+  _effectProfile:
+    _targetType: 1
+    _effectRadius: 2
+    _createsFloor: 1
+    _floorDuration: 4
+    _tickInterval: 1
+    _applyOnEnter: 1
+    _lifeStealRatio: 0
+    _thirstDelta: -30
+    _effects:
+    - _phase: 1
+      _operation: 0
+      _element: 1
+      _amount: 8
+      _status: 0
+      _duration: 0
+      _tickInterval: 0
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 1
+      _immobilizeDuration: 0
+      _frostStackAmount: 1
+    - _phase: 2
+      _operation: 2
+      _element: 1
+      _amount: 4
+      _status: 0
+      _duration: 2
+      _tickInterval: 1
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 1
+      _immobilizeDuration: 0
+      _frostStackAmount: 1
+    - _phase: 3
+      _operation: 2
+      _element: 1
+      _amount: 6
+      _status: 0
+      _duration: 4
+      _tickInterval: 1
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 1
+      _immobilizeDuration: 0
+      _frostStackAmount: 1
+    _frost:
+      _freezeThreshold: 3
+      _moveSpeedMultipliers:
+      - 0.85
+      - 0.7
+      _freezeDuration: 2

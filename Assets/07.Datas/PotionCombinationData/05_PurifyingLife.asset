@@ -14,31 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 5
   _displayName: 정화의 생명
-  _description: 주변 장판 제거 + 플레이어 HP 20 회복
+  _description: 새 기획에 없는 미확정 조합. 활성 DB에서 제외했으며 기존 회복·장판 제거 효과는 비활성화했다.
   _elementA: 4
   _elementB: 6
-  _resultPotion: {fileID: 0}
-  _combinationDuration: 4
-  _effects:
-  - _kind: 6
-    _element: 0
-    _useSourcePotionDamage: 0
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
-  - _kind: 3
-    _element: 0
-    _useSourcePotionDamage: 0
-    _amount: 20
-    _lifeStealRatio: 0
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
+  _combinationDuration: 0
+  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+  _hasEffectProfile: 0

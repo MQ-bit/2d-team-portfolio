@@ -78,8 +78,8 @@ public sealed class PotionCombinationData : ScriptableObject
     [SerializeField] private string _displayName;
     [SerializeField, TextArea] private string _description;
 
-    [Header("New Effect Data (runtime connection in later steps)")]
-    [Tooltip("새 기획 설정을 작성한 에셋 표시. 기존 효과 목록과 API는 변경하지 않는다.")]
+    [Header("New Effect Data")]
+    [Tooltip("켜면 이 에셋의 Effect Profile을 실행한다. 끄면 Resources의 조합별 기본 프로필을 사용한다.")]
     [SerializeField] private bool _hasEffectProfile;
     [SerializeField] private PotionEffectProfile _effectProfile = new();
     [Tooltip("흡혈 조합용. None이면 자체 설정 사용. 지정 원소의 투척/잔류/서리 설정을 재사용하고 이 조합의 LifeStealRatio만 추가한다. 섭취는 상속하지 않는다.")]
@@ -97,9 +97,8 @@ public sealed class PotionCombinationData : ScriptableObject
     [Tooltip("조합 장판의 시각 데이터")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null);
 
-    [Header("Effects")]
-    [Tooltip("조합 장판 범위 안에 적용할 효과. 위에서부터 순서대로 적용")]
-    [SerializeField] private List<PotionCombinationEffect> _effects = new();
+    // 이전 에셋/API 호환용. 새 기획은 Effect Profile의 단계별 효과를 사용한다.
+    [SerializeField, HideInInspector] private List<PotionCombinationEffect> _effects = new();
 
     public PotionCombination Combination => _combination;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _combination.ToString() : _displayName;
@@ -117,7 +116,7 @@ public sealed class PotionCombinationData : ScriptableObject
     public PotionEffectProfile EffectProfile => _effectProfile;
     public PotionElement InheritThrownEffectsFrom => _inheritThrownEffectsFrom;
 
-    // 외부 레거시 조합 에셋을 수정하지 않고 Potion 내부 기준 프로필을 사용한다.
+    // 자체 프로필이 없는 이전 조합 에셋만 Resources 기본 설정으로 폴백한다.
     private PotionCombinationData _defaultRuntimeData;
     public PotionEffectProfile RuntimeProfile
     {

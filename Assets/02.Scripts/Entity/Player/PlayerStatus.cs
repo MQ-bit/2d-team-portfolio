@@ -31,7 +31,8 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
     public float Speed => _potionEffectReceiver != null
         ? _potionEffectReceiver.GetMovementSpeed(_speed) : _speed;
-    public float DashSpeed => CanMove ? _dashSpeed : 0f;
+    public float DashSpeed => _potionEffectReceiver != null
+        ? _potionEffectReceiver.GetDashSpeed(_dashSpeed) : _dashSpeed;
     public float MaxThrowDistance => _maxThrowDistance;
 
     public bool IsDead => _healthInstance.IsDead;

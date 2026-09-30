@@ -132,6 +132,15 @@ foreach ($asset in $externalPotionAssets) {
     if ($guid -and $potionDatabase -notmatch [regex]::Escape("guid: $guid")) {
         Add-Failure "PotionDatabase does not reference $($asset.Name)."
     }
+    $text = Read-Text $asset.FullName
+    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($asset.Name): own effect profile is disabled"
+    $elementId = [int][regex]::Match($text, '(?m)^  _element: (\d+)$').Groups[1].Value
+    $definition = $singleDefinitions | Where-Object { $_.Element -eq $elementId }
+    $reference = Read-Text (Join-Path $singleRoot ($definition.Name + '.asset'))
+    $profilePattern = '(?ms)^  _effectProfile:.*?(?=^  [A-Za-z_]|\z)'
+    if ([regex]::Match($text, $profilePattern).Value.Trim() -cne [regex]::Match($reference, $profilePattern).Value.Trim()) {
+        Add-Failure "$($asset.Name): migrated profile does not match the planned default"
+    }
 }
 
 $externalCombinationAssets = @(
@@ -140,9 +149,29 @@ $externalCombinationAssets = @(
 )
 foreach ($asset in $externalCombinationAssets) {
     $guid = Read-Guid ($asset.FullName + '.meta')
+    $text = Read-Text $asset.FullName
+    if ($asset.Name -eq '05_PurifyingLife.asset') {
+        if ($combinationDatabase -match [regex]::Escape("guid: $guid")) {
+            Add-Failure 'PurifyingLife must not be in the active database.'
+        }
+        Assert-Match $text '(?m)^  _effects: \[\]$' 'PurifyingLife legacy effects must be cleared.'
+        continue
+    }
     if ($guid -and $combinationDatabase -notmatch [regex]::Escape("guid: $guid")) {
         Add-Failure "PotionCombinationDatabase does not reference $($asset.Name)."
     }
+    Assert-Match $text '(?m)^  _hasEffectProfile: 1$' "$($asset.Name): own effect profile is disabled"
+    Assert-Match $text '(?m)^  _effects: \[\]$' "$($asset.Name): stale legacy effects remain"
+    $reference = Read-Text (Join-Path $combinationRoot ($asset.Name.Substring(3)))
+    foreach ($key in @('_effectProfile', '_combinationDuration', '_instantOnly')) {
+        $pattern = '(?ms)^  ' + $key + ':.*?(?=^  [A-Za-z_]|\z)'
+        if ([regex]::Match($text, $pattern).Value.Trim() -cne [regex]::Match($reference, $pattern).Value.Trim()) {
+            Add-Failure "$($asset.Name): $key does not match the planned default"
+        }
+    }
+}
+if ([regex]::Matches($combinationDatabase, '(?m)^  - .*guid:').Count -ne 14) {
+    Add-Failure 'Expected exactly 14 active combinations in the database.'
 }
 
 if ($externalPotionAssets.Count -ne 6) {
@@ -175,4 +204,5 @@ Write-Host " - Internal defaults: $($singleDefinitions.Count) single + $($combin
 Write-Host " - Unique internal asset GUIDs: $($validGuids.Count)"
 Write-Host " - External databases: $($externalPotionAssets.Count) potions + $($externalCombinationAssets.Count) combinations"
 Write-Host ' - Prefab entry points: ground area/database and player receiver connected'
-Write-Host 'Pending external integration (informational): player prefab still uses throw distance 6 and speed 8; enemy receiver/movement consumer was not found.'
+Write-Host ' - Active Datas assets: 6 single + 14 combinations use their own new effect profiles'
+Write-Host ' - PurifyingLife retained as inactive asset; legacy throw distance/speed accepted by user'

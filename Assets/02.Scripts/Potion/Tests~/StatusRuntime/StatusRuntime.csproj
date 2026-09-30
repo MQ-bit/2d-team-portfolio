@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS0067;CS0649</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="UnityTestDoubles.cs" />
+    <Compile Include="../../Effects/*.cs" />
+    <Compile Include="../../Area/PotionAreaTimeline.cs" />
+    <Compile Include="../../Data/PotionEffectProfile.cs" />
+    <Compile Include="../../../Entity/Status/Interface/*.cs" />
+    <Compile Include="../../../Entity/Status/EntityHealth.cs" />
+    <Compile Include="../../../Entity/Status/EntityThirst.cs" />
+    <Compile Include="../../../Entity/Player/PlayerStatus.cs" />
+  </ItemGroup>
+</Project>

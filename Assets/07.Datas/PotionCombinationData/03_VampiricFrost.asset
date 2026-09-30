@@ -14,31 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 3
   _displayName: 흡혈의 서리
-  _description: 서리 피해량의 30%를 플레이어 HP로 흡수하면서 빙결
+  _description: 서리 원본 장판·스택·빙결을 유지하고 실제 피해의 20%를 시전자에게 회복한다.
   _elementA: 4
   _elementB: 3
-  _resultPotion: {fileID: 0}
-  _combinationDuration: 4
-  _effects:
-  - _kind: 0
-    _element: 3
-    _useSourcePotionDamage: 1
-    _amount: 0
-    _lifeStealRatio: 0.3
-    _status: 0
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
-  - _kind: 4
-    _element: 0
-    _useSourcePotionDamage: 0
-    _amount: 0
-    _lifeStealRatio: 0
-    _status: 2
-    _duration: 0
-    _tickInterval: 0
-    _radius: 0
+  _combinationDuration: 0
+  _effects: []
   _visualData:
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: 1925785416, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+  _hasEffectProfile: 1
+  _effectProfile:
+    _targetType: 1
+    _effectRadius: 2
+    _createsFloor: 1
+    _floorDuration: 0
+    _tickInterval: 1
+    _applyOnEnter: 1
+    _lifeStealRatio: 0.2
+    _thirstDelta: 0
+    _effects: []
+    _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
+  _instantOnly: 0
+  _inheritThrownEffectsFrom: 3

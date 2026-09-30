@@ -15,14 +15,75 @@ MonoBehaviour:
   _id: lightning_potion
   _displayName: 전기의 물약
   _element: 5
-  _areaWidth: 3
+  _areaWidth: 4
   _areaDuration: 2
-  _areaEffectAmount: 12
-  _tickInterval: 0
-  _effectDuration: 2
+  _areaEffectAmount: 6
+  _tickInterval: 0.5
+  _effectDuration: 0
   _drinkEffectAmount: 20
-  _drinkThirstRecoveryAmount: 30
+  _drinkThirstRecoveryAmount: -30
   _visualData:
     _areaSprite: {fileID: -2146116332, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _potionSprite: {fileID: 0}
     _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}
+  _hasEffectProfile: 1
+  _effectProfile:
+    _targetType: 1
+    _effectRadius: 2
+    _createsFloor: 1
+    _floorDuration: 2
+    _tickInterval: 0.5
+    _applyOnEnter: 1
+    _lifeStealRatio: 0
+    _thirstDelta: -30
+    _effects:
+    - _phase: 1
+      _operation: 0
+      _element: 5
+      _amount: 6
+      _status: 0
+      _duration: 0
+      _tickInterval: 0
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 1
+      _immobilizeDuration: 0
+      _frostStackAmount: 1
+    - _phase: 1
+      _operation: 2
+      _element: 5
+      _amount: 0
+      _status: 3
+      _duration: 0.1
+      _tickInterval: 0
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 0
+      _immobilizeDuration: 0.1
+      _frostStackAmount: 1
+    - _phase: 3
+      _operation: 0
+      _element: 5
+      _amount: 20
+      _status: 0
+      _duration: 0
+      _tickInterval: 0
+      _applyImmediately: 0
+      _moveSpeedMultiplier: 1
+      _immobilizeDuration: 0
+      _frostStackAmount: 1
+    - _phase: 3
+      _operation: 2
+      _element: 5
+      _amount: 0
+      _status: 3
+      _duration: 2
+      _tickInterval: 0.4
+      _applyImmediately: 1
+      _moveSpeedMultiplier: 0
+      _immobilizeDuration: 0.1
+      _frostStackAmount: 1
+    _frost:
+      _freezeThreshold: 3
+      _moveSpeedMultipliers:
+      - 0.85
+      - 0.7
+      _freezeDuration: 2
