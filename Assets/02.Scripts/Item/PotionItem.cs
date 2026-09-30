@@ -17,7 +17,7 @@ public struct PotionItem
         _sprite = sprite;
     }
 
-    public bool CanStackItem(PotionItem other)
+    public bool IsSameItem(PotionItem other)
     {
         return _effectData == other._effectData
             && _sprite == other._sprite;

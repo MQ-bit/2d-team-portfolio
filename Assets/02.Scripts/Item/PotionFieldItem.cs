@@ -1,10 +1,12 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 {
+    [SerializeField] private PotionRunCatalog _potionRunCatalog;
     [Header("Component References")]
     [SerializeField] private SpriteRenderer _renderer;
+
 
     [Header("Item Setting")]
     [SerializeField] private PotionData _potionData;
@@ -24,8 +26,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
     [SerializeField] private float _failedDropArcHeight = 0.75f;
     [SerializeField] private float _reactivateDelay = 1f;
-    private WaitForSeconds _waitForReactivate;
 
+    private PotionItem _nowItemData;
+
+    private WaitForSeconds _waitForReactivate;
     private Collider2D _collider;
     private Coroutine _collectionRoutine;
 
@@ -61,6 +65,25 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         SetCollidersEnabled(true);
     }
 
+    private void Start()
+    {
+        if (_potionRunCatalog == null)
+        {
+            Debug.LogError($"{gameObject.name} : PotionRunCatalog is not assgined!");
+            enabled = false;
+            return;
+        }
+
+        if (_potionData == null)
+        {
+            Debug.LogError($"{name} : PotionData isn't assgined");
+            enabled = false;
+            return;
+        }
+        _nowItemData = _potionRunCatalog.CreatePotionItem(_potionData);
+        _renderer.sprite = _nowItemData.Sprite;
+    }
+
     public bool TryCollect(IItemReceiver receiver, Transform collectTarget, float collectRadius)
     {
         if (!isActiveAndEnabled || _isCollecting || receiver == null || collectTarget == null)
@@ -80,8 +103,11 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
         SetCollidersEnabled(false);
 
-        PotionItem item = new PotionItem(_potionData, _renderer.sprite);
-        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), item));
+        if (_nowItemData.IsEmpty)
+        {
+            return false;
+        }
+        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), _nowItemData));
 
         return true;
     }

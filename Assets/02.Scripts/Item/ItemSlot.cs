@@ -47,7 +47,7 @@ namespace Entity.Inventory
 
         internal bool CanStackItem(PotionItem item)
         {
-            return !IsEmpty() && _item.CanStackItem(item);
+            return !IsEmpty() && _item.IsSameItem(item);
         }
 
         internal bool IsEmpty()

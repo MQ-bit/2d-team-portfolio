@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerDrinkingModule : MonoBehaviour
 {
     [Header("Component References")]
+    [SerializeField] private PotionRunCatalog _potionRunCatalog;
     [SerializeField] private PotionEffectReceiver _effectReceiver;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerStatus _status;
@@ -40,6 +41,11 @@ public class PlayerDrinkingModule : MonoBehaviour
         if (_status == null)
         {
             _status = GetComponent<PlayerStatus>();
+        }
+
+        if (_potionRunCatalog == null)
+        {
+            _potionRunCatalog = FindAnyObjectByType<PotionRunCatalog>();
         }
     }
 
@@ -95,13 +101,15 @@ public class PlayerDrinkingModule : MonoBehaviour
             return;
         }
 
-        if (!_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
+        if (!_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             ResetState();
             return;
         }
 
-        PotionEffectResolver.ApplyDrinkEffect(consumedPotion, _effectReceiver);
+        _potionRunCatalog.TryIdentify(consumedPotion);
+
+        PotionEffectResolver.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
         _status.DecreaseThirst(_thirstDecreaseAmount);
         ResetState();
     }
