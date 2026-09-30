@@ -21,7 +21,7 @@ public sealed class PotionCodexView : MonoBehaviour
         }
 
         Image slotImage = _slotImages[index];
-        Sprite potionSprite = item.Sprite;
+        Sprite potionSprite = item.BottleSprite;
 
         slotImage.sprite = potionSprite;
         slotImage.preserveAspect = true;

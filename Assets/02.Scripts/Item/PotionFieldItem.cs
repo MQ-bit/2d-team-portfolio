@@ -7,11 +7,9 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     [Header("Component References")]
     [SerializeField] private SpriteRenderer _renderer;
 
-
     [Header("Item Setting")]
     [SerializeField] private PotionData _potionData;
     [SerializeField] private int _quantity = 1;
-
 
     [Header("Collect Movement Settings")]
     [SerializeField] private float _flightDuration = 0.45f;
@@ -80,8 +78,8 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             enabled = false;
             return;
         }
-        _nowItemData = _potionRunCatalog.CreatePotionItem(_potionData);
-        _renderer.sprite = _nowItemData.Sprite;
+        _nowItemData = _potionRunCatalog.GetPotionItemByData(_potionData);
+        _renderer.sprite = _nowItemData.BottleSprite;
     }
 
     public bool TryCollect(IItemReceiver receiver, Transform collectTarget, float collectRadius)

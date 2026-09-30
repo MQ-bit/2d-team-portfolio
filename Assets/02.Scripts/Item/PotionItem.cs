@@ -5,21 +5,21 @@ using UnityEngine;
 public struct PotionItem
 {
     [SerializeField] private PotionData _effectData;
-    [SerializeField] private Sprite _sprite;
+    [SerializeField] private Sprite _bottleSprite;
 
     public PotionData PotionData => _effectData;
-    public Sprite Sprite => _sprite;
+    public Sprite BottleSprite => _bottleSprite;
     public bool IsEmpty => _effectData == null;
 
     public PotionItem(PotionData effectData, Sprite sprite)
     {
         _effectData = effectData;
-        _sprite = sprite;
+        _bottleSprite = sprite;
     }
 
     public bool IsSameItem(PotionItem other)
     {
         return _effectData == other._effectData
-            && _sprite == other._sprite;
+            && _bottleSprite == other._bottleSprite;
     }
 }

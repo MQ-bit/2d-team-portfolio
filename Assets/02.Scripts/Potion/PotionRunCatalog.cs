@@ -11,14 +11,14 @@ public class PotionRunCatalog : MonoBehaviour
     [SerializeField] private Sprite[] _potionSprites = new Sprite[Required_Potion_Count];
 
     [Header("Random")]
-    [SerializeField] private bool _useRandomSeed = true;    //그냥 랜덤 딸깍이..?
+    [SerializeField] private bool _useRandomSeed = true;
     [SerializeField] private int _fixedSeed;
 
     private readonly List<PotionItem> _items = new List<PotionItem>();
     private readonly Dictionary<PotionData, int> _apperanceIndexes = new Dictionary<PotionData, int>();
     private bool[] _identified = Array.Empty<bool>();
 
-    public event Action<int, PotionItem> Identified;
+    public event Action<int, PotionItem> OnIdentified; //UI 연결용
 
     public int Count => _items.Count;
     public int CurrentSeed { get; private set; }
@@ -56,7 +56,7 @@ public class PotionRunCatalog : MonoBehaviour
         IsInitialized = true;
     }
 
-    public PotionItem GetItemAt(int index)
+    public PotionItem GetPotionItemAt(int index)
     {
         if (!IsValidAppearanceIndex(index))
         {
@@ -66,7 +66,7 @@ public class PotionRunCatalog : MonoBehaviour
         return _items[index];
     }
 
-    public PotionItem CreatePotionItem(PotionData data)
+    public PotionItem GetPotionItemByData(PotionData data)
     {
         if (!TryGetAppearanceIndex(data, out int index))
         {
@@ -99,7 +99,11 @@ public class PotionRunCatalog : MonoBehaviour
             && IsIdentified(appearanceIndex);
     }
 
-
+    /// <summary>
+    /// 포션 종류 해금을 시도하는 함수
+    /// </summary>
+    /// <param name="item">포션 아이템</param>
+    /// <returns></returns>
     public bool TryIdentify(PotionItem item)
     {
         if (item.IsEmpty || !TryGetAppearanceIndex(item.PotionData, out int index))
@@ -121,7 +125,7 @@ public class PotionRunCatalog : MonoBehaviour
         }
 
         _identified[index] = true;
-        Identified?.Invoke(index, registeredItem);
+        OnIdentified?.Invoke(index, registeredItem);
 
         return true;
     }
