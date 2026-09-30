@@ -53,29 +53,8 @@ public sealed class PotionStatusEffectState
         }
     }
 
-    public static bool TryGetStatus(PotionElement element, out PotionStatusEffect status)
-    {
-        switch (element)
-        {
-            case PotionElement.Fire: status = PotionStatusEffect.Burning; return true;
-            case PotionElement.Poison: status = PotionStatusEffect.Poisoned; return true;
-            case PotionElement.Ice: status = PotionStatusEffect.Frozen; return true;
-            case PotionElement.Lightning: status = PotionStatusEffect.Paralyzed; return true;
-            default: status = default; return false;
-        }
-    }
-
     public bool IsActive(PotionStatusEffect status) => TryGetActive(status, _clock(), out _);
     public int GetStackCount(PotionStatusEffect status) => IsActive(status) ? 1 : 0;
-
-    // 기존 호출 호환. 수치 없는 화상/중독에 임의 피해량을 만들지 않는다.
-    public void Apply(PotionStatusEffect status, float duration, int sourceId)
-    {
-        bool paralysis = status == PotionStatusEffect.Paralyzed;
-        Apply(new PotionStatusApplication(status, duration, new PotionEffectSource(sourceId),
-            tickInterval: paralysis ? 0.4f : 0f, applyImmediately: paralysis,
-            immobilizeDuration: paralysis ? 0.1f : 0f));
-    }
 
     public void Apply(PotionStatusApplication application)
     {

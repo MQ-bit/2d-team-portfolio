@@ -13,16 +13,14 @@ MonoBehaviour:
   m_Name: 03_VampiricFrost
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 3
-  _displayName: 흡혈의 서리
-  _description: 서리 원본 장판·스택·빙결을 유지하고 실제 피해의 20%를 시전자에게 회복한다.
+  _displayName: "\uD761\uD608\uC758 \uC11C\uB9AC"
+  _description: "\uC11C\uB9AC \uC6D0\uBCF8 \uC7A5\uD310\xB7\uC2A4\uD0DD\xB7\uBE59\uACB0\uC744
+    \uC720\uC9C0\uD558\uACE0 \uC2E4\uC81C \uD53C\uD574\uC758 20%\uB97C \uC2DC\uC804\uC790\uC5D0\uAC8C
+    \uD68C\uBCF5\uD55C\uB2E4."
   _elementA: 4
   _elementB: 3
-  _visualData:
-    _potionSprite: {fileID: 0}
-    _areaSprite: {fileID: 1925785416, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 1, g: 1, b: 1, a: 1}
   _inheritThrownEffectsFrom: 3
-  _targetType: 1
+  _targetType: 2
   _effectRadius: 2
   _createsFloor: 1
   _floorDuration: 0
@@ -30,4 +28,13 @@ MonoBehaviour:
   _applyOnEnter: 1
   _lifeStealRatio: 0.2
   _effects: []
-  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaSprite: {fileID: 1925785416, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 1, g: 1, b: 1, a: 1}

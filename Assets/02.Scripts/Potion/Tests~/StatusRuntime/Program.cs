@@ -319,6 +319,28 @@ internal static class Program
         receiver.RemoveAreaEffectsFromSource(8);
         Equal(5, player.Speed);
         Equal(15, player.DashSpeed);
+
+        receiver.ApplyStatus(new PotionStatusApplication(PotionStatusEffect.Paralyzed, 2, default,
+            tickInterval: 0.4f, applyImmediately: true, immobilizeDuration: 0.1f));
+        Check(!player.CanMove, "paralysis must stop player movement and dash");
+        Equal(0, player.Speed);
+        Equal(0, player.DashSpeed);
+        Time.timeAsDouble = 2.2;
+        Check(player.CanMove, "player must move between paralysis pulses");
+        Equal(5, player.Speed);
+        Equal(15, player.DashSpeed);
+        Time.timeAsDouble = 2.45;
+        Check(!player.CanMove, "next paralysis pulse must stop movement again");
+        receiver.isActiveAndEnabled = false;
+        Check(player.CanMove, "disabled receiver must not restrict movement");
+        Equal(5, player.Speed);
+        Equal(15, player.DashSpeed);
+
+        var withoutReceiver = new PlayerStatus();
+        Call(withoutReceiver, "Awake");
+        Check(withoutReceiver.CanMove, "player without receiver must move normally");
+        Equal(5, withoutReceiver.Speed);
+        Equal(15, withoutReceiver.DashSpeed);
     }
     private static void Dispatch()
     {

@@ -13,20 +13,15 @@ MonoBehaviour:
   m_Name: LifePotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: life_potion
-  _displayName: 생명의 물약
+  _displayName: "\uC0DD\uBA85\uC758 \uBB3C\uC57D"
   _element: 4
-  _visualData:
-    _areaSprite: {fileID: 7840392335819879883, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _potionSprite: {fileID: 0}
-    _areaColor: {r: 0.3, g: 1, b: 0.45, a: 0.65}
-  _targetType: 0
+  _targetType: 2
   _effectRadius: 2
   _createsFloor: 1
   _floorDuration: 4
   _tickInterval: 1
   _applyOnEnter: 1
   _lifeStealRatio: 0
-  _thirstDelta: -40
   _effects:
   - _phase: 1
     _operation: 1
@@ -56,3 +51,8 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _thirstDelta: -40
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaSprite: {fileID: 7840392335819879883, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 0.3, g: 1, b: 0.45, a: 0.65}

@@ -13,16 +13,13 @@ MonoBehaviour:
   m_Name: 11_ToxicCurrent
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 11
-  _displayName: 독성 전류
-  _description: 5초 장판. 매초 독 5 및 0.15초 마비. 이탈 후 중독 3초.
+  _displayName: "\uB3C5\uC131 \uC804\uB958"
+  _description: "5\uCD08 \uC7A5\uD310. \uB9E4\uCD08 \uB3C5 5 \uBC0F 0.15\uCD08 \uB9C8\uBE44.
+    \uC774\uD0C8 \uD6C4 \uC911\uB3C5 3\uCD08."
   _elementA: 2
   _elementB: 5
-  _visualData:
-    _potionSprite: {fileID: 0}
-    _areaSprite: {fileID: 2026292119, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 1, g: 1, b: 1, a: 1}
   _inheritThrownEffectsFrom: 0
-  _targetType: 1
+  _targetType: 2
   _effectRadius: 2
   _createsFloor: 1
   _floorDuration: 5
@@ -30,7 +27,46 @@ MonoBehaviour:
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
-  - {_phase: 1, _operation: 0, _element: 2, _amount: 5, _status: 0, _duration: 0, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-  - {_phase: 1, _operation: 2, _element: 5, _amount: 0, _status: 3, _duration: 0.15, _tickInterval: 0, _applyImmediately: 0, _moveSpeedMultiplier: 0, _immobilizeDuration: 0.15, _frostStackAmount: 1}
-  - {_phase: 2, _operation: 2, _element: 2, _amount: 5, _status: 1, _duration: 3, _tickInterval: 1, _applyImmediately: 0, _moveSpeedMultiplier: 1, _immobilizeDuration: 0, _frostStackAmount: 1}
-  _frost: {_freezeThreshold: 3, _moveSpeedMultipliers: [0.85, 0.7], _freezeDuration: 2}
+  - _phase: 1
+    _operation: 0
+    _element: 2
+    _amount: 5
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 0.15
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 0
+    _immobilizeDuration: 0.15
+    _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 2
+    _amount: 5
+    _status: 1
+    _duration: 3
+    _tickInterval: 1
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaSprite: {fileID: 2026292119, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 1, g: 1, b: 1, a: 1}

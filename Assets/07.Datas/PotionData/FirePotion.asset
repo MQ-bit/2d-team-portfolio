@@ -13,20 +13,15 @@ MonoBehaviour:
   m_Name: FirePotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: fire_potion
-  _displayName: 화염의 물약
+  _displayName: "\uD654\uC5FC\uC758 \uBB3C\uC57D"
   _element: 1
-  _visualData:
-    _areaSprite: {fileID: -1821161386, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _potionSprite: {fileID: 0}
-    _areaColor: {r: 1, g: 0.2, b: 0.05, a: 0.65}
-  _targetType: 1
+  _targetType: 2
   _effectRadius: 2
   _createsFloor: 1
   _floorDuration: 4
   _tickInterval: 1
   _applyOnEnter: 1
   _lifeStealRatio: 0
-  _thirstDelta: -30
   _effects:
   - _phase: 1
     _operation: 0
@@ -67,3 +62,8 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _thirstDelta: -30
+  _visualData:
+    _potionSprite: {fileID: 0}
+    _areaSprite: {fileID: -1821161386, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 1, g: 0.2, b: 0.05, a: 0.65}

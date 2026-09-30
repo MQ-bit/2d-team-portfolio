@@ -18,10 +18,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public event Action<PotionDamageResult> StatusDamageApplied;
     public event Action<PotionDamageResult> DamageApplied;
 
-    // 플레이어/적 공통 조회 API. 실제 이동은 각 이동 모듈에서 한다.
-    public float GetMovementSpeed(float baseSpeed) => baseSpeed * MoveSpeedMultiplier;
-    public float GetDashSpeed(float baseSpeed) => CanMove ? baseSpeed : 0f;
-
     private void Awake()
     {
         Damageable = GetComponentInParent<IDamageable>();
@@ -99,12 +95,6 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         _statusEffects.RemoveSource(sourceId);
     }
 
-    public void ApplyStatus(PotionStatusEffect status, float duration, int sourceId)
-    {
-        if (!PrepareStatusApplication()) return;
-        _statusEffects.Apply(status, duration, sourceId);
-    }
-
     public void ApplyStatus(PotionStatusApplication application)
     {
         if (!PrepareStatusApplication()) return;
@@ -142,8 +132,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         ClearStatuses();
     }
 
-    private bool CanReceiveStatus() => isActiveAndEnabled &&
-                                       (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
+    private bool CanReceiveStatus() => isActiveAndEnabled && (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
 
     private void TickStatuses()
     {
@@ -174,7 +163,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
 
-        PotionEffectApplier.RestoreCombinationOwner(source.Owner, result.LifeStealAmount);
+        PotionStatDispatcher.Heal(source.Owner, result.LifeStealAmount);
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }

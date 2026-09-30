@@ -37,7 +37,7 @@ public sealed class PotionCombinationData : ScriptableObject, IPotionEffectData
 
     [Header("Thrown Effect")]
     [Tooltip("조합 효과를 적용할 대상")]
-    [SerializeField] private PotionTargetType _targetType = PotionTargetType.Enemy;
+    [SerializeField] private PotionTargetType _targetType = PotionTargetType.Both;
     [SerializeField, Min(0f)] private float _effectRadius = 2f;
     [SerializeField] private bool _createsFloor = true;
     [SerializeField, Min(0f)] private float _floorDuration = 4f;

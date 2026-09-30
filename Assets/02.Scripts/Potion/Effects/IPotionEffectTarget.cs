@@ -12,7 +12,6 @@ public interface IPotionEffectTarget
     IDamageable Damageable { get; }
     IThirstable Thirstable { get; }
 
-    void ApplyStatus(PotionStatusEffect status, float duration, int sourceId);
     void EnterFloor(IPotionEffectData profile, PotionEffectSource source);
     void PulseFloor(int sourceId);
     void ExitFloor(int sourceId, bool applyResidual);
