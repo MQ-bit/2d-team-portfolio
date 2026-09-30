@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,9 @@ public class PlayerStatusView : MonoBehaviour
 
     [Header("Status")]
     [SerializeField] private Slider _healthGuage;
+    [SerializeField] private TMP_Text _healthGuageText;
     [SerializeField] private Slider _thirstGuage;
+    [SerializeField] private TMP_Text _thirstGuageText;
 
     private void Awake()
     {
@@ -22,19 +25,21 @@ public class PlayerStatusView : MonoBehaviour
     public void Initialize(Sprite portrait)
     {
         _portraitImage.sprite = portrait;
-        _portraitImage.enabled = portrait != null;
+        _healthGuageText.enabled = portrait != null;
     }
 
     public void SetHealth(float current, float maximum)
     {
         float normalizedValue = CalculateNormalizedValue(current, maximum);
         _healthGuage.SetValueWithoutNotify(normalizedValue);
+        _healthGuageText.text = $"{current,4:0} / {maximum,4:0}";
     }
 
     public void SetThirst(float current, float maximum)
     {
         float normalizedValue = CalculateNormalizedValue(current, maximum);
         _thirstGuage.SetValueWithoutNotify(normalizedValue);
+        _thirstGuageText.text = $"{current,4:0} / {maximum,4:0}";
     }
 
     private void InitiateSliderSetting(Slider guageSlider)
