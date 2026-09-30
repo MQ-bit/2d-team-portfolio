@@ -85,7 +85,7 @@ public sealed class PotionBreakEffect : MonoBehaviour
             _renderers[i].color = color;
         }
     }
-
+    //
     private void CacheRenderers()
     {
         if (_renderers == null || _renderers.Length == 0)
