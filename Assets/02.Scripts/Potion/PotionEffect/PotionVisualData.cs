@@ -5,7 +5,6 @@ public struct PotionVisualData
 {
     [SerializeField] private Sprite _potionSprite;
     [SerializeField] private Color _areaColor;
-    //[SerializeField] Sprite Icon;
 
     public Sprite PotionSprite => _potionSprite;
     public Color AreaColor => _areaColor;

@@ -127,8 +127,8 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: -9095717837082945937, guid: bd3cb4af8406d4436a2ae8c2aafe1f8d, type: 3}
+  m_Color: {r: 0.39115885, g: 1, b: 0.3066038, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -220,9 +220,9 @@ MonoBehaviour:
     _currentHealth: 0
   _initMaxThirst: 100
   _initCurrentThirst: 0
-  _itnitThirstIncreaseAmount: 1
-  _initThirstIncreaseInterval: 10
-  _thirstStatInstance:
+  _itnitThirstIncreaseAmount: 10
+  _initThirstIncreaseInterval: 2
+  _thirstInstance:
     _maxThirst: 0
     _currentThirst: 0
     _increaseAmountPerTick: 0
@@ -344,8 +344,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDrinkingModule
   _effectReceiver: {fileID: 910000000000000003}
   _inventoryModule: {fileID: 6544000177656053045}
+  _status: {fileID: 0}
   _drinkDuration: 1
   _drinkTimer: 0
+  _thirstDecreaseAmount: 10
 --- !u!114 &4706277357270954568
 MonoBehaviour:
   m_ObjectHideFlags: 0

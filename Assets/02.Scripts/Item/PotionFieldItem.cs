@@ -3,6 +3,9 @@ using System.Collections;
 
 public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 {
+    [Header("Component References")]
+    [SerializeField] private SpriteRenderer _renderer;
+
     [Header("Item Setting")]
     [SerializeField] private PotionData _potionData;
     [SerializeField] private int _quantity = 1;
@@ -33,6 +36,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider2D>();
+        _renderer = GetComponentInChildren<SpriteRenderer>();
         _waitForReactivate = new WaitForSeconds(_reactivateDelay);
     }
     private void OnDisable()
@@ -70,12 +74,14 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             return false;
         }
 
+
         _originalPosition = transform.position;
         _isCollecting = true;
 
         SetCollidersEnabled(false);
 
-        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), _potionData));
+        PotionItem item = new PotionItem(_potionData, _renderer.sprite);
+        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), item));
 
         return true;
     }
@@ -83,7 +89,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
     // 플레이어에게 날아가는 동작을 구현하는 코루틴. 여러 코루틴이 연속적으로 수행됨.
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
-    private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionData potionData)
+    private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionItem potionItem)
     {
         yield return FlyToPlayer(collectTarget);
 
@@ -93,8 +99,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             yield break;
         }
 
-        //플레이어에게 도착한 순간 실제 인벤토리 추가를 시도
-        if (receiver.TryTakeItem(potionData, _quantity))
+        if (receiver.TryTakeItem(potionItem, _quantity))
         {
             _collectionRoutine = null;
             _isBeingDestroyed = true;

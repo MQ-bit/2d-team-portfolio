@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface IItemReceiver
 {
-    bool TryTakeItem(PotionData data, int quantity);
+    bool TryTakeItem(PotionItem item, int quantity);
 }

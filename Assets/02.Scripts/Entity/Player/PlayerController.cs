@@ -9,6 +9,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
     [SerializeField] private PlayerMeleeModule _meleeModule;
+    [SerializeField] private PlayerStatus _playerStatus;
+
+    // UI 연결을 위한 프로퍼티
+    public PlayerMovementModule MovementModule => _movementModule;
+    public PlayerThrowingModule ThrowingModule => _throwingModule;
+    public PlayerInventoryModule InventoryModule => _inventoryModule;
+    public PlayerDrinkingModule DrinkingModule => _drinkingModule;
+    public PlayerMeleeModule MeleeModule => _meleeModule;
+    public PlayerStatus PlayerStatus => _playerStatus;
 
     private void Awake()
     {
@@ -40,6 +49,10 @@ public class PlayerController : MonoBehaviour
         if (_meleeModule == null)
         {
             _meleeModule = GetComponent<PlayerMeleeModule>();
+        }
+        if (_playerStatus == null)
+        {
+            _playerStatus = GetComponent<PlayerStatus>();
         }
     }
 

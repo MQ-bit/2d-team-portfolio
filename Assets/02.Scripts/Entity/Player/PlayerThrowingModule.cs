@@ -150,7 +150,7 @@ public class PlayerThrowingModule : MonoBehaviour
         if (_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
-            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
+            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
             proj.Launch(consumedPotion, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
         }
     }

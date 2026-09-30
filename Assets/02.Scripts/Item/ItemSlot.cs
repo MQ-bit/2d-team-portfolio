@@ -5,21 +5,23 @@ namespace Entity.Inventory
     [System.Serializable]
     public class ItemSlot
     {
-        [SerializeField] private PotionData _data;
+        [SerializeField] private PotionItem _item;
         [SerializeField] private int _quantity;
 
-        public PotionData Data => _data;
+        public PotionItem Item => _item;
+        public PotionData PotionData => _item.PotionData;
+        public Sprite Sprite => _item.Sprite;
         public int Quantity => _quantity;
 
-        internal void SetItem(PotionData data, int quantity)
+        internal void SetItem(PotionItem item, int quantity)
         {
-            _data = data;
+            _item = item;
             _quantity = quantity;
         }
 
         internal void ClearSlot()
         {
-            _data = null;
+            _item = default;
             _quantity = 0;
         }
 
@@ -43,9 +45,14 @@ namespace Entity.Inventory
             }
         }
 
-        internal bool IsDataEmpty()
+        internal bool CanStackItem(PotionItem item)
         {
-            return _data == null || _quantity <= 0;
+            return !IsEmpty() && _item.CanStackItem(item);
+        }
+
+        internal bool IsEmpty()
+        {
+            return _item.IsEmpty || _quantity <= 0;
         }
     }
 }
