@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ public class PlayerMovementModule : MonoBehaviour
     public bool IsDashing => _isDashing;
 
     public bool CanDash => !_isDashing && Time.time >= _nextDashAvailableTime;
+
+    public event Action<float> OnDashStarted;
 
     private void OnDisable()
     {
@@ -48,6 +51,7 @@ public class PlayerMovementModule : MonoBehaviour
         _nextDashAvailableTime = Time.time + _dashCooltime;
 
         _dashCoroutine = StartCoroutine(DashCoroutine(moveInput.normalized));
+        OnDashStarted?.Invoke(_dashCooltime);
         return true;
     }
 

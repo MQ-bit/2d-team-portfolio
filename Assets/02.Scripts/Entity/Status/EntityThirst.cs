@@ -1,11 +1,11 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 [Serializable]
 public class EntityThirst
 {
     private const float MinInterval = 0.01f;
     [SerializeField, Min(1f)] private float _maxThirst = 100f;
-    [SerializeField, Min(0f)] private float _currentThirst = 100f;
+    [SerializeField, Min(0f)] private float _currentThirst = 0f;
     [SerializeField, Min(0f)] private float _increaseAmountPerTick = 1f;
     [SerializeField, Min(MinInterval)] private float _increaseInterval = 10f;
 
@@ -25,7 +25,7 @@ public class EntityThirst
 
     public bool IncreaseTick(float deltaTime)
     {
-        if (_currentThirst <= 0f)
+        if (_currentThirst >= MaxThirst)
         {
             return false;
         }
