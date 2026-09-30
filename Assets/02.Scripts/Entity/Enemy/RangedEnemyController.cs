@@ -29,13 +29,13 @@ public class RangedEnemyController : MonoBehaviour
     private Transform _target;
     private float _attackTimer;
 
-    private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+    private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
     private void Awake()
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
     }
 
     private void GetModules()
@@ -100,7 +100,7 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         // 얼음/마비 중에는 이동과 공격 모두 멈춘다.
-        if (!CanAct)
+        if (!CanMove)
         {
             _movementModule.Stop();
             return;
