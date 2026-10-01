@@ -135,3 +135,7 @@ MonoBehaviour:
   fps: 15
   pixelsPerUnit: 96
   timeOffset: 0
+  burstCount: 12
+  burstSize: 0.4
+  sizeJitter: 0.3
+  spawnAreaRatio: 0.85

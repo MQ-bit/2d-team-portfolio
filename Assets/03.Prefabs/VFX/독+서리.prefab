@@ -105,9 +105,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteSheetPlayer
   sheet: {fileID: 2800000, guid: 29e5fb4c9b67b6143bb772e5e00caff4, type: 3}
-  row: 35
+  row: 0
   cellSize: 64
   frames: []
   fps: 15
   pixelsPerUnit: 64
   timeOffset: 0
+  burstCount: 3
+  burstSize: 0.4
+  sizeJitter: 0.3
+  spawnAreaRatio: 0.6
+  fillArea: 1
+  fillScale: 0.35
+  playOnce: 0

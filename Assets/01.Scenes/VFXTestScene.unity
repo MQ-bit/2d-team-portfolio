@@ -153,42 +153,61 @@ MonoBehaviour:
   _entries:
   - Prefab: {fileID: 7957495637218046237, guid: d7ed66a068ae3ae4dbbdd0dcb47b6a37, type: 3}
     GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 5417271631518840610, guid: 2e96b5c174a263b4897b044c38d4135c, type: 3}
     GroundColor: {r: 1, g: 0.3529412, b: 0.14117648, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 133403889251271510, guid: 4b0d804788bb64c42a1c38fa6a1fa2c5, type: 3}
     GroundColor: {r: 0.7137255, g: 0.9490196, b: 0.22745098, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 4579996185533737049, guid: ccab241b986f9ea4581506f9ba125116, type: 3}
     GroundColor: {r: 0.33333334, g: 0.8509804, b: 1, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 5570802179912677701, guid: 5e3f9e527668d604381da9102f74cdff, type: 3}
     GroundColor: {r: 0.76862746, g: 0.29803923, b: 1, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 5054387768631005159, guid: d57c258e9fb968346a979d35b99049fc, type: 3}
     GroundColor: {r: 1, g: 0.24705882, b: 0.5058824, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 6097614845457990773, guid: 9beef5ae195ab3142a1c6716124539da, type: 3}
     GroundColor: {r: 1, g: 0.83137256, b: 0.23137255, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 3034443078256985164, guid: 6b8a7165a405e104f92a4adf7860758b, type: 3}
     GroundColor: {r: 0.27058825, g: 0.9607843, b: 0.8156863, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 8666300933655141435, guid: 4b2d2616168ef5a42934e24f36113c2b, type: 3}
     GroundColor: {r: 0.9607843, g: 0.7176471, b: 1, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 1447327359035626398, guid: a63cc69c38d3de342b75283e5b8c440d, type: 3}
     GroundColor: {r: 0.8352941, g: 0.9098039, b: 0.24705882, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 4904687174246489034, guid: fe151b5ccec514d4f9f7b4162c371adc, type: 3}
     GroundColor: {r: 1, g: 0.9411765, b: 0.6039216, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 126922522403768650, guid: 3390334e019c18a43a9d89524cc32452, type: 3}
     GroundColor: {r: 1, g: 0.30980393, b: 0.6784314, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 7683759432232700420, guid: 4d0af1191d7a0e943b6573bf509878cd, type: 3}
     GroundColor: {r: 0.20784314, g: 0.9098039, b: 0.77254903, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 2117726290247818907, guid: 41d7844f8bd7fa2458244283cffac074, type: 3}
     GroundColor: {r: 0.56078434, g: 0.36078432, b: 1, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 2100311748143192802, guid: 8ac68a6fb259adb4894c13bbd079777b, type: 3}
     GroundColor: {r: 0.65882355, g: 0.9098039, b: 1, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 5417271631518840610, guid: c1fba479fcab4a779b1fb7282da78392, type: 3}
     GroundColor: {r: 1, g: 1, b: 1, a: 1}
+    HideGround: 1
   - Prefab: {fileID: 133403889251271510, guid: 122454b7657a4cb38764267ea00ec002, type: 3}
     GroundColor: {r: 1, g: 1, b: 1, a: 1}
+    HideGround: 1
   - Prefab: {fileID: 133403889251271510, guid: 9f22a8f2054b4f69b593a8c08ec162e7, type: 3}
     GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
+    HideGround: 0
   - Prefab: {fileID: 133403889251271510, guid: 9f741ab6d06a499fb94caae673e269e4, type: 3}
     GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
+    HideGround: 0
   _targetFrameRate: 60
 --- !u!4 &216781069
 Transform:
@@ -462,10 +481,6 @@ MonoBehaviour:
   _heightRatio: 0.5
   _groundColor: {r: 1, g: 1, b: 1, a: 0.4}
   _vfxPrefab: {fileID: 0}
-  _burstCount: 40
-  _burstSize: 0.4
-  _sizeJitter: 0.3
-  _spawnAreaRatio: 0.85
   _restDelayRange: {x: 0, y: 0.08}
 --- !u!4 &1253214386
 Transform:

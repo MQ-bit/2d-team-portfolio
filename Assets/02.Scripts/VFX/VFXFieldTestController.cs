@@ -10,6 +10,7 @@ public class VFXFieldTestController : MonoBehaviour
     {
         public GameObject Prefab;
         public Color GroundColor;
+        public bool HideGround;
     }
 
     [SerializeField] private VFXBurstField _field;
@@ -55,6 +56,7 @@ public class VFXFieldTestController : MonoBehaviour
         _index = (index % count + count) % count;
         Entry entry = _entries[_index];
         _field.SetGroundColor(entry.GroundColor);
+        _field.SetGroundVisible(!entry.HideGround);
         _field.SetVfx(entry.Prefab);
 
         if (_label != null)
