@@ -20,7 +20,7 @@ MonoBehaviour:
   _elementB: 5
   _inheritThrownEffectsFrom: 5
   _targetType: 2
-  _effectRadius: 2
+  _effectRadius: 3
   _createsFloor: 1
   _floorDuration: 0
   _tickInterval: 1
@@ -34,7 +34,7 @@ MonoBehaviour:
     - 0.7
     _freezeDuration: 2
   _visualData:
-    _areaVfxPrefab: {fileID: 8666300933655141435, guid: 4b2d2616168ef5a42934e24f36113c2b, type: 3}
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: 0}
     _areaSprite: {fileID: -2003827210, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+    _areaVfxPrefab: {fileID: 8666300933655141435, guid: 4b2d2616168ef5a42934e24f36113c2b, type: 3}

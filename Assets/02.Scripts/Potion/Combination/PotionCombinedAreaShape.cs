@@ -91,8 +91,8 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
     private void CreateEllipseVisual(PotionGroundArea first, PotionGroundArea second,
         PotionVisualData visualData, float centerDistance, Vector2 center, Vector2 direction)
     {
-        SpriteRenderer firstRenderer = first.GetComponent<SpriteRenderer>();
-        SpriteRenderer secondRenderer = second.GetComponent<SpriteRenderer>();
+        SpriteRenderer firstRenderer = first.AreaRenderer;
+        SpriteRenderer secondRenderer = second.AreaRenderer;
         if (firstRenderer == null || secondRenderer == null || firstRenderer.sprite == null) return;
 
         float visualDiameter = Mathf.Max(

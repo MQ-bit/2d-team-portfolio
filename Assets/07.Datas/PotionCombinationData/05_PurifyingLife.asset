@@ -14,12 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 5
   _displayName: "\uC815\uD654\uC758 \uC0DD\uBA85"
-  _description: "생명과 기화의 조합. 착탄 범위 안의 플레이어와 적 체력을 즉시 20 회복하며 장판을 생성하지 않는다."
+  _description: "\uC0DD\uBA85\uACFC \uAE30\uD654\uC758 \uC870\uD569. \uCC29\uD0C4
+    \uBC94\uC704 \uC548\uC758 \uD50C\uB808\uC774\uC5B4\uC640 \uC801 \uCCB4\uB825\uC744
+    \uC989\uC2DC 20 \uD68C\uBCF5\uD558\uBA70 \uC7A5\uD310\uC744 \uC0DD\uC131\uD558\uC9C0
+    \uC54A\uB294\uB2E4."
   _elementA: 4
   _elementB: 6
   _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 2.5
+  _effectRadius: 3
   _createsFloor: 0
   _floorDuration: 0
   _tickInterval: 0
@@ -44,6 +47,7 @@ MonoBehaviour:
     - 0.7
     _freezeDuration: 2
   _visualData:
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: 0}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
+    _areaVfxPrefab: {fileID: 0}

@@ -23,6 +23,7 @@ public class PotionGroundArea : MonoBehaviour
     public IDamageable Owner { get; private set; }
     public CircleCollider2D AreaCollider => _collider;
     public PotionAreaEffect AreaEffect => _areaEffect;
+    public SpriteRenderer AreaRenderer => _renderer;
     public bool IsCombined => _combiner != null && _combiner.IsCombined;
 
     public void SetOwner(IDamageable owner) => Owner = owner;
@@ -30,7 +31,7 @@ public class PotionGroundArea : MonoBehaviour
     private void Awake()
     {
         _collider = GetComponent<CircleCollider2D>();
-        _renderer = GetComponent<SpriteRenderer>();
+        _renderer = GetComponentInChildren<SpriteRenderer>();
         _areaEffect = GetComponent<PotionAreaEffect>();
         _combiner = GetComponent<PotionAreaCombiner>();
         _collider.isTrigger = true;
@@ -47,7 +48,7 @@ public class PotionGroundArea : MonoBehaviour
 
         Data = data;
         _duration = data.FloorDuration;
-        _radius = data.AreaWidth * 0.5f;
+        _radius = data.EffectRadius;
         _collider.radius = _radius;
 
         if (_renderer != null)
@@ -57,6 +58,14 @@ public class PotionGroundArea : MonoBehaviour
                 _renderer.sprite = data.VisualData.AreaSprite;
             }
             _renderer.color = data.VisualData.AreaColor;
+            if (_renderer.sprite != null)
+            {
+                Vector2 spriteSize = _renderer.sprite.bounds.size;
+                float diameter = _radius * 2f;
+                _renderer.transform.localScale = new Vector3(
+                    diameter / Mathf.Max(0.001f, spriteSize.x),
+                    diameter / Mathf.Max(0.001f, spriteSize.y), 1f);
+            }
         }
 
         if (_areaEffect != null)

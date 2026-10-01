@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: "\uB3C5\uC758 \uBB3C\uC57D"
   _element: 2
   _targetType: 2
-  _effectRadius: 2
+  _effectRadius: 3
   _createsFloor: 1
   _floorDuration: 5
   _tickInterval: 1
@@ -64,7 +64,7 @@ MonoBehaviour:
     _freezeDuration: 2
   _thirstDelta: -30
   _visualData:
-    _areaVfxPrefab: {fileID: 133403889251271510, guid: 4b0d804788bb64c42a1c38fa6a1fa2c5, type: 3}
     _iconSprite: {fileID: -1902372172, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 2051801876, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 0.55, g: 0.15, b: 0.8, a: 0.65}
+    _areaVfxPrefab: {fileID: 133403889251271510, guid: 4b0d804788bb64c42a1c38fa6a1fa2c5, type: 3}
