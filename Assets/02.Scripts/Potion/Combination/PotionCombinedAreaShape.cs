@@ -76,7 +76,15 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         _combinationCollider.points = points;
         _combinationCollider.enabled = true;
 
+        first.ClearAreaVfx();
+        second.ClearAreaVfx();
         CreateEllipseVisual(first, second, visualData, centerDistance, center, direction);
+        if (visualData.AreaVfxPrefab != null)
+        {
+            GameObject vfx = first.SetAreaVfx(visualData, semiMajor * 2f, semiMinor * 2f);
+            vfx.transform.position = new Vector3(center.x, center.y, first.transform.position.z);
+            vfx.transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
+        }
         first.AreaEffect.enabled = true;
     }
 

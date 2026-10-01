@@ -15,22 +15,67 @@ MonoBehaviour:
   _id: lightning_potion
   _displayName: "\uC804\uAE30\uC758 \uBB3C\uC57D"
   _element: 5
-  _targetType: 1
+  _targetType: 2
   _effectRadius: 2
   _createsFloor: 1
-  _floorDuration: 4
-  _tickInterval: 0
+  _floorDuration: 2
+  _tickInterval: 0.5
   _applyOnEnter: 1
   _lifeStealRatio: 0
-  _effects: []
+  _effects:
+  - _phase: 1
+    _operation: 0
+    _element: 5
+    _amount: 6
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 0.1
+    _tickInterval: 0
+    _applyImmediately: 1
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.1
+    _frostStackAmount: 1
+  - _phase: 3
+    _operation: 0
+    _element: 5
+    _amount: 20
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 3
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 2
+    _tickInterval: 0.4
+    _applyImmediately: 1
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.1
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
     - 0.85
     - 0.7
     _freezeDuration: 2
-  _thirstDelta: 0
+  _thirstDelta: -30
   _visualData:
+    _areaVfxPrefab: {fileID: 5570802179912677701, guid: 5e3f9e527668d604381da9102f74cdff, type: 3}
     _iconSprite: {fileID: 1178551025, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 275802821, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}

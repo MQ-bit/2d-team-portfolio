@@ -6,12 +6,18 @@ public class PotionGroundArea : MonoBehaviour
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
 
+    [Header("Area VFX Bursts")]
+    [SerializeField, Min(1)] private int _vfxBurstCount = 12;
+    [SerializeField, Min(0.05f)] private float _vfxBurstSize = 0.4f;
+    [SerializeField, Range(0.1f, 1f)] private float _vfxSpawnAreaRatio = 0.85f;
+
     private CircleCollider2D _collider;
     private SpriteRenderer _renderer;
     private PotionAreaEffect _areaEffect;
     private PotionAreaCombiner _combiner;
     private float _expiresAt;
     private bool _activated;
+    private GameObject _areaVfx;
 
     public PotionData Data { get; private set; }
     public IDamageable Owner { get; private set; }
@@ -57,6 +63,39 @@ public class PotionGroundArea : MonoBehaviour
         {
             _areaEffect.Initialize(data);
         }
+
+        if (data.CreatesFloor && data.VisualData.AreaVfxPrefab != null)
+        {
+            SetAreaVfx(data.VisualData, data.AreaWidth, data.AreaWidth);
+        }
+    }
+
+    public GameObject SetAreaVfx(PotionVisualData visualData, float width, float height)
+    {
+        ClearAreaVfx();
+        if (visualData.AreaVfxPrefab == null) return null;
+
+        _areaVfx = new GameObject("PotionVfxBurstField");
+        _areaVfx.transform.SetParent(transform, false);
+        _areaVfx.transform.localPosition = Vector3.zero;
+        _areaVfx.transform.localRotation = Quaternion.identity;
+        Vector3 parentScale = transform.lossyScale;
+        _areaVfx.transform.localScale = new Vector3(
+            1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.x)),
+            1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
+        VFXBurstField field = _areaVfx.AddComponent<VFXBurstField>();
+        field.ConfigureArea(width, height, _renderer,
+            _vfxBurstCount, _vfxBurstSize, _vfxSpawnAreaRatio);
+        field.SetVfx(visualData.AreaVfxPrefab);
+        return _areaVfx;
+    }
+
+    public void ClearAreaVfx()
+    {
+        if (_areaVfx == null) return;
+        _areaVfx.SetActive(false);
+        Destroy(_areaVfx);
+        _areaVfx = null;
     }
 
     public void Activate()

@@ -67,6 +67,7 @@ MonoBehaviour:
     - 0.7
     _freezeDuration: 2
   _visualData:
+    _areaVfxPrefab: {fileID: 4904687174246489034, guid: fe151b5ccec514d4f9f7b4162c371adc, type: 3}
     _potionSprite: {fileID: 0}
     _areaSprite: {fileID: -1337912425, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}

@@ -14,20 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 5
   _displayName: "\uC815\uD654\uC758 \uC0DD\uBA85"
-  _description: "\uC0C8 \uAE30\uD68D\uC5D0 \uC5C6\uB294 \uBBF8\uD655\uC815 \uC870\uD569.
-    \uD65C\uC131 DB\uC5D0\uC11C \uC81C\uC678\uD588\uC73C\uBA70 \uAE30\uC874 \uD68C\uBCF5\xB7\uC7A5\uD310
-    \uC81C\uAC70 \uD6A8\uACFC\uB294 \uBE44\uD65C\uC131\uD654\uD588\uB2E4."
+  _description: "생명과 기화의 조합. 착탄 범위 안의 플레이어와 적 체력을 즉시 20 회복하며 장판을 생성하지 않는다."
   _elementA: 4
   _elementB: 6
   _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 0
+  _effectRadius: 2.5
   _createsFloor: 0
   _floorDuration: 0
   _tickInterval: 0
   _applyOnEnter: 0
   _lifeStealRatio: 0
-  _effects: []
+  _effects:
+  - _phase: 0
+    _operation: 1
+    _element: 4
+    _amount: 20
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
