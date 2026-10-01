@@ -181,6 +181,14 @@ MonoBehaviour:
     GroundColor: {r: 0.56078434, g: 0.36078432, b: 1, a: 1}
   - Prefab: {fileID: 2100311748143192802, guid: 8ac68a6fb259adb4894c13bbd079777b, type: 3}
     GroundColor: {r: 0.65882355, g: 0.9098039, b: 1, a: 1}
+  - Prefab: {fileID: 5417271631518840610, guid: c1fba479fcab4a779b1fb7282da78392, type: 3}
+    GroundColor: {r: 1, g: 1, b: 1, a: 1}
+  - Prefab: {fileID: 133403889251271510, guid: 122454b7657a4cb38764267ea00ec002, type: 3}
+    GroundColor: {r: 1, g: 1, b: 1, a: 1}
+  - Prefab: {fileID: 133403889251271510, guid: 9f22a8f2054b4f69b593a8c08ec162e7, type: 3}
+    GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
+  - Prefab: {fileID: 133403889251271510, guid: 9f741ab6d06a499fb94caae673e269e4, type: 3}
+    GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
   _targetFrameRate: 60
 --- !u!4 &216781069
 Transform:

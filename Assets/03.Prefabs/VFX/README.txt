@@ -1,4 +1,4 @@
-GameVFX - 장판 스킬 이펙트 15종
+GameVFX - 장판 스킬 이펙트 19종
 
 [사용법]
 - 03.Prefabs/VFX/ 의 프리팹을 (텍스처: 04.Sprites/VFX, 스크립트: 02.Scripts/VFX/SpriteSheetPlayer.cs) 장판 오브젝트의 자식으로 넣으면 장판이 켜져 있는 동안 루프 재생됩니다.
@@ -29,6 +29,10 @@ GameVFX - 장판 스킬 이펙트 15종
 서리        Effect and FX Pixel / Part 11 / 529.png row 2
 서리+전기   Effect and FX Pixel / Part 13 / 623.png row 5
 전기        Super Pixel Effects Gigapack / lightning_burst_002_large_violet
+기화1       Effect and FX Pixel / Part 1 / 25.png row 5
+기화2       Super Pixel Effects Gigapack / directional_smoke_burst_001_large_white
+회복2       Super Pixel Effects Gigapack / status_sparkling_001_large_yellow
+회복1       Super Pixel Effects Gigapack / round_sparkle_burst_002_large_green (뒤쪽 절반 9/18프레임)
 
 [라이선스 / 크레딧]
 - Super Pixel Effects Gigapack: 게임에 포함 OK(상업 포함), 크레딧 표기 필요.
