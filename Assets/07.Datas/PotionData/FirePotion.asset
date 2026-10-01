@@ -15,13 +15,22 @@ MonoBehaviour:
   _id: fire_potion
   _displayName: "\uD654\uC5FC\uC758 \uBB3C\uC57D"
   _element: 1
-  _areaWidth: 3
-  _areaDuration: 5
-  _areaEffectAmount: 10
+  _targetType: 1
+  _effectRadius: 2
+  _createsFloor: 1
+  _floorDuration: 4
   _tickInterval: 1
-  _effectDuration: 5
-  _drinkEffectAmount: 10
-  _drinkThirstRecoveryAmount: 10
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _effects: []
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2
+  _thirstDelta: 0
   _visualData:
     _iconSprite: {fileID: 640609057, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _areaSprite: {fileID: -1821161386, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 0.2, b: 0.05, a: 0.65}

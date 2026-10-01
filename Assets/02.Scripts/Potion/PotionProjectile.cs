@@ -45,7 +45,7 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
             Land();
         }
     }
-    public void Initiate(PotionItem potionItem, PotionRunCatalog catalog)
+    public void Initiate(PotionItem potionItem, PotionRunCatalog catalog, IDamageable owner)
     {
         _itemData = potionItem;
         _catalog = catalog;

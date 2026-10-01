@@ -75,7 +75,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         if (selectedPotion == null) return false;
 
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             return false;
         }
@@ -95,7 +95,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void CompleteDrink()
     {
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             ResetState();
             return;
@@ -109,7 +109,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         _potionRunCatalog.TryIdentify(consumedPotion);
 
-        PotionEffectResolver.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
+        PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
         _status.DecreaseThirst(_thirstDecreaseAmount);
         ResetState();
     }

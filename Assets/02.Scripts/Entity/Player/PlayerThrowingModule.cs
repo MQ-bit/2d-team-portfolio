@@ -17,13 +17,15 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
     private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
-    [SerializeField] private float _throwSpeed = 8f;
+    [SerializeField] private float _throwDuration = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
 
     [Header("Potion Prefab")]
     [SerializeField] private PotionProjectile _potionPrefab;
 
     private Vector2 _aimWorldPosition;
+    private IDamageable _potionEffectOwner;
+
     public bool IsAiming { get; private set; }
 
 
@@ -61,6 +63,8 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             _inventoryModule = GetComponent<PlayerInventoryModule>();
         }
+
+        _potionEffectOwner = GetComponent<IDamageable>();
     }
 
     private void Start()
@@ -175,9 +179,11 @@ public class PlayerThrowingModule : MonoBehaviour
         if (_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
+            float distance = Vector2.Distance(startPosition, targetPosition);
+
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
-            proj.Initiate(consumedPotion, _potionRunCatalog);
-            proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+            proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
+            proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()

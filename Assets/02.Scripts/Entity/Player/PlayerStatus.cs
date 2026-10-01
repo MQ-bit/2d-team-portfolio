@@ -28,8 +28,11 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     [Header("Throw Settings")]
     [SerializeField] private float _maxThrowDistance = 6f;
 
-    public bool CanMove => _potionEffectReceiver.CanAct;
-    public float Speed => CanMove ? _speed : 0f;
+    // Receiver는 상태값을 제공하고, 플레이어의 최종 이동 속도는 여기서 결정한다.
+    private bool HasPotionMovementEffect => _potionEffectReceiver != null && _potionEffectReceiver.isActiveAndEnabled;
+    public bool CanMove => !HasPotionMovementEffect || _potionEffectReceiver.CanMove;
+    public float Speed => !CanMove ? 0f : _speed * (HasPotionMovementEffect ? _potionEffectReceiver.MoveSpeedMultiplier : 1f);
+    // 둔화는 대시에 적용하지 않고, 빙결/마비에 의한 정지만 반영
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
     public float MaxThrowDistance => _maxThrowDistance;
 
@@ -38,6 +41,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public float CurrentThirst => _thirstInstance.CurrentThirst;
     public float MaxThirst => _thirstInstance.MaxThirst;
     public bool IsDead => _healthInstance.IsDead;
+
 
     public event Action<float, float> OnThirstChanged; //current, max
     public event Action<float, float> OnHealthChanged; //current, max

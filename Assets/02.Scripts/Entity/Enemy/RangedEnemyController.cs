@@ -35,7 +35,7 @@ public class RangedEnemyController : MonoBehaviour
     private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
     private bool _isAttackFacingLeft; // 공격을 시작할 때 플레이어가 왼쪽에 있었는지
 
-    private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+    private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
     // 공격 애니메이션 재생용. 인자는 공격하며 왼쪽을 바라보는지 여부. 투사체는 AttackFireDelay 뒤에 나간다.
     public event Action<bool> OnAttackStarted;
@@ -48,7 +48,7 @@ public class RangedEnemyController : MonoBehaviour
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
     }
 
     private void GetModules()
@@ -112,8 +112,8 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-        // 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
-        if (!CanAct)
+// 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
+        if (!CanMove)
         {
             CancelAttack();
             _movementModule.Stop();
@@ -152,7 +152,7 @@ public class RangedEnemyController : MonoBehaviour
             case State.Idle:
             case State.Chase:
                 _state = State.Chase;
-                _movementModule.MoveTowards(_target.position, _data.MoveSpeed);
+                _movementModule.MoveTowards(_target.position, _status.Speed);
                 break;
             case State.Attack:
                 _movementModule.Stop();

@@ -14,7 +14,6 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     [Header("Collect Movement Settings")]
     [SerializeField] private float _flightDuration = 0.45f;
     [SerializeField] private float _arcHeight = 1f;
-
     [SerializeField] private AnimationCurve _flightCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Failed Collection Setting")]
