@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 타원 장판 안의 무작위 위치에서 VFX를 한 번씩 터뜨리고, 끝나면 다른 위치로 옮겨 다시 터뜨린다.
+// 타원 또는 연결된 웅덩이 안의 무작위 위치에서 VFX를 터뜨리고, 끝나면 다른 위치에서 다시 재생한다.
 // 버스트마다 SpriteSheetPlayer를 새로 켜지 않고, 스프라이트는 VFX 교체 시 한 번만 만들어
 // 풀링된 SpriteRenderer들이 공유한다 (버스트마다 Sprite.Create 하면 GC가 쌓인다).
 public class VFXBurstField : MonoBehaviour
@@ -30,9 +30,18 @@ public class VFXBurstField : MonoBehaviour
     private Sprite[] _sprites;
     private float _fps;
     private SpriteRenderer _sortingRenderer;
+    private float _visibility = 1f;
+    private Color _vfxColor = Color.white;
+    private PotionPuddleShape _puddle;
+    private PotionCombinationSpread _spread;
+    private bool _showReached;
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
+
+    // Only potion fields opt in; standalone VFX previews retain their own settings.
+
+    public void SetVisibility(float visibility) => _visibility = Mathf.Clamp01(visibility);
 
     private void Awake()
     {
@@ -70,11 +79,27 @@ public class VFXBurstField : MonoBehaviour
         int burstCount, float burstSize, float spawnAreaRatio)
     {
         _width = Mathf.Max(0.1f, width);
-        _heightRatio = Mathf.Clamp(height / _width, 0.001f, 1f);
+        _heightRatio = Mathf.Max(0.001f, height / _width);
+        _puddle = null;
+        _spread = null;
         _sortingRenderer = sortingRenderer;
         _burstCount = Mathf.Max(1, burstCount);
         _burstSize = Mathf.Max(0.05f, burstSize);
         _spawnAreaRatio = Mathf.Clamp01(spawnAreaRatio);
+    }
+
+    internal void ConfigurePuddle(PotionPuddleShape shape)
+    {
+        _puddle = shape;
+        // SetVfx may have already placed the initial bursts using the default ellipse.
+        if (_sprites == null || _sprites.Length == 0) return;
+        foreach (Burst burst in _bursts) Respawn(burst, burst.StartTime);
+    }
+
+    internal void ConfigureSpread(PotionCombinationSpread spread, bool showReached)
+    {
+        _spread = spread;
+        _showReached = showReached;
     }
 
     public void SetVfx(GameObject vfxPrefab)
@@ -96,6 +121,7 @@ public class VFXBurstField : MonoBehaviour
         }
 
         var source = vfxPrefab.GetComponent<SpriteRenderer>();
+        _vfxColor = source.color;
         EnsurePool();
 
         float duration = _sprites.Length / _fps;
@@ -110,6 +136,12 @@ public class VFXBurstField : MonoBehaviour
 
     private void Update()
     {
+        if (_spread != null && !_showReached && _spread.IsComplete)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return;
+        }
         if (_sprites == null || _sprites.Length == 0)
         {
             return;
@@ -135,6 +167,11 @@ public class VFXBurstField : MonoBehaviour
 
             burst.Renderer.enabled = true;
             burst.Renderer.sprite = _sprites[frame];
+            Color color = _vfxColor;
+            color.a *= _visibility;
+            if (_spread != null && _spread.HasReached(burst.Renderer.transform.position) != _showReached)
+                color.a = 0f;
+            burst.Renderer.color = color;
         }
     }
 
@@ -159,10 +196,12 @@ public class VFXBurstField : MonoBehaviour
     {
         burst.StartTime = startTime;
 
-        // 타원 내부 균일 분포: 반지름에 sqrt를 씌워야 가운데로 몰리지 않는다.
+        // Sample uniformly inside the ellipse, without grid snapping or spacing correction.
         float angle = Random.Range(0f, Mathf.PI * 2f);
         float radius = Mathf.Sqrt(Random.value) * _spawnAreaRatio;
-        var local = new Vector3(Mathf.Cos(angle) * radius * _width * 0.5f, Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
+        Vector3 local = new(Mathf.Cos(angle) * radius * _width * 0.5f,
+            Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
+        if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
 
         Transform t = burst.Renderer.transform;
         t.localPosition = local;

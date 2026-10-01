@@ -11,7 +11,6 @@ public class PlayerThrowingModule : MonoBehaviour
     [Header("Potion Catalog Setting")]
     [SerializeField] private PotionRunCatalog _potionRunCatalog;
     [SerializeField] private Color _defaultAreaColor = Color.white;
-    [SerializeField] private float _defaultAreaWidth = 1f;
 
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
@@ -82,7 +81,6 @@ public class PlayerThrowingModule : MonoBehaviour
         IsAiming = true;
         _aimPreviewInstance.Show();
 
-        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
         UpdateAim(screenPosition);
     }
 
@@ -107,15 +105,19 @@ public class PlayerThrowingModule : MonoBehaviour
 
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
+        PotionThrowPrediction prediction = _potionPrefab != null
+            ? _potionPrefab.PredictThrow(startPosition, targetPosition, _arcHeight)
+            : new PotionThrowPrediction(false, 1f, targetPosition, targetPosition);
 
         PotionData selectedPotion = selectedPotionItem.PotionData;
         bool identified = _potionRunCatalog.IsIdentified(selectedPotion);
 
         Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
-        float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
+        // Identification changes the displayed color, never the actual effect range.
+        float previewWidth = selectedPotion.AreaWidth;
 
-        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.AreaWidth);
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth,
+            prediction);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
