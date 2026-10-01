@@ -77,5 +77,7 @@ MonoBehaviour:
   _visualData:
     _iconSprite: {fileID: 1178551025, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 275802821, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 1, g: 0.85, b: 0.1, a: 0.65}
+    _areaColor: {r: 0.68, g: 0.55, b: 0.8, a: 0.65}
+    _areaAccentColor: {r: 1, g: 0.88, b: 0.96, a: 1}
+    _areaSurfaceStyle: 5
     _areaVfxPrefab: {fileID: 5570802179912677701, guid: 5e3f9e527668d604381da9102f74cdff, type: 3}
