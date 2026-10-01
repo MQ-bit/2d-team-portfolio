@@ -6,6 +6,11 @@ public class PotionGroundArea : MonoBehaviour
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
 
+    [Header("Area VFX Bursts")]
+    [SerializeField, Min(1)] private int _vfxBurstCount = 12;
+    [SerializeField, Min(0.05f)] private float _vfxBurstSize = 0.4f;
+    [SerializeField, Range(0.1f, 1f)] private float _vfxSpawnAreaRatio = 0.85f;
+
     private CircleCollider2D _collider;
     private SpriteRenderer _renderer;
     private PotionAreaEffect _areaEffect;
@@ -98,7 +103,8 @@ public class PotionGroundArea : MonoBehaviour
             1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.x)),
             1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
         VFXBurstField field = _areaVfx.AddComponent<VFXBurstField>();
-        field.ConfigureArea(width, height, _renderer);
+        field.ConfigureArea(width, height, _renderer,
+            _vfxBurstCount, _vfxBurstSize, _vfxSpawnAreaRatio);
         field.SetVfx(visualData.AreaVfxPrefab);
         _vfxField = field;
         return _areaVfx;

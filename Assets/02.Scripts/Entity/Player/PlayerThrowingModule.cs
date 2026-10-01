@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerThrowingModule : MonoBehaviour
@@ -11,6 +12,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [Header("Potion Catalog Setting")]
     [SerializeField] private PotionRunCatalog _potionRunCatalog;
     [SerializeField] private Color _defaultAreaColor = Color.white;
+    [SerializeField] private float _defaultAreaWidth = 1f;
 
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
@@ -26,7 +28,8 @@ public class PlayerThrowingModule : MonoBehaviour
     private IDamageable _potionEffectOwner;
 
     public bool IsAiming { get; private set; }
-
+    public Vector2 AimWorldPosition => _aimWorldPosition;
+    public event Action<Vector2> OnPotionThrown;
 
     private void Awake()
     {
@@ -81,6 +84,13 @@ public class PlayerThrowingModule : MonoBehaviour
         IsAiming = true;
         _aimPreviewInstance.Show();
 
+        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
+        UpdateAim(screenPosition);
+
+        _aimPreviewInstance.UpdateAoeIndicator(
+            _inventoryModule.SelectedPotion.VisualData.AreaColor,
+            _inventoryModule.SelectedPotion.AreaWidth);
+
         UpdateAim(screenPosition);
     }
 
@@ -114,8 +124,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
         Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
         // Identification changes the displayed color, never the actual effect range.
-        float previewWidth = selectedPotion.AreaWidth;
-
+        float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
         _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth,
             prediction);
     }
@@ -186,6 +195,7 @@ public class PlayerThrowingModule : MonoBehaviour
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
             proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
+            OnPotionThrown?.Invoke(targetPosition);
         }
     }
     private void HideAimPreview()
