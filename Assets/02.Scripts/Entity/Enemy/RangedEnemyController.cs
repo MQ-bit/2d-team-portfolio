@@ -21,6 +21,8 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private EnemyStatus _status;
 
     [Header("Attack")]
+    [Tooltip("투사체가 나가는 위치. 이 오브젝트의 직계 자식으로, 오른쪽을 바라보는 기준으로 배치한다. " +
+             "왼쪽을 보고 공격하면 좌우를 뒤집어서 쓴다. 비워두면 몸 중심에서 나간다.")]
     [SerializeField] private Transform _firePoint;
     [SerializeField] private EnemyProjectile _projectilePrefab;
 
@@ -31,13 +33,16 @@ public class RangedEnemyController : MonoBehaviour
     private float _attackTimer;
     private float _fireTimer;
     private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
+    private bool _isAttackFacingLeft; // 공격을 시작할 때 플레이어가 왼쪽에 있었는지
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
 
-    // 공격 애니메이션 재생용. 투사체는 AttackFireDelay 뒤에 나간다.
-    public event Action OnAttackStarted;
+    // 공격 애니메이션 재생용. 인자는 공격하며 왼쪽을 바라보는지 여부. 투사체는 AttackFireDelay 뒤에 나간다.
+    public event Action<bool> OnAttackStarted;
     // 투사체가 나가기 전에 공격이 끊긴 순간 (빙결/마비, 대상 소실)
     public event Action OnAttackCanceled;
+
+    public bool IsAttacking => _isFiring;
 
     private void Awake()
     {
@@ -192,7 +197,8 @@ public class RangedEnemyController : MonoBehaviour
         _isFiring = true;
         _fireTimer = _data.AttackFireDelay;
         _attackTimer = _data.AttackCooldown;
-        OnAttackStarted?.Invoke();
+        _isAttackFacingLeft = _target.position.x < transform.position.x;
+        OnAttackStarted?.Invoke(_isAttackFacingLeft);
     }
 
     private void CancelAttack()
@@ -213,11 +219,29 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-        Vector2 origin = _firePoint.position;
+        Vector2 origin = GetFireOrigin();
         Vector2 direction = ((Vector2)_target.position - origin).normalized;
 
         EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
         projectile.Launch(direction, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+    }
+
+    // FirePoint는 오른쪽을 바라보는 기준으로 놓여 있으므로, 왼쪽을 보고 공격 중이면 x를 뒤집는다.
+    // TransformPoint를 써서 엘리트처럼 크기가 커진 적도 같은 비율의 위치에서 나간다.
+    private Vector2 GetFireOrigin()
+    {
+        if (_firePoint == transform)
+        {
+            return transform.position;
+        }
+
+        Vector3 localPoint = _firePoint.localPosition;
+        if (_isAttackFacingLeft)
+        {
+            localPoint.x = -localPoint.x;
+        }
+
+        return transform.TransformPoint(localPoint);
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
