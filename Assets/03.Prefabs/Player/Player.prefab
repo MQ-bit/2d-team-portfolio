@@ -215,8 +215,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
   _potionEffectReceiver: {fileID: 910000000000000003}
-  _maxHealth: 100
-  _initHealth: 10
+  _maxHealth: 9000
+  _initHealth: 9000
   _healthInstance:
     _maxHealth: 0
     _currentHealth: 0
@@ -584,7 +584,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3612528117417103380}
