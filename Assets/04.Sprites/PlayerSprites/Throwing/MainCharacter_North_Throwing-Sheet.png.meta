@@ -138,19 +138,19 @@ TextureImporter:
       name: MainCharacter_North_Throwing-Sheet_0
       rect:
         serializedVersion: 2
-        x: 29
-        y: 11
-        width: 68
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a16822d04020e9540800000000000000
+      spriteID: b309bf6d41f9e5a4594b2e30a4ac0eea
       internalID: 5016449251360802330
       vertices: []
       indices: 
@@ -160,19 +160,19 @@ TextureImporter:
       name: MainCharacter_North_Throwing-Sheet_1
       rect:
         serializedVersion: 2
-        x: 154
-        y: 11
-        width: 89
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8d59840ad23b4d1d0800000000000000
+      spriteID: 721d55f68433624428fefb1b3d0d5ca2
       internalID: -3326837216175942184
       vertices: []
       indices: 
@@ -182,19 +182,19 @@ TextureImporter:
       name: MainCharacter_North_Throwing-Sheet_2
       rect:
         serializedVersion: 2
-        x: 281
-        y: 11
-        width: 74
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5b9032992ccb4be20800000000000000
+      spriteID: fe3c3f485a0d4354a9b69f976f833adc
       internalID: 3365522365531490741
       vertices: []
       indices: 
@@ -204,19 +204,19 @@ TextureImporter:
       name: MainCharacter_North_Throwing-Sheet_3
       rect:
         serializedVersion: 2
-        x: 411
-        y: 11
-        width: 71
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7bc75dd57628ca110800000000000000
+      spriteID: a9f6e56bc8df9f547bd26bf66901d7a5
       internalID: 1273536175106522295
       vertices: []
       indices: 
@@ -226,7 +226,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 530e77f9b501f654bbd6c6bb86dcbf9e
     internalID: 0
     vertices: []
     indices: 

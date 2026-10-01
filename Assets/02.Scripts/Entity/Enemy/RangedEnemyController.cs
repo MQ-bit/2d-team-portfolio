@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private EnemyStatus _status;
 
     [Header("Attack")]
+    [Tooltip("투사체가 나가는 위치. 이 오브젝트의 직계 자식으로, 오른쪽을 바라보는 기준으로 배치한다. " +
+             "왼쪽을 보고 공격하면 좌우를 뒤집어서 쓴다. 비워두면 몸 중심에서 나간다.")]
     [SerializeField] private Transform _firePoint;
     [SerializeField] private EnemyProjectile _projectilePrefab;
 
@@ -28,14 +31,24 @@ public class RangedEnemyController : MonoBehaviour
     private State _state = State.Idle;
     private Transform _target;
     private float _attackTimer;
+    private float _fireTimer;
+    private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
+    private bool _isAttackFacingLeft; // 공격을 시작할 때 플레이어가 왼쪽에 있었는지
 
-    private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+    private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
+
+    // 공격 애니메이션 재생용. 인자는 공격하며 왼쪽을 바라보는지 여부. 투사체는 AttackFireDelay 뒤에 나간다.
+    public event Action<bool> OnAttackStarted;
+    // 투사체가 나가기 전에 공격이 끊긴 순간 (빙결/마비, 대상 소실)
+    public event Action OnAttackCanceled;
+
+    public bool IsAttacking => _isFiring;
 
     private void Awake()
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
     }
 
     private void GetModules()
@@ -99,9 +112,10 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-        // 얼음/마비 중에는 이동과 공격 모두 멈춘다.
-        if (!CanAct)
+        // 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
+        if (!CanMove)
         {
+            CancelAttack();
             _movementModule.Stop();
             return;
         }
@@ -109,6 +123,7 @@ public class RangedEnemyController : MonoBehaviour
         _target = FindPlayerInRange(_data.DetectRange);
         if (_target == null)
         {
+            CancelAttack();
             _state = State.Idle;
             _movementModule.Stop();
             return;
@@ -119,9 +134,10 @@ public class RangedEnemyController : MonoBehaviour
         // AttackRange(공격 진입)와 ChaseResumeRange(추적 복귀) 두 임계값을 분리한 히스테리시스 구간.
         // 두 값이 같으면 플레이어가 경계선에서 미세하게 움직이기만 해도 매 프레임
         // 추적<->공격 상태가 뒤바뀌며 몬스터가 제자리에서 버벅거리는(jittering) 문제가 생긴다.
+        // 이미 시작한 공격은 사거리를 벗어나도 투사체를 쏠 때까지 유지한다.
         if (_state == State.Attack)
         {
-            if (distance > _data.ChaseResumeRange)
+            if (!_isFiring && distance > _data.ChaseResumeRange)
             {
                 _state = State.Chase;
             }
@@ -136,7 +152,7 @@ public class RangedEnemyController : MonoBehaviour
             case State.Idle:
             case State.Chase:
                 _state = State.Chase;
-                _movementModule.MoveTowards(_target.position, _data.MoveSpeed);
+                _movementModule.MoveTowards(_target.position, _status.Speed);
                 break;
             case State.Attack:
                 _movementModule.Stop();
@@ -151,16 +167,49 @@ public class RangedEnemyController : MonoBehaviour
         _attackTimer = 0f;
     }
 
+    // 쿨타임이 끝나면 공격을 시작하고(애니메이션), AttackFireDelay 뒤에 투사체를 쏜다.
+    // 쿨타임은 공격 시작 시점부터 잰다.
     private void UpdateAttack()
     {
         _attackTimer -= Time.fixedDeltaTime;
+
+        if (_isFiring)
+        {
+            _fireTimer -= Time.fixedDeltaTime;
+            if (_fireTimer <= 0f)
+            {
+                _isFiring = false;
+                FireProjectile();
+            }
+            return;
+        }
+
         if (_attackTimer > 0f)
         {
             return;
         }
 
-        FireProjectile();
+        StartAttack();
+    }
+
+    private void StartAttack()
+    {
+        _isFiring = true;
+        _fireTimer = _data.AttackFireDelay;
         _attackTimer = _data.AttackCooldown;
+        _isAttackFacingLeft = _target.position.x < transform.position.x;
+        OnAttackStarted?.Invoke(_isAttackFacingLeft);
+    }
+
+    private void CancelAttack()
+    {
+        if (!_isFiring)
+        {
+            return;
+        }
+
+        _isFiring = false;
+        OnAttackCanceled?.Invoke();
     }
 
     private void FireProjectile()
@@ -170,11 +219,29 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-        Vector2 origin = _firePoint.position;
+        Vector2 origin = GetFireOrigin();
         Vector2 direction = ((Vector2)_target.position - origin).normalized;
 
         EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
         projectile.Launch(direction, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+    }
+
+    // FirePoint는 오른쪽을 바라보는 기준으로 놓여 있으므로, 왼쪽을 보고 공격 중이면 x를 뒤집는다.
+    // TransformPoint를 써서 엘리트처럼 크기가 커진 적도 같은 비율의 위치에서 나간다.
+    private Vector2 GetFireOrigin()
+    {
+        if (_firePoint == transform)
+        {
+            return transform.position;
+        }
+
+        Vector3 localPoint = _firePoint.localPosition;
+        if (_isAttackFacingLeft)
+        {
+            localPoint.x = -localPoint.x;
+        }
+
+        return transform.TransformPoint(localPoint);
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.

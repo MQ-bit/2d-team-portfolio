@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca59b7b0e87040eabf92c2366f48c21c, type: 3}
+  m_Name: 15_Discharge
+  m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
+  _combination: 15
+  _displayName: "\uBC29\uC804"
+  _description: "\uAE30\uD654 \uCC29\uD0C4 \uC704\uCE58 \uBC18\uACBD 2.5\uC5D0\uC11C
+    \uC804\uAE30 \uD53C\uD574 30\uC744 \uD55C \uBC88 \uC801\uC6A9. \uC7A5\uD310\xB7\uC794\uB958
+    \uC5C6\uC74C."
+  _elementA: 5
+  _elementB: 6
+  _inheritThrownEffectsFrom: 0
+  _targetType: 2
+  _effectRadius: 3
+  _createsFloor: 0
+  _floorDuration: 0
+  _tickInterval: 0
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _effects:
+  - _phase: 0
+    _operation: 0
+    _element: 5
+    _amount: 30
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2
+  _visualData:
+    _iconSprite: {fileID: 0}
+    _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
+    _areaColor: {r: 1, g: 1, b: 1, a: 1}
+    _areaVfxPrefab: {fileID: 0}

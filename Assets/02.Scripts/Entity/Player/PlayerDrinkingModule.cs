@@ -3,12 +3,15 @@ using UnityEngine;
 public class PlayerDrinkingModule : MonoBehaviour
 {
     [Header("Component References")]
+    [SerializeField] private PotionRunCatalog _potionRunCatalog;
     [SerializeField] private PotionEffectReceiver _effectReceiver;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
+    [SerializeField] private PlayerStatus _status;
 
     [Header("Drink Settings")]
     [SerializeField] private float _drinkDuration = 1f; //TODO: Scriptable Object로 초기화하는 로직 반영
     [SerializeField] private float _drinkTimer = 0f; //TODO: Progress를 확인하고자 SerializeField로 노출함. 디버그 끝나고 롤백시키기
+    [SerializeField] private float _thirstDecreaseAmount = 10f;
 
     public bool IsDrinking { get; private set; }
 
@@ -34,6 +37,15 @@ public class PlayerDrinkingModule : MonoBehaviour
         if (_effectReceiver == null)
         {
             _effectReceiver = GetComponent<PotionEffectReceiver>();
+        }
+        if (_status == null)
+        {
+            _status = GetComponent<PlayerStatus>();
+        }
+
+        if (_potionRunCatalog == null)
+        {
+            _potionRunCatalog = FindAnyObjectByType<PotionRunCatalog>();
         }
     }
 
@@ -63,7 +75,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         if (selectedPotion == null) return false;
 
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             return false;
         }
@@ -83,19 +95,22 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void CompleteDrink()
     {
-        if (PotionEffectResolver.FindTarget(transform) == null)
+        if (PotionEffectApplier.FindTarget(transform) == null)
         {
             ResetState();
             return;
         }
 
-        if (!_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
+        if (!_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             ResetState();
             return;
         }
 
-        PotionEffectResolver.ApplyDrinkEffect(consumedPotion, _effectReceiver); //TODO: 굳이 이 클래스를 Static으로 둘 필요가 있는지 고려. 뭔가 Receiver가 Potion효과적용 + Status Thirsty 증가 를 해줬으면 좋을지도
+        _potionRunCatalog.TryIdentify(consumedPotion);
+
+        PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
+        _status.DecreaseThirst(_thirstDecreaseAmount);
         ResetState();
     }
 

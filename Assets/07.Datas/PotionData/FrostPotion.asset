@@ -13,15 +13,69 @@ MonoBehaviour:
   m_Name: FrostPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: frost_potion
-  _displayName: 서리의 물약
+  _displayName: "\uC11C\uB9AC\uC758 \uBB3C\uC57D"
   _element: 3
-  _areaWidth: 3
-  _areaDuration: 3
-  _areaEffectAmount: 3
-  _tickInterval: 0
-  _effectDuration: 3
-  _drinkEffectAmount: 3
-  _drinkThirstRecoveryAmount: 10
+  _targetType: 2
+  _effectRadius: 3
+  _createsFloor: 1
+  _floorDuration: 4
+  _tickInterval: 1
+  _applyOnEnter: 1
+  _lifeStealRatio: 0
+  _effects:
+  - _phase: 1
+    _operation: 0
+    _element: 3
+    _amount: 5
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 3
+    _element: 3
+    _amount: 0
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 3
+    _operation: 0
+    _element: 3
+    _amount: 15
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 3
+    _operation: 2
+    _element: 3
+    _amount: 0
+    _status: 2
+    _duration: 2
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  _frost:
+    _freezeThreshold: 3
+    _moveSpeedMultipliers:
+    - 0.85
+    - 0.7
+    _freezeDuration: 2
+  _thirstDelta: -30
   _visualData:
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: 694522102, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _areaSprite: {fileID: 1626052245, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 0.2, g: 0.75, b: 1, a: 0.65}
+    _areaVfxPrefab: {fileID: 4579996185533737049, guid: ccab241b986f9ea4581506f9ba125116, type: 3}

@@ -33,7 +33,7 @@ public class ExplodingEnemyController : MonoBehaviour
     private float _fuseElapsed;
     private Color _originalColor;
 
-    private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+    private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
     // 예열이 끝나 자폭하는 순간. 체력으로 죽는 EnemyStatus.OnDeath와는 별개다.
     public event Action OnExploded;
@@ -42,7 +42,7 @@ public class ExplodingEnemyController : MonoBehaviour
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f);
+        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
 
         if (_spriteRenderer != null)
         {
@@ -112,7 +112,7 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         // 얼음/마비 중에는 이동과 예열 모두 멈춘다.
-        if (!CanAct)
+        if (!CanMove)
         {
             _movementModule.Stop();
             return;
@@ -155,7 +155,7 @@ public class ExplodingEnemyController : MonoBehaviour
             return;
         }
 
-        _movementModule.MoveTowards(targetPosition, _data.MoveSpeed);
+        _movementModule.MoveTowards(targetPosition, _status.Speed);
     }
 
     private void StartFuse()
@@ -184,7 +184,7 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         // 예열이 멈춘 동안에는 깜빡임도 멈춘다.
-        if (!CanAct)
+        if (!CanMove)
         {
             return;
         }

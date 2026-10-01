@@ -1,17 +1,19 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 {
+    [SerializeField] private PotionRunCatalog _potionRunCatalog;
+    [Header("Component References")]
+    [SerializeField] private SpriteRenderer _renderer;
+
     [Header("Item Setting")]
     [SerializeField] private PotionData _potionData;
     [SerializeField] private int _quantity = 1;
 
-
     [Header("Collect Movement Settings")]
     [SerializeField] private float _flightDuration = 0.45f;
     [SerializeField] private float _arcHeight = 1f;
-
     [SerializeField] private AnimationCurve _flightCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Failed Collection Setting")]
@@ -21,8 +23,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
     [SerializeField] private float _failedDropArcHeight = 0.75f;
     [SerializeField] private float _reactivateDelay = 1f;
-    private WaitForSeconds _waitForReactivate;
 
+    private PotionItem _nowItemData;
+
+    private WaitForSeconds _waitForReactivate;
     private Collider2D _collider;
     private Coroutine _collectionRoutine;
 
@@ -33,6 +37,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider2D>();
+        _renderer = GetComponentInChildren<SpriteRenderer>();
         _waitForReactivate = new WaitForSeconds(_reactivateDelay);
     }
     private void OnDisable()
@@ -57,6 +62,25 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         SetCollidersEnabled(true);
     }
 
+    private void Start()
+    {
+        if (_potionRunCatalog == null)
+        {
+            Debug.LogError($"{gameObject.name} : PotionRunCatalog is not assgined!");
+            enabled = false;
+            return;
+        }
+
+        if (_potionData == null)
+        {
+            Debug.LogError($"{name} : PotionData isn't assgined");
+            enabled = false;
+            return;
+        }
+        _nowItemData = _potionRunCatalog.GetPotionItemByData(_potionData);
+        _renderer.sprite = _nowItemData.BottleSprite;
+    }
+
     public bool TryCollect(IItemReceiver receiver, Transform collectTarget, float collectRadius)
     {
         if (!isActiveAndEnabled || _isCollecting || receiver == null || collectTarget == null)
@@ -70,12 +94,17 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             return false;
         }
 
+
         _originalPosition = transform.position;
         _isCollecting = true;
 
         SetCollidersEnabled(false);
 
-        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), _potionData));
+        if (_nowItemData.IsEmpty)
+        {
+            return false;
+        }
+        _collectionRoutine = StartCoroutine(CollectCoroutine(receiver, collectTarget, Mathf.Max(0f, collectRadius), _nowItemData));
 
         return true;
     }
@@ -83,7 +112,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
     // 플레이어에게 날아가는 동작을 구현하는 코루틴. 여러 코루틴이 연속적으로 수행됨.
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
-    private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionData potionData)
+    private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionItem potionItem)
     {
         yield return FlyToPlayer(collectTarget);
 
@@ -93,8 +122,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             yield break;
         }
 
-        //플레이어에게 도착한 순간 실제 인벤토리 추가를 시도
-        if (receiver.TryTakeItem(potionData, _quantity))
+        if (receiver.TryTakeItem(potionItem, _quantity))
         {
             _collectionRoutine = null;
             _isBeingDestroyed = true;

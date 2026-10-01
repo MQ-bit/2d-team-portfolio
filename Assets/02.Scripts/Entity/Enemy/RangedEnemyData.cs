@@ -10,6 +10,8 @@ public class RangedEnemyData : EnemyData
              "AttackRange와 같은 값이면 경계선에서 추적/공격이 매 프레임 반복되며 버벅거릴 수 있다.")]
     [SerializeField, Min(0f)] private float _chaseResumeBuffer = 0.5f;
     [SerializeField, Min(0f)] private float _attackCooldown = 1.5f;
+    [Tooltip("공격을 시작한 뒤 투사체가 실제로 나가기까지의 시간. 공격 애니메이션에서 투사체가 나가는 프레임에 맞춘다.")]
+    [SerializeField, Min(0f)] private float _attackFireDelay = 0.3f;
 
     [Header("Projectile")]
     [SerializeField, Min(0f)] private float _projectileSpeed = 8f;
@@ -19,6 +21,7 @@ public class RangedEnemyData : EnemyData
     public float AttackRange => _attackRange;
     public float ChaseResumeRange => _attackRange + _chaseResumeBuffer;
     public float AttackCooldown => _attackCooldown;
+    public float AttackFireDelay => _attackFireDelay;
     public float ProjectileSpeed => _projectileSpeed;
     public float ProjectileDamage => _projectileDamage;
     public float ProjectileLifetime => _projectileLifetime;

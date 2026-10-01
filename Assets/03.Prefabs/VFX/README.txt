@@ -5,6 +5,14 @@ GameVFX - 장판 스킬 이펙트 15종
 - 스케일 1 = 폭 1유닛. localScale 에 장판 지름(유닛)을 넣으면 크기가 맞습니다.
 - 속도는 SpriteSheetPlayer.fps (기본 15).
 
+[포션 장판 연결]
+- PotionData/PotionCombinationData의 Visual Data > Area Vfx Prefab에 원본 프리팹을 지정합니다.
+- PotionGroundArea는 VFXBurstField를 생성해 장판 안의 여러 위치에서 버스트를 반복 재생합니다. 바닥 이미지는 유지합니다.
+- PotionGroundArea의 Area VFX Bursts에서 개수(기본 12), 개별 크기(기본 0.4유닛), 배치 범위 비율(기본 0.85)을 조절합니다.
+- 단일 장판은 원형, 조합 장판은 실제 타원 크기와 방향을 사용합니다. 개별 VFX는 원래 비율을 유지합니다.
+- 조합 시 원본 버스트를 제거하고 조합 VFX로 교체하며, 장판이 제거되면 버스트도 함께 제거됩니다.
+- VFXFieldTestController는 테스트 씬의 프리팹 전환용으로 유지합니다. 실제 포션 장판에는 추가할 필요가 없습니다.
+
 [원본 매핑]
 생명        Super Pixel Effects Gigapack / round_sparkle_burst_002_large_green
 생명+화염   Super Pixel Effects Gigapack / round_sparkle_burst_003_large_red
