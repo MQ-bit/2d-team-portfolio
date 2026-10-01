@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,8 +29,15 @@ public class RangedEnemyController : MonoBehaviour
     private State _state = State.Idle;
     private Transform _target;
     private float _attackTimer;
+    private float _fireTimer;
+    private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
 
     private bool CanAct => _potionEffectReceiver == null || _potionEffectReceiver.CanAct;
+
+    // 공격 애니메이션 재생용. 투사체는 AttackFireDelay 뒤에 나간다.
+    public event Action OnAttackStarted;
+    // 투사체가 나가기 전에 공격이 끊긴 순간 (빙결/마비, 대상 소실)
+    public event Action OnAttackCanceled;
 
     private void Awake()
     {
@@ -99,9 +107,10 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-        // 얼음/마비 중에는 이동과 공격 모두 멈춘다.
+        // 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
         if (!CanAct)
         {
+            CancelAttack();
             _movementModule.Stop();
             return;
         }
@@ -109,6 +118,7 @@ public class RangedEnemyController : MonoBehaviour
         _target = FindPlayerInRange(_data.DetectRange);
         if (_target == null)
         {
+            CancelAttack();
             _state = State.Idle;
             _movementModule.Stop();
             return;
@@ -119,9 +129,10 @@ public class RangedEnemyController : MonoBehaviour
         // AttackRange(공격 진입)와 ChaseResumeRange(추적 복귀) 두 임계값을 분리한 히스테리시스 구간.
         // 두 값이 같으면 플레이어가 경계선에서 미세하게 움직이기만 해도 매 프레임
         // 추적<->공격 상태가 뒤바뀌며 몬스터가 제자리에서 버벅거리는(jittering) 문제가 생긴다.
+        // 이미 시작한 공격은 사거리를 벗어나도 투사체를 쏠 때까지 유지한다.
         if (_state == State.Attack)
         {
-            if (distance > _data.ChaseResumeRange)
+            if (!_isFiring && distance > _data.ChaseResumeRange)
             {
                 _state = State.Chase;
             }
@@ -151,16 +162,48 @@ public class RangedEnemyController : MonoBehaviour
         _attackTimer = 0f;
     }
 
+    // 쿨타임이 끝나면 공격을 시작하고(애니메이션), AttackFireDelay 뒤에 투사체를 쏜다.
+    // 쿨타임은 공격 시작 시점부터 잰다.
     private void UpdateAttack()
     {
         _attackTimer -= Time.fixedDeltaTime;
+
+        if (_isFiring)
+        {
+            _fireTimer -= Time.fixedDeltaTime;
+            if (_fireTimer <= 0f)
+            {
+                _isFiring = false;
+                FireProjectile();
+            }
+            return;
+        }
+
         if (_attackTimer > 0f)
         {
             return;
         }
 
-        FireProjectile();
+        StartAttack();
+    }
+
+    private void StartAttack()
+    {
+        _isFiring = true;
+        _fireTimer = _data.AttackFireDelay;
         _attackTimer = _data.AttackCooldown;
+        OnAttackStarted?.Invoke();
+    }
+
+    private void CancelAttack()
+    {
+        if (!_isFiring)
+        {
+            return;
+        }
+
+        _isFiring = false;
+        OnAttackCanceled?.Invoke();
     }
 
     private void FireProjectile()
