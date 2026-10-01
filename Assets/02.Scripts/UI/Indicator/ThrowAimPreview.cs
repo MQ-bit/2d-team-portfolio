@@ -48,7 +48,7 @@ public class ThrowAimPreview : MonoBehaviour
     public void SetOwner(GameObject owner)
     {
         _owner = owner;
-        _ownerRenderer = _owner.GetComponent<SpriteRenderer>();
+        _ownerRenderer = _owner.GetComponentInChildren<SpriteRenderer>();
     }
 
     public void Show()
