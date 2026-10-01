@@ -107,12 +107,10 @@ public class PlayerDrinkingModule : MonoBehaviour
             return;
         }
 
-
-        PotionEffectApplier.ApplyDrinkEffect(consumedPotion, _effectReceiver);
-
         _potionRunCatalog.TryIdentify(consumedPotion);
 
-      
+        PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
+        _status.DecreaseThirst(_thirstDecreaseAmount);
         ResetState();
     }
 
