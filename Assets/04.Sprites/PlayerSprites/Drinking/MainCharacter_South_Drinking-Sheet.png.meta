@@ -150,19 +150,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_0
       rect:
         serializedVersion: 2
-        x: 27
-        y: 9
-        width: 65
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 503bc36a13ee42350800000000000000
+      spriteID: 9ca0143506898404a858fc4765c4aca4
       internalID: 5991175301319406341
       vertices: []
       indices: 
@@ -172,19 +172,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_1
       rect:
         serializedVersion: 2
-        x: 155
-        y: 9
-        width: 61
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ecd3045be40bdd970800000000000000
+      spriteID: fed9496eada85414aa778810c592d4f5
       internalID: 8781368700537159118
       vertices: []
       indices: 
@@ -194,19 +194,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_2
       rect:
         serializedVersion: 2
-        x: 283
-        y: 9
-        width: 59
-        height: 112
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: cc80c55a1f4837d10800000000000000
+      spriteID: 95f37e1aa67404a4486748558e598eff
       internalID: 2122186022817892556
       vertices: []
       indices: 
@@ -216,19 +216,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_3
       rect:
         serializedVersion: 2
-        x: 411
-        y: 9
-        width: 59
-        height: 111
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f5cbe8789fd812260800000000000000
+      spriteID: 055906bc69c990c4bab79075e43a6f68
       internalID: 7071088992809040991
       vertices: []
       indices: 
@@ -238,19 +238,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_4
       rect:
         serializedVersion: 2
-        x: 539
-        y: 9
-        width: 59
-        height: 110
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 512
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: adcb239b553671330800000000000000
+      spriteID: 81ddcf5e1736d254e89918f661932cc3
       internalID: 3681520440229149914
       vertices: []
       indices: 
@@ -260,19 +260,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_5
       rect:
         serializedVersion: 2
-        x: 667
-        y: 9
-        width: 59
-        height: 110
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 640
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2e8f8fce1913930a0800000000000000
+      spriteID: b5db932febe797f4794c3f0fb3020b35
       internalID: -6901430451152815902
       vertices: []
       indices: 
@@ -282,19 +282,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_6
       rect:
         serializedVersion: 2
-        x: 795
-        y: 9
-        width: 61
-        height: 111
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 768
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3516b2c7c70b95f40800000000000000
+      spriteID: 844e3c7a9f1f13743b8335fe566d9c6b
       internalID: 5717795250629206355
       vertices: []
       indices: 
@@ -304,19 +304,19 @@ TextureImporter:
       name: MainCharacter_South_Drinking-Sheet_7
       rect:
         serializedVersion: 2
-        x: 923
-        y: 9
-        width: 65
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 896
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 13239ff5992599420800000000000000
+      spriteID: 390e40380c1ff2e4cbec003d8cf2596e
       internalID: 2637229875495776817
       vertices: []
       indices: 
@@ -326,7 +326,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5103838fb899bd54b8aaea522b3e6f9a
     internalID: 0
     vertices: []
     indices: 

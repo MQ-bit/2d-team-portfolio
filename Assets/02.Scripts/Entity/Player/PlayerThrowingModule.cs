@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerThrowingModule : MonoBehaviour
@@ -27,6 +28,10 @@ public class PlayerThrowingModule : MonoBehaviour
     private IDamageable _potionEffectOwner;
 
     public bool IsAiming { get; private set; }
+    public Vector2 AimWorldPosition => _aimWorldPosition;
+
+    // 포션을 실제로 던진 순간 (조준 취소는 포함하지 않음). 인자는 착지 목표 위치.
+    public event Action<Vector2> OnPotionThrown;
 
 
     private void Awake()
@@ -184,6 +189,7 @@ public class PlayerThrowingModule : MonoBehaviour
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
             proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
+            OnPotionThrown?.Invoke(targetPosition);
         }
     }
     private void HideAimPreview()

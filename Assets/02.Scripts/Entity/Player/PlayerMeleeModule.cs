@@ -31,6 +31,8 @@ public class PlayerMeleeModule : MonoBehaviour
     public bool IsMeleeModeActivated { get; private set; }
 
     public bool IsSwinging => Time.time < _swingEndTime;
+    public float SwingDuration => _swingDuration;
+    public Vector2 LastAttackDirection => _lastAttackDirection; // 공격 애니메이션 방향용
 
     public event Action<bool> OnMeleeModeChanged;   //UI용 이벤트
 

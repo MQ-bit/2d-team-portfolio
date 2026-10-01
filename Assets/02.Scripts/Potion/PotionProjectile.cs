@@ -22,7 +22,15 @@ public class PotionProjectile : MonoBehaviour
 
     private void Awake()
     {
-        _renderer = GetComponentInChildren<SpriteRenderer>();
+        // 자식에 그림자(Shadow) 렌더러가 먼저 있으므로, 날아가는 병인 _visual의 렌더러를 우선 쓴다.
+        if (_renderer == null && _visual != null)
+        {
+            _renderer = _visual.GetComponent<SpriteRenderer>();
+        }
+        if (_renderer == null)
+        {
+            _renderer = GetComponentInChildren<SpriteRenderer>();
+        }
         enabled = false;
     }
 

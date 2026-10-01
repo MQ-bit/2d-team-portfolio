@@ -138,19 +138,19 @@ TextureImporter:
       name: MainCharacter_West_Walking-Sheet_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 12
-        width: 80
-        height: 111
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 09d76de64095944c0800000000000000
+      spriteID: abd5bd03c26d981489da45a505edfdc5
       internalID: -4302810093401506416
       vertices: []
       indices: 
@@ -160,19 +160,19 @@ TextureImporter:
       name: MainCharacter_West_Walking-Sheet_1
       rect:
         serializedVersion: 2
-        x: 172
-        y: 15
-        width: 44
-        height: 109
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 56eff8d7a66303140800000000000000
+      spriteID: 760ddaa35fc655f4e8880206735ed4c6
       internalID: 4697314242348449381
       vertices: []
       indices: 
@@ -182,19 +182,19 @@ TextureImporter:
       name: MainCharacter_West_Walking-Sheet_2
       rect:
         serializedVersion: 2
-        x: 273
-        y: 14
-        width: 90
-        height: 108
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5d457ca73abf89bc0800000000000000
+      spriteID: f2637b40cf2ab1a469425b3768bff103
       internalID: -3775991607992036139
       vertices: []
       indices: 
@@ -204,19 +204,19 @@ TextureImporter:
       name: MainCharacter_West_Walking-Sheet_3
       rect:
         serializedVersion: 2
-        x: 423
-        y: 12
-        width: 49
-        height: 112
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 221b69caac5e7a850800000000000000
+      spriteID: d4577bb5db801d74fbae868e445b322d
       internalID: 6388327255090049314
       vertices: []
       indices: 
@@ -226,7 +226,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 62e5483c2e1c5cd4192c108eda77a465
     internalID: 0
     vertices: []
     indices: 

@@ -129,19 +129,19 @@ TextureImporter:
       name: MainCharacter_East_0
       rect:
         serializedVersion: 2
-        x: 36
-        y: 6
-        width: 45
-        height: 116
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0ee8970f1b3fd1270800000000000000
+      spriteID: 10c328913faf33e4abaf64e305b618ac
       internalID: 8222996440217652960
       vertices: []
       indices: 
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 4d3bc5007af78024db7f3f0220ffaa5e
     internalID: 0
     vertices: []
     indices: 

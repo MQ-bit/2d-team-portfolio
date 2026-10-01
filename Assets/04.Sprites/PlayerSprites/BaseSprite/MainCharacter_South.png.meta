@@ -129,19 +129,19 @@ TextureImporter:
       name: MainCharacter_South_0
       rect:
         serializedVersion: 2
-        x: 27
-        y: 9
-        width: 65
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 14798580e564c2980800000000000000
+      spriteID: e6ce5b7d7060b60499dd60ec85a825f8
       internalID: -8562391421857261759
       vertices: []
       indices: 
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 71a82b4385fa90b4a8af1d46ce65accd
     internalID: 0
     vertices: []
     indices: 

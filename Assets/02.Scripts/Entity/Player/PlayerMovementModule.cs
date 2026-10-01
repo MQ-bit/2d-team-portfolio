@@ -19,6 +19,7 @@ public class PlayerMovementModule : MonoBehaviour
     private readonly WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
 
     public bool IsDashing => _isDashing;
+    public float DashDuration => _dashDuration; // 구르기 애니메이션 길이를 대시 시간에 맞추는 용도
 
     public bool CanDash => !_isDashing && Time.time >= _nextDashAvailableTime;
 
