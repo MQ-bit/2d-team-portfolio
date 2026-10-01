@@ -10,7 +10,7 @@ namespace Entity.Inventory
 
         public PotionItem Item => _item;
         public PotionData PotionData => _item.PotionData;
-        public Sprite Sprite => _item.Sprite;
+        public Sprite Sprite => _item.BottleSprite;
         public int Quantity => _quantity;
 
         internal void SetItem(PotionItem item, int quantity)
@@ -47,7 +47,7 @@ namespace Entity.Inventory
 
         internal bool CanStackItem(PotionItem item)
         {
-            return !IsEmpty() && _item.CanStackItem(item);
+            return !IsEmpty() && _item.IsSameItem(item);
         }
 
         internal bool IsEmpty()

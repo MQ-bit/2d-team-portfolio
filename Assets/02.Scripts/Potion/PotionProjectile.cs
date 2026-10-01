@@ -1,10 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class PotionProjectile : MonoBehaviour
+public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화로 장판 제거 기능 추가
 {
     [SerializeField] private Transform _visual;
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
     [SerializeField] private PotionGroundArea _groundAreaPrefab;
+    [SerializeField] private SpriteRenderer _renderer;
+
+    private PotionItem _itemData;
+    private PotionRunCatalog _catalog;
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
@@ -13,11 +18,12 @@ public class PotionProjectile : MonoBehaviour
     private float _elapsedTime;
     private float _verticalVelocity;
     private float _gravity;
-    private PotionData _potionData;
-    private IDamageable _owner;
+    private PotionData _potionData => _itemData.PotionData;
+    private readonly List<Collider2D> _areaHits = new();
 
     private void Awake()
     {
+        _renderer = GetComponentInChildren<SpriteRenderer>();
         enabled = false;
     }
 
@@ -39,12 +45,15 @@ public class PotionProjectile : MonoBehaviour
             Land();
         }
     }
-
-    public void Launch(PotionData potionData, IDamageable owner, Vector3 targetPosition,
-        float flightDuration, float arcHeight, float rotationSpeed)
+    public void Initiate(PotionItem potionItem, PotionRunCatalog catalog)
     {
-        _potionData = potionData;
-        _owner = owner;
+        _itemData = potionItem;
+        _catalog = catalog;
+        _renderer.sprite = potionItem.BottleSprite;
+    }
+
+    public void Launch(Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
+    {
         _startPosition = transform.position;
         _targetPosition = targetPosition;
         _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -54,15 +63,6 @@ public class PotionProjectile : MonoBehaviour
         float height = Mathf.Max(0f, arcHeight);
         _gravity = 8f * height / (_flightDuration * _flightDuration);
         _verticalVelocity = 0.5f * _gravity * _flightDuration;
-
-        if (_visual != null && _potionData != null && _potionData.VisualData.PotionSprite != null)
-        {
-            SpriteRenderer visualRenderer = _visual.GetComponent<SpriteRenderer>();
-            if (visualRenderer != null)
-            {
-                visualRenderer.sprite = _potionData.VisualData.PotionSprite;
-            }
-        }
 
         enabled = true;
     }
@@ -78,20 +78,43 @@ public class PotionProjectile : MonoBehaviour
             breakEffect.Play();
         }
 
-        CreateGroundArea();
+        if (_potionData != null && _potionData.Element == PotionElement.Vaporization)
+        {
+            RemoveGroundAreas();
+        }
+        else if (_groundAreaPrefab != null)
+        {
+            PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
+            groundArea.Initialize(_potionData);
+            groundArea.Activate();
+        }
 
+        if (_catalog != null)
+        {
+            _catalog.TryIdentify(_itemData);
+        }
         Destroy(gameObject);
     }
 
-    private PotionGroundArea CreateGroundArea()
+    private void RemoveGroundAreas()
     {
-        if (_groundAreaPrefab == null || _potionData == null) return null;
+        float radius = _potionData.AreaWidth * 0.5f;
+        if (radius <= 0f) return;
 
-        PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, _targetPosition, Quaternion.identity);
-        groundArea.SetOwner(_owner);
-        groundArea.Initialize(_potionData);
-        groundArea.Activate();
-        return groundArea;
+        // Include trigger colliders regardless of the global queriesHitTriggers setting.
+        ContactFilter2D filter = new() { useTriggers = true };
+        Physics2D.OverlapCircle(_targetPosition, radius, filter, _areaHits);
+
+        foreach (Collider2D hit in _areaHits)
+        {
+            PotionGroundArea area = hit.GetComponentInParent<PotionGroundArea>();
+            if (area == null || !area.gameObject.activeSelf) continue;
+
+            // Stop collisions and periodic effects before deferred destruction.
+            area.gameObject.SetActive(false);
+            Destroy(area.gameObject);
+        }
+
+        _areaHits.Clear();
     }
-
 }
