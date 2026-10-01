@@ -2,15 +2,20 @@ using UnityEngine;
 
 // 적의 이동/피격 상태를 Animator(자식 Visual)에 전달한다. 컨트롤러 상태에 직접 접근하지 않고 관찰만 한다.
 // - 이동: FixedUpdate마다 Rigidbody2D 위치 변화로 판단 (MovePosition은 velocity를 남기지 않으므로)
-// - 방향: 가로 이동 방향에 따라 스프라이트를 좌우 반전 (에셋은 오른쪽을 바라봄)
-// - 피격: EnemyStatus.OnDamaged에서 Hurt 트리거
+// - 방향: 가로 이동 방향에 따라 스프라이트를 좌우 반전 (에셋은 오른쪽을 바라봄). 공격 중에는 공격 방향을 유지한다.
+// - 피격: EnemyStatus.OnDamaged에서 Hurt 트리거. 공격 중에는 공격 애니메이션을 끊지 않도록 무시한다.
+// - 공격(원거리): RangedEnemyController.OnAttackStarted에서 플레이어 쪽을 보고 Attack 트리거, 취소되면 Idle로 되돌린다.
 public class EnemyAnimationDriver : MonoBehaviour
 {
     private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
     private static readonly int HurtHash = Animator.StringToHash("Hurt");
+    private static readonly int AttackHash = Animator.StringToHash("Attack");
+    private static readonly int IdleStateHash = Animator.StringToHash("Idle");
+    private static readonly int AttackStateHash = Animator.StringToHash("Attack");
 
     [Header("References")]
     [SerializeField] private EnemyStatus _status;
+    [SerializeField] private RangedEnemyController _rangedController; // 원거리 적만. 없으면 공격 애니메이션을 쓰지 않는다.
     [SerializeField] private Rigidbody2D _rigid;
     [SerializeField] private Animator _animator;
     [SerializeField] private SpriteRenderer _spriteRenderer;
@@ -50,6 +55,10 @@ public class EnemyAnimationDriver : MonoBehaviour
         {
             _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+        if (_rangedController == null)
+        {
+            _rangedController = GetComponent<RangedEnemyController>();
+        }
     }
 
     private void OnEnable()
@@ -64,6 +73,11 @@ public class EnemyAnimationDriver : MonoBehaviour
         {
             _status.OnDamaged += HandleDamaged;
         }
+        if (_rangedController != null)
+        {
+            _rangedController.OnAttackStarted += HandleAttackStarted;
+            _rangedController.OnAttackCanceled += HandleAttackCanceled;
+        }
     }
 
     private void OnDisable()
@@ -71,6 +85,11 @@ public class EnemyAnimationDriver : MonoBehaviour
         if (_status != null)
         {
             _status.OnDamaged -= HandleDamaged;
+        }
+        if (_rangedController != null)
+        {
+            _rangedController.OnAttackStarted -= HandleAttackStarted;
+            _rangedController.OnAttackCanceled -= HandleAttackCanceled;
         }
     }
 
@@ -88,7 +107,8 @@ public class EnemyAnimationDriver : MonoBehaviour
         float speed = delta.magnitude / Time.fixedDeltaTime;
         _animator.SetBool(IsMovingHash, speed > _moveThreshold);
 
-        if (_spriteRenderer != null && Mathf.Abs(delta.x) > 0.0001f)
+        // 공격 중 넉백으로 밀려도 공격하던 방향을 유지한다.
+        if (_spriteRenderer != null && Mathf.Abs(delta.x) > 0.0001f && !IsPlayingAttack())
         {
             _spriteRenderer.flipX = delta.x < 0f;
         }
@@ -96,11 +116,64 @@ public class EnemyAnimationDriver : MonoBehaviour
 
     private void HandleDamaged()
     {
-        if (_animator == null)
+        if (_animator == null || IsPlayingAttack())
         {
             return;
         }
 
         _animator.SetTrigger(HurtHash);
+    }
+
+    private void HandleAttackStarted(bool isFacingLeft)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.flipX = isFacingLeft;
+        }
+
+        _animator.SetTrigger(AttackHash);
+    }
+
+    // 투사체를 쏘기 전(컨트롤러 기준)이거나 공격 애니메이션을 재생/진입 중이면 공격 중으로 본다.
+    private bool IsPlayingAttack()
+    {
+        if (_rangedController == null)
+        {
+            return false;
+        }
+
+        if (_rangedController.IsAttacking)
+        {
+            return true;
+        }
+
+        if (_animator == null)
+        {
+            return false;
+        }
+
+        if (_animator.GetCurrentAnimatorStateInfo(0).shortNameHash == AttackStateHash)
+        {
+            return true;
+        }
+
+        return _animator.IsInTransition(0)
+            && _animator.GetNextAnimatorStateInfo(0).shortNameHash == AttackStateHash;
+    }
+
+    private void HandleAttackCanceled()
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.ResetTrigger(AttackHash);
+        _animator.Play(IdleStateHash, 0, 0f);
     }
 }
