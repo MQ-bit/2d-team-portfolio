@@ -1,5 +1,4 @@
 using UnityEngine;
-using Entity.Inventory;
 
 public class PlayerThrowingModule : MonoBehaviour
 {
@@ -8,6 +7,11 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private Transform _throwPoint;
     [SerializeField] private PlayerStatus _status;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
+
+    [Header("Potion Catalog Setting")]
+    [SerializeField] private PotionRunCatalog _potionRunCatalog;
+    [SerializeField] private Color _defaultAreaColor = Color.white;
+    [SerializeField] private float _defaultAreaWidth = 1f;
 
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
@@ -59,6 +63,14 @@ public class PlayerThrowingModule : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (_potionRunCatalog == null)
+        {
+            _potionRunCatalog = FindAnyObjectByType<PotionRunCatalog>();
+        }
+    }
+
     public void BeginAim(Vector2 screenPosition)
     {
         if (_inventoryModule.SelectedPotion == null) return;
@@ -72,12 +84,14 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void UpdateAim(Vector2 screenPosition)
     {
-        if (!IsAiming || _worldCamera == null)
+        if (!IsAiming || _worldCamera == null || _potionRunCatalog == null)
         {
             return;
         }
 
-        if (_inventoryModule.SelectedPotion == null)
+        PotionItem selectedPotionItem = _inventoryModule.SelectedPotionItem;
+
+        if (selectedPotionItem.IsEmpty)
         {
             CancelAim();
             return;
@@ -90,9 +104,14 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
 
-        PotionData selectedPotion = _inventoryModule.SelectedPotion;
+        PotionData selectedPotion = selectedPotionItem.PotionData;
+        bool identified = _potionRunCatalog.IsIdentified(selectedPotion);
+
+        Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
+        float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
+
         _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.AreaWidth);
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, selectedPotion);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
@@ -147,11 +166,18 @@ public class PlayerThrowingModule : MonoBehaviour
             return;
         }
 
-        if (_inventoryModule.TryConsumeSelectedPotion(out PotionData consumedPotion))
+        if (_potionRunCatalog == null)
+        {
+            Debug.LogError("Potion Catalog is not assgined.");
+            return;
+        }
+
+        if (_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
-            proj.Launch(consumedPotion, targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
+            proj.Initiate(consumedPotion, _potionRunCatalog);
+            proj.Launch(targetPosition, _throwSpeed, _arcHeight, _rotationSpeed);
         }
     }
     private void HideAimPreview()

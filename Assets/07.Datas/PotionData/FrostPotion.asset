@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FrostPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: frost_potion
-  _displayName: 서리의 물약
+  _displayName: "\uC11C\uB9AC\uC758 \uBB3C\uC57D"
   _element: 3
   _areaWidth: 3
   _areaDuration: 3
@@ -23,5 +23,5 @@ MonoBehaviour:
   _drinkEffectAmount: 3
   _drinkThirstRecoveryAmount: 10
   _visualData:
-    _potionSprite: {fileID: 0}
+    _iconSprite: {fileID: 694522102, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaColor: {r: 0.2, g: 0.75, b: 1, a: 0.65}

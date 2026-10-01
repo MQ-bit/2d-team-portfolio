@@ -264,6 +264,7 @@ MonoBehaviour:
   _inventoryModule: {fileID: 6544000177656053045}
   _drinkingModule: {fileID: 6935868058329909207}
   _meleeModule: {fileID: 4706277357270954568}
+  _playerStatus: {fileID: 0}
 --- !u!114 &8625112247451139820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,6 +281,9 @@ MonoBehaviour:
   _throwPoint: {fileID: 2905248735513423768}
   _status: {fileID: 0}
   _inventoryModule: {fileID: 0}
+  _potionRunCatalog: {fileID: 0}
+  _defaultAreaColor: {r: 1, g: 1, b: 1, a: 1}
+  _defaultAreaWidth: 1
   _aimPreviewPrefab: {fileID: 6581337394013715911, guid: f6810065176599a49b79d855659d051c, type: 3}
   _arcHeight: 1.5
   _throwSpeed: 0.5
@@ -298,11 +302,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Entity.Inventory.EntityInventory
   _inventorySlots:
-  - _data: {fileID: 0}
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
     _quantity: 0
-  - _data: {fileID: 0}
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
     _quantity: 0
-  _maxSlotSize: 2
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
+    _quantity: 0
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
+    _quantity: 0
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
+    _quantity: 0
+  - _item:
+      _effectData: {fileID: 0}
+      _bottleSprite: {fileID: 0}
+    _quantity: 0
+  _maxSlotSize: 6
 --- !u!114 &6544000177656053045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,6 +366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d15d6c41dbf0d6458778707dac554df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDrinkingModule
+  _potionRunCatalog: {fileID: 0}
   _effectReceiver: {fileID: 910000000000000003}
   _inventoryModule: {fileID: 6544000177656053045}
   _status: {fileID: 0}

@@ -6,6 +6,10 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
     [SerializeField] private Transform _visual;
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
     [SerializeField] private PotionGroundArea _groundAreaPrefab;
+    [SerializeField] private SpriteRenderer _renderer;
+
+    private PotionItem _itemData;
+    private PotionRunCatalog _catalog;
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
@@ -14,11 +18,12 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
     private float _elapsedTime;
     private float _verticalVelocity;
     private float _gravity;
-    private PotionData _potionData;
+    private PotionData _potionData => _itemData.PotionData;
     private readonly List<Collider2D> _areaHits = new();
 
     private void Awake()
     {
+        _renderer = GetComponentInChildren<SpriteRenderer>();
         enabled = false;
     }
 
@@ -40,10 +45,15 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
             Land();
         }
     }
-
-    public void Launch(PotionData potionData, Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
+    public void Initiate(PotionItem potionItem, PotionRunCatalog catalog)
     {
-        _potionData = potionData;
+        _itemData = potionItem;
+        _catalog = catalog;
+        _renderer.sprite = potionItem.BottleSprite;
+    }
+
+    public void Launch(Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
+    {
         _startPosition = transform.position;
         _targetPosition = targetPosition;
         _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -53,15 +63,6 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
         float height = Mathf.Max(0f, arcHeight);
         _gravity = 8f * height / (_flightDuration * _flightDuration);
         _verticalVelocity = 0.5f * _gravity * _flightDuration;
-
-        if (_visual != null && _potionData != null && _potionData.VisualData.PotionSprite != null)
-        {
-            SpriteRenderer visualRenderer = _visual.GetComponent<SpriteRenderer>();
-            if (visualRenderer != null)
-            {
-                visualRenderer.sprite = _potionData.VisualData.PotionSprite;
-            }
-        }
 
         enabled = true;
     }
@@ -88,6 +89,10 @@ public class PotionProjectile : MonoBehaviour  //  장판 생성 또는 기화�
             groundArea.Activate();
         }
 
+        if (_catalog != null)
+        {
+            _catalog.TryIdentify(_itemData);
+        }
         Destroy(gameObject);
     }
 
