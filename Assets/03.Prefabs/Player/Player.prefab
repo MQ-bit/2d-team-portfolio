@@ -286,7 +286,7 @@ MonoBehaviour:
   _defaultAreaWidth: 1
   _aimPreviewPrefab: {fileID: 6581337394013715911, guid: f6810065176599a49b79d855659d051c, type: 3}
   _arcHeight: 1.5
-  _throwSpeed: 8
+  _throwDuration: 1
   _rotationSpeed: 360
   _potionPrefab: {fileID: 5114251214697153630, guid: c73c22f1a5e5ce04f923eeec473560d3, type: 3}
 --- !u!114 &7774034623503532432
@@ -353,7 +353,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionEffectReceiver
   _targetKind: 0
-  _playerStatus: {fileID: 409094873972115548}
 --- !u!114 &6935868058329909207
 MonoBehaviour:
   m_ObjectHideFlags: 0
