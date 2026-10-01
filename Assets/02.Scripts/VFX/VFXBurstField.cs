@@ -29,6 +29,7 @@ public class VFXBurstField : MonoBehaviour
     private readonly List<Burst> _bursts = new();
     private Sprite[] _sprites;
     private float _fps;
+    private SpriteRenderer _sortingRenderer;
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
@@ -40,7 +41,7 @@ public class VFXBurstField : MonoBehaviour
 
     private void Start()
     {
-        if (_vfxPrefab != null)
+        if (_vfxPrefab != null && _sprites == null)
         {
             SetVfx(_vfxPrefab);
         }
@@ -62,6 +63,18 @@ public class VFXBurstField : MonoBehaviour
         color.a = _groundColor.a;
         _groundColor = color;
         ApplyGround();
+    }
+
+    // 포션이 관리하는 바닥은 그대로 두고, 버스트 배치 범위와 표시 순서만 설정한다.
+    public void ConfigureArea(float width, float height, SpriteRenderer sortingRenderer,
+        int burstCount, float burstSize, float spawnAreaRatio)
+    {
+        _width = Mathf.Max(0.1f, width);
+        _heightRatio = Mathf.Clamp(height / _width, 0.001f, 1f);
+        _sortingRenderer = sortingRenderer;
+        _burstCount = Mathf.Max(1, burstCount);
+        _burstSize = Mathf.Max(0.05f, burstSize);
+        _spawnAreaRatio = Mathf.Clamp01(spawnAreaRatio);
     }
 
     public void SetVfx(GameObject vfxPrefab)
@@ -159,8 +172,9 @@ public class VFXBurstField : MonoBehaviour
         burst.Renderer.flipX = Random.value < 0.5f;
 
         // 아래쪽(앞쪽) 버스트가 위에 그려지도록 y 기준으로 정렬한다.
-        int baseOrder = _groundRenderer != null ? _groundRenderer.sortingOrder : 0;
-        burst.Renderer.sortingLayerID = _groundRenderer != null ? _groundRenderer.sortingLayerID : 0;
+        SpriteRenderer sortingRenderer = _sortingRenderer != null ? _sortingRenderer : _groundRenderer;
+        int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
+        burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
         burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
     }
 
