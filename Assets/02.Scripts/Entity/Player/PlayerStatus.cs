@@ -30,7 +30,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     // Receiver는 상태값을 제공하고, 플레이어의 최종 이동 속도는 여기서 결정한다.
     private bool HasPotionMovementEffect => _potionEffectReceiver != null && _potionEffectReceiver.isActiveAndEnabled;
-    public bool CanMove => !HasPotionMovementEffect || _potionEffectReceiver.CanMove;
+    public bool CanMove => !IsDead && (!HasPotionMovementEffect || _potionEffectReceiver.CanMove);
     public float Speed => !CanMove ? 0f : _speed * (HasPotionMovementEffect ? _potionEffectReceiver.MoveSpeedMultiplier : 1f);
     // 둔화는 대시에 적용하지 않고, 빙결/마비에 의한 정지만 반영
     public float DashSpeed => CanMove ? _dashSpeed : 0f;
@@ -46,6 +46,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public event Action<float, float> OnThirstChanged; //current, max
     public event Action<float, float> OnHealthChanged; //current, max
     public event Action OnDeath;
+    //public event Action OnRevive;
 
     private void Awake()
     {
@@ -79,11 +80,14 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     public void DecreaseHealth(float amount)
     {
+        if (IsDead) return;
+
         _healthInstance.DecreaseHealth(amount);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
 
         if (_healthInstance.IsDead)
         {
+            Death();
             OnDeath?.Invoke();
         }
     }
@@ -97,8 +101,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     public void DecreaseThirst(float amount)
     {
+        if (IsDead) return;
+
         _thirstInstance.DecreaseThirst(amount);
 
         OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+    }
+
+    private void Death()
+    {
+
     }
 }

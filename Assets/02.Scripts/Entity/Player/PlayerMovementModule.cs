@@ -25,8 +25,34 @@ public class PlayerMovementModule : MonoBehaviour
 
     public event Action<float> OnDashStarted;
 
+
+    private void Awake()
+    {
+        if (_playerStatus == null)
+        {
+            _playerStatus = GetComponent<PlayerStatus>();
+        }
+
+        if (_rigid == null)
+        {
+            _rigid = GetComponent<Rigidbody2D>();
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (_playerStatus != null)
+        {
+            _playerStatus.OnDeath += HandleDeath;
+        }
+    }
+
     private void OnDisable()
     {
+        if (_playerStatus != null)
+        {
+            _playerStatus.OnDeath -= HandleDeath;
+        }
         CancelDash();
     }
 
@@ -92,5 +118,14 @@ public class PlayerMovementModule : MonoBehaviour
     {
         _dashCoroutine = null;
         _isDashing = false;
+    }
+
+    private void HandleDeath()
+    {
+        CancelDash();
+        if (_rigid != null)
+        {
+            _rigid.linearVelocity = Vector2.zero;
+        }
     }
 }

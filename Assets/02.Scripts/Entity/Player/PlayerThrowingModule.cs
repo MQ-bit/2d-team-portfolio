@@ -40,6 +40,22 @@ public class PlayerThrowingModule : MonoBehaviour
         InitiateAimPreview();
     }
 
+    private void OnEnable()
+    {
+        if (_status != null)
+        {
+            _status.OnDeath += HandleDeath;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_status != null)
+        {
+            _status.OnDeath -= HandleDeath;
+        }
+    }
+
     private void InitiateAimPreview()
     {
         if (_worldCamera == null)
@@ -82,7 +98,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void BeginAim(Vector2 screenPosition)
     {
-        if (_inventoryModule.SelectedPotion == null) return;
+        if (_inventoryModule.SelectedPotion == null || _status.IsDead) return;
 
         IsAiming = true;
         _aimPreviewInstance.Show();
@@ -125,7 +141,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void ReleaseThrow(Vector2 screenPosition)
     {
-        if (!IsAiming)
+        if (!IsAiming || _status.IsDead)
         {
             return;
         }
@@ -195,5 +211,10 @@ public class PlayerThrowingModule : MonoBehaviour
     private void HideAimPreview()
     {
         _aimPreviewInstance.Hide();
+    }
+
+    private void HandleDeath()
+    {
+        CancelAim();
     }
 }
