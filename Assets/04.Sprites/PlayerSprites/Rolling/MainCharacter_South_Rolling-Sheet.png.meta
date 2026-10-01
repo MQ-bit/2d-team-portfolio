@@ -150,19 +150,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_0
       rect:
         serializedVersion: 2
-        x: 32
-        y: 9
-        width: 60
-        height: 103
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 49d0857fb300a3a80800000000000000
+      spriteID: 814a3ca0baaf1fe449e8ef5a0d1a3a54
       internalID: -8486470290273464940
       vertices: []
       indices: 
@@ -172,19 +172,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_1
       rect:
         serializedVersion: 2
-        x: 160
-        y: 10
-        width: 60
-        height: 73
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3b6989dda4a287990800000000000000
+      spriteID: 198e911c6d1997c439bf9c9c8d325c0d
       internalID: -7388108687667587405
       vertices: []
       indices: 
@@ -194,19 +194,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_2
       rect:
         serializedVersion: 2
-        x: 275
-        y: 17
-        width: 73
-        height: 60
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 256
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 822b9827781b479a0800000000000000
+      spriteID: fc9f7d7abbb93924bbf89cf4c016eca8
       internalID: -6236164388700966360
       vertices: []
       indices: 
@@ -216,19 +216,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_3
       rect:
         serializedVersion: 2
-        x: 419
-        y: 16
-        width: 63
-        height: 65
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6b15268d077854fc0800000000000000
+      spriteID: dd5f41a4edab8ab41bdb3e01d63f6ac4
       internalID: -3511251415729024586
       vertices: []
       indices: 
@@ -238,19 +238,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_4
       rect:
         serializedVersion: 2
-        x: 548
-        y: 18
-        width: 73
-        height: 54
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 512
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e8d7563ec9f86e860800000000000000
+      spriteID: 89fd9a10cba28674dbb8aa7d524531c5
       internalID: 7558886928580705678
       vertices: []
       indices: 
@@ -260,19 +260,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_5
       rect:
         serializedVersion: 2
-        x: 675
-        y: 10
-        width: 66
-        height: 65
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 640
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b6adb590950989410800000000000000
+      spriteID: a0498669206a3ec45b07933bd3238729
       internalID: 1484094789302082155
       vertices: []
       indices: 
@@ -282,19 +282,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_6
       rect:
         serializedVersion: 2
-        x: 797
-        y: 7
-        width: 76
-        height: 72
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 768
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3b91500f13784e120800000000000000
+      spriteID: f9b28900c98d0254c868246297dd5d2f
       internalID: 2442225546491664819
       vertices: []
       indices: 
@@ -304,19 +304,19 @@ TextureImporter:
       name: MainCharacter_South_Rolling-Sheet_7
       rect:
         serializedVersion: 2
-        x: 920
-        y: 11
-        width: 73
-        height: 106
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 896
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 44b32f5dc2a000310800000000000000
+      spriteID: 399e29b836ea9384083ad3e95969c2e6
       internalID: 1369105474404891460
       vertices: []
       indices: 
@@ -326,7 +326,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 4ed1b7985c1e430468a6cb6b11f591a0
     internalID: 0
     vertices: []
     indices: 

@@ -138,19 +138,19 @@ TextureImporter:
       name: MainCharacter_South_Walking-Sheet_0
       rect:
         serializedVersion: 2
-        x: 39
-        y: 7
-        width: 51
-        height: 115
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6d0b075c0361fc460800000000000000
+      spriteID: a9cbd25e324e00647a98d10ce69cd5f5
       internalID: 7264049122698637526
       vertices: []
       indices: 
@@ -160,19 +160,19 @@ TextureImporter:
       name: MainCharacter_South_Walking-Sheet_1
       rect:
         serializedVersion: 2
-        x: 162
-        y: 12
-        width: 57
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 128
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0bd47707822de48c0800000000000000
+      spriteID: ba6cf9bbc85f45045b96f211110cefc1
       internalID: -4013039146813141584
       vertices: []
       indices: 
@@ -182,19 +182,19 @@ TextureImporter:
       name: MainCharacter_South_Walking-Sheet_2
       rect:
         serializedVersion: 2
-        x: 288
+        x: 256
         y: 0
-        width: 55
-        height: 122
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 4f7d5d89abbd807f0800000000000000
+      spriteID: fbae9b2cef0507e4886313a9872e2e5f
       internalID: -646024952053114892
       vertices: []
       indices: 
@@ -204,19 +204,19 @@ TextureImporter:
       name: MainCharacter_South_Walking-Sheet_3
       rect:
         serializedVersion: 2
-        x: 413
-        y: 9
-        width: 61
-        height: 117
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 384
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d0d1e6319b8d0bd20800000000000000
+      spriteID: 61fb4bf6b25e73a4296b0cbafe2ad0ce
       internalID: 3292369617014365453
       vertices: []
       indices: 
@@ -226,7 +226,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2df99618b0d51814d8787c6a806348ad
     internalID: 0
     vertices: []
     indices: 

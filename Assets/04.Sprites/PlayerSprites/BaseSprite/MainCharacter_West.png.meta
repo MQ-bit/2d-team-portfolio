@@ -129,19 +129,19 @@ TextureImporter:
       name: MainCharacter_West_0
       rect:
         serializedVersion: 2
-        x: 44
-        y: 7
-        width: 47
-        height: 115
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 128
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 9289a41cd6afae0b0800000000000000
+      spriteID: 9ef1259abfc5fe9448838123e106d4f8
       internalID: -5698467029182670807
       vertices: []
       indices: 
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: c58a55610661aea40b995f484d6fe779
     internalID: 0
     vertices: []
     indices: 

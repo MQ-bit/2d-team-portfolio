@@ -112,7 +112,7 @@ public class RangedEnemyController : MonoBehaviour
             return;
         }
 
-// 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
+        // 얼음/마비 중에는 이동과 공격 모두 멈춘다. 준비 중이던 공격은 취소한다.
         if (!CanMove)
         {
             CancelAttack();

@@ -99162,10 +99162,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3045028924572124315, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
     - target: {fileID: 3612528117417103380, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12
@@ -99206,14 +99202,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5191022963631811781, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: m_Camera
-      value: 
-      objectReference: {fileID: 1271768382}
+    - target: {fileID: 3045028924572124315, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+      propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 8625112247451139820, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: _potionRunCatalog
       value: 
       objectReference: {fileID: 548613709}
+    - target: {fileID: 5191022963631811781, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1271768382}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
