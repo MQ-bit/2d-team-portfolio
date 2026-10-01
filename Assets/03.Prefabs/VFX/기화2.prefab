@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &133403889251271510
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6335093378471185773}
+  - component: {fileID: 2644425383195600339}
+  - component: {fileID: 1271007019112103514}
+  m_Layer: 0
+  m_Name: "\uAE30\uD6542"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6335093378471185773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133403889251271510}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &2644425383195600339
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133403889251271510}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &1271007019112103514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133403889251271510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc263547b503a4c4d91ffdebc54768ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteSheetPlayer
+  sheet: {fileID: 0}
+  row: 0
+  cellSize: 64
+  frames:
+  - {fileID: 2800000, guid: 1d041c91cb1e4b1bbbfeec5b300141ad, type: 3}
+  - {fileID: 2800000, guid: 5001987af7f54275a654d004df333106, type: 3}
+  - {fileID: 2800000, guid: cfa70e9b8dd44ab397c28617eac6271f, type: 3}
+  - {fileID: 2800000, guid: 6c3a2609f568415eb246789ee052e76c, type: 3}
+  - {fileID: 2800000, guid: 37300ecee58e49e59f043a48ee6d53dd, type: 3}
+  - {fileID: 2800000, guid: d70274f6db1949e2ba7d2a5b8a65da06, type: 3}
+  - {fileID: 2800000, guid: 3d092cb211d5435c9c8720df0106f874, type: 3}
+  - {fileID: 2800000, guid: de935b4277c9446db08353da6d98e9e2, type: 3}
+  - {fileID: 2800000, guid: 551aad0c005e46acaee23f1470bb4aaa, type: 3}
+  - {fileID: 2800000, guid: 8b847a8268ad408794a1d542f5378e45, type: 3}
+  - {fileID: 2800000, guid: 644487b704bc4b9cba15734cbeb4ac71, type: 3}
+  - {fileID: 2800000, guid: 18e3ca4c3c5547d89e07e107ecd7f014, type: 3}
+  - {fileID: 2800000, guid: f6683288608c49ed8a59d1df61c29e8f, type: 3}
+  - {fileID: 2800000, guid: f7546fc9eb3348139dab722b551b8bd2, type: 3}
+  - {fileID: 2800000, guid: 82fdf115665f4362881fb6daafec71f6, type: 3}
+  - {fileID: 2800000, guid: 4fa9550a593e40c3ac21210276be20e1, type: 3}
+  - {fileID: 2800000, guid: d5ff5aab0f9d4408ab4597327afdc022, type: 3}
+  - {fileID: 2800000, guid: f162ef3bc7084a5f8c60dd67934bb4fe, type: 3}
+  - {fileID: 2800000, guid: b2af35f48dad43f795f3ece67d7545ec, type: 3}
+  - {fileID: 2800000, guid: c6d9fe8066474f518d55176307c6f8e4, type: 3}
+  - {fileID: 2800000, guid: 551c81db0bbc416ba29d98ac5ee885b6, type: 3}
+  fps: 15
+  pixelsPerUnit: 64
+  timeOffset: 0
+  burstCount: 30
+  burstSize: 0.4
+  sizeJitter: 0.3
+  spawnAreaRatio: 0.85
+  fillArea: 0
+  fillScale: 1
+  playOnce: 0

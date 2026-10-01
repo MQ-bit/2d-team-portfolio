@@ -1,4 +1,4 @@
-GameVFX - 장판 스킬 이펙트 15종
+GameVFX - 장판 스킬 이펙트 19종
 
 [사용법]
 - 03.Prefabs/VFX/ 의 프리팹을 (텍스처: 04.Sprites/VFX, 스크립트: 02.Scripts/VFX/SpriteSheetPlayer.cs) 장판 오브젝트의 자식으로 넣으면 장판이 켜져 있는 동안 루프 재생됩니다.
@@ -8,7 +8,10 @@ GameVFX - 장판 스킬 이펙트 15종
 [포션 장판 연결]
 - PotionData/PotionCombinationData의 Visual Data > Area Vfx Prefab에 원본 프리팹을 지정합니다.
 - PotionGroundArea는 VFXBurstField를 생성해 장판 안의 여러 위치에서 버스트를 반복 재생합니다. 바닥 이미지는 유지합니다.
-- PotionGroundArea의 Area VFX Bursts에서 개수(기본 12), 개별 크기(기본 0.4유닛), 배치 범위 비율(기본 0.85)을 조절합니다.
+- 버스트 개수(기본 12), 개별 크기(기본 0.4유닛), 크기 랜덤폭(기본 0.3), 배치 범위 비율(기본 0.85)은
+  각 VFX 프리팹의 SpriteSheetPlayer > 장판 버스트 에서 VFX마다 따로 조절합니다. (테스트 씬과 실제 장판 공통)
+- fillArea: 크기를 장판 폭 x fillScale 로 정함. burstCount 1이면 중앙 고정 (화염+서리, 화염+전기, 독+서리).
+- playOnce: 처음에 전부 한꺼번에 터지고 다시 생성하지 않음 (기화1).
 - 단일 장판은 원형, 조합 장판은 실제 타원 크기와 방향을 사용합니다. 개별 VFX는 원래 비율을 유지합니다.
 - 조합 시 원본 버스트를 제거하고 조합 VFX로 교체하며, 장판이 제거되면 버스트도 함께 제거됩니다.
 - VFXFieldTestController는 테스트 씬의 프리팹 전환용으로 유지합니다. 실제 포션 장판에는 추가할 필요가 없습니다.
@@ -29,6 +32,10 @@ GameVFX - 장판 스킬 이펙트 15종
 서리        Effect and FX Pixel / Part 11 / 529.png row 2
 서리+전기   Effect and FX Pixel / Part 13 / 623.png row 5
 전기        Super Pixel Effects Gigapack / lightning_burst_002_large_violet
+기화1       Effect and FX Pixel / Part 1 / 25.png row 5
+기화2       Super Pixel Effects Gigapack / directional_smoke_burst_001_large_white
+회복2       Super Pixel Effects Gigapack / status_sparkling_001_large_yellow
+회복1       Super Pixel Effects Gigapack / round_sparkle_burst_002_large_green (뒤쪽 절반 9/18프레임)
 
 [라이선스 / 크레딧]
 - Super Pixel Effects Gigapack: 게임에 포함 OK(상업 포함), 크레딧 표기 필요.
