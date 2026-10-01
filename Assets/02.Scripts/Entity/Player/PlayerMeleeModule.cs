@@ -42,6 +42,14 @@ public class PlayerMeleeModule : MonoBehaviour
         _currentAttackTime = 0f;
     }
 
+    private void OnEnable()
+    {
+        if (_status != null)
+        {
+            _status.OnDeath += HandleDeath;
+        }
+    }
+
     private void Start()
     {
         if (_attackIndicator == null)
@@ -80,8 +88,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
     private void OnDisable()
     {
-        CancelSwing();
-        SetMeleeMode(false);
+        if (_status != null)
+        {
+            _status.OnDeath -= HandleDeath;
+        }
+        HandleDeath(); //비활성화 처리 로직이 HandleDeath때와 똑같음.
     }
 
     public bool CanAttack()
@@ -93,7 +104,7 @@ public class PlayerMeleeModule : MonoBehaviour
 
     public bool TryToggleMeleeMode()
     {
-        if (IsSwinging)
+        if (IsSwinging || _status.IsDead)
         {
             return false;
         }
@@ -264,5 +275,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
         Vector2 direction = GetAttackDirection(mousePosition);
         _attackIndicator.Draw(_attackOrigin.position, direction);
+    }
+
+    private void HandleDeath()
+    {
+        CancelSwing();
+        SetMeleeMode(false);
     }
 }

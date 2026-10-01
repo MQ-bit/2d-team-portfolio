@@ -2819,22 +2819,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _initHealth
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _healthInstance._maxHealth
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _thirstInstance._maxThirst
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _initThirstIncreaseInterval
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 3045028924572124315, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_Name
       value: Player
@@ -2879,26 +2863,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4706277357270954568, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _attackRange
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 5191022963631811781, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1734781427}
-    - target: {fileID: 8202211321121358976, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: m_SortingLayer
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8202211321121358976, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: m_SortingLayerID
-      value: 1831432877
-      objectReference: {fileID: 0}
-    - target: {fileID: 8625112247451139820, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _defaultAreaWidth
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 8625112247451139820, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: _potionRunCatalog
       value: 
