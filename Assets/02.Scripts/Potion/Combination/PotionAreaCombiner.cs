@@ -3,22 +3,35 @@ using UnityEngine;
 
 public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
-    private const float VaporizationMultiplier = 1.2f;
     [SerializeField] private PotionCombinationDatabase _database;
     [SerializeField] private PotionCombinedAreaShape _combinedAreaShape;
 
     private readonly List<Collider2D> _overlaps = new();
     private PotionAreaController _areaController;
+    private PotionAreaVaporizer _vaporizer;
     private bool _registered;
     private PotionAreaController _combinedPrimary;
     private PotionAreaController _combinedPartner;
     private bool _vaporized;
 
     public bool IsCombined { get; private set; }
+    internal bool CanVaporize => _registered && !_vaporized;
+    internal PotionAreaController PrimaryArea => _combinedPrimary != null
+        ? _combinedPrimary : _areaController;
+    internal PotionAreaController PartnerArea => _combinedPartner;
+    internal Collider2D ReactionCollider => IsCombined
+        ? _combinedAreaShape.CombinationCollider : _areaController.AreaCollider;
+
+    internal void MarkVaporized()
+    {
+        _vaporized = true;
+        IsCombined = true;
+    }
 
     private void Awake()
     {
         _areaController = GetComponent<PotionAreaController>();
+        _vaporizer = new PotionAreaVaporizer(_areaController, this);
         if (_combinedAreaShape == null)
         {
             _combinedAreaShape = GetComponent<PotionCombinedAreaShape>();
@@ -77,12 +90,10 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             return false;
         }
 
-        // Vaporization consumes a surface, including an already combined one,
-        // before the usual two-potion combination restrictions are checked.
         if (!IsCombined && _areaController.Data.Element == PotionElement.Vaporization && other.Data.CreatesFloor)
-            return Vaporize(otherCombiner);
+            return _vaporizer.VaporizeOverlappingSurfaces();
         if (!otherCombiner.IsCombined && other.Data.Element == PotionElement.Vaporization && _areaController.Data.CreatesFloor)
-            return otherCombiner.Vaporize(this);
+            return otherCombiner._vaporizer.VaporizeOverlappingSurfaces();
         if (IsCombined || otherCombiner.IsCombined) return false;
 
         PotionCombinationDatabase database = _database != null ? _database : otherCombiner._database;
@@ -94,8 +105,6 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         if (data.CreatesFloor || data.InheritThrownEffectsFrom != PotionElement.None)
         {
-            // Single surfaces are 2:1 ellipses. A circular broad-phase overlap alone
-            // must not start a visible reaction across an empty vertical gap.
             Vector2 delta = other.AreaCollider.bounds.center - _areaController.AreaCollider.bounds.center;
             delta.y *= 2f;
             if (delta.magnitude > _areaController.AreaCollider.bounds.extents.x + other.AreaCollider.bounds.extents.x)
@@ -139,78 +148,6 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         _areaController.SetExpiration(expiresAt);
         other.SetExpiration(expiresAt);
         return true;
-    }
-
-    private bool Vaporize(PotionAreaCombiner surface)
-    {
-        PotionAreaController primary = surface._combinedPrimary != null
-            ? surface._combinedPrimary : surface._areaController;
-        if (primary == null || !primary.gameObject.activeInHierarchy) return false;
-        PotionAreaCombiner primaryCombiner = primary.GetComponent<PotionAreaCombiner>();
-        if (primaryCombiner == null || primaryCombiner._vaporized || primary.RemainingDuration <= 0f)
-            return false;
-
-        Collider2D effectCollider = primaryCombiner.IsCombined
-            ? primaryCombiner._combinedAreaShape.CombinationCollider : primary.AreaCollider;
-        if (effectCollider == null || !effectCollider.enabled) return false;
-
-        IPotionEffectData profile = primary.AreaEffect.ActiveProfile;
-        var effects = PotionAreaEffectTracker.GetRemainingEffects(profile,
-            primary.RemainingDuration, VaporizationMultiplier);
-        PotionEffectSource source = primary.AreaEffect.ActiveSource;
-        // A newly landed floor may react before its single profile is activated.
-        if (source.SourceId == 0)
-        {
-            source = new PotionEffectSource(primary.AreaEffect.GetInstanceID(), primary.Data,
-                owner: primary.Owner, lifeStealRatio: profile.LifeStealRatio);
-        }
-
-        Physics2D.SyncTransforms();
-        var hits = new List<Collider2D>();
-        effectCollider.Overlap(new ContactFilter2D { useTriggers = false }, hits);
-        var targets = new HashSet<IPotionEffectTarget>();
-        foreach (Collider2D hit in hits)
-        {
-            IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
-            if (PotionEffectApplier.CanAffect(profile.TargetType, target)) targets.Add(target);
-        }
-
-        // Claim all participants before callbacks, so the shared collider cannot
-        // consume the same combination twice through either original lobe.
-        PotionVaporizationReactionVfx.Spawn(_areaController.Data.VaporizationSettings,
-            effectCollider, primary.AreaRenderer);
-        _vaporized = true;
-        IsCombined = true;
-        primaryCombiner._vaporized = true;
-        primaryCombiner.IsCombined = true;
-        PotionAreaController partner = primaryCombiner._combinedPartner;
-        if (partner != null)
-        {
-            PotionAreaCombiner partnerCombiner = partner.GetComponent<PotionAreaCombiner>();
-            if (partnerCombiner != null) partnerCombiner._vaporized = true;
-            partner.AreaEffect.StopForVaporization();
-            partner.Remove();
-        }
-        primary.AreaEffect.StopForVaporization();
-        primary.Remove();
-
-        foreach (IPotionEffectTarget target in targets)
-        {
-            foreach (PotionEffectDefinition effect in effects)
-            {
-                if (PotionEffectApplier.CanAffect(profile.TargetType, target))
-                    target.ApplyEffect(effect, profile, source);
-            }
-        }
-
-        FinishVaporization();
-        return true;
-    }
-
-    private void FinishVaporization()
-    {
-        if (_areaController.AreaEffect != null) _areaController.AreaEffect.DisableForCombination();
-        _areaController.FinishInstantImpact();
     }
 
     private bool CreateInstantProfileCombination(PotionAreaController other,

@@ -73,7 +73,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
                 ApplyDamage(effect.Amount, source, effect.Element, false);
                 break;
             case PotionEffectOperation.Heal:
-                PotionStatDispatcher.Heal(Damageable, effect.Amount);
+                PotionStatApplier.Heal(Damageable, effect.Amount);
                 break;
             case PotionEffectOperation.ApplyStatus:
                 ApplyStatus(effect, source);
@@ -132,7 +132,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         ClearStatuses();
     }
 
-    private bool CanReceiveStatus() => isActiveAndEnabled && (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
+    private bool CanReceiveStatus() => isActiveAndEnabled && (Damageable == null || PotionStatApplier.IsAlive(Damageable));
 
     private void TickStatuses()
     {
@@ -160,10 +160,10 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
     {
-        PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, amount, source, element);
+        PotionDamageResult result = PotionStatApplier.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
 
-        PotionStatDispatcher.Heal(source.Owner, result.LifeStealAmount);
+        PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }

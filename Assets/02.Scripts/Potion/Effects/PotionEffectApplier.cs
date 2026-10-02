@@ -5,7 +5,7 @@ public static class PotionEffectApplier
     public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target)
     {
         if (data == null || !IsTargetAvailable(target)) return;
-        PotionStatDispatcher.ChangeThirst(target.Thirstable, data.ThirstDelta);
+        PotionStatApplier.ChangeThirst(target.Thirstable, data.ThirstDelta);
         var source = new PotionEffectSource(data.GetInstanceID(), data, owner: target.Damageable);
         // 섭취는 투척용 TargetType과 관계없이 마신 대상 자신에게 적용한다.
         ApplyEffects(data, PotionEffectPhase.Drink, target, source);
