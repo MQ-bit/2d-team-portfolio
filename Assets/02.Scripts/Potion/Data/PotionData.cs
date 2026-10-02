@@ -18,6 +18,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [Header("Identity")]
     [SerializeField] private string _id;
     [SerializeField] private string _displayName;
+    [SerializeField, TextArea] private string _description;
     [SerializeField] private PotionElement _element;
 
     [Header("Thrown Effect")]
@@ -40,10 +41,11 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null, null);
 
     public string Id => _id;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
+    public string Description => _description;
     public PotionElement Element => _element;
     public float AreaWidth => _effectRadius * 2f;
     public float ThirstDelta => _thirstDelta;
@@ -62,6 +64,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     {
         _id = _id?.Trim();
         _displayName = _displayName?.Trim();
+        _description = _description?.Trim();
         _thirstDelta = PotionDataValidation.Finite(_thirstDelta);
         _effectRadius = PotionDataValidation.NonNegative(_effectRadius);
         _floorDuration = PotionDataValidation.NonNegative(_floorDuration);

@@ -16,6 +16,7 @@ public enum PotionAreaSurfaceStyle
 public struct PotionVisualData
 {
     [SerializeField] private Sprite _iconSprite;
+    [SerializeField] private Sprite _cardBackgroundSprite;
     [SerializeField] private Sprite _areaSprite;
     [SerializeField] private Color _areaColor;
     [Tooltip("할당된 VFX의 밝은 부분과 어울리는 장판 강조색")]
@@ -25,6 +26,7 @@ public struct PotionVisualData
     [SerializeField] private GameObject _areaVfxPrefab;
 
     public Sprite IconSprite => _iconSprite;
+    public Sprite CardBackgroundSprite => _cardBackgroundSprite;
     public Sprite AreaSprite => _areaSprite;
     public Color AreaColor => _areaColor;
     public Color AreaAccentColor => _areaAccentColor.a > 0f
@@ -32,9 +34,10 @@ public struct PotionVisualData
     public PotionAreaSurfaceStyle AreaSurfaceStyle => _areaSurfaceStyle;
     public GameObject AreaVfxPrefab => _areaVfxPrefab;
 
-    public PotionVisualData(Sprite potionSprite, Color areaColor, Sprite areaSprite)
+    public PotionVisualData(Sprite potionSprite, Color areaColor, Sprite areaSprite, Sprite cardBackgroundSprite)
     {
         _iconSprite = potionSprite;
+        _cardBackgroundSprite = cardBackgroundSprite;
         _areaSprite = areaSprite;
         _areaColor = areaColor;
         _areaAccentColor = Color.Lerp(areaColor, Color.white, 0.55f);

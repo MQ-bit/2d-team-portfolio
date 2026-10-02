@@ -27,6 +27,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event Action<int> OnItemSlotChanged;
     public event Action<bool> OnDrinkInputChanged;
     public event Action OnMeleeToggleRequested;
+    public event Action OnPotionInformationTabToggled;
 
     private void OnEnable()
     {
@@ -142,6 +143,14 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         if (context.performed)
         {
             OnMeleeToggleRequested?.Invoke();
+        }
+    }
+
+    public void OnToggleInformationTab(CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnPotionInformationTabToggled?.Invoke();
         }
     }
 }

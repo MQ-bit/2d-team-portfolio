@@ -8,6 +8,7 @@ public sealed class PotionDatabase : ScriptableObject
     [SerializeField] private List<PotionData> _potions = new();
 
     private readonly Dictionary<string, PotionData> _potionsById = new(StringComparer.Ordinal);
+    private readonly Dictionary<PotionElement, PotionData> _potionsByElement = new();
 
     public IReadOnlyList<PotionData> Potions => _potions;
     public int Count => _potions.Count;
@@ -38,9 +39,15 @@ public sealed class PotionDatabase : ScriptableObject
         return _potionsById.TryGetValue(id.Trim(), out potion);
     }
 
+    public bool TryGetByElement(PotionElement element, out PotionData potion)
+    {
+        return _potionsByElement.TryGetValue(element, out potion);
+    }
+
     private void RebuildLookup()
     {
         _potionsById.Clear();
+        _potionsByElement.Clear();
 
         for (int i = 0; i < _potions.Count; i++)
         {
@@ -53,6 +60,11 @@ public sealed class PotionDatabase : ScriptableObject
             if (!_potionsById.TryAdd(potion.Id, potion))
             {
                 Debug.LogError($"Duplicate potion id '{potion.Id}' in {name}.", this);
+            }
+
+            if (!_potionsByElement.TryAdd(potion.Element, potion))
+            {
+                Debug.LogError($"Duplicate potion element '{potion.Element} in {name}.'", this);
             }
         }
     }

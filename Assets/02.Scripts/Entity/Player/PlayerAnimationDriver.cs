@@ -18,7 +18,7 @@ public class PlayerAnimationDriver : MonoBehaviour
     private static readonly int DieState = Animator.StringToHash("Die");
 
     [Header("References")]
-    [SerializeField] private InputReader _input; // 이동 입력 방향을 바로 바라보기 위함. 없으면 실제 이동 방향만 쓴다.
+    [SerializeField] private PlayerController _player; // 이동 입력 방향을 바로 바라보기 위함. 없으면 실제 이동 방향만 쓴다.
     [SerializeField] private Animator _animator;
     [SerializeField] private Rigidbody2D _rigid;
     [SerializeField] private PlayerStatus _status;
@@ -57,6 +57,10 @@ public class PlayerAnimationDriver : MonoBehaviour
         if (_rigid == null)
         {
             _rigid = GetComponent<Rigidbody2D>();
+        }
+        if (_player == null)
+        {
+            _player = GetComponent<PlayerController>();
         }
         if (_status == null)
         {
@@ -147,9 +151,9 @@ public class PlayerAnimationDriver : MonoBehaviour
         }
 
         // 구르기 첫 프레임처럼 아직 위치가 바뀌기 전에도 누른 방향을 바로 바라보게 한다.
-        if (_input != null && _input.MoveInput.sqrMagnitude > Mathf.Epsilon)
+        if (_player != null && _player.ReadableMoveInput.sqrMagnitude > Mathf.Epsilon)
         {
-            _facing = _input.MoveInput;
+            _facing = _player.ReadableMoveInput;
         }
 
         int nextState = SelectState();
