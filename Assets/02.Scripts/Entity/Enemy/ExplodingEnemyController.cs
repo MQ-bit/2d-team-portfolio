@@ -210,8 +210,15 @@ public class ExplodingEnemyController : MonoBehaviour
 
             _damagedTargets.Add(receiver);
 
-            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
-            damageable?.DecreaseHealth(_data.ExplosionDamage);
+            // 폭발 중심에서 바깥으로 맞은 방향을 넘겨 피격 연출이 폭발 반대쪽으로 튀게 한다.
+            if (hit.GetComponentInParent<IDirectionalDamageable>() is IDirectionalDamageable directional)
+            {
+                directional.DecreaseHealth(_data.ExplosionDamage, (Vector2)(hit.bounds.center - transform.position));
+            }
+            else
+            {
+                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+            }
         }
 
         Destroy(gameObject);
