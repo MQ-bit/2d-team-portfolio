@@ -56,6 +56,14 @@ public sealed class PotionStatusEffectState
     public bool IsActive(PotionStatusEffectTracker status) => TryGetActive(status, _clock(), out _);
     public int GetStackCount(PotionStatusEffectTracker status) => IsActive(status) ? 1 : 0;
 
+    // 상태 연출용 조회이며 피해 처리나 상태 만료 처리를 실행하지 않는다.
+    public float GetRemainingTime(PotionStatusEffectTracker status)
+    {
+        double now = _clock();
+        return TryGetActive(status, now, out ActiveStatus active)
+            ? (float)Math.Max(0d, active.ExpiresAt - now) : 0f;
+    }
+
     public void Apply(PotionStatusEffectInfo effectInfo)
     {
         if (effectInfo.Duration <= 0f) return;
