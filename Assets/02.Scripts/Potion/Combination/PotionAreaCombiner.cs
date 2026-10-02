@@ -16,6 +16,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
     public bool IsCombined { get; private set; }
     internal bool CanVaporize => _registered && !_vaporized;
+    internal PotionCombinationDatabase Database => _database;
     internal PotionAreaController PrimaryArea => _combinedPrimary != null
         ? _combinedPrimary : _areaController;
     internal PotionAreaController PartnerArea => _combinedPartner;

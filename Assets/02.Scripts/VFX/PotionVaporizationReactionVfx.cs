@@ -6,16 +6,21 @@ internal static class PotionVaporizationReactionVfx
     internal static void Spawn(PotionVaporizationSettings settings, Collider2D area,
         SpriteRenderer sortingRenderer)
     {
-        if (settings == null || settings.ReactionVfxPrefab == null ||
-            settings.ReactionVfxDuration <= 0f)
+        if (settings == null) return;
+        Spawn(settings.ReactionVfxPrefab, settings.ReactionVfxDuration, area, sortingRenderer);
+    }
+
+    internal static void Spawn(GameObject prefab, float duration, Collider2D area,
+        SpriteRenderer sortingRenderer)
+    {
+        if (prefab == null || duration <= 0f)
         {
             return;
         }
 
-        GameObject prefab = settings.ReactionVfxPrefab;
         if (prefab.GetComponent<SpriteSheetPlayer>() == null || prefab.GetComponent<SpriteRenderer>() == null)
         {
-            Debug.LogWarning("기화 반응 VFX에는 SpriteSheetPlayer와 SpriteRenderer가 필요합니다.", settings);
+            Debug.LogWarning("기화 반응 VFX에는 SpriteSheetPlayer와 SpriteRenderer가 필요합니다.", prefab);
             return;
         }
 
@@ -33,7 +38,11 @@ internal static class PotionVaporizationReactionVfx
 
         var field = go.AddComponent<VFXBurstField>();
         field.ConfigureArea(bounds.size.x, bounds.size.y, sorting);
-        if (area is PolygonCollider2D polygon)
+        var vfxSettings = prefab.GetComponent<PotionAreaVfxSettings>();
+        bool centeredExplosion = vfxSettings != null && vfxSettings.playOnce &&
+            vfxSettings.fillArea && vfxSettings.burstCount == 1;
+        // A single explosion fills the bounds; scattered bursts follow the copied footprint.
+        if (!centeredExplosion && area is PolygonCollider2D polygon)
         {
             var paths = new Vector2[polygon.pathCount][];
             for (int path = 0; path < paths.Length; path++)
@@ -50,6 +59,6 @@ internal static class PotionVaporizationReactionVfx
             field.ConfigureFootprint(paths);
         }
         field.SetVfx(prefab);
-        Object.Destroy(go, settings.ReactionVfxDuration);
+        Object.Destroy(go, duration);
     }
 }

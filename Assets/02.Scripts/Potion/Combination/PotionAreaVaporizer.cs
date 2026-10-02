@@ -83,8 +83,25 @@ internal sealed class PotionAreaVaporizer
 
         // Claim all participants before callbacks, so the shared collider cannot
         // consume the same combination twice through either original lobe.
-        PotionVaporizationReactionVfx.Spawn(_areaController.Data.VaporizationSettings,
-            effectCollider, primary.AreaRenderer);
+        PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
+        if (primaryCombiner.IsCombined)
+        {
+            // A two-element surface uses the shared VFX when vaporization is added.
+            PotionVaporizationReactionVfx.Spawn(settings, effectCollider, primary.AreaRenderer);
+        }
+        else
+        {
+            // A single-element surface uses its element + vaporization combination VFX.
+            PotionCombinationDatabase database = _combiner.Database != null
+                ? _combiner.Database : primaryCombiner.Database;
+            if (database != null && database.TryGetCombination(PotionElement.Vaporization,
+                    primary.Data.Element, out PotionCombinationData combination))
+            {
+                float duration = settings != null ? settings.ReactionVfxDuration : 1f;
+                PotionVaporizationReactionVfx.Spawn(combination.VisualData.AreaVfxPrefab,
+                    duration, effectCollider, primary.AreaRenderer);
+            }
+        }
         _combiner.MarkVaporized();
         primaryCombiner.MarkVaporized();
         PotionAreaController partner = primaryCombiner.PartnerArea;
