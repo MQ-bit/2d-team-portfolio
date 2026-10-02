@@ -41,7 +41,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null, null);
 
     public string Id => _id;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;

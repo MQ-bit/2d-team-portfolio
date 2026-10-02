@@ -15,7 +15,8 @@ public class DictionaryCardSlotView : MonoBehaviour
     [SerializeField] private AnimationCurve _revealCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Front Info")]
-    [SerializeField] private Image _portionImage;
+    [SerializeField] private Image _cardBackgroundImage;
+    [SerializeField] private Image _potionImage;
     [SerializeField] private TMP_Text _nameText;
     [SerializeField] private TMP_Text _descriptionText;
 
@@ -29,34 +30,51 @@ public class DictionaryCardSlotView : MonoBehaviour
 
         HasRevealPlayed = false;
 
-        ClearContent();
+        SetImage(_cardBackgroundImage, null);
+        SetImage(_potionImage, null);
+
+        if (_nameText != null)
+        {
+            _nameText.text = string.Empty;
+        }
+
+        if (_descriptionText != null)
+        {
+            _descriptionText.text = string.Empty;
+        }
+
         SetAngle(HiddenAngle);
     }
 
-    public void SetRevealed(PotionItem item, Sprite bigPotionSprite)
+    public void SetRevealed(PotionData data, Sprite uiPotionSprite, Sprite cardBackgroundSprite)
     {
         CancelReveal();
 
-        SetContent(item, bigPotionSprite);
+        SetContent(data, uiPotionSprite, cardBackgroundSprite);
+
         HasRevealPlayed = true;
         SetAngle(RevealedAngle);
     }
 
-    public void PlayRevealEffect(PotionItem item, Sprite bigPotionSprite)
+    public void PlayRevealEffect(PotionData data, Sprite uiPotionSprite, Sprite cardBackgroundSprite)
     {
-        if (item.IsEmpty)
+        if (data == null ||
+            uiPotionSprite == null ||
+            cardBackgroundSprite == null)
         {
             SetHidden();
             return;
         }
 
         CancelReveal();
-        SetContent(item, bigPotionSprite);
+
+        SetContent(data, uiPotionSprite, cardBackgroundSprite);
+
         SetAngle(HiddenAngle);
 
         if (_revealDuration <= 0f)
         {
-            SetAngle(RevealedAngle);
+            CompleteReveal();
             return;
         }
 
@@ -89,19 +107,20 @@ public class DictionaryCardSlotView : MonoBehaviour
             yield return null;
         }
 
-        ComepleteReveal();
+        CompleteReveal();
     }
 
-    private void ComepleteReveal()
+    private void CompleteReveal()
     {
         _revealRoutine = null;
         HasRevealPlayed = true;
     }
 
-    private void SetContent(PotionItem item, Sprite bigBottleSprite)
+    private void SetContent(PotionData data, Sprite uiPotionSprite, Sprite cardBackgroundSprite)
     {
-        PotionData data = item.PotionData;
-        SetImage(_portionImage, bigBottleSprite);
+        SetImage(_cardBackgroundImage, cardBackgroundSprite);
+
+        SetImage(_potionImage, uiPotionSprite);
 
         if (_nameText != null)
         {
@@ -111,21 +130,6 @@ public class DictionaryCardSlotView : MonoBehaviour
         if (_descriptionText != null)
         {
             _descriptionText.text = data != null ? data.Description : string.Empty;
-        }
-    }
-
-    private void ClearContent()
-    {
-        SetImage(_portionImage, null);
-
-        if (_nameText != null)
-        {
-            _nameText.text = string.Empty;
-        }
-
-        if (_descriptionText != null)
-        {
-            _descriptionText.text = string.Empty;
         }
     }
 

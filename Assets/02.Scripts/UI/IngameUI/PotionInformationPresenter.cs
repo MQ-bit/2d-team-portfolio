@@ -5,16 +5,6 @@ using UnityEngine;
 public class PotionInformationPresenter : MonoBehaviour
 {
     [Serializable]
-    private struct CardBiding
-    {
-        [SerializeField] private PotionData _potionData;
-        [SerializeField] private DictionaryCardSlotView _view;
-
-        public PotionData PotionData => _potionData;
-        public DictionaryCardSlotView View => _view;
-    }
-
-    [Serializable]
     private struct BottleSpriteBiding //TODO : PotionItem의 bottleSprite가 참조가 너무 많아 bottleSprite를 묶지 않음(작은 모양, 큰모양). 따라서 이걸 여기에 넣지말고 Sprite를 쌍으로 묶은 ScriptableObject 같은걸 만들기!
     {
         [SerializeField] private Sprite _smallBottleImage;
@@ -28,7 +18,7 @@ public class PotionInformationPresenter : MonoBehaviour
     [Header("Runtime Catalog")]
     [SerializeField] private PotionRunCatalog _runCatalog;
     [Header("Potion Cards")]
-    [SerializeField] private CardBiding[] _cards;
+    [SerializeField] private DictionaryCardSlotView[] _cards;
     [Header("Bottle Images")]
     [SerializeField] private BottleSpriteBiding[] _bottleSprites;
 
@@ -52,27 +42,31 @@ public class PotionInformationPresenter : MonoBehaviour
     {
         Initialize();
 
-        for (int i = 0; i < _cards.Length; i++)
+        for (int appearanceIndex = 0; appearanceIndex < _runCatalog.Count; appearanceIndex++)
         {
-            PotionData data = _cards[i].PotionData;
-            DictionaryCardSlotView view = _cards[i].View;
+            DictionaryCardSlotView view = _cards[appearanceIndex];
 
-            if (!_runCatalog.IsIdentified(data))
+            if (!_runCatalog.IsIdentified(appearanceIndex))
             {
                 view.SetHidden();
                 continue;
             }
 
-            PotionItem item = _runCatalog.GetPotionItemByData(data);
-            Sprite bigBottleSprite = _bottleSpriteFinder[item.BottleSprite];
+            PotionItem item = _runCatalog.GetPotionItemAt(appearanceIndex);
+
+            PotionData data = item.PotionData;
+
+            Sprite uiPotionSprite = _bottleSpriteFinder[item.BottleSprite];
+
+            Sprite cardBackgroundSprite = data.VisualData.CardBackgroundSprite;
 
             if (view.HasRevealPlayed)
             {
-                view.SetRevealed(item, bigBottleSprite);
+                view.SetRevealed(data, uiPotionSprite, cardBackgroundSprite);
             }
             else
             {
-                view.PlayRevealEffect(item, bigBottleSprite);
+                view.PlayRevealEffect(data, uiPotionSprite, cardBackgroundSprite);
             }
         }
     }
@@ -88,6 +82,7 @@ public class PotionInformationPresenter : MonoBehaviour
         {
             _runCatalog = FindAnyObjectByType<PotionRunCatalog>();
         }
+        _cards = GetComponentsInChildren<DictionaryCardSlotView>();
 
         CheckReferences();
 
@@ -101,6 +96,7 @@ public class PotionInformationPresenter : MonoBehaviour
         {
             throw new InvalidOperationException($"{name}: PotionRunCatalog가 연결되지 않았습니다.");
         }
+
         if (!_runCatalog.IsInitialized)
         {
             throw new InvalidOperationException($"{name}: PotionRunCatalog가 초기화되지 않았습니다.");
@@ -110,50 +106,22 @@ public class PotionInformationPresenter : MonoBehaviour
         {
             int cardCount = _cards?.Length ?? 0;
 
-            throw new InvalidOperationException($"{name}: 카드 수({cardCount})와 카탈로그 포션 수 ({_runCatalog.Count})가 다릅니다.");
+            throw new InvalidOperationException($"{name}: 카드 수({cardCount})와 Appearance 수({_runCatalog.Count})가 다릅니다.");
         }
-
-        HashSet<PotionData> registeredData = new();
 
         for (int i = 0; i < _cards.Length; i++)
         {
-            PotionData data = _cards[i].PotionData;
-            DictionaryCardSlotView view = _cards[i].View;
-
-            if (data == null)
+            if (_cards[i] == null)
             {
-                throw new InvalidOperationException($"{name}: {i}번 카드에 PotionData가 없습니다.");
-            }
-
-            if (view == null)
-            {
-                throw new InvalidOperationException($"{name}: {i}번 카드에 View가 없습니다.");
-            }
-
-            if (!registeredData.Add(data))
-            {
-                throw new InvalidOperationException($"{name}: {data.name}이 중복 등록되었습니다.");
-            }
-
-            if (!_runCatalog.TryGetAppearanceIndex(data, out _))
-            {
-                throw new InvalidOperationException($"{name}: {data.name}이 PotionRunCatalog에 없습니다.");
+                throw new InvalidOperationException($"{name}: Appearance {i}의 카드 View가 없습니다.");
             }
         }
 
         foreach (BottleSpriteBiding binding in _bottleSprites)
         {
-            Sprite smallSprite = binding.SmallBottleImage;
-            Sprite bigSprite = binding.BigBottleImage;
-
-            if (smallSprite == null || bigSprite == null)
+            if (!_bottleSpriteFinder.TryAdd(binding.SmallBottleImage, binding.BigBottleImage))
             {
-                throw new InvalidOperationException($"{name} : 포션병 스프라이트가 Null입니다! 체크 요망");
-            }
-
-            if (!_bottleSpriteFinder.TryAdd(smallSprite, bigSprite))
-            {
-                throw new InvalidOperationException($"스프라이트 중복 등록 발생함.");
+                throw new InvalidOperationException($"{name} : SmallBottle Image를 Find에 넣으려니 중복이 됩니다.");
             }
         }
     }

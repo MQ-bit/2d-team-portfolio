@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: vaporization_potion
   _displayName: "\uAE30\uD654\uC758 \uD3EC\uC158"
+  _description: 
   _element: 6
   _targetType: 2
   _effectRadius: 3
@@ -54,6 +55,9 @@ MonoBehaviour:
   _thirstDelta: 30
   _visualData:
     _iconSprite: {fileID: 21300000, guid: 2dec2bc0f14ce884aa836a00c3454569, type: 3}
+    _cardBackgroundSprite: {fileID: 517893246982642034, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 0.8, a: 0.65}
+    _areaAccentColor: {r: 1, g: 0.55, b: 0.55, a: 1}
+    _areaSurfaceStyle: 0
     _areaVfxPrefab: {fileID: 0}
