@@ -183,21 +183,24 @@ Shader "Potion/Area"
                 shade = 0.5 + heat * 0.45;
                 coverage = 0.75 + heat * 0.25;
             }
-            else if (style > 1.5 && style < 2.5) // Ring bubbles, like the poison / pink VFX.
+            else if (style > 1.5 && style < 2.5) // Poison: dark pools with bright bubbling rings.
             {
-                pattern = Bubbles(q * 4.0 + seed, t) * 0.7;
-                shade = 0.6 + flow * 0.3;
+                pattern = Bubbles(q * 3.5 + seed, t) * 1.25;
+                shade = 0.45 + flow * 0.35;
             }
             else if (style > 2.5 && style < 3.5) // Ice keeps its crystalline structure still.
             {
                 pattern = Cracks(q * 4.0 + seed) * 0.6 + Sparkles(q * 7.0, t) * 0.45;
                 shade = 0.65 + Noise(q * 5.0 + seed) * 0.25;
             }
-            else if (style > 3.5 && style < 4.5) // Life / white orb: soft pulses and little stars.
+            else if (style > 3.5 && style < 4.5) // Healing: broad outward ripples and a soft central glow.
             {
-                pattern = ripple * 0.3 + Sparkles(q * 6.0 + seed, t) * 0.8;
-                shade = 0.8 + flow * 0.15;
-                pulse = 0.88 + sin(t * 2.5) * 0.12;
+                float wave = pow(saturate(0.5 + 0.5 * sin(radius * 12.0 - t * 1.6)), 4.0);
+                float glow = exp(-radius * radius * 4.0);
+                pattern = wave * 0.85 + glow * 0.35;
+                shade = 0.92 + flow * 0.08;
+                pulse = 0.96 + sin(t * 1.5) * 0.04;
+                rim *= 1.5;
             }
             else if (style > 4.5 && style < 5.5) // Lightning changes branches in discrete bursts.
             {

@@ -26,13 +26,13 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         }
     }
 
-    public void Create(PotionGroundArea first, PotionGroundArea second,
+    public void Create(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData)
     {
         Create(first, second, visualData, 0f);
     }
 
-    public void Create(PotionGroundArea first, PotionGroundArea second,
+    public void Create(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData, float spreadDuration)
     {
         Collider2D firstCollider = first.AreaCollider;
@@ -75,7 +75,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         first.AreaEffect.enabled = true;
     }
 
-    private void CreatePuddleVisual(PotionGroundArea first, PotionGroundArea second,
+    private void CreatePuddleVisual(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData, PotionPuddleShape shape)
     {
         SpriteRenderer firstRenderer = first.AreaRenderer;

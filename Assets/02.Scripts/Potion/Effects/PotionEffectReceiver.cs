@@ -7,7 +7,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
 
     private readonly PotionStatusEffectState _statusEffects = new();
-    private readonly PotionFloorEffectState _floorEffects = new();
+    private readonly PotionAreaEffectTracker _areaEffects = new();
 
     public PotionTargetKind TargetKind => _targetKind;
     public IDamageable Damageable { get; private set; }
@@ -34,7 +34,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         if (!CanReceiveStatus()) return;
         TickStatuses();
-        _floorEffects.Enter(profile, source);
+        _areaEffects.Enter(profile, source);
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorTick))
         {
             if (effect.Operation == PotionEffectOperation.AddFrostStacks)
@@ -46,12 +46,12 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void PulseFloor(int sourceId)
     {
-        if (CanReceiveStatus()) _floorEffects.Pulse(sourceId, Time.timeAsDouble, ApplyEffect);
+        if (CanReceiveStatus()) _areaEffects.Pulse(sourceId, Time.timeAsDouble, ApplyEffect);
     }
 
     public void ExitFloor(int sourceId, bool applyResidual)
     {
-        if (!_floorEffects.Exit(sourceId, out var profile, out var source)) return;
+        if (!_areaEffects.Exit(sourceId, out var profile, out var source)) return;
         // 이탈 시점 이전의 억제된 DoT를 먼저 소비하여 밀린 피해가 튀어나오지 않게 한다.
         TickStatuses();
         RemoveAreaEffectsFromSource(sourceId);
@@ -59,7 +59,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         if (!applyResidual || !CanReceiveStatus()) return;
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorExit))
         {
-            if (!_floorEffects.HasDamageElement(effect.Element))
+            if (!_areaEffects.HasDamageElement(effect.Element))
                 ApplyEffect(effect, profile, source);
         }
     }
@@ -86,8 +86,8 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void RefreshDamageSuppression()
     {
-        _statusEffects.SuppressDamage(PotionElement.Fire, _floorEffects.HasDamageElement(PotionElement.Fire));
-        _statusEffects.SuppressDamage(PotionElement.Poison, _floorEffects.HasDamageElement(PotionElement.Poison));
+        _statusEffects.SuppressDamage(PotionElement.Fire, _areaEffects.HasDamageElement(PotionElement.Fire));
+        _statusEffects.SuppressDamage(PotionElement.Poison, _areaEffects.HasDamageElement(PotionElement.Poison));
     }
 
     public void RemoveStatusesFromSource(int sourceId)
@@ -128,7 +128,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void OnDisable()
     {
-        _floorEffects.Clear();
+        _areaEffects.Clear();
         ClearStatuses();
     }
 
@@ -138,7 +138,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         if (!CanReceiveStatus())
         {
-            _floorEffects.Clear();
+            _areaEffects.Clear();
             ClearStatuses();
             return;
         }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 // 한 대상이 겹친 장판에서 동일 효과를 중복 수신하지 않도록 공통 주기를 관리한다.
-public sealed class PotionFloorEffectState
+public sealed class PotionAreaEffectTracker
 {
     private readonly struct Entry
     {

@@ -150,6 +150,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VFXFieldTestController
   _field: {fileID: 1253214385}
   _label: {fileID: 1561167957}
+  _groundRenderer: {fileID: 2030057020}
+  _width: 3
+  _heightRatio: 0.5
+  _groundOpacity: 0.4
   _entries:
   - Prefab: {fileID: 7957495637218046237, guid: d7ed66a068ae3ae4dbbdd0dcb47b6a37, type: 3}
     GroundColor: {r: 0.22352941, g: 0.9019608, b: 0.43529412, a: 1}
@@ -476,12 +480,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238a6d55f4040b84f96610179cb3d35f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VFXBurstField
-  _groundRenderer: {fileID: 2030057020}
-  _width: 3
-  _heightRatio: 0.5
-  _groundColor: {r: 1, g: 1, b: 1, a: 0.4}
   _vfxPrefab: {fileID: 0}
-  _restDelayRange: {x: 0, y: 0.08}
 --- !u!4 &1253214386
 Transform:
   m_ObjectHideFlags: 0

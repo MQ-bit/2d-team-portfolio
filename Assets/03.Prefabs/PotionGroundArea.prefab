@@ -53,9 +53,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionGroundArea
   _duration: 3
   _radius: 10
-  _vfxBurstCount: 30
-  _vfxBurstSize: 1
-  _vfxSpawnAreaRatio: 0.85
 --- !u!58 &6075459067124031843
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PotionProjectile : MonoBehaviour
 {
     [SerializeField] private Transform _visual;
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
-    [SerializeField] private PotionGroundArea _groundAreaPrefab;
+    [SerializeField] private PotionAreaController _areaControllerPrefab;
     [SerializeField] private SpriteRenderer _renderer;
 
     [Header("Wall Collision")]
@@ -121,12 +122,12 @@ public class PotionProjectile : MonoBehaviour
             breakEffect.Play();
         }
 
-        if (_groundAreaPrefab != null && canCreateArea)
+        if (_areaControllerPrefab != null && canCreateArea)
         {
-            PotionGroundArea groundArea = Instantiate(_groundAreaPrefab, areaPosition, Quaternion.identity);
-            groundArea.Initialize(_potionData);
-            groundArea.SetOwner(_owner);
-            groundArea.Activate();
+            PotionAreaController areaController = Instantiate(_areaControllerPrefab, areaPosition, Quaternion.identity);
+            areaController.Initialize(_potionData);
+            areaController.SetOwner(_owner);
+            areaController.Activate();
         }
 
         if (_catalog != null)
