@@ -15,7 +15,7 @@ public sealed class PotionAreaEffectTracker
     {
         private readonly PotionEffectOperation _operation;
         private readonly PotionElement _element;
-        private readonly PotionStatusEffect _status;
+        private readonly PotionStatusEffectTracker _status;
         public Key(PotionEffectDefinition effect)
         {
             _operation = effect.Operation;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PotionStatusEffect
+public enum PotionStatusEffectTracker
 {
     Burning = 0,
     Poisoned = 1,
@@ -16,18 +16,18 @@ public sealed class PotionStatusEffectState
 {
     private sealed class ActiveStatus
     {
-        public PotionStatusApplication Application;
+        public PotionStatusEffectInfo EffectInfo;
         public double ExpiresAt;
         public double NextTickAt;
         public double PulseStartedAt;
     }
 
     private readonly Func<double> _clock;
-    private readonly Dictionary<PotionStatusEffect, ActiveStatus> _statuses = new();
+    private readonly Dictionary<PotionStatusEffectTracker, ActiveStatus> _statuses = new();
     private readonly HashSet<int> _frostAreas = new();
     private readonly Dictionary<int, float> _areaSlows = new();
     private readonly HashSet<PotionElement> _suppressedDamageElements = new();
-    private readonly List<KeyValuePair<PotionStatusEffect, ActiveStatus>> _tickSnapshot = new();
+    private readonly List<KeyValuePair<PotionStatusEffectTracker, ActiveStatus>> _tickSnapshot = new();
     private int _frostStacks;
     private float _frostMultiplier = 1f;
     private double _nextFrostStackAt = double.NegativeInfinity;
@@ -46,24 +46,24 @@ public sealed class PotionStatusEffectState
             double now = _clock();
             if (IsImmobilized(now)) return 0f;
             float multiplier = _frostMultiplier;
-            if (TryGetActive(PotionStatusEffect.Slowed, now, out ActiveStatus slow))
-                multiplier = Mathf.Min(multiplier, slow.Application.MoveSpeedMultiplier);
+            if (TryGetActive(PotionStatusEffectTracker.Slowed, now, out ActiveStatus slow))
+                multiplier = Mathf.Min(multiplier, slow.EffectInfo.MoveSpeedMultiplier);
             foreach (float areaSlow in _areaSlows.Values) multiplier = Mathf.Min(multiplier, areaSlow);
             return multiplier;
         }
     }
 
-    public bool IsActive(PotionStatusEffect status) => TryGetActive(status, _clock(), out _);
-    public int GetStackCount(PotionStatusEffect status) => IsActive(status) ? 1 : 0;
+    public bool IsActive(PotionStatusEffectTracker status) => TryGetActive(status, _clock(), out _);
+    public int GetStackCount(PotionStatusEffectTracker status) => IsActive(status) ? 1 : 0;
 
-    public void Apply(PotionStatusApplication application)
+    public void Apply(PotionStatusEffectInfo effectInfo)
     {
-        if (application.Duration <= 0f) return;
+        if (effectInfo.Duration <= 0f) return;
         double now = _clock();
-        bool refreshing = TryGetActive(application.Status, now, out ActiveStatus previous);
-        PotionStatusApplication selected = application;
-        if (refreshing && Strength(previous.Application) > Strength(application))
-            selected = previous.Application;
+        bool refreshing = TryGetActive(effectInfo.Status, now, out ActiveStatus previous);
+        PotionStatusEffectInfo selected = effectInfo;
+        if (refreshing && Strength(previous.EffectInfo) > Strength(effectInfo))
+            selected = previous.EffectInfo;
 
         double nextTick = selected.TickInterval > 0f
             ? now + (selected.ApplyImmediately ? 0d : selected.TickInterval)
@@ -77,14 +77,14 @@ public sealed class PotionStatusEffectState
             if (double.IsPositiveInfinity(nextTick) && selected.TickInterval > 0f)
                 nextTick = now + selected.TickInterval;
         }
-        _statuses[application.Status] = new ActiveStatus
+        _statuses[effectInfo.Status] = new ActiveStatus
         {
-            Application = selected,
-            ExpiresAt = now + application.Duration,
+            EffectInfo = selected,
+            ExpiresAt = now + effectInfo.Duration,
             NextTickAt = nextTick,
             PulseStartedAt = pulseStart
         };
-        if (application.Status == PotionStatusEffect.Frozen) ResetFrostStacks();
+        if (effectInfo.Status == PotionStatusEffectTracker.Frozen) ResetFrostStacks();
     }
 
     // Receiver는 재적용 전에 Tick을 호출해 만료 경계의 마지막 정규 피해를 정산한다.
@@ -100,13 +100,13 @@ public sealed class PotionStatusEffectState
             foreach (var pair in _tickSnapshot)
             {
                 ActiveStatus active = pair.Value;
-                while (IsCurrent(pair.Key, active) && active.Application.DamagePerTick > 0f &&
-                       active.Application.TickInterval > 0f && active.NextTickAt <= now &&
+                while (IsCurrent(pair.Key, active) && active.EffectInfo.DamagePerTick > 0f &&
+                       active.EffectInfo.TickInterval > 0f && active.NextTickAt <= now &&
                        active.NextTickAt <= active.ExpiresAt)
                 {
-                    active.NextTickAt += active.Application.TickInterval;
-                    if (!_suppressedDamageElements.Contains(active.Application.Element))
-                        onDamage?.Invoke(new PotionStatusDamage(active.Application));
+                    active.NextTickAt += active.EffectInfo.TickInterval;
+                    if (!_suppressedDamageElements.Contains(active.EffectInfo.Element))
+                        onDamage?.Invoke(new PotionStatusDamage(active.EffectInfo));
                 }
                 if (IsCurrent(pair.Key, active) && now >= active.ExpiresAt) _statuses.Remove(pair.Key);
             }
@@ -126,13 +126,13 @@ public sealed class PotionStatusEffectState
         if (settings == null || amount <= 0) return;
         EnterFrostArea(source.SourceId);
         double now = _clock();
-        if (IsActive(PotionStatusEffect.Frozen) || now < _nextFrostStackAt) return;
+        if (IsActive(PotionStatusEffectTracker.Frozen) || now < _nextFrostStackAt) return;
         _nextFrostStackAt = now + Math.Max(0.01d, PotionDataValidation.NonNegative(tickInterval));
         int threshold = Math.Max(1, settings.FreezeThreshold);
         _frostStacks = (int)Math.Min(threshold, (long)_frostStacks + amount);
         if (_frostStacks >= threshold)
         {
-            Apply(new PotionStatusApplication(PotionStatusEffect.Frozen, settings.FreezeDuration, source));
+            Apply(new PotionStatusEffectInfo(PotionStatusEffectTracker.Frozen, settings.FreezeDuration, source));
             ResetFrostStacks();
             return;
         }
@@ -160,9 +160,9 @@ public sealed class PotionStatusEffectState
     // 명시적 해제 및 기존 조합 교체 호환용.
     public void RemoveSource(int sourceId)
     {
-        var remove = new List<PotionStatusEffect>();
+        var remove = new List<PotionStatusEffectTracker>();
         foreach (var pair in _statuses)
-            if (pair.Value.Application.Source.SourceId == sourceId) remove.Add(pair.Key);
+            if (pair.Value.EffectInfo.Source.SourceId == sourceId) remove.Add(pair.Key);
         foreach (var status in remove) _statuses.Remove(status);
         RemoveAreaSource(sourceId);
     }
@@ -183,32 +183,32 @@ public sealed class PotionStatusEffectState
         _nextFrostStackAt = double.NegativeInfinity;
     }
 
-    private bool TryGetActive(PotionStatusEffect status, double now, out ActiveStatus active) =>
+    private bool TryGetActive(PotionStatusEffectTracker status, double now, out ActiveStatus active) =>
         _statuses.TryGetValue(status, out active) && now < active.ExpiresAt;
 
-    private bool IsCurrent(PotionStatusEffect status, ActiveStatus active) =>
+    private bool IsCurrent(PotionStatusEffectTracker status, ActiveStatus active) =>
         _statuses.TryGetValue(status, out ActiveStatus current) && ReferenceEquals(current, active);
 
     private bool IsImmobilized(double now)
     {
-        if (TryGetActive(PotionStatusEffect.Frozen, now, out _)) return true;
-        if (!TryGetActive(PotionStatusEffect.Paralyzed, now, out ActiveStatus paralysis)) return false;
-        var effect = paralysis.Application;
+        if (TryGetActive(PotionStatusEffectTracker.Frozen, now, out _)) return true;
+        if (!TryGetActive(PotionStatusEffectTracker.Paralyzed, now, out ActiveStatus paralysis)) return false;
+        var effect = paralysis.EffectInfo;
         if (effect.TickInterval <= 0f) return true;
         if (now < paralysis.PulseStartedAt) return false;
         double phase = (now - paralysis.PulseStartedAt) % effect.TickInterval;
         return phase < effect.ImmobilizeDuration;
     }
 
-    private static double Strength(PotionStatusApplication application)
+    private static double Strength(PotionStatusEffectInfo effectInfo)
     {
-        if (application.Status == PotionStatusEffect.Slowed) return 1d - application.MoveSpeedMultiplier;
-        if (application.Status == PotionStatusEffect.Paralyzed)
+        if (effectInfo.Status == PotionStatusEffectTracker.Slowed) return 1d - effectInfo.MoveSpeedMultiplier;
+        if (effectInfo.Status == PotionStatusEffectTracker.Paralyzed)
         {
-            return application.TickInterval > 0f
-                ? application.ImmobilizeDuration / application.TickInterval : 1d;
+            return effectInfo.TickInterval > 0f
+                ? effectInfo.ImmobilizeDuration / effectInfo.TickInterval : 1d;
         }
 
-        return application.TickInterval > 0f ? application.DamagePerTick / application.TickInterval : 0d;
+        return effectInfo.TickInterval > 0f ? effectInfo.DamagePerTick / effectInfo.TickInterval : 0d;
     }
 }

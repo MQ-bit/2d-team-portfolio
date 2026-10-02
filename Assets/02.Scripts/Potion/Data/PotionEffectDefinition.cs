@@ -37,7 +37,7 @@ public sealed class PotionEffectDefinition
     [SerializeField, Min(0f)] private float _amount;
 
     [Header("Apply Status")]
-    [SerializeField] private PotionStatusEffect _status;
+    [SerializeField] private PotionStatusEffectTracker _status;
     [Tooltip("상태 전체 유지시간. 장판 수명과 별개로 대상에서 관리한다.")]
     [SerializeField, Min(0f)] private float _duration;
     [Tooltip("상태 내부 반복 간격. 0이면 반복 없음. 장판 Tick 간격과 별개다.")]
@@ -56,7 +56,7 @@ public sealed class PotionEffectDefinition
     public PotionEffectOperation Operation => _operation;
     public PotionElement Element => _element;
     public float Amount => _amount;
-    public PotionStatusEffect Status => _status;
+    public PotionStatusEffectTracker Status => _status;
     public float Duration => _duration;
     public float TickInterval => _tickInterval;
     public bool ApplyImmediately => _applyImmediately;

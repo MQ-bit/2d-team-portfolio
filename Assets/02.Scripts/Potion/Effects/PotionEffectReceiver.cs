@@ -95,17 +95,17 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         _statusEffects.RemoveSource(sourceId);
     }
 
-    public void ApplyStatus(PotionStatusApplication application)
+    public void ApplyStatus(PotionStatusEffectInfo effectInfo)
     {
         if (!PrepareStatusApplication()) return;
-        _statusEffects.Apply(application);
+        _statusEffects.Apply(effectInfo);
         TickStatuses();
     }
 
     public void ApplyStatus(PotionEffectDefinition effect, PotionEffectSource source)
     {
         if (effect == null || effect.Operation != PotionEffectOperation.ApplyStatus) return;
-        ApplyStatus(PotionStatusApplication.FromDefinition(effect, source));
+        ApplyStatus(PotionStatusEffectInfo.FromDefinition(effect, source));
     }
 
     public void EnterFrostArea(int sourceId) => _statusEffects.EnterFrostArea(sourceId);
@@ -154,7 +154,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
             return;
         }
 
-        ApplyDamage(tick.Amount, tick.Source, tick.Application.Element, true);
+        ApplyDamage(tick.Amount, tick.Source, tick.EffectInfo.Element, true);
         if (!CanReceiveStatus()) ClearStatuses();
     }
 
@@ -168,7 +168,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         DamageApplied?.Invoke(result);
     }
 
-    public int GetStatusStackCount(PotionStatusEffect status)
+    public int GetStatusStackCount(PotionStatusEffectTracker status)
     {
         return _statusEffects.GetStackCount(status);
     }
