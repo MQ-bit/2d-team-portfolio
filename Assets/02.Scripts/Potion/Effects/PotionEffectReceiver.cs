@@ -172,4 +172,9 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         return _statusEffects.GetStackCount(status);
     }
+
+    public float GetStatusRemainingTime(PotionStatusEffect status)
+    {
+        return _statusEffects.GetRemainingTime(status);
+    }
 }

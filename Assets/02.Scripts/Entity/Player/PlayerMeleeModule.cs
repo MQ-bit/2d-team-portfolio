@@ -35,6 +35,7 @@ public class PlayerMeleeModule : MonoBehaviour
     public Vector2 LastAttackDirection => _lastAttackDirection; // 공격 애니메이션 방향용
 
     public event Action<bool> OnMeleeModeChanged;   //UI용 이벤트
+    public event Action<Vector2, bool> OnMeleeHit;  //공격 방향, 처치 여부. 한 번 휘두를 때 적중했으면 한 번만 호출
 
     private void Awake()
     {
@@ -180,6 +181,7 @@ public class PlayerMeleeModule : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(origin, _attackRange, _targetLayer);
 
         _damagedTarget.Clear();
+        bool hasKilled = false;
 
         foreach (Collider2D hit in hits)
         {
@@ -198,6 +200,7 @@ public class PlayerMeleeModule : MonoBehaviour
             }
 
             damageable.DecreaseHealth(_attackDamage);
+            hasKilled |= damageable.IsDead;
 
             if (!hit.TryGetComponent(out IKnockbackable knockbackable))
             {
@@ -212,6 +215,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
             knockbackDirection.Normalize();
             knockbackable.ApplyKnockback(knockbackDirection, _knockbackForce);
+        }
+
+        if (_damagedTarget.Count > 0)
+        {
+            OnMeleeHit?.Invoke(attackDirection, hasKilled);
         }
     }
 

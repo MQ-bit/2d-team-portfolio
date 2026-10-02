@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -13,6 +14,16 @@ public class PotionProjectile : MonoBehaviour
     [SerializeField] private LayerMask _wallCollisionLayers;
     [Tooltip("벽 충돌면에서 바깥 방향으로 장판 중심을 띄우는 간격")]
     [SerializeField, Min(0.01f)] private float _wallGroundClearance = 0.15f;
+
+    [Header("Impact Feedback")]
+    [Tooltip("포션이 깨질 때마다 던진 방향으로 주는 화면 흔들림")]
+    [SerializeField, Min(0f)] private float _impactShakeForce = 0.1f;
+    [Tooltip("효과 범위 안에 적이 있을 때 대신 주는 화면 흔들림")]
+    [SerializeField, Min(0f)] private float _enemyHitShakeForce = 0.25f;
+    [Tooltip("효과 범위 안에 적이 있을 때 주는 히트스톱(실제 시간, 초)")]
+    [SerializeField, Min(0f)] private float _enemyHitStopDuration = 0.06f;
+
+    private static readonly List<Collider2D> OverlapResults = new();
 
     private readonly PotionWallCollision _wallCollision = new();
     private float _arcHeight;
@@ -130,10 +141,49 @@ public class PotionProjectile : MonoBehaviour
             areaController.Activate();
         }
 
+        PlayImpactFeedback(areaPosition, canCreateArea);
+
         if (_catalog != null)
         {
             _catalog.TryIdentify(_itemData);
         }
         Destroy(gameObject);
+    }
+
+    private void PlayImpactFeedback(Vector3 areaPosition, bool canCreateArea)
+    {
+        bool hasEnemyInArea = canCreateArea && HasEnemyInArea(areaPosition);
+
+        if (hasEnemyInArea)
+        {
+            HitStop.Request(_enemyHitStopDuration);
+        }
+
+        if (CameraController.Instance != null)
+        {
+            Vector2 throwDirection = _targetPosition - _startPosition;
+            CameraController.Instance.ShakeCamera(throwDirection, hasEnemyInArea ? _enemyHitShakeForce : _impactShakeForce);
+        }
+    }
+
+    // 장판이 깔릴 범위 안에 살아있는 적이 있는지. 실제 피해 판정은 장판이 하므로 연출용 근사치다.
+    private bool HasEnemyInArea(Vector2 center)
+    {
+        if (_potionData == null || _potionData.TargetType == PotionTargetType.Player)
+        {
+            return false;
+        }
+
+        Physics2D.OverlapCircle(center, _potionData.EffectRadius, ContactFilter2D.noFilter, OverlapResults);
+        foreach (Collider2D hit in OverlapResults)
+        {
+            EnemyStatus enemy = hit.GetComponentInParent<EnemyStatus>();
+            if (enemy != null && !enemy.IsDead)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
