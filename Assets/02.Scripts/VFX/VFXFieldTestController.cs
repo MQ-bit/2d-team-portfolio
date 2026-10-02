@@ -11,6 +11,7 @@ public class VFXFieldTestController : MonoBehaviour
         public GameObject Prefab;
         public Color GroundColor;
         public bool HideGround;
+        public bool RapidBurst; // 켜면 루프 대신 폭발처럼 짧은 간격으로 따라락 터지고 끝난다
     }
 
     [SerializeField] private VFXBurstField _field;
@@ -57,6 +58,7 @@ public class VFXFieldTestController : MonoBehaviour
         Entry entry = _entries[_index];
         _field.SetGroundColor(entry.GroundColor);
         _field.SetGroundVisible(!entry.HideGround);
+        _field.SetRapidBurst(entry.RapidBurst);
         _field.SetVfx(entry.Prefab);
 
         if (_label != null)

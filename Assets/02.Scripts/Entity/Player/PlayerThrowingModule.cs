@@ -29,31 +29,12 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public bool IsAiming { get; private set; }
     public Vector2 AimWorldPosition => _aimWorldPosition;
-
-    // 포션을 실제로 던진 순간 (조준 취소는 포함하지 않음). 인자는 착지 목표 위치.
     public event Action<Vector2> OnPotionThrown;
-
 
     private void Awake()
     {
         InitiateComponent();
         InitiateAimPreview();
-    }
-
-    private void OnEnable()
-    {
-        if (_status != null)
-        {
-            _status.OnDeath += HandleDeath;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (_status != null)
-        {
-            _status.OnDeath -= HandleDeath;
-        }
     }
 
     private void InitiateAimPreview()
@@ -98,12 +79,18 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public void BeginAim(Vector2 screenPosition)
     {
-        if (_inventoryModule.SelectedPotion == null || _status.IsDead) return;
+        if (_inventoryModule.SelectedPotion == null) return;
 
         IsAiming = true;
         _aimPreviewInstance.Show();
 
         _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
+        UpdateAim(screenPosition);
+
+        _aimPreviewInstance.UpdateAoeIndicator(
+            _inventoryModule.SelectedPotion.VisualData.AreaColor,
+            _inventoryModule.SelectedPotion.AreaWidth);
+
         UpdateAim(screenPosition);
     }
 
@@ -128,20 +115,23 @@ public class PlayerThrowingModule : MonoBehaviour
 
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
+        PotionThrowPrediction prediction = _potionPrefab != null
+            ? _potionPrefab.PredictThrow(startPosition, targetPosition, _arcHeight)
+            : new PotionThrowPrediction(false, 1f, targetPosition, targetPosition);
 
         PotionData selectedPotion = selectedPotionItem.PotionData;
         bool identified = _potionRunCatalog.IsIdentified(selectedPotion);
 
         Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
+        // Identification changes the displayed color, never the actual effect range.
         float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
-
-        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.AreaWidth);
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth,
+            prediction);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
     {
-        if (!IsAiming || _status.IsDead)
+        if (!IsAiming)
         {
             return;
         }
@@ -211,10 +201,5 @@ public class PlayerThrowingModule : MonoBehaviour
     private void HideAimPreview()
     {
         _aimPreviewInstance.Hide();
-    }
-
-    private void HandleDeath()
-    {
-        CancelAim();
     }
 }

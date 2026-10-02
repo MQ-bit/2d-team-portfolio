@@ -1,4 +1,4 @@
-GameVFX - 장판 스킬 이펙트 19종
+GameVFX - 장판 스킬 이펙트 32종
 
 [사용법]
 - 03.Prefabs/VFX/ 의 프리팹을 (텍스처: 04.Sprites/VFX, 스크립트: 02.Scripts/VFX/SpriteSheetPlayer.cs) 장판 오브젝트의 자식으로 넣으면 장판이 켜져 있는 동안 루프 재생됩니다.
@@ -36,6 +36,19 @@ GameVFX - 장판 스킬 이펙트 19종
 기화2       Super Pixel Effects Gigapack / directional_smoke_burst_001_large_white
 회복2       Super Pixel Effects Gigapack / status_sparkling_001_large_yellow
 회복1       Super Pixel Effects Gigapack / round_sparkle_burst_002_large_green (뒤쪽 절반 9/18프레임)
+기화+서리   Super Pixel Effects Gigapack / symmetrical_impact_002_large_blue
+기화+독     Super Pixel Effects Gigapack / burst_splatter_003_large_green
+기화+생명   Super Pixel Effects Gigapack / round_firework_burst_002_large_yellow
+기화+화염1  Super Pixel Effects Gigapack / epic_explosion_001_large_orange
+기화+화염2  Super Pixel Effects Gigapack / epic_explosion_002_large_yellow
+기화+화염3  Super Pixel Effects Gigapack / stylized_explosion_001_large_yellow
+기화+화염4  Super Pixel Effects Gigapack / stylized_explosion_003_large_yellow
+기화+화염5  Super Pixel Effects Gigapack / symmetrical_explosion_002_large_orange
+기화+화염6  Super Pixel Effects Gigapack / symmetrical_explosion_004_large_orange
+기화+화염7  Super Pixel Effects Gigapack / symmetrical_smoke_burst_001_large_brown
+기화+전기1  Super Pixel Effects Gigapack / stylized_explosion_002_large_violet
+기화+전기2  Super Pixel Effects Gigapack / lightning_burst_003_large_violet
+기화+전기3  Super Pixel Effects Gigapack / lightning_strike_001_large_violet
 
 [라이선스 / 크레딧]
 - Super Pixel Effects Gigapack: 게임에 포함 OK(상업 포함), 크레딧 표기 필요.

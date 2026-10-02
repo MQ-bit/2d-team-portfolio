@@ -9,6 +9,10 @@ public class EnemyProjectile : MonoBehaviour
     [SerializeField] private Rigidbody2D _rigid;
     [SerializeField] private SpriteRenderer _spriteRenderer;
 
+    [Header("Impact")]
+    [SerializeField] private GameObject _impactEffectPrefab;
+    [SerializeField, Min(0.1f)] private float _impactEffectLifetime = 1f;
+
     [Header("Placeholder Visual")]
     [SerializeField] private Color _color = Color.magenta;
 
@@ -65,9 +69,29 @@ public class EnemyProjectile : MonoBehaviour
             return;
         }
 
-        IDamageable damageable = other.GetComponentInParent<IDamageable>();
-        damageable?.DecreaseHealth(_damage);
+        // 맞은 방향을 알 수 있으면 함께 넘겨서 피격 연출이 탄환 진행 방향으로 튀게 한다.
+        if (other.GetComponentInParent<IDirectionalDamageable>() is IDirectionalDamageable directional)
+        {
+            directional.DecreaseHealth(_damage, _direction);
+        }
+        else
+        {
+            other.GetComponentInParent<IDamageable>()?.DecreaseHealth(_damage);
+        }
+
+        SpawnImpactEffect();
         Destroy(gameObject);
+    }
+
+    private void SpawnImpactEffect()
+    {
+        if (_impactEffectPrefab == null)
+        {
+            return;
+        }
+
+        GameObject effect = Instantiate(_impactEffectPrefab, transform.position, Quaternion.identity);
+        Destroy(effect, _impactEffectLifetime); // TODO : 풀링 적용 시 반환으로 변경
     }
 
     private static Sprite GetPlaceholderSprite()

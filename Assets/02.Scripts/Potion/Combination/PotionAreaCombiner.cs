@@ -85,7 +85,15 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         }
 
         if (data.CreatesFloor || data.InheritThrownEffectsFrom != PotionElement.None)
+        {
+            // Single surfaces are 2:1 ellipses. A circular broad-phase overlap alone
+            // must not start a visible reaction across an empty vertical gap.
+            Vector2 delta = other.AreaCollider.bounds.center - _area.AreaCollider.bounds.center;
+            delta.y *= 2f;
+            if (delta.magnitude > _area.AreaCollider.bounds.extents.x + other.AreaCollider.bounds.extents.x)
+                return false;
             return CreateProfileCombination(other, otherCombiner, data, data);
+        }
 
         return CreateInstantProfileCombination(other, otherCombiner, data, data);
     }
@@ -110,7 +118,8 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         IsCombined = true;
         otherCombiner.IsCombined = true;
 
-        _combinedAreaShape.Create(_area, other, data.VisualData);
+        _combinedAreaShape.Create(_area, other, data.VisualData,
+            Mathf.Min(data.SpreadDuration, duration));
         float expiresAt = Time.time + duration;
         IDamageable owner = IsAlive(_area.Owner) ? _area.Owner : other.Owner;
         _area.AreaEffect.ReplaceWithCombinationProfile(data, effectProfile, owner,
