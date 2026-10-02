@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 
 // 몬스터 공통 길찾기(플로우 필드).
 // 맵을 격자로 나눠 벽/소품이 있는 칸을 막아두고, 목표(플레이어) 칸에서 퍼져나가는 거리 지도를 만들어 모든 몬스터가 같이 쓴다.
+// 몸 크기 단계마다 막힌 칸과 거리 지도를 따로 둬서, 큰 몬스터(엘리트)는 벽에서 더 떨어진 길로 다닌다.
 // 목표가 다른 칸으로 옮겨갈 때만 거리 지도를 다시 계산하므로 몬스터 수가 늘어도 비용이 거의 같다.
 // 씬에 따로 배치하지 않아도 처음 쓰일 때 스스로 생성되고, 씬의 타일맵 범위로 격자를 만든다.
 // 맵이 바뀌면(랜덤 맵 생성 등) RebuildGrid()를 호출한다.
@@ -37,10 +38,12 @@ public class EnemyPathfinder : MonoBehaviour
     }
 
     [Header("Grid Settings")]
-    [Tooltip("격자 한 칸 크기. 타일(1유닛)의 절반이면 칸 중심이 타일 중심과 경계에 모두 놓여 1칸짜리 통로도 지나갈 수 있다.")]
+    [Tooltip("격자 한 칸 크기. 타일(1유닛)의 절반이면 칸 중심이 타일 중심과 경계에 모두 놓인다.")]
     [SerializeField, Min(0.1f)] private float _cellSize = 0.5f;
-    [Tooltip("벽에서 이만큼 떨어진 칸만 지나갈 수 있다. 몬스터가 벽 모서리에 걸리지 않게 하는 여유.")]
-    [SerializeField, Min(0f)] private float _agentRadius = 0.8f;
+    [Tooltip("몸 크기 단계(반지름). 몬스터는 자기 몸보다 크거나 같은 가장 작은 단계의 길을 쓴다. 단계마다 벽에서 그만큼 떨어진 칸만 지나간다.")]
+    [SerializeField] private float[] _clearanceRadii = { 0.5f, 1f };
+    [Tooltip("몸 반지름에 더하는 여유. 경로가 벽에 스치지 않게 한다.")]
+    [SerializeField, Min(0f)] private float _clearanceMargin = 0.15f;
 
     [Header("Path Settings")]
     [Tooltip("경로를 몇 칸 앞까지 내다보고, 그중 직선으로 갈 수 있는 가장 먼 칸으로 향한다. 클수록 경로가 매끄럽다.")]
@@ -52,10 +55,23 @@ public class EnemyPathfinder : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool _drawGizmos;
+    [Tooltip("기즈모로 보여줄 몸 크기 단계 번호 (0 = 가장 작은 단계)")]
+    [SerializeField, Min(0)] private int _gizmoLayerIndex;
+
+    // 몸 크기 단계 하나. 막힌 칸과 거리 지도를 단계마다 따로 갖는다.
+    private sealed class ClearanceLayer
+    {
+        public float Radius;
+        public bool[] Blocked;
+        public float[] Distance;
+        public int TargetIndex = -1;
+        public float NextUpdateTime;
+    }
 
     private readonly HashSet<Collider2D> _obstacles = new HashSet<Collider2D>();
     private readonly List<Collider2D> _overlapResults = new List<Collider2D>();
     private readonly List<RaycastHit2D> _castResults = new List<RaycastHit2D>();
+    private readonly List<ClearanceLayer> _layers = new List<ClearanceLayer>();
     private readonly CellHeap _open = new CellHeap();
 
     private bool _hasGrid;
@@ -63,10 +79,6 @@ public class EnemyPathfinder : MonoBehaviour
     private Vector2 _origin;
     private int _width;
     private int _height;
-    private bool[] _blocked;
-    private float[] _distance;
-    private int _targetIndex = -1;
-    private float _nextFieldUpdateTime;
 
     private void OnDestroy()
     {
@@ -76,12 +88,12 @@ public class EnemyPathfinder : MonoBehaviour
         }
     }
 
-    // 씬의 타일맵 범위로 격자를 다시 만들고, 칸마다 정적 콜라이더(벽, 소품)가 있는지 검사한다.
+    // 씬의 타일맵 범위로 격자를 다시 만들고, 몸 크기 단계마다 칸이 정적 콜라이더(벽, 소품)와 겹치는지 검사한다.
     public void RebuildGrid()
     {
         _isGridBuilt = true;
-        _targetIndex = -1;
         _obstacles.Clear();
+        _layers.Clear();
         _hasGrid = TryGetMapBounds(out Bounds bounds);
         if (!_hasGrid)
         {
@@ -92,34 +104,55 @@ public class EnemyPathfinder : MonoBehaviour
         _origin = new Vector2(Mathf.Floor(bounds.min.x), Mathf.Floor(bounds.min.y)) - Vector2.one * (_cellSize * 0.5f);
         _width = Mathf.CeilToInt((bounds.max.x - _origin.x) / _cellSize) + 1;
         _height = Mathf.CeilToInt((bounds.max.y - _origin.y) / _cellSize) + 1;
-        _blocked = new bool[_width * _height];
-        _distance = new float[_width * _height];
+
+        List<float> radii = new List<float>();
+        if (_clearanceRadii != null)
+        {
+            radii.AddRange(_clearanceRadii);
+        }
+        if (radii.Count == 0)
+        {
+            radii.Add(0.5f);
+        }
+        radii.Sort();
+
+        foreach (float radius in radii)
+        {
+            _layers.Add(new ClearanceLayer
+            {
+                Radius = Mathf.Max(0.01f, radius),
+                Blocked = new bool[_width * _height],
+                Distance = new float[_width * _height]
+            });
+        }
 
         ContactFilter2D filter = new ContactFilter2D { useTriggers = false };
-        float checkRadius = Mathf.Max(0.01f, _agentRadius);
-
         for (int y = 0; y < _height; y++)
         {
             for (int x = 0; x < _width; x++)
             {
-                Physics2D.OverlapCircle(GetCellCenter(x, y), checkRadius, filter, _overlapResults);
-                foreach (Collider2D hit in _overlapResults)
+                int index = GetIndex(x, y);
+                Vector2 center = GetCellCenter(x, y);
+
+                // 작은 단계에서 막힌 칸은 큰 단계에서도 막혀 있으므로 다시 검사하지 않는다.
+                bool isBlocked = false;
+                foreach (ClearanceLayer layer in _layers)
                 {
-                    if (!IsStaticObstacle(hit))
+                    if (!isBlocked)
                     {
-                        continue;
+                        isBlocked = OverlapsObstacle(center, layer.Radius + _clearanceMargin, filter);
                     }
 
-                    _obstacles.Add(hit);
-                    _blocked[GetIndex(x, y)] = true;
+                    layer.Blocked[index] = isBlocked;
                 }
             }
         }
     }
 
     // from에서 target 쪽으로 가려면 지금 향해야 할 지점. 격자가 없거나 길이 없으면 false.
-    // isDirect가 true면 목표가 직선으로 보이는 것이므로, 호출한 쪽은 목표의 현재 위치로 바로 가면 된다.
-    public bool TryGetNextWaypoint(Vector2 from, Vector2 target, out Vector2 waypoint, out bool isDirect)
+    // bodyRadius는 몬스터 몸 반지름으로, 그 몸이 지나갈 수 있는 길만 고른다.
+    // isDirect가 true면 목표까지 직선으로 갈 수 있으므로, 호출한 쪽은 목표의 현재 위치로 바로 가면 된다.
+    public bool TryGetNextWaypoint(Vector2 from, Vector2 target, float bodyRadius, out Vector2 waypoint, out bool isDirect)
     {
         waypoint = target;
         isDirect = false;
@@ -129,19 +162,20 @@ public class EnemyPathfinder : MonoBehaviour
             return false;
         }
 
-        if (HasClearPath(from, target))
+        ClearanceLayer layer = GetLayer(bodyRadius);
+        if (HasLineOfSight(from, target) && HasClearPath(layer, from, target, true))
         {
             isDirect = true;
             return true;
         }
 
-        UpdateDistanceField(target);
+        UpdateDistanceField(layer, target);
 
         int current = GetIndex(fromCell.x, fromCell.y);
-        if (_distance[current] == Unreachable)
+        if (layer.Distance[current] == Unreachable)
         {
             // 넉백 등으로 벽 쪽 여유 공간에 밀려 들어가 있으면 가장 가까운 갈 수 있는 칸부터 시작한다.
-            current = FindNearestReachable(fromCell);
+            current = FindNearestReachable(layer, fromCell);
             if (current < 0)
             {
                 return false;
@@ -149,25 +183,25 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         // 거리가 줄어드는 칸을 따라 몇 칸 앞까지 나아가면서, 직선으로 갈 수 있는 가장 먼 칸을 고른다.
-        int next = GetDownhillNeighbor(current);
+        int next = GetDownhillNeighbor(layer, current);
         waypoint = GetCellCenter(next >= 0 ? next : current);
 
         for (int step = 0; step < _lookAheadCells && next >= 0; step++)
         {
             Vector2 nextCenter = GetCellCenter(next);
-            if (step > 0 && !HasClearPath(from, nextCenter))
+            if (step > 0 && !HasClearPath(layer, from, nextCenter, false))
             {
                 break;
             }
 
             waypoint = nextCenter;
-            next = GetDownhillNeighbor(next);
+            next = GetDownhillNeighbor(layer, next);
         }
 
         return true;
     }
 
-    // 실제 벽/소품 콜라이더에 가려지지 않는지(여유 공간 없이). 원거리 공격 판정용.
+    // 실제 벽/소품 콜라이더에 가려지지 않는지(몸 크기 여유 없이). 원거리 공격 판정용.
     public bool HasLineOfSight(Vector2 from, Vector2 to)
     {
         if (!EnsureGrid())
@@ -198,23 +232,56 @@ public class EnemyPathfinder : MonoBehaviour
         return _hasGrid;
     }
 
-    // 몬스터가 지나갈 수 있는 칸만 거쳐서 직선으로 갈 수 있는지. 출발 칸 근처는 검사하지 않는다(벽에 붙어 있어도 출발할 수 있게).
-    private bool HasClearPath(Vector2 from, Vector2 to)
+    private bool OverlapsObstacle(Vector2 center, float radius, ContactFilter2D filter)
+    {
+        Physics2D.OverlapCircle(center, radius, filter, _overlapResults);
+        bool overlaps = false;
+        foreach (Collider2D hit in _overlapResults)
+        {
+            if (IsStaticObstacle(hit))
+            {
+                _obstacles.Add(hit);
+                overlaps = true;
+            }
+        }
+
+        return overlaps;
+    }
+
+    // 몸 반지름보다 크거나 같은 가장 작은 단계. 몸이 모든 단계보다 크면 가장 큰 단계.
+    private ClearanceLayer GetLayer(float bodyRadius)
+    {
+        foreach (ClearanceLayer layer in _layers)
+        {
+            if (layer.Radius >= bodyRadius * 0.95f)
+            {
+                return layer;
+            }
+        }
+
+        return _layers[_layers.Count - 1];
+    }
+
+    // 몸이 지나갈 수 있는 칸만 거쳐서 직선으로 갈 수 있는지. 출발점 근처는 검사하지 않는다(벽에 붙어 있어도 출발할 수 있게).
+    // ignoreTargetArea가 true면 도착점 근처도 검사하지 않는다(벽에 붙어 선 목표에게 마지막으로 다가갈 수 있게).
+    // 이때 벽을 사이에 둔 경우는 HasLineOfSight로 따로 거른다.
+    private bool HasClearPath(ClearanceLayer layer, Vector2 from, Vector2 to, bool ignoreTargetArea)
     {
         Vector2 delta = to - from;
         float length = delta.magnitude;
         float stepLength = _cellSize * 0.5f;
         int steps = Mathf.CeilToInt(length / stepLength);
+        float targetArea = ignoreTargetArea ? layer.Radius + _clearanceMargin + _cellSize : 0f;
 
         for (int i = 1; i <= steps; i++)
         {
             float distance = Mathf.Min(i * stepLength, length);
-            if (distance < _cellSize)
+            if (distance < _cellSize || length - distance < targetArea)
             {
                 continue;
             }
 
-            if (TryGetCell(from + delta * (distance / length), out Vector2Int cell) && _blocked[GetIndex(cell.x, cell.y)])
+            if (TryGetCell(from + delta * (distance / length), out Vector2Int cell) && layer.Blocked[GetIndex(cell.x, cell.y)])
             {
                 return false;
             }
@@ -224,7 +291,7 @@ public class EnemyPathfinder : MonoBehaviour
     }
 
     // 목표 칸에서부터 모든 칸까지의 최단 거리를 채운다(다익스트라). 목표 칸이 바뀔 때만 다시 계산한다.
-    private void UpdateDistanceField(Vector2 target)
+    private void UpdateDistanceField(ClearanceLayer layer, Vector2 target)
     {
         if (!TryGetCell(target, out Vector2Int targetCell))
         {
@@ -232,27 +299,27 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         int targetIndex = GetIndex(targetCell.x, targetCell.y);
-        if (targetIndex == _targetIndex || (_targetIndex >= 0 && Time.time < _nextFieldUpdateTime))
+        if (targetIndex == layer.TargetIndex || (layer.TargetIndex >= 0 && Time.time < layer.NextUpdateTime))
         {
             return;
         }
 
-        _targetIndex = targetIndex;
-        _nextFieldUpdateTime = Time.time + _fieldUpdateInterval;
+        layer.TargetIndex = targetIndex;
+        layer.NextUpdateTime = Time.time + _fieldUpdateInterval;
         float maxDistance = _maxSearchDistance / _cellSize;
-        for (int i = 0; i < _distance.Length; i++)
+
+        float[] distances = layer.Distance;
+        for (int i = 0; i < distances.Length; i++)
         {
-            _distance[i] = Unreachable;
+            distances[i] = Unreachable;
         }
 
-        // 목표가 벽에 붙어 있어 막힌 칸이어도 거기서부터 퍼져나가게 한다.
-        _distance[targetIndex] = 0f;
         _open.Clear();
-        _open.Push(targetIndex, 0f);
+        SeedTarget(layer, targetCell);
 
         while (_open.TryPop(out int index, out float distance))
         {
-            if (distance > _distance[index])
+            if (distance > distances[index])
             {
                 continue;
             }
@@ -262,58 +329,95 @@ public class EnemyPathfinder : MonoBehaviour
             for (int i = 0; i < NeighborOffsets.Length; i++)
             {
                 Vector2Int offset = NeighborOffsets[i];
-                if (!CanStep(x, y, offset))
+                if (!CanStep(layer, x, y, offset))
                 {
                     continue;
                 }
 
                 int neighbor = GetIndex(x + offset.x, y + offset.y);
                 float newDistance = distance + (i < 4 ? 1f : DiagonalCost);
-                if (newDistance <= maxDistance && newDistance < _distance[neighbor])
+                if (newDistance <= maxDistance && newDistance < distances[neighbor])
                 {
-                    _distance[neighbor] = newDistance;
+                    distances[neighbor] = newDistance;
                     _open.Push(neighbor, newDistance);
                 }
             }
         }
     }
 
+    // 목표가 벽에 붙어 서 있으면 큰 몸 단계에서는 목표 칸이 막혀 있다.
+    // 그때는 목표 주변에서 몸이 설 수 있는 칸들을, 목표까지의 거리만큼 앞선 출발점으로 삼는다.
+    private void SeedTarget(ClearanceLayer layer, Vector2Int targetCell)
+    {
+        int targetIndex = GetIndex(targetCell.x, targetCell.y);
+        if (!layer.Blocked[targetIndex])
+        {
+            layer.Distance[targetIndex] = 0f;
+            _open.Push(targetIndex, 0f);
+            return;
+        }
+
+        int range = Mathf.CeilToInt((layer.Radius + _clearanceMargin) * 2f / _cellSize) + 1;
+        for (int dy = -range; dy <= range; dy++)
+        {
+            for (int dx = -range; dx <= range; dx++)
+            {
+                int x = targetCell.x + dx;
+                int y = targetCell.y + dy;
+                if (x < 0 || y < 0 || x >= _width || y >= _height)
+                {
+                    continue;
+                }
+
+                int index = GetIndex(x, y);
+                if (layer.Blocked[index])
+                {
+                    continue;
+                }
+
+                float distance = Mathf.Sqrt(dx * dx + dy * dy);
+                layer.Distance[index] = distance;
+                _open.Push(index, distance);
+            }
+        }
+    }
+
     // 대각선은 양옆 두 칸이 모두 비어 있을 때만 지나간다(벽 모서리를 깎고 지나가지 않게).
-    private bool CanStep(int x, int y, Vector2Int offset)
+    private bool CanStep(ClearanceLayer layer, int x, int y, Vector2Int offset)
     {
         int nx = x + offset.x;
         int ny = y + offset.y;
-        if (nx < 0 || ny < 0 || nx >= _width || ny >= _height || _blocked[GetIndex(nx, ny)])
+        if (nx < 0 || ny < 0 || nx >= _width || ny >= _height || layer.Blocked[GetIndex(nx, ny)])
         {
             return false;
         }
 
         if (offset.x != 0 && offset.y != 0)
         {
-            return !_blocked[GetIndex(x + offset.x, y)] && !_blocked[GetIndex(x, y + offset.y)];
+            return !layer.Blocked[GetIndex(x + offset.x, y)] && !layer.Blocked[GetIndex(x, y + offset.y)];
         }
 
         return true;
     }
 
-    private int GetDownhillNeighbor(int index)
+    private int GetDownhillNeighbor(ClearanceLayer layer, int index)
     {
         int x = index % _width;
         int y = index / _width;
         int best = -1;
-        float bestDistance = _distance[index];
+        float bestDistance = layer.Distance[index];
 
         foreach (Vector2Int offset in NeighborOffsets)
         {
-            if (!CanStep(x, y, offset))
+            if (!CanStep(layer, x, y, offset))
             {
                 continue;
             }
 
             int neighbor = GetIndex(x + offset.x, y + offset.y);
-            if (_distance[neighbor] < bestDistance)
+            if (layer.Distance[neighbor] < bestDistance)
             {
-                bestDistance = _distance[neighbor];
+                bestDistance = layer.Distance[neighbor];
                 best = neighbor;
             }
         }
@@ -321,10 +425,10 @@ public class EnemyPathfinder : MonoBehaviour
         return best;
     }
 
-    private int FindNearestReachable(Vector2Int cell)
+    private int FindNearestReachable(ClearanceLayer layer, Vector2Int cell)
     {
-        const int MaxRing = 3;
-        for (int ring = 1; ring <= MaxRing; ring++)
+        int maxRing = Mathf.CeilToInt((layer.Radius + _clearanceMargin) * 2f / _cellSize) + 1;
+        for (int ring = 1; ring <= maxRing; ring++)
         {
             int best = -1;
             float bestDistance = Unreachable;
@@ -340,9 +444,9 @@ public class EnemyPathfinder : MonoBehaviour
                     }
 
                     int index = GetIndex(x, y);
-                    if (!_blocked[index] && _distance[index] < bestDistance)
+                    if (!layer.Blocked[index] && layer.Distance[index] < bestDistance)
                     {
-                        bestDistance = _distance[index];
+                        bestDistance = layer.Distance[index];
                         best = index;
                     }
                 }
@@ -405,22 +509,23 @@ public class EnemyPathfinder : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (!_drawGizmos || !_hasGrid)
+        if (!_drawGizmos || !_hasGrid || _layers.Count == 0)
         {
             return;
         }
 
+        ClearanceLayer layer = _layers[Mathf.Clamp(_gizmoLayerIndex, 0, _layers.Count - 1)];
         Vector3 size = new Vector3(_cellSize, _cellSize, 0f) * 0.9f;
         for (int y = 0; y < _height; y++)
         {
             for (int x = 0; x < _width; x++)
             {
                 int index = GetIndex(x, y);
-                if (_blocked[index])
+                if (layer.Blocked[index])
                 {
                     Gizmos.color = new Color(1f, 0f, 0f, 0.35f);
                 }
-                else if (_distance[index] == Unreachable)
+                else if (layer.Distance[index] == Unreachable)
                 {
                     continue;
                 }
