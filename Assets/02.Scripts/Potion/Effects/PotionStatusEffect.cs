@@ -56,6 +56,13 @@ public sealed class PotionStatusEffectState
     public bool IsActive(PotionStatusEffect status) => TryGetActive(status, _clock(), out _);
     public int GetStackCount(PotionStatusEffect status) => IsActive(status) ? 1 : 0;
 
+    // 걸려 있지 않으면 0.
+    public float GetRemainingTime(PotionStatusEffect status)
+    {
+        double now = _clock();
+        return TryGetActive(status, now, out ActiveStatus active) ? (float)(active.ExpiresAt - now) : 0f;
+    }
+
     public void Apply(PotionStatusApplication application)
     {
         if (application.Duration <= 0f) return;
