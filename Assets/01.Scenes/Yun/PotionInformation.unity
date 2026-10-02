@@ -1299,6 +1299,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4206442441397566811, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+      propertyPath: _inputReaderSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
+    - target: {fileID: 4206442441397566811, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+      propertyPath: _potionInformationHUD
+      value: 
+      objectReference: {fileID: 1638256229}
     - target: {fileID: 4210233259182897936, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -4732,6 +4740,10 @@ PrefabInstance:
       propertyPath: _potionRunCatalog
       value: 
       objectReference: {fileID: 163285582}
+    - target: {fileID: 8955322128090660171, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
