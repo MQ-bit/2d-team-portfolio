@@ -13,6 +13,10 @@ public static class PotionEffectApplier
 
     public static IPotionEffectTarget FindTarget(Component component)
     {
+        // Sensor triggers (such as the player's item collection radius) are not
+        // body contacts. Resolving their parent would apply effects at a distance.
+        if (component is Collider2D collider && collider.isTrigger) return null;
+
         Transform current = component == null ? null : component.transform;
         while (current != null)
         {

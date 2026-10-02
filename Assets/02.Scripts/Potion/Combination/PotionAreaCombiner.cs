@@ -45,14 +45,10 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
     {
         // 착탄 프레임에 생성된 장판의 위치와 크기를 즉시 반영한다.
         Physics2D.SyncTransforms();
-        CircleCollider2D areaCollider = _area.AreaCollider;
-        Vector3 scale = areaCollider.transform.lossyScale;
-        float radiusScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
-        float radius = areaCollider.radius * radiusScale;
-        Vector2 center = areaCollider.transform.TransformPoint(areaCollider.offset);
+        Collider2D areaCollider = _area.AreaCollider;
 
         ContactFilter2D filter = new() { useTriggers = true };
-        Physics2D.OverlapCircle(center, radius, filter, _overlaps);
+        areaCollider.Overlap(filter, _overlaps);
 
         foreach (Collider2D overlap in _overlaps)
         {

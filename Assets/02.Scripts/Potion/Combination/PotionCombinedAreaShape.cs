@@ -35,12 +35,12 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
     public void Create(PotionGroundArea first, PotionGroundArea second,
         PotionVisualData visualData, float spreadDuration)
     {
-        CircleCollider2D firstCircle = first.AreaCollider;
-        CircleCollider2D secondCircle = second.AreaCollider;
-        Vector2 firstCenter = firstCircle.bounds.center;
-        Vector2 secondCenter = secondCircle.bounds.center;
-        var shape = new PotionPuddleShape(firstCenter, firstCircle.bounds.extents.x,
-            secondCenter, secondCircle.bounds.extents.x,
+        Collider2D firstCollider = first.AreaCollider;
+        Collider2D secondCollider = second.AreaCollider;
+        Vector2 firstCenter = firstCollider.bounds.center;
+        Vector2 secondCenter = secondCollider.bounds.center;
+        var shape = new PotionPuddleShape(firstCenter, firstCollider.bounds.extents.x,
+            secondCenter, secondCollider.bounds.extents.x,
             _connectionWidthRatio, _connectionBlendRatio);
         var spread = new PotionCombinationSpread(shape, _combinationCollider, Time.time,
             spreadDuration, first.Data.VisualData.AreaColor, second.Data.VisualData.AreaColor);
@@ -51,8 +51,8 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
                 - (Vector3)_combinationCollider.offset;
         }
 
-        firstCircle.enabled = false;
-        secondCircle.enabled = false;
+        firstCollider.enabled = false;
+        secondCollider.enabled = false;
         _combinationCollider.pathCount = 1;
         _combinationCollider.SetPath(0, points);
         _combinationCollider.enabled = true;

@@ -59,7 +59,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         if (_singleProfile == null) return;
 
         Physics2D.SyncTransforms();
-        Collider2D areaCollider = effectCollider != null ? effectCollider : GetComponent<Collider2D>();
+        Collider2D areaCollider = effectCollider != null ? effectCollider : GetComponent<PotionGroundArea>()?.AreaCollider;
         if (areaCollider == null) return;
 
         var hits = new List<Collider2D>();
