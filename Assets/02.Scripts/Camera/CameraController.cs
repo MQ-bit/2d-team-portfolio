@@ -24,13 +24,17 @@ public class CameraController : MonoBehaviour
     [Header("Boundary Settings")]
     [SerializeField] private Collider2D _cameraBoundary;
 
-    //나중에 카메라 이펙트 처리 코드 들고올수도?
+    [Header("Camera Shake Settings")]
+    [SerializeField] private CinemachineImpulseSource _impulseSource; // 비워두면 아래 설정으로 런타임에 생성
+    [SerializeField, Min(0.01f)] private float _shakeDuration = 0.15f;
+    [SerializeField] private bool _shakeIgnoreTimeScale = true; // 히트스톱으로 시간이 멈춰도 흔들림은 재생되게
 
     private void Awake()
     {
         SingletonInitiate();
         InitiateCameraSettings();
         InitiateCameraBoundary();
+        InitiateCameraShake();
     }
 
     private void SingletonInitiate()
@@ -67,6 +71,65 @@ public class CameraController : MonoBehaviour
                 Debug.LogWarning($"{gameObject.name} : Fail to Find Camera Boundary! Need to make Boundary Object.");
             }
         }
+    }
+
+    // 런타임에 AddComponent하면 Reset()이 불리지 않아 Gain, ChannelMask 등이 0이므로 직접 채워준다.
+    private void InitiateCameraShake()
+    {
+        if (_camera != null && !_camera.TryGetComponent(out CinemachineImpulseListener _))
+        {
+            CinemachineImpulseListener listener = _camera.gameObject.AddComponent<CinemachineImpulseListener>();
+            listener.ApplyAfter = CinemachineCore.Stage.Noise;
+            listener.ChannelMask = 1;
+            listener.Gain = 1f;
+            listener.UseCameraSpace = true;
+            listener.ReactionSettings = new CinemachineImpulseListener.ImpulseReaction
+            {
+                AmplitudeGain = 1f,
+                FrequencyGain = 1f,
+                Duration = 1f
+            };
+        }
+
+        if (_impulseSource == null)
+        {
+            _impulseSource = gameObject.AddComponent<CinemachineImpulseSource>();
+            _impulseSource.ImpulseDefinition = new CinemachineImpulseDefinition
+            {
+                ImpulseChannel = 1,
+                ImpulseShape = CinemachineImpulseDefinition.ImpulseShapes.Recoil,
+                ImpulseDuration = _shakeDuration,
+                ImpulseType = CinemachineImpulseDefinition.ImpulseTypes.Uniform
+            };
+        }
+
+        CinemachineImpulseManager.Instance.IgnoreTimeScale = _shakeIgnoreTimeScale;
+    }
+
+    // direction 방향으로 화면을 튕기듯 흔든다. 방향이 없으면 무작위 방향.
+    public void ShakeCamera(Vector2 direction, float force)
+    {
+        if (_impulseSource == null || force <= 0f)
+        {
+            return;
+        }
+
+        if (direction.sqrMagnitude < Mathf.Epsilon)
+        {
+            direction = Random.insideUnitCircle;
+
+            if (direction.sqrMagnitude < Mathf.Epsilon)
+            {
+                direction = Vector2.right;
+            }
+        }
+
+        _impulseSource.GenerateImpulseWithVelocity(direction.normalized * force);
+    }
+
+    public void ShakeCamera(float force)
+    {
+        ShakeCamera(Vector2.zero, force);
     }
 
     private void Start()

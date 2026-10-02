@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
+public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectionalDamageable
 {
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
@@ -46,6 +46,8 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
     public event Action<float, float> OnThirstChanged; //current, max
     public event Action<float, float> OnHealthChanged; //current, max
     public event Action OnDeath;
+    // 피해를 입었을 때(받은 피해량, 맞은 방향). 방향을 모르면 Vector2.zero. 죽는 타격에서도 OnDeath보다 먼저 호출된다.
+    public event Action<float, Vector2> OnDamaged;
     //public event Action OnRevive;
 
     private void Awake()
@@ -80,10 +82,20 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable
 
     public void DecreaseHealth(float amount)
     {
+        DecreaseHealth(amount, Vector2.zero);
+    }
+
+    public void DecreaseHealth(float amount, Vector2 hitDirection)
+    {
         if (IsDead) return;
 
         _healthInstance.DecreaseHealth(amount);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
+
+        if (amount > 0f)
+        {
+            OnDamaged?.Invoke(amount, hitDirection);
+        }
 
         if (_healthInstance.IsDead)
         {

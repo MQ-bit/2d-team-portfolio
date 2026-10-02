@@ -52,6 +52,7 @@ GameObject:
   - component: {fileID: 6935868058329909207}
   - component: {fileID: 4706277357270954568}
   - component: {fileID: 7814849132968377541}
+  - component: {fileID: 910000000000000004}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -364,6 +365,31 @@ MonoBehaviour:
   _attackClipLength: 0.3
   _throwClipLength: 0.33
   _moveThreshold: 0.1
+--- !u!114 &910000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f97b96ea4274911bd2ec2f48803a951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHitFeedback
+  _meleeModule: {fileID: 4706277357270954568}
+  _status: {fileID: 409094873972115548}
+  _spriteRenderer: {fileID: 556253292886699385}
+  _meleeHitStopDuration: 0.05
+  _meleeHitShakeForce: 0.15
+  _meleeKillHitStopDuration: 0.09
+  _meleeKillShakeForce: 0.3
+  _damagedHitStopDuration: 0.07
+  _damagedShakeForce: 0.35
+  _minDamageForFeedback: 1
+  _damagedFeedbackCooldown: 0.25
+  _flashMaterial: {fileID: 2100000, guid: b0bbd136683e9d64493c8987c4e48720, type: 2}
+  _flashDuration: 0.1
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0
