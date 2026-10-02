@@ -159,6 +159,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3712907596451249533}
+  - component: {fileID: 5011518466221673573}
   m_Layer: 5
   m_Name: CombinationInfoSlot
   m_TagString: Untagged
@@ -191,6 +192,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 560, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5011518466221673573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3066126491801778557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc75e9afa923f99488cb94e6ccfe3ef6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombinationInfoSlot
+  _elementAIcon: {fileID: 7389269687570404434}
+  _elementBIcon: {fileID: 6512521309192821626}
+  _resultIcon: {fileID: 4897977649386895854}
 --- !u!1 &3290707354592750104
 GameObject:
   m_ObjectHideFlags: 0
