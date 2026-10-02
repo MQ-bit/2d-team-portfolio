@@ -149,13 +149,14 @@ public class ExplodingEnemyController : MonoBehaviour
 
         Vector2 targetPosition = _target.position;
         float distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance <= _data.FuseTriggerRange)
+        // 벽 너머에서 예열하지 않도록 직접 보일 때만 예열을 시작한다.
+        if (distance <= _data.FuseTriggerRange && EnemyPathfinder.Instance.HasLineOfSight(transform.position, targetPosition))
         {
             StartFuse();
             return;
         }
 
-        _movementModule.MoveTowards(targetPosition, _status.Speed);
+        _movementModule.ChaseTarget(targetPosition, _status.Speed);
     }
 
     private void StartFuse()
