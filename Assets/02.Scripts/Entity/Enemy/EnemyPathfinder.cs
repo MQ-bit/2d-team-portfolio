@@ -1,0 +1,519 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+// 몬스터 공통 길찾기(플로우 필드).
+// 맵을 격자로 나눠 벽/소품이 있는 칸을 막아두고, 목표(플레이어) 칸에서 퍼져나가는 거리 지도를 만들어 모든 몬스터가 같이 쓴다.
+// 목표가 다른 칸으로 옮겨갈 때만 거리 지도를 다시 계산하므로 몬스터 수가 늘어도 비용이 거의 같다.
+// 씬에 따로 배치하지 않아도 처음 쓰일 때 스스로 생성되고, 씬의 타일맵 범위로 격자를 만든다.
+// 맵이 바뀌면(랜덤 맵 생성 등) RebuildGrid()를 호출한다.
+public class EnemyPathfinder : MonoBehaviour
+{
+    private const float Unreachable = float.MaxValue;
+    private const float DiagonalCost = 1.4142135f;
+
+    private static readonly Vector2Int[] NeighborOffsets =
+    {
+        new Vector2Int(1, 0), new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(0, -1),
+        new Vector2Int(1, 1), new Vector2Int(1, -1), new Vector2Int(-1, 1), new Vector2Int(-1, -1)
+    };
+
+    private static EnemyPathfinder _instance;
+    public static EnemyPathfinder Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindAnyObjectByType<EnemyPathfinder>();
+                if (_instance == null)
+                {
+                    _instance = new GameObject(nameof(EnemyPathfinder)).AddComponent<EnemyPathfinder>();
+                }
+            }
+
+            return _instance;
+        }
+    }
+
+    [Header("Grid Settings")]
+    [Tooltip("격자 한 칸 크기. 타일(1유닛)의 절반이면 칸 중심이 타일 중심과 경계에 모두 놓여 1칸짜리 통로도 지나갈 수 있다.")]
+    [SerializeField, Min(0.1f)] private float _cellSize = 0.5f;
+    [Tooltip("벽에서 이만큼 떨어진 칸만 지나갈 수 있다. 몬스터가 벽 모서리에 걸리지 않게 하는 여유.")]
+    [SerializeField, Min(0f)] private float _agentRadius = 0.8f;
+
+    [Header("Path Settings")]
+    [Tooltip("경로를 몇 칸 앞까지 내다보고, 그중 직선으로 갈 수 있는 가장 먼 칸으로 향한다. 클수록 경로가 매끄럽다.")]
+    [SerializeField, Min(1)] private int _lookAheadCells = 8;
+    [Tooltip("목표로부터 이 거리(유닛, 경로 기준)까지만 길을 계산한다. 그보다 먼 몬스터는 목표 쪽으로 직진한다.")]
+    [SerializeField, Min(1f)] private float _maxSearchDistance = 60f;
+    [Tooltip("목표가 칸을 옮겨도 거리 지도는 최대 이 간격(초)으로만 다시 계산한다. 마지막 접근은 직선 추적이라 약간 늦어도 티가 안 난다.")]
+    [SerializeField, Min(0f)] private float _fieldUpdateInterval = 0.1f;
+
+    [Header("Debug")]
+    [SerializeField] private bool _drawGizmos;
+
+    private readonly HashSet<Collider2D> _obstacles = new HashSet<Collider2D>();
+    private readonly List<Collider2D> _overlapResults = new List<Collider2D>();
+    private readonly List<RaycastHit2D> _castResults = new List<RaycastHit2D>();
+    private readonly CellHeap _open = new CellHeap();
+
+    private bool _hasGrid;
+    private bool _isGridBuilt;
+    private Vector2 _origin;
+    private int _width;
+    private int _height;
+    private bool[] _blocked;
+    private float[] _distance;
+    private int _targetIndex = -1;
+    private float _nextFieldUpdateTime;
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
+    }
+
+    // 씬의 타일맵 범위로 격자를 다시 만들고, 칸마다 정적 콜라이더(벽, 소품)가 있는지 검사한다.
+    public void RebuildGrid()
+    {
+        _isGridBuilt = true;
+        _targetIndex = -1;
+        _obstacles.Clear();
+        _hasGrid = TryGetMapBounds(out Bounds bounds);
+        if (!_hasGrid)
+        {
+            return;
+        }
+
+        // 칸 중심이 타일 경계와 타일 중심에 놓이도록 반 칸 밀어서 시작한다.
+        _origin = new Vector2(Mathf.Floor(bounds.min.x), Mathf.Floor(bounds.min.y)) - Vector2.one * (_cellSize * 0.5f);
+        _width = Mathf.CeilToInt((bounds.max.x - _origin.x) / _cellSize) + 1;
+        _height = Mathf.CeilToInt((bounds.max.y - _origin.y) / _cellSize) + 1;
+        _blocked = new bool[_width * _height];
+        _distance = new float[_width * _height];
+
+        ContactFilter2D filter = new ContactFilter2D { useTriggers = false };
+        float checkRadius = Mathf.Max(0.01f, _agentRadius);
+
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                Physics2D.OverlapCircle(GetCellCenter(x, y), checkRadius, filter, _overlapResults);
+                foreach (Collider2D hit in _overlapResults)
+                {
+                    if (!IsStaticObstacle(hit))
+                    {
+                        continue;
+                    }
+
+                    _obstacles.Add(hit);
+                    _blocked[GetIndex(x, y)] = true;
+                }
+            }
+        }
+    }
+
+    // from에서 target 쪽으로 가려면 지금 향해야 할 지점. 격자가 없거나 길이 없으면 false.
+    // isDirect가 true면 목표가 직선으로 보이는 것이므로, 호출한 쪽은 목표의 현재 위치로 바로 가면 된다.
+    public bool TryGetNextWaypoint(Vector2 from, Vector2 target, out Vector2 waypoint, out bool isDirect)
+    {
+        waypoint = target;
+        isDirect = false;
+
+        if (!EnsureGrid() || !TryGetCell(from, out Vector2Int fromCell))
+        {
+            return false;
+        }
+
+        if (HasClearPath(from, target))
+        {
+            isDirect = true;
+            return true;
+        }
+
+        UpdateDistanceField(target);
+
+        int current = GetIndex(fromCell.x, fromCell.y);
+        if (_distance[current] == Unreachable)
+        {
+            // 넉백 등으로 벽 쪽 여유 공간에 밀려 들어가 있으면 가장 가까운 갈 수 있는 칸부터 시작한다.
+            current = FindNearestReachable(fromCell);
+            if (current < 0)
+            {
+                return false;
+            }
+        }
+
+        // 거리가 줄어드는 칸을 따라 몇 칸 앞까지 나아가면서, 직선으로 갈 수 있는 가장 먼 칸을 고른다.
+        int next = GetDownhillNeighbor(current);
+        waypoint = GetCellCenter(next >= 0 ? next : current);
+
+        for (int step = 0; step < _lookAheadCells && next >= 0; step++)
+        {
+            Vector2 nextCenter = GetCellCenter(next);
+            if (step > 0 && !HasClearPath(from, nextCenter))
+            {
+                break;
+            }
+
+            waypoint = nextCenter;
+            next = GetDownhillNeighbor(next);
+        }
+
+        return true;
+    }
+
+    // 실제 벽/소품 콜라이더에 가려지지 않는지(여유 공간 없이). 원거리 공격 판정용.
+    public bool HasLineOfSight(Vector2 from, Vector2 to)
+    {
+        if (!EnsureGrid())
+        {
+            return true;
+        }
+
+        ContactFilter2D filter = new ContactFilter2D { useTriggers = false };
+        Physics2D.Linecast(from, to, filter, _castResults);
+        foreach (RaycastHit2D hit in _castResults)
+        {
+            if (_obstacles.Contains(hit.collider))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool EnsureGrid()
+    {
+        if (!_isGridBuilt)
+        {
+            RebuildGrid();
+        }
+
+        return _hasGrid;
+    }
+
+    // 몬스터가 지나갈 수 있는 칸만 거쳐서 직선으로 갈 수 있는지. 출발 칸 근처는 검사하지 않는다(벽에 붙어 있어도 출발할 수 있게).
+    private bool HasClearPath(Vector2 from, Vector2 to)
+    {
+        Vector2 delta = to - from;
+        float length = delta.magnitude;
+        float stepLength = _cellSize * 0.5f;
+        int steps = Mathf.CeilToInt(length / stepLength);
+
+        for (int i = 1; i <= steps; i++)
+        {
+            float distance = Mathf.Min(i * stepLength, length);
+            if (distance < _cellSize)
+            {
+                continue;
+            }
+
+            if (TryGetCell(from + delta * (distance / length), out Vector2Int cell) && _blocked[GetIndex(cell.x, cell.y)])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 목표 칸에서부터 모든 칸까지의 최단 거리를 채운다(다익스트라). 목표 칸이 바뀔 때만 다시 계산한다.
+    private void UpdateDistanceField(Vector2 target)
+    {
+        if (!TryGetCell(target, out Vector2Int targetCell))
+        {
+            targetCell = new Vector2Int(Mathf.Clamp(targetCell.x, 0, _width - 1), Mathf.Clamp(targetCell.y, 0, _height - 1));
+        }
+
+        int targetIndex = GetIndex(targetCell.x, targetCell.y);
+        if (targetIndex == _targetIndex || (_targetIndex >= 0 && Time.time < _nextFieldUpdateTime))
+        {
+            return;
+        }
+
+        _targetIndex = targetIndex;
+        _nextFieldUpdateTime = Time.time + _fieldUpdateInterval;
+        float maxDistance = _maxSearchDistance / _cellSize;
+        for (int i = 0; i < _distance.Length; i++)
+        {
+            _distance[i] = Unreachable;
+        }
+
+        // 목표가 벽에 붙어 있어 막힌 칸이어도 거기서부터 퍼져나가게 한다.
+        _distance[targetIndex] = 0f;
+        _open.Clear();
+        _open.Push(targetIndex, 0f);
+
+        while (_open.TryPop(out int index, out float distance))
+        {
+            if (distance > _distance[index])
+            {
+                continue;
+            }
+
+            int x = index % _width;
+            int y = index / _width;
+            for (int i = 0; i < NeighborOffsets.Length; i++)
+            {
+                Vector2Int offset = NeighborOffsets[i];
+                if (!CanStep(x, y, offset))
+                {
+                    continue;
+                }
+
+                int neighbor = GetIndex(x + offset.x, y + offset.y);
+                float newDistance = distance + (i < 4 ? 1f : DiagonalCost);
+                if (newDistance <= maxDistance && newDistance < _distance[neighbor])
+                {
+                    _distance[neighbor] = newDistance;
+                    _open.Push(neighbor, newDistance);
+                }
+            }
+        }
+    }
+
+    // 대각선은 양옆 두 칸이 모두 비어 있을 때만 지나간다(벽 모서리를 깎고 지나가지 않게).
+    private bool CanStep(int x, int y, Vector2Int offset)
+    {
+        int nx = x + offset.x;
+        int ny = y + offset.y;
+        if (nx < 0 || ny < 0 || nx >= _width || ny >= _height || _blocked[GetIndex(nx, ny)])
+        {
+            return false;
+        }
+
+        if (offset.x != 0 && offset.y != 0)
+        {
+            return !_blocked[GetIndex(x + offset.x, y)] && !_blocked[GetIndex(x, y + offset.y)];
+        }
+
+        return true;
+    }
+
+    private int GetDownhillNeighbor(int index)
+    {
+        int x = index % _width;
+        int y = index / _width;
+        int best = -1;
+        float bestDistance = _distance[index];
+
+        foreach (Vector2Int offset in NeighborOffsets)
+        {
+            if (!CanStep(x, y, offset))
+            {
+                continue;
+            }
+
+            int neighbor = GetIndex(x + offset.x, y + offset.y);
+            if (_distance[neighbor] < bestDistance)
+            {
+                bestDistance = _distance[neighbor];
+                best = neighbor;
+            }
+        }
+
+        return best;
+    }
+
+    private int FindNearestReachable(Vector2Int cell)
+    {
+        const int MaxRing = 3;
+        for (int ring = 1; ring <= MaxRing; ring++)
+        {
+            int best = -1;
+            float bestDistance = Unreachable;
+            for (int dy = -ring; dy <= ring; dy++)
+            {
+                for (int dx = -ring; dx <= ring; dx++)
+                {
+                    int x = cell.x + dx;
+                    int y = cell.y + dy;
+                    if (x < 0 || y < 0 || x >= _width || y >= _height)
+                    {
+                        continue;
+                    }
+
+                    int index = GetIndex(x, y);
+                    if (!_blocked[index] && _distance[index] < bestDistance)
+                    {
+                        bestDistance = _distance[index];
+                        best = index;
+                    }
+                }
+            }
+
+            if (best >= 0)
+            {
+                return best;
+            }
+        }
+
+        return -1;
+    }
+
+    // 움직이는 물체(플레이어, 몬스터, 투사체)와 트리거는 장애물이 아니다.
+    private static bool IsStaticObstacle(Collider2D collider)
+    {
+        if (collider.isTrigger)
+        {
+            return false;
+        }
+
+        Rigidbody2D body = collider.attachedRigidbody;
+        return body == null || body.bodyType == RigidbodyType2D.Static;
+    }
+
+    private static bool TryGetMapBounds(out Bounds bounds)
+    {
+        bounds = default;
+        bool hasBounds = false;
+
+        foreach (TilemapRenderer tilemapRenderer in FindObjectsByType<TilemapRenderer>(FindObjectsSortMode.None))
+        {
+            if (!hasBounds)
+            {
+                bounds = tilemapRenderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(tilemapRenderer.bounds);
+            }
+        }
+
+        return hasBounds;
+    }
+
+    private bool TryGetCell(Vector2 position, out Vector2Int cell)
+    {
+        cell = new Vector2Int(Mathf.FloorToInt((position.x - _origin.x) / _cellSize),
+            Mathf.FloorToInt((position.y - _origin.y) / _cellSize));
+        return cell.x >= 0 && cell.y >= 0 && cell.x < _width && cell.y < _height;
+    }
+
+    private int GetIndex(int x, int y) => y * _width + x;
+
+    private Vector2 GetCellCenter(int x, int y) => _origin + new Vector2((x + 0.5f) * _cellSize, (y + 0.5f) * _cellSize);
+
+    private Vector2 GetCellCenter(int index) => GetCellCenter(index % _width, index / _width);
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!_drawGizmos || !_hasGrid)
+        {
+            return;
+        }
+
+        Vector3 size = new Vector3(_cellSize, _cellSize, 0f) * 0.9f;
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                int index = GetIndex(x, y);
+                if (_blocked[index])
+                {
+                    Gizmos.color = new Color(1f, 0f, 0f, 0.35f);
+                }
+                else if (_distance[index] == Unreachable)
+                {
+                    continue;
+                }
+                else
+                {
+                    Gizmos.color = new Color(0f, 1f, 0f, 0.1f);
+                }
+
+                Gizmos.DrawCube(GetCellCenter(x, y), size);
+            }
+        }
+    }
+
+    // 다익스트라용 최소 힙. 같은 칸이 여러 번 들어갈 수 있고, 꺼낼 때 더 짧은 거리가 이미 있으면 버린다.
+    private sealed class CellHeap
+    {
+        private readonly List<int> _indices = new List<int>();
+        private readonly List<float> _priorities = new List<float>();
+
+        public void Clear()
+        {
+            _indices.Clear();
+            _priorities.Clear();
+        }
+
+        public void Push(int index, float priority)
+        {
+            _indices.Add(index);
+            _priorities.Add(priority);
+
+            int child = _indices.Count - 1;
+            while (child > 0)
+            {
+                int parent = (child - 1) / 2;
+                if (_priorities[parent] <= _priorities[child])
+                {
+                    break;
+                }
+
+                Swap(parent, child);
+                child = parent;
+            }
+        }
+
+        public bool TryPop(out int index, out float priority)
+        {
+            if (_indices.Count == 0)
+            {
+                index = -1;
+                priority = 0f;
+                return false;
+            }
+
+            index = _indices[0];
+            priority = _priorities[0];
+
+            int last = _indices.Count - 1;
+            _indices[0] = _indices[last];
+            _priorities[0] = _priorities[last];
+            _indices.RemoveAt(last);
+            _priorities.RemoveAt(last);
+
+            int parent = 0;
+            while (true)
+            {
+                int left = parent * 2 + 1;
+                int right = left + 1;
+                int smallest = parent;
+
+                if (left < _indices.Count && _priorities[left] < _priorities[smallest])
+                {
+                    smallest = left;
+                }
+                if (right < _indices.Count && _priorities[right] < _priorities[smallest])
+                {
+                    smallest = right;
+                }
+                if (smallest == parent)
+                {
+                    break;
+                }
+
+                Swap(parent, smallest);
+                parent = smallest;
+            }
+
+            return true;
+        }
+
+        private void Swap(int a, int b)
+        {
+            (_indices[a], _indices[b]) = (_indices[b], _indices[a]);
+            (_priorities[a], _priorities[b]) = (_priorities[b], _priorities[a]);
+        }
+    }
+}

@@ -142,9 +142,15 @@ public class RangedEnemyController : MonoBehaviour
                 _state = State.Chase;
             }
         }
-        else if (distance <= _data.AttackRange)
+        else if (distance <= _data.AttackRange && HasLineOfSightToTarget())
         {
             EnterAttack();
+        }
+
+        // 벽 뒤로 숨으면 쏘지 않고 보이는 곳까지 돌아서 다가간다. 이미 시작한 공격은 그대로 쏜다.
+        if (_state == State.Attack && !_isFiring && !HasLineOfSightToTarget())
+        {
+            _state = State.Chase;
         }
 
         switch (_state)
@@ -152,7 +158,7 @@ public class RangedEnemyController : MonoBehaviour
             case State.Idle:
             case State.Chase:
                 _state = State.Chase;
-                _movementModule.MoveTowards(_target.position, _status.Speed);
+                _movementModule.ChaseTarget(_target.position, _status.Speed);
                 break;
             case State.Attack:
                 _movementModule.Stop();
@@ -242,6 +248,11 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         return transform.TransformPoint(localPoint);
+    }
+
+    private bool HasLineOfSightToTarget()
+    {
+        return EnemyPathfinder.Instance.HasLineOfSight(GetFireOrigin(), _target.position);
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.

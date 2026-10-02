@@ -53,7 +53,7 @@ public sealed class PotionCombinationData : ScriptableObject, IPotionEffectData
     [Header("Visual")]
     [Tooltip("겹친 영역에서 장판 전체로 조합 이미지와 효과가 퍼지는 시간. 0이면 즉시 전환한다.")]
     [SerializeField, Min(0f)] private float _spreadDuration = 0.8f;
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null);
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null, null);
 
     public PotionCombination Combination => _combination;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _combination.ToString() : _displayName;

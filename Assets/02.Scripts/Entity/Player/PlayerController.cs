@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerMeleeModule _meleeModule;
     [SerializeField] private PlayerStatus _playerStatus;
 
+    public bool CanReadInput { get; private set; } = true;
+
     // UI 연결을 위한 프로퍼티
     public PlayerMovementModule MovementModule => _movementModule;
     public PlayerThrowingModule ThrowingModule => _throwingModule;
@@ -18,6 +20,8 @@ public class PlayerController : MonoBehaviour
     public PlayerDrinkingModule DrinkingModule => _drinkingModule;
     public PlayerMeleeModule MeleeModule => _meleeModule;
     public PlayerStatus PlayerStatus => _playerStatus;
+
+    public Vector2 ReadableMoveInput => CanReadInput ? _inputSO.MoveInput : Vector2.zero;
 
     private void Awake()
     {
@@ -92,11 +96,14 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!CanReadInput) return;
         HandleMoveInput();
     }
 
     private void Update()
     {
+        if (!CanReadInput) return;
+
         if (_throwingModule.IsAiming)
         {
             _throwingModule.UpdateAim(_inputSO.MousePosition);
@@ -109,13 +116,15 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMoveInput()
     {
-        if (_meleeModule.IsSwinging) return;
+        if (!CanReadInput || _meleeModule.IsSwinging) return;
 
         _movementModule.MovePosition(_inputSO.MoveInput);
     }
 
     private void HandleDashInput()
     {
+        if (!CanReadInput) return;
+
         Vector2 moveInput = _inputSO.MoveInput;
 
         if (moveInput == Vector2.zero)
@@ -127,14 +136,12 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        _meleeModule.CancelSwing();
-        _drinkingModule.CancelDrink();
-        _throwingModule.CancelAim();
+        CancelCurrentActions();
     }
 
     private void HandleItemSlotChanged(int newSlotIndex)
     {
-        if (_drinkingModule.IsDrinking)
+        if (!CanReadInput || _drinkingModule.IsDrinking)
         {
             return;
         }
@@ -160,7 +167,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePrimaryActionStart(Vector2 mousePosition)
     {
-        if (_drinkingModule.IsDrinking) return;
+        if (!CanReadInput || _drinkingModule.IsDrinking) return;
 
         if (_meleeModule.IsMeleeModeActivated)
         {
@@ -178,12 +185,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePrimaryActionEnd(Vector2 mousePosition)
     {
+        if (!CanReadInput) return;
+
         _throwingModule.ReleaseThrow(mousePosition);
     }
 
     private void HandleMeleeToggleRequested()
     {
-        if (!_meleeModule.TryToggleMeleeMode())
+        if (!CanReadInput || !_meleeModule.TryToggleMeleeMode())
         {
             return;
         }
@@ -192,5 +201,23 @@ public class PlayerController : MonoBehaviour
         {
             _throwingModule.CancelAim();
         }
+    }
+
+    public void SetGamePlayInputEnabled(bool isEnabled)
+    {
+        if (CanReadInput == isEnabled) return;
+
+        CanReadInput = isEnabled;
+        if (!CanReadInput)
+        {
+            CancelCurrentActions();
+        }
+    }
+
+    private void CancelCurrentActions()
+    {
+        _throwingModule.CancelAim();
+        _drinkingModule.CancelDrink();
+        _meleeModule.CancelSwing();
     }
 }

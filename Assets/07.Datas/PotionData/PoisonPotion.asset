@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: poison_potion
   _displayName: "\uB3C5\uC758 \uBB3C\uC57D"
+  _description: 
   _element: 2
   _targetType: 2
   _effectRadius: 3
@@ -65,6 +66,7 @@ MonoBehaviour:
   _thirstDelta: -30
   _visualData:
     _iconSprite: {fileID: -1902372172, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _cardBackgroundSprite: {fileID: -7974315464008883648, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
     _areaSprite: {fileID: 2051801876, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 0.2, g: 0.32, b: 0.025, a: 0.95}
     _areaAccentColor: {r: 0.82, g: 1, b: 0.05, a: 1}

@@ -161,6 +161,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleInformationTab"",
+                    ""type"": ""Button"",
+                    ""id"": ""7a413432-115d-4797-8628-c38799c09049"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -339,6 +349,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleAttackMode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""45963629-626c-4251-be8f-9ffd4c2ef680"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ToggleInformationTab"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -360,6 +381,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_ItemSlotChange = m_Player.FindAction("ItemSlotChange", throwIfNotFound: true);
         m_Player_PotionDrink = m_Player.FindAction("PotionDrink", throwIfNotFound: true);
         m_Player_ToggleAttackMode = m_Player.FindAction("ToggleAttackMode", throwIfNotFound: true);
+        m_Player_ToggleInformationTab = m_Player.FindAction("ToggleInformationTab", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -447,6 +469,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ItemSlotChange;
     private readonly InputAction m_Player_PotionDrink;
     private readonly InputAction m_Player_ToggleAttackMode;
+    private readonly InputAction m_Player_ToggleInformationTab;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -486,6 +509,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleAttackMode".
         /// </summary>
         public InputAction @ToggleAttackMode => m_Wrapper.m_Player_ToggleAttackMode;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleInformationTab".
+        /// </summary>
+        public InputAction @ToggleInformationTab => m_Wrapper.m_Player_ToggleInformationTab;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -533,6 +560,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleAttackMode.started += instance.OnToggleAttackMode;
             @ToggleAttackMode.performed += instance.OnToggleAttackMode;
             @ToggleAttackMode.canceled += instance.OnToggleAttackMode;
+            @ToggleInformationTab.started += instance.OnToggleInformationTab;
+            @ToggleInformationTab.performed += instance.OnToggleInformationTab;
+            @ToggleInformationTab.canceled += instance.OnToggleInformationTab;
         }
 
         /// <summary>
@@ -565,6 +595,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleAttackMode.started -= instance.OnToggleAttackMode;
             @ToggleAttackMode.performed -= instance.OnToggleAttackMode;
             @ToggleAttackMode.canceled -= instance.OnToggleAttackMode;
+            @ToggleInformationTab.started -= instance.OnToggleInformationTab;
+            @ToggleInformationTab.performed -= instance.OnToggleInformationTab;
+            @ToggleInformationTab.canceled -= instance.OnToggleInformationTab;
         }
 
         /// <summary>
@@ -667,5 +700,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleAttackMode(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleInformationTab" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleInformationTab(InputAction.CallbackContext context);
     }
 }
