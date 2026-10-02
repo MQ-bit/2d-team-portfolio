@@ -17,8 +17,11 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private readonly HashSet<IPotionEffectTarget> _reachedTargets = new();
     private readonly HashSet<IPotionEffectTarget> _originalTargets = new();
     private readonly HashSet<IPotionEffectTarget> _pendingCombinationImpact = new();
+    private readonly HashSet<IPotionEffectTarget> _affectedTargets = new();
 
     public bool HasCombination => _hasCombination;
+    internal IPotionEffectData ActiveProfile => _singleProfile ?? _data;
+    internal PotionEffectSource ActiveSource => _singleSource;
 
     private void Awake()
     {
@@ -46,7 +49,11 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
                 profile.TickInterval, profile.ApplyOnEnter,
                 target => PotionEffectApplier.CanAffect(profile.TargetType, target),
-                target => target.EnterFloor(profile, source),
+                target =>
+                {
+                    _affectedTargets.Add(target);
+                    target.EnterFloor(profile, source);
+                },
                 target => target.PulseFloor(source.SourceId),
                 (target, residual) => target.ExitFloor(source.SourceId,
                     residual && !(_spread != null && _reachedTargets.Contains(target))));
@@ -71,6 +78,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             if (_hasCombination && _spread != null && !_spread.HasReached(hit)) continue;
             IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
             if (!IsValidSingleTarget(target) || !targets.Add(target)) continue;
+            _affectedTargets.Add(target);
             PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
                 target, _singleSource);
         }
@@ -138,6 +146,23 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         enabled = false;
     }
 
+    internal void StopForVaporization()
+    {
+        // Include departed targets with residual statuses, and the original source
+        // that survived while the combination front was still spreading.
+        int originalSourceId = GetInstanceID();
+        foreach (IPotionEffectTarget target in _affectedTargets)
+        {
+            if (target == null || target is Object unityObject && unityObject == null) continue;
+            target.RemoveStatusesFromSource(originalSourceId);
+            target.RemoveStatusesFromSource(_sourceId);
+            target.ExitFloor(originalSourceId, false);
+            if (_sourceId != originalSourceId) target.ExitFloor(_sourceId, false);
+        }
+        _affectedTargets.Clear();
+        DisableForCombination();
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_data == null || _targetsByCollider.ContainsKey(other)) return;
@@ -193,8 +218,11 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private bool IsValidSingleTarget(IPotionEffectTarget target) =>
         _singleProfile != null && PotionEffectApplier.CanAffect(_singleProfile.TargetType, target);
 
-    private void EnterSingleFloor(IPotionEffectTarget target) =>
+    private void EnterSingleFloor(IPotionEffectTarget target)
+    {
+        _affectedTargets.Add(target);
         target.EnterFloor(_singleProfile, _singleSource);
+    }
 
     private void PulseSingleFloor(IPotionEffectTarget target) => target.PulseFloor(_sourceId);
 
@@ -236,6 +264,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             {
                 if (_pendingCombinationImpact.Remove(target) && IsValidSingleTarget(target))
                 {
+                    _affectedTargets.Add(target);
                     PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
                         target, _singleSource);
                 }

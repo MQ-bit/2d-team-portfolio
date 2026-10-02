@@ -26,7 +26,7 @@ MonoBehaviour:
   - _phase: 0
     _operation: 0
     _element: 6
-    _amount: 25
+    _amount: 0
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -55,7 +55,9 @@ MonoBehaviour:
   _visualData:
     _iconSprite: {fileID: 21300000, guid: 2dec2bc0f14ce884aa836a00c3454569, type: 3}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 1, g: 1, b: 0.8, a: 0.65}
-    _areaAccentColor: {r: 1, g: 0.55, b: 0.55, a: 1}
-    _areaSurfaceStyle: 0
+    _areaColor: {r: 0.95, g: 0.97, b: 1, a: 0.24}
+    _areaAccentColor: {r: 1, g: 1, b: 1, a: 1}
+    _areaSurfaceStyle: 6
     _areaVfxPrefab: {fileID: 5417271631518840610, guid: c1fba479fcab4a779b1fb7282da78392, type: 3}
+    _impactVisualDuration: 0
+  _vaporizationSettings: {fileID: 11400000, guid: 0dbd3562a82b4976a8ec1488b7e26bb9, type: 2}

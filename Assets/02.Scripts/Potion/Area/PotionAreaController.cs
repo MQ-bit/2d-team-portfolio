@@ -28,6 +28,7 @@ public class PotionAreaController : MonoBehaviour
     public SpriteRenderer AreaRenderer => _renderer;
     public PotionAreaVisual AreaVisual => _visual;
     public bool IsCombined => _combiner != null && _combiner.IsCombined;
+    public float RemainingDuration => Mathf.Max(0f, _expiresAt - Time.time);
 
     public void SetOwner(IDamageable owner) => Owner = owner;
 
@@ -59,7 +60,9 @@ public class PotionAreaController : MonoBehaviour
         Data = data;
         _duration = data.FloorDuration;
         _radius = data.EffectRadius;
-        ConfigureAreaCollider(data.CreatesFloor);
+        // Vaporization can wait for a later potion; use the same visible footprint
+        // for overlap detection regardless of which potion lands first.
+        ConfigureAreaCollider(data.CreatesFloor || data.Element == PotionElement.Vaporization);
 
         if (_renderer != null)
         {
@@ -171,11 +174,37 @@ public class PotionAreaController : MonoBehaviour
             _areaEffect.ApplySingleImpact(_collider);
         }
 
-        // 기화처럼 CreatesFloor=false인 포션은 착탄 효과만 적용하고 장판을 남기지 않는다.
+        // Instant effects may leave a trace; uncombined vaporization can still react.
         if (!IsCombined && !Data.CreatesFloor)
         {
-            Remove();
+            FinishInstantImpact();
         }
+    }
+
+    internal void FinishInstantImpact()
+    {
+        if (IsCombined && Data != null && Data.Element == PotionElement.Vaporization)
+        {
+            Remove();
+            return;
+        }
+
+        float visualDuration = Data != null && Data.Element == PotionElement.Vaporization
+            ? Data.VaporizationSettings != null ? Data.VaporizationSettings.WaitingDuration : 2f
+            : Data != null ? Data.VisualData.ImpactVisualDuration : 0f;
+        if (visualDuration <= 0f)
+        {
+            Remove();
+            return;
+        }
+
+        bool canAwaitCombination = !IsCombined && Data.Element == PotionElement.Vaporization;
+        foreach (Collider2D areaCollider in GetComponents<Collider2D>())
+            areaCollider.enabled = canAwaitCombination && areaCollider == _collider;
+        if (_areaEffect != null) _areaEffect.enabled = false;
+        if (_combiner != null) _combiner.enabled = canAwaitCombination;
+        ClearAreaVfx();
+        SetExpiration(Time.time + visualDuration);
     }
 
     public void SetExpiration(float expiresAt)

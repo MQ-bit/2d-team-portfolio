@@ -30,6 +30,38 @@ public sealed class PotionAreaEffectTracker
     private readonly Dictionary<int, Entry> _sources = new();
     private readonly Dictionary<Key, double> _nextTicks = new();
 
+    // Convert the remaining periodic output to an instant amount. Entry/impact
+    // damage has already happened; exit statuses are removed instead of applied.
+    public static List<PotionEffectDefinition> GetRemainingEffects(IPotionEffectData profile,
+        float remainingDuration, float multiplier)
+    {
+        var result = new List<PotionEffectDefinition>();
+        if (profile == null || profile.TickInterval <= 0f || remainingDuration <= 0f) return result;
+
+        var selected = new Dictionary<Key, PotionEffectDefinition>();
+        foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorTick))
+        {
+            if (effect.Operation != PotionEffectOperation.Damage &&
+                effect.Operation != PotionEffectOperation.Heal)
+            {
+                continue;
+            }
+
+            var key = new Key(effect);
+            if (!selected.TryGetValue(key, out var current) || effect.Amount > current.Amount)
+                selected[key] = effect;
+        }
+
+        float ticks = remainingDuration / Math.Max(0.01f, profile.TickInterval);
+        foreach (var effect in selected.Values)
+        {
+            result.Add(PotionEffectDefinition.CreateInstant(effect.Operation, effect.Element,
+                effect.Amount * ticks * Math.Max(0f, multiplier)));
+        }
+
+        return result;
+    }
+
     public void Enter(IPotionEffectData profile, PotionEffectSource source) =>
         _sources[source.SourceId] = new Entry(profile, source);
 

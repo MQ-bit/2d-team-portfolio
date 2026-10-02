@@ -64,6 +64,15 @@ public sealed class PotionEffectDefinition
     public float ImmobilizeDuration => _immobilizeDuration;
     public int FrostStackAmount => _frostStackAmount;
 
+    public static PotionEffectDefinition CreateInstant(PotionEffectOperation operation,
+        PotionElement element, float amount) => new PotionEffectDefinition
+        {
+            _phase = PotionEffectPhase.Impact,
+            _operation = operation,
+            _element = element,
+            _amount = PotionDataValidation.NonNegative(amount)
+        };
+
     internal void Validate()
     {
         _amount = PotionDataValidation.NonNegative(_amount);

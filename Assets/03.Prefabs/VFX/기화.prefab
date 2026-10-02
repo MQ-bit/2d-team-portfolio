@@ -52,7 +52,7 @@ MonoBehaviour:
   spawnAreaRatio: 0.85
   restDelayRange: {x: 0, y: 0.08}
   tint: {r: 1, g: 1, b: 1, a: 1}
-  fillArea: 1
+  fillArea: 0
   fillScale: 1
   playOnce: 0
 --- !u!212 &3089382425564037292

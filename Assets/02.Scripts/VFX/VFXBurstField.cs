@@ -39,6 +39,7 @@ public class VFXBurstField : MonoBehaviour
     private PotionPuddleShape _puddle;
     private PotionCombinationSpread _spread;
     private bool _showReached;
+    private Vector2[][] _footprint;
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
@@ -85,8 +86,11 @@ public class VFXBurstField : MonoBehaviour
         _heightRatio = Mathf.Max(0.001f, height / _width);
         _puddle = null;
         _spread = null;
+        _footprint = null;
         _sortingRenderer = sortingRenderer;
     }
+
+    internal void ConfigureFootprint(Vector2[][] paths) => _footprint = paths;
 
     internal void ConfigurePuddle(PotionPuddleShape shape)
     {
@@ -230,12 +234,13 @@ public class VFXBurstField : MonoBehaviour
         Vector3 local = new(Mathf.Cos(angle) * radius * _width * 0.5f,
             Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
         if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
-        if (_fillArea && _burstCount == 1) local = Vector3.zero;
+        if (_footprint != null) local = SampleFootprint();
+        if (_footprint == null && _fillArea && _burstCount == 1) local = Vector3.zero;
 
         Transform t = burst.Renderer.transform;
         t.localPosition = local;
         float spriteWidth = Mathf.Max(0.0001f, _sprites[0].bounds.size.x);
-        float size = _fillArea ? Width * _fillScale
+        float size = _fillArea && _footprint == null ? Width * _fillScale
             : _burstSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
         t.localScale = Vector3.one * (size / spriteWidth);
         burst.Renderer.sprite = _sprites[0];
@@ -247,6 +252,33 @@ public class VFXBurstField : MonoBehaviour
         int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
         burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
         burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
+    }
+
+    private Vector2 SampleFootprint()
+    {
+        // Rejection sampling preserves concave connections between combined lobes.
+        for (int attempt = 0; attempt < 256; attempt++)
+        {
+            Vector2 point = new(Random.Range(-Width * 0.5f, Width * 0.5f),
+                Random.Range(-Height * 0.5f, Height * 0.5f));
+            foreach (Vector2[] path in _footprint)
+            {
+                bool inside = false;
+                for (int i = 0, j = path.Length - 1; i < path.Length; j = i++)
+                {
+                    Vector2 a = path[i], b = path[j];
+                    if ((a.y > point.y) != (b.y > point.y) &&
+                        point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x)
+                    {
+                        inside = !inside;
+                    }
+                }
+                if (inside) return point;
+            }
+        }
+        foreach (Vector2[] path in _footprint)
+            if (path.Length > 0) return path[0];
+        return Vector2.zero;
     }
 
     private void ApplyGround()

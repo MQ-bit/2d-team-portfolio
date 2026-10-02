@@ -42,12 +42,17 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [Header("Visual")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
 
+    [Tooltip("기화 포션에서만 사용하는 전용 설정 에셋입니다.")]
+    [SerializeField] private PotionVaporizationSettings _vaporizationSettings;
+
     public string Id => _id;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
     public PotionElement Element => _element;
     public float AreaWidth => _effectRadius * 2f;
     public float ThirstDelta => _thirstDelta;
     public PotionVisualData VisualData => _visualData;
+    public PotionVaporizationSettings VaporizationSettings =>
+        _element == PotionElement.Vaporization ? _vaporizationSettings : null;
     public PotionTargetType TargetType => _targetType;
     public float EffectRadius => _effectRadius;
     public bool CreatesFloor => _createsFloor;
