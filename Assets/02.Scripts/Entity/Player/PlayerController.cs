@@ -142,7 +142,7 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        CancelActionsConfilictWithDash();
+        CancelActionsConflictWithDash();
     }
 
     private void HandleItemSlotChanged(int newSlotIndex)
@@ -220,7 +220,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CancelActionsConfilictWithDash()
+    private void CancelActionsConflictWithDash()
     {
         _throwingModule.CancelAim();
         _drinkingModule.CancelDrink();
@@ -229,7 +229,7 @@ public class PlayerController : MonoBehaviour
     
     public void CancelAllActions()
     {
-        CancelActionsConfilictWithDash();
+        CancelActionsConflictWithDash();
         _movementModule.CancelDash();
         _interactionModule.CancelInteraction();
     }

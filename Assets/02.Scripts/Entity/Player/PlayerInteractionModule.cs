@@ -8,7 +8,7 @@ public class PlayerInteractionModule : MonoBehaviour
     [Header("Interaction Settings")]
     [SerializeField] private float _holdDuration = 1f;
     private readonly Dictionary<Collider2D, IInteractable> _candidates = new Dictionary<Collider2D, IInteractable>();
-    private readonly List<Collider2D> _staleColliders = new List<Collider2D>(); // ExtractInvalidCandidates()에서 제거할 Collider를 임시로 저장하는 용도.
+    private readonly List<Collider2D> _staleColliders = new List<Collider2D>(); // ClearInvalidCandidates()에서 제거할 Collider를 임시로 저장하는 용도.
 
     private IInteractable _currentTarget;
     private MonoBehaviour _currentTargetBehaviour; //보다 확실한 오브젝트의 상태 체크를 위해 저장하는 용도.
