@@ -54,6 +54,7 @@ GameObject:
   - component: {fileID: 7814849132968377541}
   - component: {fileID: 910000000000000004}
   - component: {fileID: 910000000000000005}
+  - component: {fileID: 5917174266888692404}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -140,7 +141,7 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
@@ -208,6 +209,7 @@ MonoBehaviour:
   _inventoryModule: {fileID: 6544000177656053045}
   _drinkingModule: {fileID: 6935868058329909207}
   _meleeModule: {fileID: 4706277357270954568}
+  _interactionModule: {fileID: 0}
   _playerStatus: {fileID: 0}
 --- !u!114 &8625112247451139820
 MonoBehaviour:
@@ -354,7 +356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f599375d4e0e6a545a249a982c73df1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationDriver
-  _input: {fileID: 11400000, guid: 38203cc9a6f059a4db9458ff9e7f0115, type: 2}
+  _player: {fileID: 0}
   _animator: {fileID: 129691670727033660}
   _rigid: {fileID: 0}
   _status: {fileID: 0}
@@ -405,6 +407,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusScreenVignette
   _receiver: {fileID: 910000000000000003}
   _vignetteShader: {fileID: 4800000, guid: 4b1ad599a8144c259bbabc373e841b90, type: 3}
+  _vignettes:
+  - _status: 0
+    _style: 0
+    _color: {r: 1, g: 0.25, b: 0.1, a: 1}
+  - _status: 1
+    _style: 1
+    _color: {r: 0.35, g: 0.9, b: 0.2, a: 1}
+  - _status: 2
+    _style: 2
+    _color: {r: 0.45, g: 0.85, b: 1, a: 1}
+  - _status: 3
+    _style: 3
+    _color: {r: 0.65, g: 0.3, b: 1, a: 1}
   _maxAlpha: 0.1
   _thickness: 0.1
   _fadeInTime: 0.2
@@ -412,6 +427,19 @@ MonoBehaviour:
   _sortingOrder: -100
   _usePreview: 0
   _previewStatus: 0
+--- !u!114 &5917174266888692404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46fd292b3d046ff4381a3644d58b603c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionModule
+  _holdDuration: 1
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0
