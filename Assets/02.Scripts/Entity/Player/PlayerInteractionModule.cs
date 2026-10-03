@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic; 
 using System;
-using System.Linq;
+using Interactable;
 
 public class PlayerInteractionModule : MonoBehaviour
 {
