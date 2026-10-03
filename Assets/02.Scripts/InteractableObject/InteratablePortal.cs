@@ -37,17 +37,11 @@ public class InteractablePortal : MonoBehaviour, IInteractable
         {
             playerController.CancelAllActions();
         }
-
-        Rigidbody2D rigid = interactor.GetComponent<Rigidbody2D>();
-        if (rigid != null)
+        if (interactor.TryGetComponent(out Rigidbody2D rigid))
         {
             rigid.linearVelocity = Vector2.zero;
             rigid.position = new Vector2( _destination.position.x, _destination.position.y);
         }
-
-        if (_teleportEffect != null)
-        {
-            _teleportEffect.Play();
-        }
+        _teleportEffect?.Play();
     }
 }
