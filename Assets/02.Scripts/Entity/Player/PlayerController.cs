@@ -9,16 +9,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
     [SerializeField] private PlayerMeleeModule _meleeModule;
+    [SerializeField] private PlayerInteractionModule _interactionModule;
     [SerializeField] private PlayerStatus _playerStatus;
 
     public bool CanReadInput { get; private set; } = true;
 
     // UI 연결을 위한 프로퍼티
     public PlayerMovementModule MovementModule => _movementModule;
-    public PlayerThrowingModule ThrowingModule => _throwingModule;
     public PlayerInventoryModule InventoryModule => _inventoryModule;
-    public PlayerDrinkingModule DrinkingModule => _drinkingModule;
     public PlayerMeleeModule MeleeModule => _meleeModule;
+    public PlayerInteractionModule InteractionModule => _interactionModule;
     public PlayerStatus PlayerStatus => _playerStatus;
 
     public Vector2 ReadableMoveInput => CanReadInput ? _inputSO.MoveInput : Vector2.zero;
@@ -54,6 +54,10 @@ public class PlayerController : MonoBehaviour
         {
             _meleeModule = GetComponent<PlayerMeleeModule>();
         }
+        if (_interactionModule == null)
+        {
+            _interactionModule = GetComponent<PlayerInteractionModule>();
+        }
         if (_playerStatus == null)
         {
             _playerStatus = GetComponent<PlayerStatus>();
@@ -63,15 +67,15 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         LinkInputEvents();
+
+        _playerStatus.OnDeath += HandleDeath;
     }
 
     private void OnDisable()
     {
         UnLinkInputEvents();
-        if (_throwingModule != null)
-        {
-            _throwingModule.CancelAim();
-        }
+        _throwingModule?.CancelAim();
+        _interactionModule?.CancelInteraction();
     }
 
     private void LinkInputEvents()
@@ -82,6 +86,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
         _inputSO.OnDrinkInputChanged += HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested += HandleMeleeToggleRequested;
+        _inputSO.OnInteractInputChanged += HandleInteractInputChanged;
     }
 
     private void UnLinkInputEvents()
@@ -92,6 +97,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
         _inputSO.OnDrinkInputChanged -= HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested -= HandleMeleeToggleRequested;
+        _inputSO.OnInteractInputChanged -= HandleInteractInputChanged;
     }
 
     private void FixedUpdate()
@@ -136,7 +142,7 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        CancelCurrentActions();
+        CancelActionsConflictWithDash();
     }
 
     private void HandleItemSlotChanged(int newSlotIndex)
@@ -210,14 +216,41 @@ public class PlayerController : MonoBehaviour
         CanReadInput = isEnabled;
         if (!CanReadInput)
         {
-            CancelCurrentActions();
+            CancelAllActions();
         }
     }
 
-    private void CancelCurrentActions()
+    private void CancelActionsConflictWithDash()
     {
         _throwingModule.CancelAim();
         _drinkingModule.CancelDrink();
         _meleeModule.CancelSwing();
+    }
+    
+    public void CancelAllActions()
+    {
+        CancelActionsConflictWithDash();
+        _movementModule.CancelDash();
+        _interactionModule.CancelInteraction();
+    }
+
+    private void HandleInteractInputChanged(bool isHolding)
+    {
+        if (_interactionModule == null) return;
+        if (!isHolding)
+        {
+            _interactionModule.CancelInteraction();
+        }
+        else
+        {
+            if (!CanReadInput) return;
+            _interactionModule.TryBeginInteraction();            
+        }
+    }
+
+    private void HandleDeath()
+    {
+        CancelAllActions();
+        SetGamePlayInputEnabled(false);
     }
 }
