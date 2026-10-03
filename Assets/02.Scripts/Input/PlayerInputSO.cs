@@ -46,12 +46,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     private void OnDisable()
     {
         _isPrimaryActionHolding = false;
-
-        if(_isInteractHolding)
-        {
-            _isInteractHolding = false;
-            OnInteractInputChanged?.Invoke(false);
-        }
+        _isDrinkingHolding = false;
 
         if (_isInteractHolding)
         {
@@ -76,7 +71,6 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         {
             OnMoveInput?.Invoke();
         }
-        Debug.Log("Dash input received");
     }
 
     public void OnAimPosition(CallbackContext context)

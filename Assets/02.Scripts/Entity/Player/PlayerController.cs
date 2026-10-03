@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         LinkInputEvents();
+
+        _playerStatus.OnDeath += HandleDeath;
     }
 
     private void OnDisable()
@@ -244,5 +246,11 @@ public class PlayerController : MonoBehaviour
             if (!CanReadInput) return;
             _interactionModule.TryBeginInteraction();            
         }
+    }
+
+    private void HandleDeath()
+    {
+        CancelAllActions();
+        SetGamePlayInputEnabled(false);
     }
 }
