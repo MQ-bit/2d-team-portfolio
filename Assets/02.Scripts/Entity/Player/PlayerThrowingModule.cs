@@ -15,8 +15,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private float _defaultAreaWidth = 1f;
 
     [Header("Throw Settings")]
-    [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
-    private ThrowAimPreview _aimPreviewInstance;
+    [SerializeField] private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
     [SerializeField] private float _throwDuration = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
@@ -49,7 +48,6 @@ public class PlayerThrowingModule : MonoBehaviour
             _throwPoint = transform;
         }
 
-        _aimPreviewInstance = Instantiate(_aimPreviewPrefab, transform);
         _aimPreviewInstance.SetOwner(gameObject);
         _aimPreviewInstance.Hide();
     }
@@ -192,7 +190,7 @@ public class PlayerThrowingModule : MonoBehaviour
             Vector3 startPosition = _throwPoint.position;
             float distance = Vector2.Distance(startPosition, targetPosition);
 
-            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
+            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
             proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
             OnPotionThrown?.Invoke(targetPosition);
