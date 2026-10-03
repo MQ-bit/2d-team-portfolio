@@ -12,12 +12,12 @@ Shader "Custom/PanicVignette"
         _VignetteColor (
             "Vignette Color",
             Color
-        ) = (0.5, 0.0, 0.0, 1)
+        ) = (0.55, 0.0, 0.0, 1)
 
         _VignetteIntensity (
             "Vignette Intensity",
             Range(0, 1)
-        ) = 0.7
+        ) = 0.75
 
         _VignetteRadius (
             "Vignette Radius",
@@ -45,38 +45,123 @@ Shader "Custom/PanicVignette"
             "Pulse Amount",
             Range(0, 1)
         ) = 0.3
+
+        // Unity UI 공통 설정
+        [PerRendererData]
+        _MainTex (
+            "Sprite Texture",
+            2D
+        ) = "white" {}
+
+        _Color (
+            "UI Tint",
+            Color
+        ) = (1, 1, 1, 1)
+
+        _StencilComp (
+            "Stencil Comparison",
+            Float
+        ) = 8
+
+        _Stencil (
+            "Stencil ID",
+            Float
+        ) = 0
+
+        _StencilOp (
+            "Stencil Operation",
+            Float
+        ) = 0
+
+        _StencilWriteMask (
+            "Stencil Write Mask",
+            Float
+        ) = 255
+
+        _StencilReadMask (
+            "Stencil Read Mask",
+            Float
+        ) = 255
+
+        _ColorMask (
+            "Color Mask",
+            Float
+        ) = 15
+
+        [Toggle(UNITY_UI_ALPHACLIP)]
+        _UseUIAlphaClip (
+            "Use Alpha Clip",
+            Float
+        ) = 0
     }
 
     SubShader
     {
         Tags
         {
-            "RenderType" = "Opaque"
-            "RenderPipeline" = "UniversalPipeline"
+            "Queue" = "Transparent"
+            "IgnoreProjector" = "True"
+            "RenderType" = "Transparent"
+            "PreviewType" = "Plane"
+            "CanUseSpriteAtlas" = "True"
         }
+
+        Stencil
+        {
+            Ref [_Stencil]
+            Comp [_StencilComp]
+            Pass [_StencilOp]
+            ReadMask [_StencilReadMask]
+            WriteMask [_StencilWriteMask]
+        }
+
+        Cull Off
+        Lighting Off
+        ZWrite Off
+        ZTest [unity_GUIZTestMode]
+
+        Blend SrcAlpha OneMinusSrcAlpha
+        ColorMask [_ColorMask]
 
         Pass
         {
-            Name "PainVignette"
+            Name "ProceduralPainVignette"
 
-            ZTest Always
-            ZWrite Off
-            Cull Off
-            Blend One Zero
+            CGPROGRAM
 
-            HLSLPROGRAM
-
-            #pragma target 3.5
+            #pragma target 3.0
             #pragma vertex Vert
             #pragma fragment Frag
 
-            // Pulse가 꺼져 있으면 관련 연산이 제거된 버전 사용
             #pragma shader_feature_local_fragment _VIGNETTE_PULSE
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+            #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
+            #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+
+            #include "UnityCG.cginc"
+            #include "UnityUI.cginc"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float4 color : COLOR;
+                float2 uv : TEXCOORD0;
+
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float4 worldPosition : TEXCOORD0;
+                half4 color : COLOR;
+                half2 uv : TEXCOORD1;
+
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
 
             CBUFFER_START(UnityPerMaterial)
+                float4 _Color;
                 float4 _VignetteColor;
 
                 float _EffectAmount;
@@ -89,52 +174,76 @@ Shader "Custom/PanicVignette"
                 float _PulseAmount;
             CBUFFER_END
 
+            float4 _ClipRect;
+
+            Varyings Vert(Attributes input)
+            {
+                Varyings output;
+
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+                output.worldPosition =
+                    input.positionOS;
+
+                output.positionCS =
+                    UnityObjectToClipPos(
+                        input.positionOS
+                    );
+
+                output.uv =
+                    input.uv;
+
+                // Image.color와 Material의 UI Tint 반영
+                output.color =
+                    input.color *
+                    (half4)_Color;
+
+                return output;
+            }
+
             half4 Frag(Varyings input) : SV_Target
             {
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-
-                float2 uv = input.texcoord;
-
-                half4 color = SAMPLE_TEXTURE2D_X_LOD(
-                    _BlitTexture,
-                    sampler_LinearClamp,
-                    uv,
-                    0.0
-                );
-
-                // 중앙에서의 거리 제곱.
-                // length()를 사용하지 않아 제곱근 연산을 피한다.
+                // 화면 중앙을 기준으로 한 UV
                 half2 centeredUV =
-                    (half2)uv - half2(0.5h, 0.5h);
+                    input.uv -
+                    half2(0.5h, 0.5h);
 
-                // 중앙 0, 모서리 약 1
+                // 중앙은 0, 모서리는 약 1
+                // sqrt를 사용하지 않는 거리 제곱 방식
                 half distanceSquared =
-                    dot(centeredUV, centeredUV) * 2.0h;
+                    dot(
+                        centeredUV,
+                        centeredUV
+                    ) * 2.0h;
 
                 half radius =
                     (half)_VignetteRadius;
 
-                half outerRadius = saturate(
-                    (half)(
-                        _VignetteRadius +
-                        _VignetteSoftness
-                    )
-                );
+                half outerRadius =
+                    saturate(
+                        (half)(
+                            _VignetteRadius +
+                            _VignetteSoftness
+                        )
+                    );
 
                 half innerSquared =
                     radius * radius;
 
                 half outerSquared =
-                    outerRadius * outerRadius;
+                    outerRadius *
+                    outerRadius;
 
-                half vignetteMask = smoothstep(
-                    innerSquared,
-                    max(
-                        outerSquared,
-                        innerSquared + 0.0001h
-                    ),
-                    distanceSquared
-                );
+                half vignetteMask =
+                    smoothstep(
+                        innerSquared,
+                        max(
+                            outerSquared,
+                            innerSquared + 0.0001h
+                        ),
+                        distanceSquared
+                    );
 
                 half pulseMultiplier = 1.0h;
 
@@ -147,7 +256,7 @@ Shader "Custom/PanicVignette"
                             6.2831853
                         ) * 0.5h + 0.5h;
 
-                    // 맥박이 순간적으로 강해지는 형태
+                    // 완만한 사인파를 짧고 강한 맥박으로 변경
                     pulse =
                         pulse *
                         pulse *
@@ -159,27 +268,51 @@ Shader "Custom/PanicVignette"
 
                 #endif
 
-                half vignetteAmount = saturate(
+                half alpha =
                     vignetteMask *
                     (half)_VignetteIntensity *
                     (half)_EffectAmount *
                     pulseMultiplier *
-                    (half)_VignetteColor.a
-                );
+                    (half)_VignetteColor.a *
+                    input.color.a;
 
-                // 가장자리 색상을 지정된 색으로 혼합
-                color.rgb = lerp(
-                    color.rgb,
-                    (half3)_VignetteColor.rgb,
-                    vignetteAmount
-                );
+                alpha = saturate(alpha);
 
-                return color;
+                // Image.color로 추가 색상 조절 가능
+                half3 finalColor =
+                    (half3)_VignetteColor.rgb *
+                    input.color.rgb;
+
+                half4 outputColor =
+                    half4(
+                        finalColor,
+                        alpha
+                    );
+
+                // RectMask2D 및 UI Mask 영역 반영
+                #ifdef UNITY_UI_CLIP_RECT
+
+                    outputColor.a *=
+                        UnityGet2DClipping(
+                            input.worldPosition.xy,
+                            _ClipRect
+                        );
+
+                #endif
+
+                #ifdef UNITY_UI_ALPHACLIP
+
+                    clip(
+                        outputColor.a -
+                        0.001h
+                    );
+
+                #endif
+
+                return outputColor;
             }
 
-            ENDHLSL
+            ENDCG
         }
     }
-
-    Fallback Off
 }

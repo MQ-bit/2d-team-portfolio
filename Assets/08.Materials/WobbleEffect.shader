@@ -2,17 +2,21 @@ Shader "Custom/WobbleEffect"
 {
     Properties
     {
-        // 화면이 흔들리는 최대 거리(픽셀 단위)
-        _Strength ("Strength (Pixels)", Range(0, 20)) = 4
+        [Header(Wobble)]
+        _Strength (
+            "Strength (Pixels)",
+            Range(0, 10)
+        ) = 1.25
 
-        // 움직이는 속도
-        _Speed ("Speed", Range(0, 10)) = 1.5
+        _Speed (
+            "Speed",
+            Range(0, 10)
+        ) = 1.5
 
-        // 물결의 촘촘함
-        _Frequency ("Frequency", Range(1, 50)) = 12
-
-        // 가장자리에서 효과가 사라지는 범위
-        _EdgeFade ("Edge Fade", Range(0.001, 0.2)) = 0.04
+        _Frequency (
+            "Frequency",
+            Range(1, 30)
+        ) = 10
     }
 
     SubShader
@@ -25,15 +29,16 @@ Shader "Custom/WobbleEffect"
 
         Pass
         {
-            Name "FullscreenWobble"
+            Name "LightweightThirstWobble"
 
             ZTest Always
             ZWrite Off
             Cull Off
+            Blend One Zero
 
             HLSLPROGRAM
 
-            #pragma target 3.5
+            #pragma target 3.0
             #pragma vertex Vert
             #pragma fragment Frag
 
@@ -44,73 +49,66 @@ Shader "Custom/WobbleEffect"
                 float _Strength;
                 float _Speed;
                 float _Frequency;
-                float _EdgeFade;
             CBUFFER_END
 
             half4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                float2 uv = input.texcoord;
+                half2 uv =
+                    (half2)input.texcoord;
 
-                // 가로세로 해상도 차이 때문에 파형이 찌그러지지 않도록 보정
-                float aspect =
-                    _BlitTexture_TexelSize.z *
-                    _BlitTexture_TexelSize.y;
+                float time =
+                    _Time.y * _Speed;
 
-                float2 position = uv - 0.5;
-                position.x *= aspect;
-
-                float time = _Time.y * _Speed;
-
-                // 서로 다른 방향과 속도를 가진 파형을 합성
-                float waveX =
-                    sin(position.y * _Frequency + time);
-
-                waveX +=
-                    sin(
-                        (position.y + position.x * 0.35) *
-                        (_Frequency * 1.73) -
-                        time * 1.37
-                    ) * 0.45;
-
-                float waveY =
-                    cos(
-                        position.x *
-                        (_Frequency * 0.85) -
-                        time * 0.83
+                // 세로 방향에 따라 좌우로 일렁임
+                half horizontalWave =
+                    (half)sin(
+                        (float)uv.y *
+                        _Frequency +
+                        time
                     );
 
-                waveY +=
-                    sin(
-                        (position.x - position.y) *
-                        (_Frequency * 1.31) +
-                        time * 1.11
-                    ) * 0.35;
+                // 가로 방향에 따라 약하게 상하로 일렁임
+                half verticalWave =
+                    (half)cos(
+                        (float)uv.x *
+                        (_Frequency * 0.73) -
+                        time * 0.8
+                    );
 
-                // Strength를 픽셀 단위에서 UV 단위로 변환
-                float2 distortion =
-                    float2(waveX, waveY) *
-                    _Strength *
-                    _BlitTexture_TexelSize.xy;
-
-                // 화면 가장자리에서 왜곡을 서서히 제거
-                float2 distanceToEdge = min(uv, 1.0 - uv);
-                float nearestEdge =
-                    min(distanceToEdge.x, distanceToEdge.y);
-
-                float edgeMask = smoothstep(
-                    0.0,
-                    max(_EdgeFade, 0.0001),
-                    nearestEdge
+                // 상하 움직임은 좌우 움직임보다 약하게 적용
+                half2 waveOffset = half2(
+                    horizontalWave,
+                    verticalWave * 0.35h
                 );
 
-                float2 distortedUV =
-                    uv + distortion * edgeMask;
+                // 화면 가장자리로 갈수록 왜곡을 제거한다.
+                // smoothstep과 거리 계산 없이 곱셈만 사용한다.
+                half2 edgeFade = saturate(
+                    uv *
+                    (1.0h - uv) *
+                    16.0h
+                );
 
-                // 텍스처 바깥을 샘플링하는 현상 방지
+                half edgeMask =
+                    edgeFade.x *
+                    edgeFade.y;
+
+                float2 distortion =
+                    (float2)waveOffset *
+                    _Strength *
+                    _BlitTexture_TexelSize.xy *
+                    edgeMask;
+
+                float2 distortedUV =
+                    input.texcoord +
+                    distortion;
+
+                // 화면 밖 샘플링 방지
                 float2 halfTexel =
-                    _BlitTexture_TexelSize.xy * 0.5;
+                    _BlitTexture_TexelSize.xy *
+                    0.5;
 
                 distortedUV = clamp(
                     distortedUV,
