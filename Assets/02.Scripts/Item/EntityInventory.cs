@@ -147,7 +147,7 @@ namespace Entity.Inventory
             }
 
             ItemSlot slot = _inventorySlots[index];
-            if(slot == null | slot.IsEmpty())
+            if(slot == null || slot.IsEmpty())
             {
                 return 0;
             }

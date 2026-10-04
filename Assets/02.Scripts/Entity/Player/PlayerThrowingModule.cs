@@ -47,6 +47,11 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             _throwPoint = transform;
         }
+        if (_aimPreviewInstance == null)
+        {
+            Debug.LogError("Aim preview instance is not assigned.");
+            return;
+        }
 
         _aimPreviewInstance.SetOwner(gameObject);
         _aimPreviewInstance.Hide();
