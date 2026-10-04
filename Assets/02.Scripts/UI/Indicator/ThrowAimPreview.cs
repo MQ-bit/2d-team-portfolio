@@ -42,7 +42,7 @@ public class ThrowAimPreview : MonoBehaviour
     {
         if (_owner != null)
         {
-            ReorderSortingLayer();
+            //ReorderSortingLayer();
         }
     }
 
@@ -92,6 +92,7 @@ public class ThrowAimPreview : MonoBehaviour
         _aoeIndicator.gameObject.SetActive(prediction.CanCreateArea);
         UpdateAoeIndicator(areaColor, areaWidth);
 
+        _lineRenderer.transform.position = prediction.ImpactPosition;
         RedrawLine(startPosition, targetPosition, arcHeight);
         _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, prediction.ImpactPosition);
     }
@@ -126,14 +127,14 @@ public class ThrowAimPreview : MonoBehaviour
         }
     }
 
-    private void ReorderSortingLayer()
-    {
-        int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? -1 : 1;
+    // private void ReorderSortingLayer()
+    // {
+    //     int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? -1 : 1;
 
-        _indicatorRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
-        _indicatorRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
+    //     _indicatorRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+    //     _indicatorRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
 
-        _lineRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
-        _lineRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
-    }
+    //     _lineRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+    //     _lineRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
+    // }
 }

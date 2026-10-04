@@ -1,64 +1,48 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public sealed class PotionCodexView : MonoBehaviour
 {
-    [Header("Potion Slots")]
-    [SerializeField] private Image[] _slotImages;
+    [SerializeField] private Image _potionImage;
+    [SerializeField] private TMP_Text _itemCountText;
 
-    [Header("Selection")]
-    [SerializeField] private RectTransform _potionSelection;
-    private int _selectedSlotIndex = -1;
+    public RectTransform RectTransform => transform as RectTransform;
 
+    public bool IsElementOkay => _potionImage != null && _itemCountText != null && RectTransform != null;
 
-    public int SlotCount => _slotImages != null ? _slotImages.Length : 0;
-
-    public void SetSlot(int index, PotionItem item)
+    private void Awake()
     {
-        if (!IsValidSlotIndex(index))
+        if (_potionImage == null)
         {
-            return;
+            _potionImage = GetComponent<Image>();
         }
 
-        Image slotImage = _slotImages[index];
-        Sprite potionSprite = item.BottleSprite;
-
-        slotImage.sprite = potionSprite;
-        slotImage.preserveAspect = true;
-        slotImage.color = potionSprite == null ? Color.clear : Color.white;
-    }
-
-    public void SetSelectedSlot(int index)
-    {
-        if (!IsValidSlotIndex(index) || _potionSelection == null)
+        if (_itemCountText == null)
         {
-            return;
+            _itemCountText = GetComponentInChildren<TMP_Text>(true);
         }
-
-        _selectedSlotIndex = index;
-        Canvas.ForceUpdateCanvases();
-
-        AlignSelection();
     }
 
-    private void AlignSelection()
+    public void SetPotionSlot(Sprite potionSprite, int itemCount)
     {
-        if (!IsValidSlotIndex(_selectedSlotIndex))
-        {
-            return;
-        }
-
-        RectTransform selectedSlot = _slotImages[_selectedSlotIndex].rectTransform;
-        Vector3 slotCenterWorldPosition = selectedSlot.TransformPoint(selectedSlot.rect.center);
-        _potionSelection.position = slotCenterWorldPosition;
-
-        _potionSelection.SetAsLastSibling();
+        SetPotionSprite(potionSprite);
+        SetItemCount(itemCount);
     }
 
-    private bool IsValidSlotIndex(int index)
+    private void SetPotionSprite(Sprite potionSprite)
     {
-        return _slotImages != null
-            && index >= 0 && index < _slotImages.Length
-            && _slotImages[index] != null;
+        _potionImage.sprite = potionSprite;
+        _potionImage.preserveAspect = true;
+        _potionImage.color = potionSprite == null ? Color.clear : Color.white;
+    }
+
+    private void SetItemCount(int itemCount)
+    {
+        bool shouldShow = itemCount > 0;
+
+        _itemCountText.text = shouldShow ? itemCount.ToString() : string.Empty;
+
+        _itemCountText.gameObject.SetActive(shouldShow);
     }
 }

@@ -86,6 +86,11 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         return _inventory.GetPotionItem(index);
     }
 
+    public int GetItemCountAt(int index)
+    {
+        return _inventory.GetItemCount(index);
+    }
+
     private void LinkEvents()
     {
         if (_inventory == null || _isSubscribed)

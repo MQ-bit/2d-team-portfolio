@@ -138,5 +138,21 @@ namespace Entity.Inventory
             return index >= 0 &&
                    index < _inventorySlots.Length;
         }
+
+        public int GetItemCount(int index)
+        {
+            if(!IsValidSlotIndex(index))
+            {
+                return 0;
+            }
+
+            ItemSlot slot = _inventorySlots[index];
+            if(slot == null || slot.IsEmpty())
+            {
+                return 0;
+            }
+
+            return slot.Quantity;
+        }
     }
 }
