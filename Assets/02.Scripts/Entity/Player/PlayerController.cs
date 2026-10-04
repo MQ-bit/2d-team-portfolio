@@ -13,14 +13,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerStatus _playerStatus;
 
     public bool CanReadInput { get; private set; } = true;
-
-    // UI 연결을 위한 프로퍼티
-    public PlayerMovementModule MovementModule => _movementModule;
-    public PlayerInventoryModule InventoryModule => _inventoryModule;
-    public PlayerMeleeModule MeleeModule => _meleeModule;
-    public PlayerInteractionModule InteractionModule => _interactionModule;
-    public PlayerStatus PlayerStatus => _playerStatus;
-
     public Vector2 ReadableMoveInput => CanReadInput ? _inputSO.MoveInput : Vector2.zero;
 
     private void Awake()

@@ -17,6 +17,8 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
     [SerializeField, Min(0f)] private float _itnitThirstIncreaseAmount = 1f; //초당 감소 정도
     [SerializeField] private float _initThirstIncreaseInterval = 10f; //감소 간격
+    [SerializeField] float _thirstWarningThreshold = 0.7f;
+    [SerializeField] float _thirstCriticalThreshold = 1f;
     [SerializeField] private EntityThirst _thirstInstance;
 
     [Header("Movement Settings")]
@@ -41,6 +43,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     public float CurrentThirst => _thirstInstance.CurrentThirst;
     public float MaxThirst => _thirstInstance.MaxThirst;
     public bool IsDead => _healthInstance.IsDead;
+    public ThirstWarningLevel CurrentThirstLevel { get; private set; } = ThirstWarningLevel.Normal;
 
 
     public event Action<float, float> OnThirstChanged; //current, max
@@ -49,6 +52,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     // 피해를 입었을 때(받은 피해량, 맞은 방향). 방향을 모르면 Vector2.zero. 죽는 타격에서도 OnDeath보다 먼저 호출된다.
     public event Action<float, Vector2> OnDamaged;
     //public event Action OnRevive;
+    public event Action<ThirstWarningLevel, ThirstWarningLevel> OnThirstLevelChanged;
 
     private void Awake()
     {
@@ -64,13 +68,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     {
         _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
         _healthInstance = new EntityHealth(_initHealth, _maxHealth);
+
+        CurrentThirstLevel = EvaluateThirstLevel(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
     }
 
     private void Update()
     {
         if (_thirstInstance.IncreaseTick(Time.deltaTime))
         {
-            OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+            NotifyThirstChanged();
         }
     }
 
@@ -99,7 +105,6 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
         if (_healthInstance.IsDead)
         {
-            Death();
             OnDeath?.Invoke();
         }
     }
@@ -107,8 +112,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     public void RestoreThirst(float amount)
     {
         _thirstInstance.RestoreThirst(amount);
-
-        OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+        NotifyThirstChanged();
     }
 
     public void DecreaseThirst(float amount)
@@ -117,11 +121,45 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
         _thirstInstance.DecreaseThirst(amount);
 
-        OnThirstChanged?.Invoke(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
+        NotifyThirstChanged();
     }
 
-    private void Death()
+    private void NotifyThirstChanged()
     {
+        float current = _thirstInstance.CurrentThirst;
+        float maximum = _thirstInstance.MaxThirst;
 
+        ThirstWarningLevel prevLevel = CurrentThirstLevel;
+        ThirstWarningLevel nextLevel = EvaluateThirstLevel(current, maximum);
+
+        CurrentThirstLevel = nextLevel;
+        OnThirstChanged?.Invoke(current, maximum);
+
+        if(nextLevel != prevLevel)
+        {
+            OnThirstLevelChanged?.Invoke(prevLevel, nextLevel);
+        }
+    }
+
+    private ThirstWarningLevel EvaluateThirstLevel(float current, float maximum)
+    {
+        if (maximum <= Mathf.Epsilon)
+        {
+            return ThirstWarningLevel.Normal;
+        }
+
+        float normalizedThirst = Mathf.Clamp01(current / maximum);
+
+        if (normalizedThirst >= _thirstCriticalThreshold)
+        {
+            return ThirstWarningLevel.Critical;
+        }
+
+        if (normalizedThirst >= _thirstWarningThreshold)
+        {
+            return ThirstWarningLevel.Warning;
+        }
+
+        return ThirstWarningLevel.Normal;
     }
 }
