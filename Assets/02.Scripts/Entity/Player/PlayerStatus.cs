@@ -11,11 +11,10 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     [SerializeField, Min(0f)] private float _initHealth = 100f;
     [SerializeField] private EntityHealth _healthInstance;
 
-
     [Header("Player Thirst Settings")] //TODO: 하나의 ScriptableObject로 두는게..?
     [SerializeField, Min(1f)] private float _initMaxThirst = 100f;
     [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
-    [SerializeField, Min(0f)] private float _itnitThirstIncreaseAmount = 1f; //초당 감소 정도
+    [SerializeField, Min(0f)] private float _initThirstIncreaseAmount = 1f; //초당 감소 정도
     [SerializeField] private float _initThirstIncreaseInterval = 10f; //감소 간격
     [SerializeField] float _thirstWarningThreshold = 0.7f;
     [SerializeField] float _thirstCriticalThreshold = 1f;
@@ -45,14 +44,11 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     public bool IsDead => _healthInstance.IsDead;
     public ThirstWarningLevel CurrentThirstLevel { get; private set; } = ThirstWarningLevel.Normal;
 
-
     public event Action<float, float> OnThirstChanged; //current, max
     public event Action<float, float> OnHealthChanged; //current, max
     public event Action OnDeath;
-    // 피해를 입었을 때(받은 피해량, 맞은 방향). 방향을 모르면 Vector2.zero. 죽는 타격에서도 OnDeath보다 먼저 호출된다.
     public event Action<float, Vector2> OnDamaged;
-    //public event Action OnRevive;
-    public event Action<ThirstWarningLevel, ThirstWarningLevel> OnThirstLevelChanged;
+    public event Action<ThirstWarningLevel, ThirstWarningLevel> OnThirstLevelChanged; //prevLevel, nextLevel
 
     private void Awake()
     {
@@ -66,7 +62,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     private void InitiateStatus()
     {
-        _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _itnitThirstIncreaseAmount, _initThirstIncreaseInterval);
+        _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _initThirstIncreaseAmount, _initThirstIncreaseInterval);
         _healthInstance = new EntityHealth(_initHealth, _maxHealth);
 
         CurrentThirstLevel = EvaluateThirstLevel(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);

@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// 플레이어의 갈증 상태에 따라 UI와 시각적 효과를 제어하는 프리젠터. Dialogue 요청과 Vignette 요청까지 처리하므로, 필요시 각자의 Presenter로 분리
+/// </summary>
 public sealed class ThirstFeedbackPresenter : MonoBehaviour
 {
     [Header("Views")]
@@ -69,7 +72,6 @@ public sealed class ThirstFeedbackPresenter : MonoBehaviour
         bool shouldEnableWobble = level == ThirstWarningLevel.Critical;
 
         _vignetteView.SetVisible(shouldShowVignette);
-
         _sceneVisualEffectManager.SetWobbleActive(shouldEnableWobble);
     }
 

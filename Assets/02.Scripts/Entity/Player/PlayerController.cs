@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerStatus _playerStatus;
 
     public bool CanReadInput { get; private set; } = true;
-    public Vector2 ReadableMoveInput => CanReadInput ? _inputSO.MoveInput : Vector2.zero;
+    public Vector2 ReadableMoveInput => GetEffectiveMoveInput();
 
     private void Awake()
     {
@@ -116,14 +116,14 @@ public class PlayerController : MonoBehaviour
     {
         if (!CanReadInput || _meleeModule.IsSwinging) return;
 
-        _movementModule.MovePosition(_inputSO.MoveInput);
+        _movementModule.MovePosition(ReadableMoveInput);
     }
 
     private void HandleDashInput()
     {
         if (!CanReadInput) return;
 
-        Vector2 moveInput = _inputSO.MoveInput;
+        Vector2 moveInput = ReadableMoveInput;
 
         if (moveInput == Vector2.zero)
         {
@@ -244,5 +244,25 @@ public class PlayerController : MonoBehaviour
     {
         CancelAllActions();
         SetGamePlayInputEnabled(false);
+    }
+
+    private Vector2 GetEffectiveMoveInput()
+    {
+        //TODO: 이는 갈증 상태에 따라 이동 입력을 반전시키는 로직을 처리하는 함수인데 원래라면 
+        // 이는 CC모듈에서 처리해야하므로 CC모듈 구현되고 PotionEffectReceiver와 통합되면 해제하기.
+        
+        if (!CanReadInput || _inputSO == null)
+        {
+            return Vector2.zero;
+        }
+
+        Vector2 moveInput = _inputSO.MoveInput;
+
+        if (_playerStatus != null && _playerStatus.CurrentThirstLevel == ThirstWarningLevel.Critical)
+        {
+            moveInput = -moveInput;
+        }
+
+        return moveInput;
     }
 }

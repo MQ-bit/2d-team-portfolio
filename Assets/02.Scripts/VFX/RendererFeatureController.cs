@@ -4,7 +4,7 @@ using UnityEngine.Rendering.Universal;
 
 public class RendererFeatureController : MonoBehaviour
 {
-    //여러개의 포스트 프로세싱을 관리 해야한다면 구조를 다시 설계해야함.
+    //TODO: 여러개의 포스트 프로세싱을 관리 해야한다면 구조를 다시 설계해야함.
     [SerializeField] private ScriptableRendererData _rendererData; 
     [SerializeField] private string _featureName = "WobbleEffect";
     [SerializeField] private bool _disableOnDisable = true;

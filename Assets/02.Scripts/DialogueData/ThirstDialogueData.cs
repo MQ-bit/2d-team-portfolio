@@ -1,8 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(
-    fileName = "ThirstDialogueData",
-    menuName = "Scriptable Objects/ThirstDialogueData")]
+[CreateAssetMenu(fileName = "ThirstDialogueData", menuName = "Scriptable Objects/ThirstDialogueData")]
 public sealed class ThirstDialogueData : ScriptableObject
 {
     [Header("Thirst Warning Stage")]
