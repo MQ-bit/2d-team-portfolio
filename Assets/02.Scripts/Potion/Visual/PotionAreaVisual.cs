@@ -18,6 +18,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
     private readonly PotionAreaSurfaceRenderer _surfaceRenderer = new();
     private SpriteRenderer _renderer;
     private PotionPuddleShape _puddle;
+    private PotionAreaFootprint _footprint;
     private PotionCombinationSpread _spread;
     private Color _fromColor;
     private Color _targetColor;
@@ -61,6 +62,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
         Color previousColor = _surfaceRenderer.IsBound ? _currentColor : color;
         _surfaceRenderer.Restore();
         _puddle = null;
+        _footprint = null;
+        _surfaceRenderer.SetFootprint(null);
         _spread = null;
         _renderer = renderer;
         _targetColor = color;
@@ -82,6 +85,13 @@ public sealed class PotionAreaVisual : MonoBehaviour
     }
 
     public void SetExpiration(float expiresAt) => _expiresAt = expiresAt;
+
+    internal void SetFootprint(PotionAreaFootprint footprint)
+    {
+        _footprint = footprint;
+        _surfaceRenderer.SetFootprint(footprint);
+        if (_surfaceRenderer.IsBound) ApplyProperties();
+    }
 
     internal void SetPuddleShape(PotionPuddleShape shape)
     {
@@ -130,9 +140,11 @@ public sealed class PotionAreaVisual : MonoBehaviour
         if (_renderer != null && !_surfaceRenderer.IsBound)
         {
             PotionPuddleShape puddle = _puddle;
+            PotionAreaFootprint footprint = _footprint;
             PotionCombinationSpread spread = _spread;
             Bind(_renderer, _targetColor);
             SetPuddleShape(puddle);
+            SetFootprint(footprint);
             SetCombinationSpread(spread);
         }
     }

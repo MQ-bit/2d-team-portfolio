@@ -106,9 +106,9 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         if (data.CreatesFloor || data.InheritThrownEffectsFrom != PotionElement.None)
         {
-            Vector2 delta = other.AreaCollider.bounds.center - _areaController.AreaCollider.bounds.center;
+            Vector2 delta = other.OriginalCenter - _areaController.OriginalCenter;
             delta.y *= 2f;
-            if (delta.magnitude > _areaController.AreaCollider.bounds.extents.x + other.AreaCollider.bounds.extents.x)
+            if (delta.magnitude > _areaController.OriginalRadius + other.OriginalRadius)
                 return false;
             return CreateProfileCombination(other, otherCombiner, data, data);
         }
@@ -142,6 +142,13 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         _combinedAreaShape.Create(_areaController, other, data.VisualData,
             Mathf.Min(data.SpreadDuration, duration));
+        if (!_combinedAreaShape.CombinationCollider.enabled)
+        {
+            IsCombined = otherCombiner.IsCombined = false;
+            _combinedPrimary = _combinedPartner = null;
+            otherCombiner._combinedPrimary = otherCombiner._combinedPartner = null;
+            return false;
+        }
         float expiresAt = Time.time + duration;
         IDamageable owner = IsAlive(_areaController.Owner) ? _areaController.Owner : other.Owner;
         _areaController.AreaEffect.ReplaceWithCombinationProfile(data, effectProfile, owner,

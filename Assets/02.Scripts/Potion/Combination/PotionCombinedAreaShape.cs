@@ -37,31 +37,35 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
     {
         Collider2D firstCollider = first.AreaCollider;
         Collider2D secondCollider = second.AreaCollider;
-        Vector2 firstCenter = firstCollider.bounds.center;
-        Vector2 secondCenter = secondCollider.bounds.center;
-        var shape = new PotionPuddleShape(firstCenter, firstCollider.bounds.extents.x,
-            secondCenter, secondCollider.bounds.extents.x,
+        Vector2 firstCenter = first.OriginalCenter;
+        Vector2 secondCenter = second.OriginalCenter;
+        var shape = new PotionPuddleShape(firstCenter, first.OriginalRadius,
+            secondCenter, second.OriginalRadius,
             _connectionWidthRatio, _connectionBlendRatio);
+        _combinationCollider.enabled = false;
+        // Preserve original centers/radii; a clipped collider's bounds are not a lobe.
+        Rect bounds = PotionAreaFootprint.BoundsOf(shape.Outline);
+        var walls = PotionWallQuery.FindPolygons(bounds, first.WallLayers);
+        if (second.WallLayers != first.WallLayers)
+            walls.AddRange(PotionWallQuery.FindPolygons(bounds, second.WallLayers));
+        PotionAreaFootprint footprint = walls.Count == 0
+            ? PotionAreaFootprint.Unclipped(shape.Outline)
+            : PotionAreaClipper.Subtract(shape.Outline, firstCenter, walls);
+        if (footprint == null || !footprint.Contains(secondCenter)) return;
         var spread = new PotionCombinationSpread(shape, _combinationCollider, Time.time,
             spreadDuration, first.Data.VisualData.AreaColor, second.Data.VisualData.AreaColor);
-        Vector2[] points = new Vector2[shape.Outline.Length];
-        for (int i = 0; i < points.Length; i++)
-        {
-            points[i] = _combinationCollider.transform.InverseTransformPoint(shape.Outline[i])
-                - (Vector3)_combinationCollider.offset;
-        }
-
         firstCollider.enabled = false;
         secondCollider.enabled = false;
-        _combinationCollider.pathCount = 1;
-        _combinationCollider.SetPath(0, points);
-        _combinationCollider.enabled = true;
+        footprint.ApplyTo(_combinationCollider);
         first.AreaEffect.PrepareOriginalForSpread(spread, true, first.Owner);
         second.AreaEffect.PrepareOriginalForSpread(spread, false, second.Owner);
 
         first.RetainAreaVfxForSpread(spread);
         second.RetainAreaVfxForSpread(spread);
+        first.SetCombinedFootprint(footprint);
+        second.SetCombinedFootprint(footprint);
         CreatePuddleVisual(first, second, visualData, shape);
+        first.AreaVisual.SetFootprint(footprint);
         first.AreaVisual.SetCombinationSpread(spread);
         if (visualData.AreaVfxPrefab != null)
         {

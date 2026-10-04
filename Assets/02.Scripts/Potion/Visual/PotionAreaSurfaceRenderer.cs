@@ -23,6 +23,9 @@ internal sealed class PotionAreaSurfaceRenderer
     private Sprite _originalSprite;
     private Color _originalColor;
     private Vector3 _originalScale;
+    private readonly PotionAreaMaskRenderer _mask = new();
+
+    internal void SetFootprint(PotionAreaFootprint footprint) => _mask.SetFootprint(footprint);
 
     internal bool IsBound { get; private set; }
     internal Material OriginalMaterial => _originalMaterial;
@@ -83,6 +86,7 @@ internal sealed class PotionAreaSurfaceRenderer
         _properties.SetColor(AccentColorId, accentColor);
         _properties.SetVector(SurfaceId, surface);
         _properties.SetVector(AnimationId, animation);
+        _mask.Apply(_properties);
         if (puddle != null)
         {
             Vector2 offset = puddle.BoundsCenter - puddle.Center;
@@ -129,6 +133,7 @@ internal sealed class PotionAreaSurfaceRenderer
     internal void Release()
     {
         Restore();
+        _mask.Release();
         if (_material != null) Object.Destroy(_material);
         if (_surfaceSprite != null) Object.Destroy(_surfaceSprite);
     }

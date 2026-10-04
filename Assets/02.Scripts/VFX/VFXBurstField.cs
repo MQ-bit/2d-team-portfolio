@@ -40,6 +40,10 @@ public class VFXBurstField : MonoBehaviour
     private PotionCombinationSpread _spread;
     private bool _showReached;
     private Vector2[][] _footprint;
+    private PotionAreaFootprint _clippedFootprint;
+    private readonly PotionAreaMaskRenderer _clipMask = new();
+    private MaterialPropertyBlock _clipProperties;
+    private Material _clipMaterial;
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
@@ -56,6 +60,7 @@ public class VFXBurstField : MonoBehaviour
 
     private void Awake()
     {
+        _clipProperties = new MaterialPropertyBlock();
         ApplyGround();
     }
 
@@ -75,6 +80,8 @@ public class VFXBurstField : MonoBehaviour
     private void OnDestroy()
     {
         ReleaseSprites();
+        _clipMask.Release();
+        if (_clipMaterial != null) Destroy(_clipMaterial);
     }
 
     // 장판 색을 바꾼다. 알파는 인스펙터의 _groundColor 알파를 유지한다.
@@ -87,10 +94,34 @@ public class VFXBurstField : MonoBehaviour
         _puddle = null;
         _spread = null;
         _footprint = null;
+        _clippedFootprint = null;
+        _clipMask.SetFootprint(null);
         _sortingRenderer = sortingRenderer;
     }
 
     internal void ConfigureFootprint(Vector2[][] paths) => _footprint = paths;
+
+    internal void ConfigureFootprint(PotionAreaFootprint footprint)
+    {
+        _clippedFootprint = footprint != null && footprint.IsClipped ? footprint : null;
+        _clipMask.SetFootprint(_clippedFootprint);
+        if (_clippedFootprint != null && _clipMaterial == null)
+        {
+            Shader shader = Resources.Load<Shader>("PotionAreaVfxClip");
+            if (shader != null) _clipMaterial = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+        }
+        if (_sprites == null || _sprites.Length == 0) return;
+        var source = _vfxPrefab.GetComponent<SpriteRenderer>();
+        foreach (Burst burst in _bursts)
+        {
+            burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
+                ? _clipMaterial : source.sharedMaterial;
+            burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipMask.Apply(_clipProperties);
+            burst.Renderer.SetPropertyBlock(_clipProperties);
+            Respawn(burst, burst.StartTime);
+        }
+    }
 
     internal void ConfigurePuddle(PotionPuddleShape shape)
     {
@@ -158,7 +189,11 @@ public class VFXBurstField : MonoBehaviour
         float duration = _sprites.Length / _fps;
         foreach (var burst in _bursts)
         {
-            burst.Renderer.sharedMaterial = source.sharedMaterial;
+            burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
+                ? _clipMaterial : source.sharedMaterial;
+            burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipMask.Apply(_clipProperties);
+            burst.Renderer.SetPropertyBlock(_clipProperties);
             burst.Renderer.color = source.color * _tint;
             // 처음부터 전부 동시에 터지지 않도록 재생 시점을 흩어 둔다.
             Respawn(burst, _playOnce ? Time.time : Time.time - Random.Range(0f, duration));
@@ -236,6 +271,13 @@ public class VFXBurstField : MonoBehaviour
         if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
         if (_footprint != null) local = SampleFootprint();
         if (_footprint == null && _fillArea && _burstCount == 1) local = Vector3.zero;
+        if (_clippedFootprint != null && !(_fillArea && _burstCount == 1))
+        {
+            // Rejection retains the profile's preferred spread; area-weighted
+            // sampling supplies a valid fallback for narrow remaining slivers.
+            if (!_clippedFootprint.Contains(transform.TransformPoint(local)))
+                local = transform.InverseTransformPoint(_clippedFootprint.SamplePoint());
+        }
 
         Transform t = burst.Renderer.transform;
         t.localPosition = local;

@@ -38,6 +38,7 @@ internal static class PotionVaporizationReactionVfx
 
         var field = go.AddComponent<VFXBurstField>();
         field.ConfigureArea(bounds.size.x, bounds.size.y, sorting);
+        PotionAreaFootprint footprint = area.GetComponent<PotionAreaController>()?.Footprint;
         var vfxSettings = prefab.GetComponent<PotionAreaVfxSettings>();
         bool centeredExplosion = vfxSettings != null && vfxSettings.playOnce &&
             vfxSettings.fillArea && vfxSettings.burstCount == 1;
@@ -59,6 +60,7 @@ internal static class PotionVaporizationReactionVfx
             field.ConfigureFootprint(paths);
         }
         field.SetVfx(prefab);
+        field.ConfigureFootprint(footprint);
         Object.Destroy(go, duration);
     }
 }

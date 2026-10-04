@@ -3,6 +3,9 @@ Shader "Potion/Area"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        [HideInInspector] _AreaClipMask ("Clipped Footprint", 2D) = "white" {}
+        [HideInInspector] _AreaClipRect ("Footprint World Bounds", Vector) = (0, 0, 1, 1)
+        [HideInInspector] _AreaClipEnabled ("Clip Enabled", Float) = 0
         _AreaColor ("Area Color", Color) = (0.3, 0.8, 0.6, 1)
         _AccentColor ("VFX Accent Color", Color) = (0.7, 1, 0.8, 1)
         _Surface ("Wobble, Detail, Opacity, Style", Vector) = (0.018, 0.65, 0.7, 0)
@@ -40,8 +43,11 @@ Shader "Potion/Area"
         {
             float4 positionCS : SV_POSITION;
             float2 uv : TEXCOORD0;
+            float2 positionWS : TEXCOORD1;
         };
         CBUFFER_START(UnityPerMaterial)
+            float4 _AreaClipRect;
+            float _AreaClipEnabled;
             float4 _AreaColor;
             float4 _AccentColor;
             float4 _Surface;
@@ -53,12 +59,15 @@ Shader "Potion/Area"
             float4 _PuddleFirstColor;
             float4 _PuddleSecondColor;
         CBUFFER_END
+        TEXTURE2D(_AreaClipMask);
+        SAMPLER(sampler_AreaClipMask);
 
         Varyings Vert(Attributes input)
         {
             Varyings output;
             output.positionCS = TransformObjectToHClip(input.positionOS);
             output.uv = input.uv;
+            output.positionWS = TransformObjectToWorld(input.positionOS).xy;
             return output;
         }
 
@@ -151,6 +160,12 @@ Shader "Potion/Area"
 
         half4 Frag(Varyings input) : SV_Target
         {
+            if (_AreaClipEnabled > 0.5)
+            {
+                float2 clipUV = (input.positionWS - _AreaClipRect.xy) / _AreaClipRect.zw;
+                clip(min(min(clipUV.x, clipUV.y), min(1.0 - clipUV.x, 1.0 - clipUV.y)));
+                clip(SAMPLE_TEXTURE2D(_AreaClipMask, sampler_AreaClipMask, clipUV).r - 0.5);
+            }
             float2 p = input.uv * 2.0 - 1.0;
             float t = _Animation.x;
             float seed = _Animation.w;

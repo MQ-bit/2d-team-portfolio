@@ -29,8 +29,15 @@ public class PotionAreaController : MonoBehaviour
     public PotionAreaVisual AreaVisual => _visual;
     public bool IsCombined => _combiner != null && _combiner.IsCombined;
     public float RemainingDuration => Mathf.Max(0f, _expiresAt - Time.time);
+    internal Vector2 OriginalCenter { get; private set; }
+    internal float OriginalRadius => _radius;
+    internal LayerMask WallLayers { get; private set; }
+    internal PotionAreaFootprint Footprint { get; private set; }
+    private bool _hasValidFootprint = true;
 
     public void SetOwner(IDamageable owner) => Owner = owner;
+
+    internal void SetCombinedFootprint(PotionAreaFootprint footprint) => Footprint = footprint;
 
     private void Awake()
     {
@@ -49,7 +56,9 @@ public class PotionAreaController : MonoBehaviour
         _impactCollider.radius = _radius;
     }
 
-    public void Initialize(PotionData data)
+    public void Initialize(PotionData data) => Initialize(data, default);
+
+    public void Initialize(PotionData data, LayerMask wallLayers)
     {
         if (data == null)
         {
@@ -58,11 +67,14 @@ public class PotionAreaController : MonoBehaviour
         }
 
         Data = data;
+        OriginalCenter = transform.position;
+        WallLayers = wallLayers;
         _duration = data.FloorDuration;
         _radius = data.EffectRadius;
         // Vaporization can wait for a later potion; use the same visible footprint
         // for overlap detection regardless of which potion lands first.
         ConfigureAreaCollider(data.CreatesFloor || data.Element == PotionElement.Vaporization);
+        if (!_hasValidFootprint) return;
 
         if (_renderer != null)
         {
@@ -89,6 +101,7 @@ public class PotionAreaController : MonoBehaviour
         }
 
         _visual.Bind(_renderer, data.VisualData);
+        _visual.SetFootprint(Footprint);
 
         if (data.CreatesFloor && data.VisualData.AreaVfxPrefab != null)
         {
@@ -99,6 +112,8 @@ public class PotionAreaController : MonoBehaviour
 
     private void ConfigureAreaCollider(bool createsFloor)
     {
+        Footprint = null;
+        _hasValidFootprint = true;
         _impactCollider.radius = _radius;
         _impactCollider.enabled = !createsFloor;
         _floorCollider.enabled = false;
@@ -115,12 +130,12 @@ public class PotionAreaController : MonoBehaviour
             Vector3 worldPoint = center + new Vector3(
                 Mathf.Cos(angle) * _radius,
                 Mathf.Sin(angle) * _radius * GroundHeightRatio, 0f);
-            points[i] = transform.InverseTransformPoint(worldPoint);
+            points[i] = worldPoint;
         }
 
-        _floorCollider.pathCount = 1;
-        _floorCollider.SetPath(0, points);
-        _floorCollider.enabled = true;
+        Footprint = PotionAreaClipper.Clip(points, OriginalCenter, WallLayers);
+        _hasValidFootprint = Footprint != null;
+        if (_hasValidFootprint) Footprint.ApplyTo(_floorCollider);
     }
 
     public GameObject SetAreaVfx(PotionVisualData visualData, float width, float height)
@@ -139,6 +154,7 @@ public class PotionAreaController : MonoBehaviour
         VFXBurstField field = _areaVfx.AddComponent<VFXBurstField>();
         field.ConfigureArea(width, height, _renderer);
         field.SetVfx(visualData.AreaVfxPrefab);
+        field.ConfigureFootprint(Footprint);
         _vfxField = field;
         return _areaVfx;
     }
@@ -164,6 +180,11 @@ public class PotionAreaController : MonoBehaviour
     public void Activate()
     {
         if (Data == null || _activated) return;
+        if (!_hasValidFootprint)
+        {
+            Remove();
+            return;
+        }
         _activated = true;
         SetExpiration(Time.time + _duration);
         if (_combiner != null) _combiner.RegisterArea();
