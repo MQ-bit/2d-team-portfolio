@@ -6895,8 +6895,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
   _direction: 3
   _carveArea:
-    m_Position: {x: -15, y: -5, z: 0}
-    m_Size: {x: 2, y: 10, z: 1}
+    m_Position: {x: -15, y: -6, z: 0}
+    m_Size: {x: 2, y: 11, z: 1}
 --- !u!1 &6659336343354993228
 GameObject:
   m_ObjectHideFlags: 0

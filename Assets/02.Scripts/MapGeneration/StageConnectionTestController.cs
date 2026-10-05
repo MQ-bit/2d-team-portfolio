@@ -161,7 +161,7 @@ public class StageConnectionTestController : MonoBehaviour
 
     private static bool ValidateConnection(RoomConnector first, RoomConnector second)
     {
-        if (first.Direction.Opposite() != second.Direction)
+        if (first.Direction.OppositeDirection() != second.Direction)
         {
             return false;
         }

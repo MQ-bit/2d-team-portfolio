@@ -83,7 +83,7 @@ public class HallwayDefinition : MonoBehaviour
             return;
         }
 
-        if (first.Direction.Opposite() != second.Direction)
+        if (first.Direction.OppositeDirection() != second.Direction)
         {
             errors.Add($"{name}: Hallway Connector가 반대 방향이 아닙니다.");
         }

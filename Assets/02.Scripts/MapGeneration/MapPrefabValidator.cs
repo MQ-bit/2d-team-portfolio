@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-
+#if UNITY_EDITOR
 public static class MapPrefabValidator
 {
     private static readonly string[] SearchFolders =
@@ -103,3 +103,4 @@ public static class MapPrefabValidator
             $"Map Prefab 검증 실패: {allErrors.Count}개 오류");
     }
 }
+#endif

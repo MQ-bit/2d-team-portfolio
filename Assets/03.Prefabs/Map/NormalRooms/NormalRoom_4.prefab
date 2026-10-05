@@ -135,7 +135,7 @@ Transform:
   m_GameObject: {fileID: 825103552419471882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -11, y: 7, z: 0}
+  m_LocalPosition: {x: -10, y: 7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -155,8 +155,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
   _direction: 3
   _carveArea:
-    m_Position: {x: -11, y: 2, z: 0}
-    m_Size: {x: 2, y: 10, z: 1}
+    m_Position: {x: -11, y: 1, z: 0}
+    m_Size: {x: 2, y: 11, z: 1}
 --- !u!1 &1067059388164386733
 GameObject:
   m_ObjectHideFlags: 0
@@ -12383,7 +12383,7 @@ Transform:
   m_GameObject: {fileID: 4243854630811797755}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 11, y: 7, z: 0}
+  m_LocalPosition: {x: 10, y: 7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12403,8 +12403,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
   _direction: 1
   _carveArea:
-    m_Position: {x: 9, y: 2, z: 0}
-    m_Size: {x: 2, y: 10, z: 1}
+    m_Position: {x: 9, y: 1, z: 0}
+    m_Size: {x: 2, y: 11, z: 1}
 --- !u!1 &4820193410507897452
 GameObject:
   m_ObjectHideFlags: 0

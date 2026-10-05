@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+/// <summary>
+/// RoomDefinition은 방의 유형, 경계, 벽 타일맵, 커넥터 및 스폰 지점과 같은, 방의 속성을 정의하는 MonoBehaviour 클래스입니다.
+/// </summary>
 public class RoomDefinition : MonoBehaviour
 {
     private const float Direction_Tolerance = 0.999f; // 방향 벡터의 정규화된 값이 0.999 이상이면 해당 방향으로 간주

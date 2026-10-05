@@ -14,7 +14,7 @@ public static class ConnectorDirectionExtensions
         };
     }
 
-    public static ConnectorDirection Opposite(this ConnectorDirection direction)
+    public static ConnectorDirection OppositeDirection(this ConnectorDirection direction)
     {
         return direction switch
         {

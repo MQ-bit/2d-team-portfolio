@@ -127,8 +127,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
   _direction: 3
   _carveArea:
-    m_Position: {x: -14, y: 1, z: 0}
-    m_Size: {x: 2, y: 10, z: 1}
+    m_Position: {x: -14, y: 0, z: 0}
+    m_Size: {x: 2, y: 11, z: 1}
 --- !u!1 &1646814089625663422
 GameObject:
   m_ObjectHideFlags: 0
@@ -15732,5 +15732,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
   _direction: 1
   _carveArea:
-    m_Position: {x: 16, y: 1, z: 0}
-    m_Size: {x: 2, y: 10, z: 1}
+    m_Position: {x: 16, y: 0, z: 0}
+    m_Size: {x: 2, y: 11, z: 1}

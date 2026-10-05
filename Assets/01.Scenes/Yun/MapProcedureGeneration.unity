@@ -722,11 +722,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705460548493710781, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 133.065
+      value: 31.660292
       objectReference: {fileID: 0}
     - target: {fileID: 3705460548493710781, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.049
+      value: -4.84
       objectReference: {fileID: 0}
     - target: {fileID: 3705460548493710781, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -830,7 +830,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 159.55682, y: 123.697845}
+  m_Size: {x: 852.85, y: 618.489}
   m_EdgeRadius: 0
 --- !u!4 &307366280
 Transform:
@@ -989,7 +989,7 @@ Transform:
   m_GameObject: {fileID: 309220161}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.78, y: 3.61, z: -1}
+  m_LocalPosition: {x: 20.86029, y: 3.61, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1005,7 +1005,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3312743620447293084, guid: ad19eb70b4767c048aa61fd0359718a4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.94
+      value: 20.70029
       objectReference: {fileID: 0}
     - target: {fileID: 3312743620447293084, guid: ad19eb70b4767c048aa61fd0359718a4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1366,7 +1366,7 @@ Transform:
   m_GameObject: {fileID: 500500666}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 34.6, y: -1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1381,13 +1381,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 500500666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3beb589f5347f34cbe241d1e6c3e7a7, type: 3}
+  m_Script: {fileID: 11500000, guid: 35b495d5f315232408cd5b1d9267e01e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageConnectionTestController
+  m_EditorClassIdentifier: Assembly-CSharp::StageGenerator
   _startRoom: {fileID: 314981317}
-  _generatedStageRoot: {fileID: 500500667}
-  _horizontalHallwayPrefab: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
-  _normalRoomPrefab: {fileID: 239847982383109468, guid: 9531cf7911bfafa4790a67fb780b1f54, type: 3}
+  _generatedStageParent: {fileID: 500500667}
+  _profile: {fileID: 11400000, guid: 986eaca58e962be48a19cf9e37ba7225, type: 2}
+  _useRandomSeed: 1
+  _seed: 12345
   _generateOnStart: 1
 --- !u!1 &569368487
 GameObject:
@@ -2879,7 +2880,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3612528117417103380, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.78
+      value: 20.86029
       objectReference: {fileID: 0}
     - target: {fileID: 3612528117417103380, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3003,7 +3004,7 @@ Transform:
   m_GameObject: {fileID: 1422263101}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 29.640291, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3816,7 +3817,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 0
+  orthographic size: 8.4375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3949,7 +3950,7 @@ Transform:
   m_GameObject: {fileID: 1677026648}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.2402916, y: 3.6099968, z: -1}
+  m_LocalPosition: {x: 20.86029, y: 3.6100006, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4397,6 +4398,7 @@ SceneRoots:
   - {fileID: 314981316}
   - {fileID: 2078161265}
   - {fileID: 613919785}
+  - {fileID: 500500667}
   - {fileID: 1908979315}
   - {fileID: 478069972}
   - {fileID: 1429283395}
@@ -4416,4 +4418,3 @@ SceneRoots:
   - {fileID: 1091031344}
   - {fileID: 383869851}
   - {fileID: 1354504291}
-  - {fileID: 500500667}
