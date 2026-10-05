@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 721293403781015546}
+  - component: {fileID: 2722697660016212862}
   m_Layer: 0
   m_Name: West
   m_TagString: Untagged
@@ -31,6 +32,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4336944862647989421}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!114 &2722697660016212862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287839315296182210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 3
+  _carveArea:
+    m_Position: {x: -14, y: -5, z: 0}
+    m_Size: {x: 1, y: 10, z: 1}
 --- !u!1 &489952479905048888
 GameObject:
   m_ObjectHideFlags: 0
@@ -7951,6 +7968,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3312743620447293084}
   - component: {fileID: 5211687995422421005}
+  - component: {fileID: 2389862563778245072}
   m_Layer: 0
   m_Name: StartRoom
   m_TagString: Untagged
@@ -7991,6 +8009,31 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &2389862563778245072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5227845418919857460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c96d93f46539f4243ab73373cd7de38a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomDefinition
+  _roomType: 0
+  _localBounds:
+    m_Center: {x: 0, y: 2, z: 0}
+    m_Extent: {x: 15, y: 13, z: 0}
+  _wallTilemap: {fileID: 1322821129003598874}
+  _wallCollider: {fileID: 8240949962000007446}
+  _connectors:
+  - {fileID: 589118431049439219}
+  - {fileID: 2418196780900350175}
+  - {fileID: 2722697660016212862}
+  _playerSpawnPoint: {fileID: 1229277689122464823}
+  _portalSpawnPoint: {fileID: 0}
+  _enemySpawnPoints: []
 --- !u!1 &5289711914955119700
 GameObject:
   m_ObjectHideFlags: 0
@@ -8000,6 +8043,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8349313748149612107}
+  - component: {fileID: 589118431049439219}
   m_Layer: 0
   m_Name: East
   m_TagString: Untagged
@@ -8022,6 +8066,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4336944862647989421}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
+--- !u!114 &589118431049439219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289711914955119700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 1
+  _carveArea:
+    m_Position: {x: 13, y: -5, z: 0}
+    m_Size: {x: 2, y: 10, z: 1}
 --- !u!1 &5737231445042847241
 GameObject:
   m_ObjectHideFlags: 0
@@ -12407,6 +12467,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6825592075625877289}
+  - component: {fileID: 2418196780900350175}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -12429,6 +12490,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4336944862647989421}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+--- !u!114 &2418196780900350175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8029351255603882518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 2
+  _carveArea:
+    m_Position: {x: -5, y: -11, z: 0}
+    m_Size: {x: 10, y: 1, z: 1}
 --- !u!1 &8652165293922998884
 GameObject:
   m_ObjectHideFlags: 0

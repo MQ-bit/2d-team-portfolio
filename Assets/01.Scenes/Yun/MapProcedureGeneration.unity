@@ -1052,6 +1052,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad19eb70b4767c048aa61fd0359718a4, type: 3}
+--- !u!114 &314981317 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2389862563778245072, guid: ad19eb70b4767c048aa61fd0359718a4, type: 3}
+  m_PrefabInstance: {fileID: 314981316}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c96d93f46539f4243ab73373cd7de38a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomDefinition
 --- !u!1001 &383869851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1338,6 +1349,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 500500667}
+  - component: {fileID: 500500668}
   m_Layer: 0
   m_Name: GeneratedStageRoot
   m_TagString: Untagged
@@ -1360,6 +1372,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &500500668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500500666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3beb589f5347f34cbe241d1e6c3e7a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageConnectionTestController
+  _startRoom: {fileID: 314981317}
+  _generatedStageRoot: {fileID: 500500667}
+  _horizontalHallwayPrefab: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
+  _normalRoomPrefab: {fileID: 239847982383109468, guid: 9531cf7911bfafa4790a67fb780b1f54, type: 3}
+  _generateOnStart: 1
 --- !u!1 &569368487
 GameObject:
   m_ObjectHideFlags: 0
@@ -3787,7 +3816,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 8.4375
+  orthographic size: 0
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

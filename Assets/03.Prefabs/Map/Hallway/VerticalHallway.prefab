@@ -73,6 +73,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4143688085599224404}
   - component: {fileID: 6507466672333747192}
+  - component: {fileID: 145594401814618462}
   m_Layer: 0
   m_Name: VerticalHallway
   m_TagString: Untagged
@@ -112,6 +113,26 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &145594401814618462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2309506997214687814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d8c8a20350f2549a9898ac7dc2553d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HallwayDefinition
+  _orientation: 1
+  _localBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 6, y: 16, z: 0}
+  _connectors:
+  - {fileID: 1819761261426509442}
+  - {fileID: 7205725657083364542}
+  _wallCollider: {fileID: 5234835661993580158}
 --- !u!1 &3594914644919787675
 GameObject:
   m_ObjectHideFlags: 0
@@ -5114,6 +5135,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 927689692693467368}
+  - component: {fileID: 7205725657083364542}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -5136,6 +5158,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7210494537600271378}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+--- !u!114 &7205725657083364542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6468922668979333614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 2
+  _carveArea:
+    m_Position: {x: 0, y: 0, z: 0}
+    m_Size: {x: 0, y: 0, z: 0}
 --- !u!1 &7808770003743864858
 GameObject:
   m_ObjectHideFlags: 0
@@ -5145,6 +5183,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9189046661564934454}
+  - component: {fileID: 1819761261426509442}
   m_Layer: 0
   m_Name: North
   m_TagString: Untagged
@@ -5167,6 +5206,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7210494537600271378}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1819761261426509442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7808770003743864858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 0
+  _carveArea:
+    m_Position: {x: 0, y: 0, z: 0}
+    m_Size: {x: 0, y: 0, z: 0}
 --- !u!1 &8591220152156730222
 GameObject:
   m_ObjectHideFlags: 0

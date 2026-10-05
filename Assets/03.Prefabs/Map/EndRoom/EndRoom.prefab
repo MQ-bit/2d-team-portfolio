@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7763722971626062761}
   - component: {fileID: 1264079546427983026}
+  - component: {fileID: 4307201373427224824}
   m_Layer: 0
   m_Name: EndRoom
   m_TagString: Untagged
@@ -49,6 +50,31 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &4307201373427224824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195405270358455760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c96d93f46539f4243ab73373cd7de38a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomDefinition
+  _roomType: 3
+  _localBounds:
+    m_Center: {x: 0, y: 1.5, z: 0}
+    m_Extent: {x: 15, y: 12.5, z: 0}
+  _wallTilemap: {fileID: 6666095438806288239}
+  _wallCollider: {fileID: 1314321664011894575}
+  _connectors:
+  - {fileID: 8468806757128941734}
+  - {fileID: 4021740106231460547}
+  - {fileID: 5071736280757958956}
+  _playerSpawnPoint: {fileID: 0}
+  _portalSpawnPoint: {fileID: 672960489418944776}
+  _enemySpawnPoints: []
 --- !u!1 &656860968417529889
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,6 +1307,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3229100174804082411}
+  - component: {fileID: 8468806757128941734}
   m_Layer: 0
   m_Name: North
   m_TagString: Untagged
@@ -1303,6 +1330,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5529963981810100369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8468806757128941734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681660949284147955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 0
+  _carveArea:
+    m_Position: {x: -5, y: 9, z: 0}
+    m_Size: {x: 10, y: 5, z: 1}
 --- !u!1 &2511650138683547589
 GameObject:
   m_ObjectHideFlags: 0
@@ -6733,6 +6776,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3954165997830388535}
+  - component: {fileID: 4021740106231460547}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -6755,6 +6799,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5529963981810100369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+--- !u!114 &4021740106231460547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4283001940613290949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 2
+  _carveArea:
+    m_Position: {x: -5, y: -11, z: 0}
+    m_Size: {x: 10, y: 1, z: 1}
 --- !u!1 &4399463791043362189
 GameObject:
   m_ObjectHideFlags: 0
@@ -6798,8 +6858,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8414676348198105122}
+  - component: {fileID: 5071736280757958956}
   m_Layer: 0
-  m_Name: East
+  m_Name: West
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6820,6 +6881,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5529963981810100369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!114 &5071736280757958956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6552222891796601578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e0e9a73a73db44af6955cbd28f5e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomConnector
+  _direction: 3
+  _carveArea:
+    m_Position: {x: -15, y: -5, z: 0}
+    m_Size: {x: 2, y: 10, z: 1}
 --- !u!1 &6659336343354993228
 GameObject:
   m_ObjectHideFlags: 0
