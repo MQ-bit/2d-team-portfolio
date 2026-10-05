@@ -153,6 +153,17 @@ public class PotionAreaController : MonoBehaviour
             1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
         VFXBurstField field = _areaVfx.AddComponent<VFXBurstField>();
         field.ConfigureArea(width, height, _renderer);
+        if (!IsCombined && Data != null && Data.CreatesFloor && Data.Element != PotionElement.Vaporization)
+        {
+            field.UseLegacySinglePotionBursts();
+        }
+        else if (IsCombined && Data != null && Data.Element != PotionElement.Vaporization &&
+                 _combiner.PartnerArea != null && _combiner.PartnerArea.Data != null &&
+                 _combiner.PartnerArea.Data.Element != PotionElement.Vaporization)
+        {
+            field.UseIntenseCombinationBursts();
+        }
+
         field.SetVfx(visualData.AreaVfxPrefab);
         field.ConfigureFootprint(Footprint);
         _vfxField = field;

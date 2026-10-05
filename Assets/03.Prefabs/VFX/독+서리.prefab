@@ -124,12 +124,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 862c8790e3e44caca3cbbfa97062b390, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PotionAreaVfxSettings
-  burstCount: 3
+  burstCount: 24
   burstSize: 0.4
+  preserveBurstSizeOnCombination: 1
   sizeJitter: 0.3
-  spawnAreaRatio: 0.6
+  spawnAreaRatio: 0.85
   restDelayRange: {x: 0, y: 0.08}
   tint: {r: 1, g: 1, b: 1, a: 1}
-  fillArea: 1
+  fillArea: 0
   fillScale: 0.35
   playOnce: 0

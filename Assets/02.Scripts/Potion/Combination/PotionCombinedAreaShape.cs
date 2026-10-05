@@ -73,6 +73,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
             vfx.transform.position = new Vector3(shape.BoundsCenter.x, shape.BoundsCenter.y,
                 first.transform.position.z);
             vfx.transform.rotation = Quaternion.identity;
+            vfx.GetComponent<VFXBurstField>().ApplyCombinationPalette(visualData.AreaColor);
             vfx.GetComponent<VFXBurstField>().ConfigurePuddle(shape);
             vfx.GetComponent<VFXBurstField>().ConfigureSpread(spread, true);
         }

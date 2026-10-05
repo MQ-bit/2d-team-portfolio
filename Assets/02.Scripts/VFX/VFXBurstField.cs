@@ -22,11 +22,15 @@ public class VFXBurstField : MonoBehaviour
     private bool _fillArea;
     private float _fillScale = 1f;
     private bool _playOnce;
+    private bool _legacySinglePotionBursts;
+    private bool _intenseCombinationBursts;
+    private bool _anchorAtBottom;
 
     private class Burst
     {
         public SpriteRenderer Renderer;
         public float StartTime;
+        public Vector3 LocalAnchor;
     }
 
     private readonly List<Burst> _bursts = new();
@@ -56,6 +60,13 @@ public class VFXBurstField : MonoBehaviour
     {
         _tint = tint;
         foreach (Burst burst in _bursts) burst.Renderer.color = _vfxColor * _tint;
+    }
+
+    internal void ApplyCombinationPalette(Color areaColor)
+    {
+        // A light tint preserves the sprite's highlights and the prefab's opacity.
+        areaColor.a = 1f;
+        SetTint(_tint * Color.Lerp(Color.white, areaColor, 0.3f));
     }
 
     private void Awake()
@@ -93,6 +104,8 @@ public class VFXBurstField : MonoBehaviour
         _heightRatio = Mathf.Max(0.001f, height / _width);
         _puddle = null;
         _spread = null;
+        _legacySinglePotionBursts = false;
+        _intenseCombinationBursts = false;
         _footprint = null;
         _clippedFootprint = null;
         _clipMask.SetFootprint(null);
@@ -100,6 +113,11 @@ public class VFXBurstField : MonoBehaviour
     }
 
     internal void ConfigureFootprint(Vector2[][] paths) => _footprint = paths;
+
+    // Opt in only for single floor potions; combinations and vapor keep prefab settings.
+    internal void UseLegacySinglePotionBursts() => _legacySinglePotionBursts = true;
+
+    internal void UseIntenseCombinationBursts() => _intenseCombinationBursts = true;
 
     internal void ConfigureFootprint(PotionAreaFootprint footprint)
     {
@@ -168,9 +186,33 @@ public class VFXBurstField : MonoBehaviour
         _restDelayRange = new Vector2(Mathf.Max(0f, Mathf.Min(delay.x, delay.y)),
             Mathf.Max(0f, Mathf.Max(delay.x, delay.y)));
         _tint = settings != null ? settings.tint : Color.white;
+        _anchorAtBottom = settings != null && settings.anchorAtBottom;
         _fillArea = settings != null && settings.fillArea;
         _fillScale = settings != null ? Mathf.Max(0.05f, settings.fillScale) : 1f;
         _playOnce = settings != null && settings.playOnce;
+        if (_legacySinglePotionBursts)
+        {
+            // Match PotionGroundArea.prefab at 8f5a966, before per-VFX profiles.
+            _burstCount = 30;
+            _burstSize = 1f;
+            _sizeJitter = 0.3f;
+            _spawnAreaRatio = 0.85f;
+            _restDelayRange = new Vector2(0f, 0.08f);
+            _tint = Color.white;
+            _fillArea = false;
+            _playOnce = false;
+        }
+        if (_intenseCombinationBursts)
+        {
+            // Broad effects retain their fill sizing; small bursts gain density and size.
+            _burstCount = _fillArea
+                ? Mathf.Max(5, Mathf.CeilToInt(_burstCount * 1.5f))
+                : Mathf.Max(36, Mathf.CeilToInt(_burstCount * 1.5f));
+            if (settings == null || !settings.preserveBurstSizeOnCombination)
+                _burstSize = Mathf.Max(1f, _burstSize * 1.25f);
+            _fillScale *= 1.2f;
+            _restDelayRange *= 0.5f;
+        }
     }
 
     private void PrepareFrames(SpriteSheetPlayer player)
@@ -184,6 +226,12 @@ public class VFXBurstField : MonoBehaviour
     {
         var source = vfxPrefab.GetComponent<SpriteRenderer>();
         _vfxColor = source.color;
+        if (_intenseCombinationBursts)
+        {
+            _vfxColor.r *= 1.15f;
+            _vfxColor.g *= 1.15f;
+            _vfxColor.b *= 1.15f;
+        }
         EnsurePool();
 
         float duration = _sprites.Length / _fps;
@@ -194,7 +242,7 @@ public class VFXBurstField : MonoBehaviour
             burst.Renderer.GetPropertyBlock(_clipProperties);
             _clipMask.Apply(_clipProperties);
             burst.Renderer.SetPropertyBlock(_clipProperties);
-            burst.Renderer.color = source.color * _tint;
+            burst.Renderer.color = _vfxColor * _tint;
             // 처음부터 전부 동시에 터지지 않도록 재생 시점을 흩어 둔다.
             Respawn(burst, _playOnce ? Time.time : Time.time - Random.Range(0f, duration));
         }
@@ -233,10 +281,10 @@ public class VFXBurstField : MonoBehaviour
             }
 
             burst.Renderer.enabled = true;
-            burst.Renderer.sprite = _sprites[frame];
+            ApplyFrame(burst, _sprites[frame]);
             Color color = _vfxColor * _tint;
             color.a *= _visibility;
-            if (_spread != null && _spread.HasReached(burst.Renderer.transform.position) != _showReached)
+            if (_spread != null && _spread.HasReached(transform.TransformPoint(burst.LocalAnchor)) != _showReached)
                 color.a = 0f;
             burst.Renderer.color = color;
         }
@@ -280,20 +328,35 @@ public class VFXBurstField : MonoBehaviour
         }
 
         Transform t = burst.Renderer.transform;
-        t.localPosition = local;
+        burst.LocalAnchor = local;
         float spriteWidth = Mathf.Max(0.0001f, _sprites[0].bounds.size.x);
         float size = _fillArea && _footprint == null ? Width * _fillScale
             : _burstSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
         t.localScale = Vector3.one * (size / spriteWidth);
-        burst.Renderer.sprite = _sprites[0];
         burst.Renderer.enabled = startTime <= Time.time;
         burst.Renderer.flipX = Random.value < 0.5f;
+        ApplyFrame(burst, _sprites[0]);
 
         // 아래쪽(앞쪽) 버스트가 위에 그려지도록 y 기준으로 정렬한다.
         SpriteRenderer sortingRenderer = _sortingRenderer != null ? _sortingRenderer : _groundRenderer;
         int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
         burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
         burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
+    }
+
+    private void ApplyFrame(Burst burst, Sprite sprite)
+    {
+        SpriteRenderer renderer = burst.Renderer;
+        renderer.sprite = sprite;
+        Vector3 position = burst.LocalAnchor;
+        if (_anchorAtBottom)
+        {
+            // Keep the bottom center on the sampled floor point, even when frame bounds change.
+            Vector3 scale = renderer.transform.localScale;
+            position.x -= sprite.bounds.center.x * scale.x * (renderer.flipX ? -1f : 1f);
+            position.y -= sprite.bounds.min.y * scale.y;
+        }
+        renderer.transform.localPosition = position;
     }
 
     private Vector2 SampleFootprint()
