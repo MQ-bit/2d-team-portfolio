@@ -167,14 +167,14 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     {
         if (context.performed)
         {
-            if(_isInteractHolding) return;
+            if (_isInteractHolding) return;
 
             _isInteractHolding = true;
             OnInteractInputChanged?.Invoke(true);
             return;
         }
 
-        if(context.canceled && _isInteractHolding)
+        if (context.canceled && _isInteractHolding)
         {
             _isInteractHolding = false;
             OnInteractInputChanged?.Invoke(false);

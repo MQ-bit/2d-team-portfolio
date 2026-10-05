@@ -3,6 +3,9 @@ Shader "Potion/Area"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        [HideInInspector] _AreaClipMask ("Clipped Footprint", 2D) = "white" {}
+        [HideInInspector] _AreaClipRect ("Footprint World Bounds", Vector) = (0, 0, 1, 1)
+        [HideInInspector] _AreaClipEnabled ("Clip Enabled", Float) = 0
         _AreaColor ("Area Color", Color) = (0.3, 0.8, 0.6, 1)
         _AccentColor ("VFX Accent Color", Color) = (0.7, 1, 0.8, 1)
         _Surface ("Wobble, Detail, Opacity, Style", Vector) = (0.018, 0.65, 0.7, 0)
@@ -40,8 +43,11 @@ Shader "Potion/Area"
         {
             float4 positionCS : SV_POSITION;
             float2 uv : TEXCOORD0;
+            float2 positionWS : TEXCOORD1;
         };
         CBUFFER_START(UnityPerMaterial)
+            float4 _AreaClipRect;
+            float _AreaClipEnabled;
             float4 _AreaColor;
             float4 _AccentColor;
             float4 _Surface;
@@ -53,12 +59,15 @@ Shader "Potion/Area"
             float4 _PuddleFirstColor;
             float4 _PuddleSecondColor;
         CBUFFER_END
+        TEXTURE2D(_AreaClipMask);
+        SAMPLER(sampler_AreaClipMask);
 
         Varyings Vert(Attributes input)
         {
             Varyings output;
             output.positionCS = TransformObjectToHClip(input.positionOS);
             output.uv = input.uv;
+            output.positionWS = TransformObjectToWorld(input.positionOS).xy;
             return output;
         }
 
@@ -151,6 +160,12 @@ Shader "Potion/Area"
 
         half4 Frag(Varyings input) : SV_Target
         {
+            if (_AreaClipEnabled > 0.5)
+            {
+                float2 clipUV = (input.positionWS - _AreaClipRect.xy) / _AreaClipRect.zw;
+                clip(min(min(clipUV.x, clipUV.y), min(1.0 - clipUV.x, 1.0 - clipUV.y)));
+                clip(SAMPLE_TEXTURE2D(_AreaClipMask, sampler_AreaClipMask, clipUV).r - 0.5);
+            }
             float2 p = input.uv * 2.0 - 1.0;
             float t = _Animation.x;
             float seed = _Animation.w;
@@ -183,21 +198,24 @@ Shader "Potion/Area"
                 shade = 0.5 + heat * 0.45;
                 coverage = 0.75 + heat * 0.25;
             }
-            else if (style > 1.5 && style < 2.5) // Ring bubbles, like the poison / pink VFX.
+            else if (style > 1.5 && style < 2.5) // Poison: dark pools with bright bubbling rings.
             {
-                pattern = Bubbles(q * 4.0 + seed, t) * 0.7;
-                shade = 0.6 + flow * 0.3;
+                pattern = Bubbles(q * 3.5 + seed, t) * 1.25;
+                shade = 0.45 + flow * 0.35;
             }
             else if (style > 2.5 && style < 3.5) // Ice keeps its crystalline structure still.
             {
                 pattern = Cracks(q * 4.0 + seed) * 0.6 + Sparkles(q * 7.0, t) * 0.45;
                 shade = 0.65 + Noise(q * 5.0 + seed) * 0.25;
             }
-            else if (style > 3.5 && style < 4.5) // Life / white orb: soft pulses and little stars.
+            else if (style > 3.5 && style < 4.5) // Healing: broad outward ripples and a soft central glow.
             {
-                pattern = ripple * 0.3 + Sparkles(q * 6.0 + seed, t) * 0.8;
-                shade = 0.8 + flow * 0.15;
-                pulse = 0.88 + sin(t * 2.5) * 0.12;
+                float wave = pow(saturate(0.5 + 0.5 * sin(radius * 12.0 - t * 1.6)), 4.0);
+                float glow = exp(-radius * radius * 4.0);
+                pattern = wave * 0.85 + glow * 0.35;
+                shade = 0.92 + flow * 0.08;
+                pulse = 0.96 + sin(t * 1.5) * 0.04;
+                rim *= 1.5;
             }
             else if (style > 4.5 && style < 5.5) // Lightning changes branches in discrete bursts.
             {

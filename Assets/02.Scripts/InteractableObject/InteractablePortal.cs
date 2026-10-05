@@ -14,7 +14,7 @@ public class InteractablePortal : MonoBehaviour, IInteractable
 
     private void Awake()
     {
-        if(_destination == null)
+        if (_destination == null)
         {
             _destination = transform.GetChild(0);
         }
@@ -22,7 +22,7 @@ public class InteractablePortal : MonoBehaviour, IInteractable
 
     public bool CanInteract(GameObject interactor)
     {
-        return _destination != null 
+        return _destination != null
             && _destination != transform;
     }
 
@@ -33,14 +33,14 @@ public class InteractablePortal : MonoBehaviour, IInteractable
             return;
         }
 
-        if(interactor.TryGetComponent(out PlayerController playerController))
+        if (interactor.TryGetComponent(out PlayerController playerController))
         {
             playerController.CancelAllActions();
         }
         if (interactor.TryGetComponent(out Rigidbody2D rigid))
         {
             rigid.linearVelocity = Vector2.zero;
-            rigid.position = new Vector2( _destination.position.x, _destination.position.y);
+            rigid.position = new Vector2(_destination.position.x, _destination.position.y);
         }
         _teleportEffect?.Play();
     }

@@ -141,7 +141,7 @@ public sealed class ThirstFeedbackPresenter : MonoBehaviour
         if (_sceneVisualEffectManager == null)
         {
             _sceneVisualEffectManager = FindAnyObjectByType<SceneVisualEffectManager>();
-            if(_sceneVisualEffectManager == null)
+            if (_sceneVisualEffectManager == null)
             {
                 throw new MissingReferenceException($"{nameof(SceneVisualEffectManager)}가 연결되지 않았습니다.");
             }

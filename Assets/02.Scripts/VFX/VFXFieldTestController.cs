@@ -10,17 +10,30 @@ public class VFXFieldTestController : MonoBehaviour
     {
         public GameObject Prefab;
         public Color GroundColor;
-        public bool HideGround;
-        public bool RapidBurst; // 켜면 루프 대신 폭발처럼 짧은 간격으로 따라락 터지고 끝난다
     }
 
     [SerializeField] private VFXBurstField _field;
     [SerializeField] private TextMesh _label;
     [SerializeField] private Entry[] _entries;
+    [Header("테스트 장판")]
+    [SerializeField] private SpriteRenderer _groundRenderer;
+    [SerializeField, Min(0.1f)] private float _width = 3f;
+    [SerializeField, Range(0.1f, 1f)] private float _heightRatio = 0.5f;
+    [SerializeField, Range(0f, 1f)] private float _groundOpacity = 0.25f;
     // 에디터 Game 뷰는 VSync가 꺼져 있으면 프레임 제한 없이 돌아 GPU를 계속 점유한다.
     [SerializeField] private int _targetFrameRate = 60;
 
     private int _index;
+
+    private void Awake()
+    {
+        ApplyGround(_groundRenderer != null ? _groundRenderer.color : Color.white);
+    }
+
+    private void OnValidate()
+    {
+        ApplyGround(_groundRenderer != null ? _groundRenderer.color : Color.white);
+    }
 
     private void Start()
     {
@@ -56,14 +69,25 @@ public class VFXFieldTestController : MonoBehaviour
 
         _index = (index % count + count) % count;
         Entry entry = _entries[_index];
-        _field.SetGroundColor(entry.GroundColor);
-        _field.SetGroundVisible(!entry.HideGround);
-        _field.SetRapidBurst(entry.RapidBurst);
+        ApplyGround(entry.GroundColor);
+        _field.ConfigureArea(_width, _width * _heightRatio, _groundRenderer);
         _field.SetVfx(entry.Prefab);
 
         if (_label != null)
         {
             _label.text = $"{entry.Prefab.name}   ({_index + 1} / {count})\n<size=32>Ctrl+Shift+[ / ]</size>";
         }
+    }
+
+    private void ApplyGround(Color color)
+    {
+        if (_groundRenderer == null || _groundRenderer.sprite == null) return;
+
+        Vector2 spriteSize = _groundRenderer.sprite.bounds.size;
+        _groundRenderer.transform.localScale = new Vector3(
+            _width / Mathf.Max(0.001f, spriteSize.x),
+            _width * _heightRatio / Mathf.Max(0.001f, spriteSize.y), 1f);
+        color.a = _groundOpacity;
+        _groundRenderer.color = color;
     }
 }

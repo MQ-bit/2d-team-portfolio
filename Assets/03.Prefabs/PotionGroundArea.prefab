@@ -50,12 +50,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71fe3b7eb6ff3694e897ff2b8a39435c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PotionGroundArea
+  m_EditorClassIdentifier: Assembly-CSharp::PotionAreaController
   _duration: 3
   _radius: 10
-  _vfxBurstCount: 30
-  _vfxBurstSize: 1
-  _vfxSpawnAreaRatio: 0.85
 --- !u!58 &6075459067124031843
 CircleCollider2D:
   m_ObjectHideFlags: 0

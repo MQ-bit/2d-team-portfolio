@@ -3,22 +3,19 @@ using UnityEngine;
 
 public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·상태이상 적용
 {
-    private readonly Dictionary<IPotionEffectTarget, int> _overlapCounts = new();
-    private readonly Dictionary<Collider2D, IPotionEffectTarget> _targetsByCollider = new();
+    private readonly PotionAreaContacts _contacts = new();
     private PotionData _data;
     private int _sourceId;
     private bool _hasCombination;
     private IPotionEffectData _singleProfile;
     private PotionEffectSource _singleSource;
     private PotionAreaTimeline<IPotionEffectTarget> _singleTimeline;
-    private PotionAreaTimeline<IPotionEffectTarget> _originalTimeline;
-    private PotionCombinationSpread _spread;
-    private bool _originalFirstLobe;
-    private readonly HashSet<IPotionEffectTarget> _reachedTargets = new();
-    private readonly HashSet<IPotionEffectTarget> _originalTargets = new();
-    private readonly HashSet<IPotionEffectTarget> _pendingCombinationImpact = new();
+    private readonly PotionAreaSpreadEffect _spreadEffect = new();
+    private readonly HashSet<IPotionEffectTarget> _affectedTargets = new();
 
     public bool HasCombination => _hasCombination;
+    internal IPotionEffectData ActiveProfile => _singleProfile ?? _data;
+    internal PotionEffectSource ActiveSource => _singleSource;
 
     private void Awake()
     {
@@ -46,10 +43,14 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
                 profile.TickInterval, profile.ApplyOnEnter,
                 target => PotionEffectApplier.CanAffect(profile.TargetType, target),
-                target => target.EnterFloor(profile, source),
+                target =>
+                {
+                    _affectedTargets.Add(target);
+                    target.EnterFloor(profile, source);
+                },
                 target => target.PulseFloor(source.SourceId),
                 (target, residual) => target.ExitFloor(source.SourceId,
-                    residual && !(_spread != null && _reachedTargets.Contains(target))));
+                    residual && !_spreadEffect.HasReached(target)));
             SynchronizeSingleTimeline();
         }
     }
@@ -59,7 +60,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         if (_singleProfile == null) return;
 
         Physics2D.SyncTransforms();
-        Collider2D areaCollider = effectCollider != null ? effectCollider : GetComponent<Collider2D>();
+        Collider2D areaCollider = effectCollider != null ? effectCollider : GetComponent<PotionAreaController>()?.AreaCollider;
         if (areaCollider == null) return;
 
         var hits = new List<Collider2D>();
@@ -68,9 +69,10 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         areaCollider.Overlap(filter, hits);
         foreach (Collider2D hit in hits)
         {
-            if (_hasCombination && _spread != null && !_spread.HasReached(hit)) continue;
+            if (_hasCombination && _spreadEffect.IsActive && !_spreadEffect.HasReached(hit)) continue;
             IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
             if (!IsValidSingleTarget(target) || !targets.Add(target)) continue;
+            _affectedTargets.Add(target);
             PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
                 target, _singleSource);
         }
@@ -80,9 +82,9 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         IPotionEffectData profile, IDamageable owner, float lifeStealRatio,
         float expiresAt, Collider2D effectCollider)
     {
-        if (_spread != null)
+        if (_spreadEffect.IsActive)
         {
-            _originalTimeline = _singleTimeline;
+            _spreadEffect.KeepOriginalTimeline(_singleTimeline);
             _singleTimeline = null;
             _singleProfile = null;
         }
@@ -101,13 +103,9 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
             _singleProfile.TickInterval, _singleProfile.ApplyOnEnter,
             IsValidSingleTarget, EnterSingleFloor, PulseSingleFloor, ExitSingleFloor);
-        if (_spread != null)
+        if (_spreadEffect.IsActive)
         {
-            foreach (Collider2D hit in _spread.Hits)
-            {
-                IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
-                if (IsValidSingleTarget(target)) _pendingCombinationImpact.Add(target);
-            }
+            _spreadEffect.QueueCombinationImpact(IsValidSingleTarget);
             SynchronizeSingleTimeline();
         }
         else
@@ -119,8 +117,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
 
     internal void PrepareOriginalForSpread(PotionCombinationSpread spread, bool firstLobe, IDamageable owner)
     {
-        _spread = spread;
-        _originalFirstLobe = firstLobe;
+        _spreadEffect.Prepare(spread, firstLobe);
         if (_singleProfile == null && _data != null)
             ActivateSingleProfile(owner, Time.time + _data.FloorDuration);
         else SynchronizeSingleTimeline();
@@ -129,60 +126,38 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     public void DisableForCombination()
     {
         EndSingleTimeline(false);
-        _originalTimeline?.End(false);
-        _originalTimeline = null;
-        _spread = null;
-        _pendingCombinationImpact.Clear();
-        _overlapCounts.Clear();
-        _targetsByCollider.Clear();
+        _spreadEffect.Clear();
+        _contacts.Clear();
         enabled = false;
+    }
+
+    internal void StopForVaporization()
+    {
+        // Include departed targets with residual statuses, and the original source
+        // that survived while the combination front was still spreading.
+        int originalSourceId = GetInstanceID();
+        foreach (IPotionEffectTarget target in _affectedTargets)
+        {
+            if (target == null || target is Object unityObject && unityObject == null) continue;
+            target.RemoveStatusesFromSource(originalSourceId);
+            target.RemoveStatusesFromSource(_sourceId);
+            target.ExitFloor(originalSourceId, false);
+            if (_sourceId != originalSourceId) target.ExitFloor(_sourceId, false);
+        }
+        _affectedTargets.Clear();
+        DisableForCombination();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_data == null || _targetsByCollider.ContainsKey(other)) return;
-
-        IPotionEffectTarget target = PotionEffectApplier.FindTarget(other);
-        if (target == null)
-        {
-            return;
-        }
-
-        _targetsByCollider.Add(other, target);
-        _overlapCounts.TryGetValue(target, out int overlapCount);
-        _overlapCounts[target] = overlapCount + 1;
-        if (overlapCount > 0)
-        {
-            return;
-        }
-
-        if (_singleTimeline != null)
-        {
+        if (_data != null && _contacts.Enter(other) && _singleTimeline != null)
             SynchronizeSingleTimeline();
-            return;
-        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!_targetsByCollider.Remove(other, out IPotionEffectTarget target) ||
-            !_overlapCounts.TryGetValue(target, out int overlapCount))
-        {
-            return;
-        }
-
-        if (overlapCount > 1)
-        {
-            _overlapCounts[target] = overlapCount - 1;
-            return;
-        }
-
-        _overlapCounts.Remove(target);
-        if (_singleTimeline != null)
-        {
+        if (_contacts.Exit(other) && _singleTimeline != null)
             SynchronizeSingleTimeline();
-            return;
-        }
     }
 
     private void Update()
@@ -193,8 +168,11 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private bool IsValidSingleTarget(IPotionEffectTarget target) =>
         _singleProfile != null && PotionEffectApplier.CanAffect(_singleProfile.TargetType, target);
 
-    private void EnterSingleFloor(IPotionEffectTarget target) =>
+    private void EnterSingleFloor(IPotionEffectTarget target)
+    {
+        _affectedTargets.Add(target);
         target.EnterFloor(_singleProfile, _singleSource);
+    }
 
     private void PulseSingleFloor(IPotionEffectTarget target) => target.PulseFloor(_sourceId);
 
@@ -203,74 +181,28 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
 
     private void SynchronizeSingleTimeline()
     {
-        if (_spread != null)
+        if (_spreadEffect.IsActive)
         {
-            SynchronizeSpread();
+            if (!_spreadEffect.Synchronize(_singleTimeline, _hasCombination, ApplyCombinationImpact))
+                return;
+            if (!_hasCombination)
+            {
+                DisableForCombination();
+                return;
+            }
+            _contacts.Rebuild(_spreadEffect.Hits);
+            _spreadEffect.Clear();
             return;
         }
-        _singleTimeline?.Synchronize(_overlapCounts.Keys, Time.timeAsDouble);
+        _singleTimeline?.Synchronize(_contacts.Targets, Time.timeAsDouble);
     }
 
-    private void SynchronizeSpread()
+    private void ApplyCombinationImpact(IPotionEffectTarget target)
     {
-        _reachedTargets.Clear();
-        _originalTargets.Clear();
-        IReadOnlyList<Collider2D> hits = _spread.Hits;
-        foreach (Collider2D hit in hits)
-        {
-            if (hit == null) continue;
-            IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
-            if (target == null) continue;
-            if (_spread.HasReached(hit)) _reachedTargets.Add(target);
-            Vector2 center = _originalFirstLobe ? _spread.Shape.FirstCenter : _spread.Shape.SecondCenter;
-            if (_spread.Shape.ContainsLobe(hit.ClosestPoint(center), _originalFirstLobe))
-                _originalTargets.Add(target);
-        }
-        // A multi-collider target switches profiles once, as soon as the front reaches it.
-        _originalTargets.ExceptWith(_reachedTargets);
-        double now = Time.timeAsDouble;
-        if (_hasCombination)
-        {
-            _originalTimeline?.Synchronize(_originalTargets, now);
-            foreach (IPotionEffectTarget target in _reachedTargets)
-            {
-                if (_pendingCombinationImpact.Remove(target) && IsValidSingleTarget(target))
-                {
-                    PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
-                        target, _singleSource);
-                }
-            }
-
-            _singleTimeline?.Synchronize(_reachedTargets, now);
-        }
-        else
-        {
-            _singleTimeline?.Synchronize(_originalTargets, now);
-        }
-
-        if (!_spread.IsComplete) return;
-        if (!_hasCombination)
-        {
-            DisableForCombination();
-            return;
-        }
-        _originalTimeline?.End(false);
-        _originalTimeline = null;
-        _pendingCombinationImpact.Clear();
-        // Once the front has finished, return to normal trigger tracking; no ongoing
-        // full-area physics queries are needed for the remaining floor lifetime.
-        _overlapCounts.Clear();
-        _targetsByCollider.Clear();
-        foreach (Collider2D hit in hits)
-        {
-            if (hit == null) continue;
-            IPotionEffectTarget target = PotionEffectApplier.FindTarget(hit);
-            if (target == null || _targetsByCollider.ContainsKey(hit)) continue;
-            _targetsByCollider.Add(hit, target);
-            _overlapCounts.TryGetValue(target, out int count);
-            _overlapCounts[target] = count + 1;
-        }
-        _spread = null;
+        if (!IsValidSingleTarget(target)) return;
+        _affectedTargets.Add(target);
+        PotionEffectApplier.ApplyProfilePhase(_singleProfile, PotionEffectPhase.Impact,
+            target, _singleSource);
     }
 
     private void EndSingleTimeline(bool applyResidual)
@@ -284,12 +216,8 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     {
         // 조합 전환은 DisableForCombination에서 false로 먼저 끝낸다. 자연 종료는 잔류 효과를 남긴다.
         EndSingleTimeline(true);
-        _originalTimeline?.End(false);
-        _originalTimeline = null;
-        _spread = null;
-        _pendingCombinationImpact.Clear();
+        _spreadEffect.Clear();
         _hasCombination = false;
-        _overlapCounts.Clear();
-        _targetsByCollider.Clear();
+        _contacts.Clear();
     }
 }

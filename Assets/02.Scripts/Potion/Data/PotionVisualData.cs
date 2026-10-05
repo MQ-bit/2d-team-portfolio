@@ -24,6 +24,8 @@ public struct PotionVisualData
     [Tooltip("할당된 VFX에 맞춘 장판 표면 연출")]
     [SerializeField] private PotionAreaSurfaceStyle _areaSurfaceStyle;
     [SerializeField] private GameObject _areaVfxPrefab;
+    [Tooltip("장판을 만들지 않는 포션의 착탄 후 표시 유지 시간입니다(초). 지속 효과는 없으며, 기화는 이 시간 동안 다른 포션과 조합할 수 있습니다. 0이면 즉시 제거합니다.")]
+    [SerializeField, Min(0f)] private float _impactVisualDuration;
 
     public Sprite IconSprite => _iconSprite;
     public Sprite CardBackgroundSprite => _cardBackgroundSprite;
@@ -33,6 +35,7 @@ public struct PotionVisualData
         ? _areaAccentColor : Color.Lerp(_areaColor, Color.white, 0.55f);
     public PotionAreaSurfaceStyle AreaSurfaceStyle => _areaSurfaceStyle;
     public GameObject AreaVfxPrefab => _areaVfxPrefab;
+    public float ImpactVisualDuration => Mathf.Max(0f, _impactVisualDuration);
 
     public PotionVisualData(Sprite potionSprite, Color areaColor, Sprite areaSprite, Sprite cardBackgroundSprite)
     {
@@ -43,5 +46,6 @@ public struct PotionVisualData
         _areaAccentColor = Color.Lerp(areaColor, Color.white, 0.55f);
         _areaSurfaceStyle = PotionAreaSurfaceStyle.Flow;
         _areaVfxPrefab = null;
+        _impactVisualDuration = 0f;
     }
 }

@@ -11,7 +11,7 @@ public class VignetteEffectView : MonoBehaviour
 
     public void Show()
     {
-        if(_vignetteEffect != null)
+        if (_vignetteEffect != null)
         {
             _vignetteEffect.SetActive(true);
         }
@@ -19,7 +19,7 @@ public class VignetteEffectView : MonoBehaviour
 
     public void Hide()
     {
-        if(_vignetteEffect != null)
+        if (_vignetteEffect != null)
         {
             _vignetteEffect.SetActive(false);
         }

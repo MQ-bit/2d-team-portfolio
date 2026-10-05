@@ -14,18 +14,14 @@ public class VFXBurstField : MonoBehaviour
 
     [Header("버스트")]
     [SerializeField] private GameObject _vfxPrefab;
-    [SerializeField, Min(1)] private int _burstCount = 40;
-    [SerializeField, Min(0.05f)] private float _burstSize = 0.4f;
-    [SerializeField, Range(0f, 0.9f)] private float _sizeJitter = 0.3f;
-    [SerializeField, Range(0.1f, 1f)] private float _spawnAreaRatio = 0.85f;
-    [SerializeField] private Vector2 _restDelayRange = new Vector2(0f, 0.08f);
-
-    // 연발 모드: 폭발처럼 짧은 간격으로 하나씩 따라락 터지고 끝난다. 테스트 씬에서 보기 좋게 잠깐 쉬었다가 다시 반복한다.
-    [Header("연발 버스트")]
-    [SerializeField, Min(1)] private int _volleyCount = 12;
-    [SerializeField, Min(0.01f)] private float _volleyInterval = 0.03f;
-    [SerializeField, Min(0.05f)] private float _volleyBurstSize = 1f;
-    [SerializeField, Min(0f)] private float _volleyRestTime = 1f;
+    private int _burstCount = 12;
+    private float _burstSize = 0.4f;
+    private float _sizeJitter = 0.3f;
+    private float _spawnAreaRatio = 0.85f;
+    private Vector2 _restDelayRange = new(0f, 0.08f);
+    private bool _fillArea;
+    private float _fillScale = 1f;
+    private bool _playOnce;
 
     private class Burst
     {
@@ -39,11 +35,15 @@ public class VFXBurstField : MonoBehaviour
     private SpriteRenderer _sortingRenderer;
     private float _visibility = 1f;
     private Color _vfxColor = Color.white;
+    private Color _tint = Color.white;
     private PotionPuddleShape _puddle;
     private PotionCombinationSpread _spread;
     private bool _showReached;
-    private bool _isRapidBurst;
-    private float _volleyEndTime;
+    private Vector2[][] _footprint;
+    private PotionAreaFootprint _clippedFootprint;
+    private readonly PotionAreaMaskRenderer _clipMask = new();
+    private MaterialPropertyBlock _clipProperties;
+    private Material _clipMaterial;
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
@@ -52,8 +52,15 @@ public class VFXBurstField : MonoBehaviour
 
     public void SetVisibility(float visibility) => _visibility = Mathf.Clamp01(visibility);
 
+    public void SetTint(Color tint)
+    {
+        _tint = tint;
+        foreach (Burst burst in _bursts) burst.Renderer.color = _vfxColor * _tint;
+    }
+
     private void Awake()
     {
+        _clipProperties = new MaterialPropertyBlock();
         ApplyGround();
     }
 
@@ -73,42 +80,47 @@ public class VFXBurstField : MonoBehaviour
     private void OnDestroy()
     {
         ReleaseSprites();
+        _clipMask.Release();
+        if (_clipMaterial != null) Destroy(_clipMaterial);
     }
 
     // 장판 색을 바꾼다. 알파는 인스펙터의 _groundColor 알파를 유지한다.
-    public void SetGroundColor(Color color)
-    {
-        color.a = _groundColor.a;
-        _groundColor = color;
-        ApplyGround();
-    }
-
-    public void SetGroundVisible(bool visible)
-    {
-        if (_groundRenderer != null)
-        {
-            _groundRenderer.enabled = visible;
-        }
-    }
-
-    // SetVfx 전에 호출한다. 켜면 루프 대신 연발로 재생한다.
-    public void SetRapidBurst(bool isRapidBurst)
-    {
-        _isRapidBurst = isRapidBurst;
-    }
 
     // 포션이 관리하는 바닥은 그대로 두고, 버스트 배치 범위와 표시 순서만 설정한다.
-    public void ConfigureArea(float width, float height, SpriteRenderer sortingRenderer,
-        int burstCount, float burstSize, float spawnAreaRatio)
+    public void ConfigureArea(float width, float height, SpriteRenderer sortingRenderer)
     {
         _width = Mathf.Max(0.1f, width);
         _heightRatio = Mathf.Max(0.001f, height / _width);
         _puddle = null;
         _spread = null;
+        _footprint = null;
+        _clippedFootprint = null;
+        _clipMask.SetFootprint(null);
         _sortingRenderer = sortingRenderer;
-        _burstCount = Mathf.Max(1, burstCount);
-        _burstSize = Mathf.Max(0.05f, burstSize);
-        _spawnAreaRatio = Mathf.Clamp01(spawnAreaRatio);
+    }
+
+    internal void ConfigureFootprint(Vector2[][] paths) => _footprint = paths;
+
+    internal void ConfigureFootprint(PotionAreaFootprint footprint)
+    {
+        _clippedFootprint = footprint != null && footprint.IsClipped ? footprint : null;
+        _clipMask.SetFootprint(_clippedFootprint);
+        if (_clippedFootprint != null && _clipMaterial == null)
+        {
+            Shader shader = Resources.Load<Shader>("PotionAreaVfxClip");
+            if (shader != null) _clipMaterial = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+        }
+        if (_sprites == null || _sprites.Length == 0) return;
+        var source = _vfxPrefab.GetComponent<SpriteRenderer>();
+        foreach (Burst burst in _bursts)
+        {
+            burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
+                ? _clipMaterial : source.sharedMaterial;
+            burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipMask.Apply(_clipProperties);
+            burst.Renderer.SetPropertyBlock(_clipProperties);
+            Respawn(burst, burst.StartTime);
+        }
     }
 
     internal void ConfigurePuddle(PotionPuddleShape shape)
@@ -135,47 +147,57 @@ public class VFXBurstField : MonoBehaviour
         }
 
         _vfxPrefab = vfxPrefab;
-        ReleaseSprites();
-        _sprites = player.CreateSprites();
-        _fps = Mathf.Max(1f, player.fps);
+        ReadSettings(vfxPrefab);
+        PrepareFrames(player);
         if (_sprites.Length == 0)
         {
             return;
         }
 
+        StartBursts(vfxPrefab);
+    }
+
+    private void ReadSettings(GameObject vfxPrefab)
+    {
+        var settings = vfxPrefab.GetComponent<PotionAreaVfxSettings>();
+        _burstCount = settings != null ? Mathf.Max(1, settings.burstCount) : 12;
+        _burstSize = settings != null ? Mathf.Max(0.05f, settings.burstSize) : 0.4f;
+        _sizeJitter = settings != null ? Mathf.Clamp(settings.sizeJitter, 0f, 0.9f) : 0.3f;
+        _spawnAreaRatio = settings != null ? Mathf.Clamp01(settings.spawnAreaRatio) : 0.85f;
+        Vector2 delay = settings != null ? settings.restDelayRange : new Vector2(0f, 0.08f);
+        _restDelayRange = new Vector2(Mathf.Max(0f, Mathf.Min(delay.x, delay.y)),
+            Mathf.Max(0f, Mathf.Max(delay.x, delay.y)));
+        _tint = settings != null ? settings.tint : Color.white;
+        _fillArea = settings != null && settings.fillArea;
+        _fillScale = settings != null ? Mathf.Max(0.05f, settings.fillScale) : 1f;
+        _playOnce = settings != null && settings.playOnce;
+    }
+
+    private void PrepareFrames(SpriteSheetPlayer player)
+    {
+        ReleaseSprites();
+        _sprites = player.CreateSprites();
+        _fps = Mathf.Max(1f, player.fps);
+    }
+
+    private void StartBursts(GameObject vfxPrefab)
+    {
         var source = vfxPrefab.GetComponent<SpriteRenderer>();
         _vfxColor = source.color;
-        EnsurePool(_isRapidBurst ? _volleyCount : _burstCount);
+        EnsurePool();
 
         float duration = _sprites.Length / _fps;
         foreach (var burst in _bursts)
         {
-            burst.Renderer.sharedMaterial = source.sharedMaterial;
-            burst.Renderer.color = source.color;
-            if (!_isRapidBurst)
-            {
-                // 처음부터 전부 동시에 터지지 않도록 재생 시점을 흩어 둔다.
-                Respawn(burst, Time.time - Random.Range(0f, duration));
-            }
+            burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
+                ? _clipMaterial : source.sharedMaterial;
+            burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipMask.Apply(_clipProperties);
+            burst.Renderer.SetPropertyBlock(_clipProperties);
+            burst.Renderer.color = source.color * _tint;
+            // 처음부터 전부 동시에 터지지 않도록 재생 시점을 흩어 둔다.
+            Respawn(burst, _playOnce ? Time.time : Time.time - Random.Range(0f, duration));
         }
-
-        if (_isRapidBurst)
-        {
-            StartVolley(Time.time);
-        }
-    }
-
-    // 버스트를 _volleyInterval 간격으로 하나씩 예약한다. 각 버스트는 한 번만 재생된다.
-    private void StartVolley(float startTime)
-    {
-        for (int i = 0; i < _bursts.Count; i++)
-        {
-            Respawn(_bursts[i], startTime + i * _volleyInterval);
-            _bursts[i].Renderer.enabled = false;
-        }
-
-        float duration = _sprites.Length / _fps;
-        _volleyEndTime = startTime + (_bursts.Count - 1) * _volleyInterval + duration;
     }
 
     private void Update()
@@ -192,11 +214,6 @@ public class VFXBurstField : MonoBehaviour
         }
 
         float now = Time.time;
-        if (_isRapidBurst && now >= _volleyEndTime + _volleyRestTime)
-        {
-            StartVolley(now);
-        }
-
         foreach (var burst in _bursts)
         {
             float elapsed = now - burst.StartTime;
@@ -210,16 +227,14 @@ public class VFXBurstField : MonoBehaviour
             if (frame >= _sprites.Length)
             {
                 burst.Renderer.enabled = false;
-                if (!_isRapidBurst)
-                {
+                if (!_playOnce)
                     Respawn(burst, now + Random.Range(_restDelayRange.x, _restDelayRange.y));
-                }
                 continue;
             }
 
             burst.Renderer.enabled = true;
             burst.Renderer.sprite = _sprites[frame];
-            Color color = _vfxColor;
+            Color color = _vfxColor * _tint;
             color.a *= _visibility;
             if (_spread != null && _spread.HasReached(burst.Renderer.transform.position) != _showReached)
                 color.a = 0f;
@@ -227,16 +242,16 @@ public class VFXBurstField : MonoBehaviour
         }
     }
 
-    private void EnsurePool(int count)
+    private void EnsurePool()
     {
-        while (_bursts.Count < count)
+        while (_bursts.Count < _burstCount)
         {
             var go = new GameObject("Burst" + _bursts.Count);
             go.transform.SetParent(transform, false);
             _bursts.Add(new Burst { Renderer = go.AddComponent<SpriteRenderer>() });
         }
 
-        while (_bursts.Count > count)
+        while (_bursts.Count > _burstCount)
         {
             int last = _bursts.Count - 1;
             Destroy(_bursts[last].Renderer.gameObject);
@@ -254,13 +269,24 @@ public class VFXBurstField : MonoBehaviour
         Vector3 local = new(Mathf.Cos(angle) * radius * _width * 0.5f,
             Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
         if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
+        if (_footprint != null) local = SampleFootprint();
+        if (_footprint == null && _fillArea && _burstCount == 1) local = Vector3.zero;
+        if (_clippedFootprint != null && !(_fillArea && _burstCount == 1))
+        {
+            // Rejection retains the profile's preferred spread; area-weighted
+            // sampling supplies a valid fallback for narrow remaining slivers.
+            if (!_clippedFootprint.Contains(transform.TransformPoint(local)))
+                local = transform.InverseTransformPoint(_clippedFootprint.SamplePoint());
+        }
 
         Transform t = burst.Renderer.transform;
         t.localPosition = local;
         float spriteWidth = Mathf.Max(0.0001f, _sprites[0].bounds.size.x);
-        float baseSize = _isRapidBurst ? _volleyBurstSize : _burstSize;
-        float size = baseSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
+        float size = _fillArea && _footprint == null ? Width * _fillScale
+            : _burstSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
         t.localScale = Vector3.one * (size / spriteWidth);
+        burst.Renderer.sprite = _sprites[0];
+        burst.Renderer.enabled = startTime <= Time.time;
         burst.Renderer.flipX = Random.value < 0.5f;
 
         // 아래쪽(앞쪽) 버스트가 위에 그려지도록 y 기준으로 정렬한다.
@@ -268,6 +294,33 @@ public class VFXBurstField : MonoBehaviour
         int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
         burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
         burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
+    }
+
+    private Vector2 SampleFootprint()
+    {
+        // Rejection sampling preserves concave connections between combined lobes.
+        for (int attempt = 0; attempt < 256; attempt++)
+        {
+            Vector2 point = new(Random.Range(-Width * 0.5f, Width * 0.5f),
+                Random.Range(-Height * 0.5f, Height * 0.5f));
+            foreach (Vector2[] path in _footprint)
+            {
+                bool inside = false;
+                for (int i = 0, j = path.Length - 1; i < path.Length; j = i++)
+                {
+                    Vector2 a = path[i], b = path[j];
+                    if ((a.y > point.y) != (b.y > point.y) &&
+                        point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x)
+                    {
+                        inside = !inside;
+                    }
+                }
+                if (inside) return point;
+            }
+        }
+        foreach (Vector2[] path in _footprint)
+            if (path.Length > 0) return path[0];
+        return Vector2.zero;
     }
 
     private void ApplyGround()

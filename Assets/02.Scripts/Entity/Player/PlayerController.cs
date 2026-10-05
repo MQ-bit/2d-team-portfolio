@@ -218,7 +218,7 @@ public class PlayerController : MonoBehaviour
         _drinkingModule.CancelDrink();
         _meleeModule.CancelSwing();
     }
-    
+
     public void CancelAllActions()
     {
         CancelActionsConflictWithDash();
@@ -236,7 +236,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             if (!CanReadInput) return;
-            _interactionModule.TryBeginInteraction();            
+            _interactionModule.TryBeginInteraction();
         }
     }
 
@@ -250,7 +250,7 @@ public class PlayerController : MonoBehaviour
     {
         //TODO: 이는 갈증 상태에 따라 이동 입력을 반전시키는 로직을 처리하는 함수인데 원래라면 
         // 이는 CC모듈에서 처리해야하므로 CC모듈 구현되고 PotionEffectReceiver와 통합되면 해제하기.
-        
+
         if (!CanReadInput || _inputSO == null)
         {
             return Vector2.zero;

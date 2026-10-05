@@ -124,7 +124,7 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void SetDrinking(bool isDrinking)
     {
-        if(IsDrinking != isDrinking)
+        if (IsDrinking != isDrinking)
         {
             IsDrinking = isDrinking;
             OnDrinkStateChanged?.Invoke(isDrinking);

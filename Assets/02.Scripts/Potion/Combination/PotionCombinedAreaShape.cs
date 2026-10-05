@@ -26,42 +26,46 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         }
     }
 
-    public void Create(PotionGroundArea first, PotionGroundArea second,
+    public void Create(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData)
     {
         Create(first, second, visualData, 0f);
     }
 
-    public void Create(PotionGroundArea first, PotionGroundArea second,
+    public void Create(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData, float spreadDuration)
     {
-        CircleCollider2D firstCircle = first.AreaCollider;
-        CircleCollider2D secondCircle = second.AreaCollider;
-        Vector2 firstCenter = firstCircle.bounds.center;
-        Vector2 secondCenter = secondCircle.bounds.center;
-        var shape = new PotionPuddleShape(firstCenter, firstCircle.bounds.extents.x,
-            secondCenter, secondCircle.bounds.extents.x,
+        Collider2D firstCollider = first.AreaCollider;
+        Collider2D secondCollider = second.AreaCollider;
+        Vector2 firstCenter = first.OriginalCenter;
+        Vector2 secondCenter = second.OriginalCenter;
+        var shape = new PotionPuddleShape(firstCenter, first.OriginalRadius,
+            secondCenter, second.OriginalRadius,
             _connectionWidthRatio, _connectionBlendRatio);
+        _combinationCollider.enabled = false;
+        // Preserve original centers/radii; a clipped collider's bounds are not a lobe.
+        Rect bounds = PotionAreaFootprint.BoundsOf(shape.Outline);
+        var walls = PotionWallQuery.FindPolygons(bounds, first.WallLayers);
+        if (second.WallLayers != first.WallLayers)
+            walls.AddRange(PotionWallQuery.FindPolygons(bounds, second.WallLayers));
+        PotionAreaFootprint footprint = walls.Count == 0
+            ? PotionAreaFootprint.Unclipped(shape.Outline)
+            : PotionAreaClipper.Subtract(shape.Outline, firstCenter, walls);
+        if (footprint == null || !footprint.Contains(secondCenter)) return;
         var spread = new PotionCombinationSpread(shape, _combinationCollider, Time.time,
             spreadDuration, first.Data.VisualData.AreaColor, second.Data.VisualData.AreaColor);
-        Vector2[] points = new Vector2[shape.Outline.Length];
-        for (int i = 0; i < points.Length; i++)
-        {
-            points[i] = _combinationCollider.transform.InverseTransformPoint(shape.Outline[i])
-                - (Vector3)_combinationCollider.offset;
-        }
-
-        firstCircle.enabled = false;
-        secondCircle.enabled = false;
-        _combinationCollider.pathCount = 1;
-        _combinationCollider.SetPath(0, points);
-        _combinationCollider.enabled = true;
+        firstCollider.enabled = false;
+        secondCollider.enabled = false;
+        footprint.ApplyTo(_combinationCollider);
         first.AreaEffect.PrepareOriginalForSpread(spread, true, first.Owner);
         second.AreaEffect.PrepareOriginalForSpread(spread, false, second.Owner);
 
         first.RetainAreaVfxForSpread(spread);
         second.RetainAreaVfxForSpread(spread);
+        first.SetCombinedFootprint(footprint);
+        second.SetCombinedFootprint(footprint);
         CreatePuddleVisual(first, second, visualData, shape);
+        first.AreaVisual.SetFootprint(footprint);
         first.AreaVisual.SetCombinationSpread(spread);
         if (visualData.AreaVfxPrefab != null)
         {
@@ -75,7 +79,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         first.AreaEffect.enabled = true;
     }
 
-    private void CreatePuddleVisual(PotionGroundArea first, PotionGroundArea second,
+    private void CreatePuddleVisual(PotionAreaController first, PotionAreaController second,
         PotionVisualData visualData, PotionPuddleShape shape)
     {
         SpriteRenderer firstRenderer = first.AreaRenderer;

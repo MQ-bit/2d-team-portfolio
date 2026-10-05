@@ -21,16 +21,6 @@ public class SpriteSheetPlayer : MonoBehaviour
     public float pixelsPerUnit = 64f;
     public float timeOffset;
 
-    // VFXBurstField(포션 장판, 테스트 씬)가 이 프리팹을 장판에 뿌릴 때 쓰는 값. VFX마다 따로 조절한다.
-    [Header("장판 버스트")]
-    [Min(1)] public int burstCount = 12;
-    [Min(0.05f)] public float burstSize = 0.4f;   // 버스트 하나의 폭(유닛)
-    [Range(0f, 0.9f)] public float sizeJitter = 0.3f;
-    [Range(0.1f, 1f)] public float spawnAreaRatio = 0.85f;
-    public bool fillArea;   // 켜면 크기를 burstSize 대신 장판 폭 x fillScale 로 정함. burstCount가 1이면 장판 중앙에 고정
-    [Min(0.05f)] public float fillScale = 1f;   // fillArea일 때 장판 폭 대비 크기 비율
-    public bool playOnce;   // 켜면 전부 한꺼번에 한 번 터지고 다시 생성하지 않음
-
     Sprite[] _sprites;
     SpriteRenderer _sr;
     float _startTime;

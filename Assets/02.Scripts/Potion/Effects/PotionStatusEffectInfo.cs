@@ -21,9 +21,9 @@ public readonly struct PotionEffectSource
 }
 
 // 에셋 수치를 적용 시 복사한다. 현재 시간과 대상 정보는 실행기에서 관리한다.
-public readonly struct PotionStatusApplication
+public readonly struct PotionStatusEffectInfo
 {
-    public PotionStatusEffect Status { get; }
+    public PotionStatusEffectTracker Status { get; }
     public PotionElement Element { get; }
     public float Duration { get; }
     public float DamagePerTick { get; }
@@ -33,14 +33,14 @@ public readonly struct PotionStatusApplication
     public float ImmobilizeDuration { get; }
     public PotionEffectSource Source { get; }
 
-    public PotionStatusApplication(PotionStatusEffect status, float duration, PotionEffectSource source,
+    public PotionStatusEffectInfo(PotionStatusEffectTracker status, float duration, PotionEffectSource source,
         PotionElement element = PotionElement.None, float damagePerTick = 0f, float tickInterval = 0f,
         bool applyImmediately = false, float moveSpeedMultiplier = 1f, float immobilizeDuration = 0f)
     {
         Status = status;
         Element = element;
         Duration = PotionDataValidation.NonNegative(duration);
-        DamagePerTick = status == PotionStatusEffect.Burning || status == PotionStatusEffect.Poisoned
+        DamagePerTick = status == PotionStatusEffectTracker.Burning || status == PotionStatusEffectTracker.Poisoned
             ? PotionDataValidation.NonNegative(damagePerTick) : 0f;
         float interval = PotionDataValidation.NonNegative(tickInterval);
         TickInterval = interval > 0f ? Mathf.Max(0.01f, interval) : 0f;
@@ -50,17 +50,17 @@ public readonly struct PotionStatusApplication
         Source = source;
     }
 
-    public static PotionStatusApplication FromDefinition(PotionEffectDefinition effect, PotionEffectSource source) =>
+    public static PotionStatusEffectInfo FromDefinition(PotionEffectDefinition effect, PotionEffectSource source) =>
         new(effect.Status, effect.Duration, source, effect.Element, effect.Amount, effect.TickInterval,
             effect.ApplyImmediately, effect.MoveSpeedMultiplier, effect.ImmobilizeDuration);
 }
 
 public readonly struct PotionStatusDamage
 {
-    public PotionStatusApplication Application { get; }
-    public float Amount => Application.DamagePerTick;
-    public PotionEffectSource Source => Application.Source;
-    public PotionStatusDamage(PotionStatusApplication application) => Application = application;
+    public PotionStatusEffectInfo EffectInfo { get; }
+    public float Amount => EffectInfo.DamagePerTick;
+    public PotionEffectSource Source => EffectInfo.Source;
+    public PotionStatusDamage(PotionStatusEffectInfo effectInfo) => EffectInfo = effectInfo;
 }
 
 public readonly struct PotionDamageResult

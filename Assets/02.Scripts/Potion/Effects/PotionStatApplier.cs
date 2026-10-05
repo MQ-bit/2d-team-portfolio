@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // 수치만 전달한다. 실제 저장/Clamp/사망 이벤트는 기존 인터페이스 구현체의 책임이다.
-public static class PotionStatDispatcher
+public static class PotionStatApplier
 {
     public static bool IsAlive(IDamageable target) =>
         target != null && !(target is Object unityObject && unityObject == null) && !target.IsDead;

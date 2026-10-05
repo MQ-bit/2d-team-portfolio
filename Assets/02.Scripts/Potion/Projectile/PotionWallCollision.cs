@@ -30,8 +30,7 @@ internal sealed class PotionWallCollision
         float toProgress, LayerMask wallLayers, float groundClearance, out PotionThrowPrediction prediction)
     {
         prediction = new PotionThrowPrediction(false, 1f, target, target);
-        ContactFilter2D filter = new() { useTriggers = false, useLayerMask = true };
-        filter.layerMask = wallLayers.value != 0 ? wallLayers : (LayerMask)Physics2D.DefaultRaycastLayers;
+        ContactFilter2D filter = PotionWallQuery.Filter(wallLayers);
         fromProgress = Mathf.Clamp01(fromProgress);
         toProgress = Mathf.Clamp(toProgress, fromProgress, 1f);
         arcHeight = Mathf.Max(0f, arcHeight);
@@ -109,7 +108,5 @@ internal sealed class PotionWallCollision
         return false;
     }
 
-    private static bool IsWall(Collider2D collider, LayerMask wallLayers) => collider != null &&
-        (wallLayers.value != 0 ? (wallLayers.value & (1 << collider.gameObject.layer)) != 0
-            : collider.gameObject.name == "Tilemap_Wall");
+    private static bool IsWall(Collider2D collider, LayerMask wallLayers) => PotionWallQuery.IsWall(collider, wallLayers);
 }

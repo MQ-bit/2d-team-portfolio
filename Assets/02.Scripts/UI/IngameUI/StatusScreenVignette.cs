@@ -20,11 +20,11 @@ public class StatusScreenVignette : MonoBehaviour
     [Serializable]
     private class StatusVignette
     {
-        [SerializeField] private PotionStatusEffect _status;
+        [SerializeField] private PotionStatusEffectTracker _status;
         [SerializeField] private VignetteStyle _style;
         [SerializeField] private Color _color = Color.white;
 
-        public PotionStatusEffect Status => _status;
+        public PotionStatusEffectTracker Status => _status;
         public VignetteStyle Style => _style;
         public Color Color => _color;
         public Image Image { get; set; }
@@ -33,7 +33,7 @@ public class StatusScreenVignette : MonoBehaviour
 
         public StatusVignette() { }
 
-        public StatusVignette(PotionStatusEffect status, VignetteStyle style, Color color)
+        public StatusVignette(PotionStatusEffectTracker status, VignetteStyle style, Color color)
         {
             _status = status;
             _style = style;
@@ -52,10 +52,10 @@ public class StatusScreenVignette : MonoBehaviour
     [SerializeField]
     private StatusVignette[] _vignettes =
     {
-        new StatusVignette(PotionStatusEffect.Burning, VignetteStyle.Fire, new Color(1f, 0.25f, 0.1f)),
-        new StatusVignette(PotionStatusEffect.Poisoned, VignetteStyle.Poison, new Color(0.35f, 0.9f, 0.2f)),
-        new StatusVignette(PotionStatusEffect.Frozen, VignetteStyle.Frost, new Color(0.45f, 0.85f, 1f)),
-        new StatusVignette(PotionStatusEffect.Paralyzed, VignetteStyle.Electric, new Color(0.65f, 0.3f, 1f)),
+        new StatusVignette(PotionStatusEffectTracker.Burning, VignetteStyle.Fire, new Color(1f, 0.25f, 0.1f)),
+        new StatusVignette(PotionStatusEffectTracker.Poisoned, VignetteStyle.Poison, new Color(0.35f, 0.9f, 0.2f)),
+        new StatusVignette(PotionStatusEffectTracker.Frozen, VignetteStyle.Frost, new Color(0.45f, 0.85f, 1f)),
+        new StatusVignette(PotionStatusEffectTracker.Paralyzed, VignetteStyle.Electric, new Color(0.65f, 0.3f, 1f)),
     };
 
     [Header("Vignette Settings")]
@@ -71,7 +71,7 @@ public class StatusScreenVignette : MonoBehaviour
     [Header("Debug")]
     [Tooltip("플레이 중 상태이상 없이도 해당 상태의 연출을 계속 띄운다. 수치 조절용.")]
     [SerializeField] private bool _usePreview;
-    [SerializeField] private PotionStatusEffect _previewStatus = PotionStatusEffect.Burning;
+    [SerializeField] private PotionStatusEffectTracker _previewStatus = PotionStatusEffectTracker.Burning;
 
     private GameObject _canvasObject;
 

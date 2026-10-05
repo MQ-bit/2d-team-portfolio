@@ -1,17 +1,17 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CircleCollider2D))]
-public class PotionGroundArea : MonoBehaviour
+public class PotionAreaController : MonoBehaviour
 {
+    private const float GroundHeightRatio = 0.5f;
+    private const int EllipseSegments = 128;
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
 
-    [Header("Area VFX Bursts")]
-    [SerializeField, Min(1)] private int _vfxBurstCount = 12;
-    [SerializeField, Min(0.05f)] private float _vfxBurstSize = 0.4f;
-    [SerializeField, Range(0.1f, 1f)] private float _vfxSpawnAreaRatio = 0.85f;
 
-    private CircleCollider2D _collider;
+    private Collider2D _collider;
+    private CircleCollider2D _impactCollider;
+    private PolygonCollider2D _floorCollider;
     private SpriteRenderer _renderer;
     private PotionAreaEffect _areaEffect;
     private PotionAreaCombiner _combiner;
@@ -23,27 +23,42 @@ public class PotionGroundArea : MonoBehaviour
 
     public PotionData Data { get; private set; }
     public IDamageable Owner { get; private set; }
-    public CircleCollider2D AreaCollider => _collider;
+    public Collider2D AreaCollider => _collider;
     public PotionAreaEffect AreaEffect => _areaEffect;
     public SpriteRenderer AreaRenderer => _renderer;
     public PotionAreaVisual AreaVisual => _visual;
     public bool IsCombined => _combiner != null && _combiner.IsCombined;
+    public float RemainingDuration => Mathf.Max(0f, _expiresAt - Time.time);
+    internal Vector2 OriginalCenter { get; private set; }
+    internal float OriginalRadius => _radius;
+    internal LayerMask WallLayers { get; private set; }
+    internal PotionAreaFootprint Footprint { get; private set; }
+    private bool _hasValidFootprint = true;
 
     public void SetOwner(IDamageable owner) => Owner = owner;
 
+    internal void SetCombinedFootprint(PotionAreaFootprint footprint) => Footprint = footprint;
+
     private void Awake()
     {
-        _collider = GetComponent<CircleCollider2D>();
+        _impactCollider = GetComponent<CircleCollider2D>();
+        // Keep this separate from the polygon reserved for combined puddles.
+        _floorCollider = gameObject.AddComponent<PolygonCollider2D>();
+        _floorCollider.isTrigger = true;
+        _floorCollider.enabled = false;
+        _collider = _impactCollider;
         _renderer = GetComponentInChildren<SpriteRenderer>();
         _areaEffect = GetComponent<PotionAreaEffect>();
         _combiner = GetComponent<PotionAreaCombiner>();
         _visual = GetComponent<PotionAreaVisual>();
         if (_visual == null) _visual = gameObject.AddComponent<PotionAreaVisual>();
         _collider.isTrigger = true;
-        _collider.radius = _radius;
+        _impactCollider.radius = _radius;
     }
 
-    public void Initialize(PotionData data)
+    public void Initialize(PotionData data) => Initialize(data, default);
+
+    public void Initialize(PotionData data, LayerMask wallLayers)
     {
         if (data == null)
         {
@@ -52,9 +67,14 @@ public class PotionGroundArea : MonoBehaviour
         }
 
         Data = data;
+        OriginalCenter = transform.position;
+        WallLayers = wallLayers;
         _duration = data.FloorDuration;
         _radius = data.EffectRadius;
-        _collider.radius = _radius;
+        // Vaporization can wait for a later potion; use the same visible footprint
+        // for overlap detection regardless of which potion lands first.
+        ConfigureAreaCollider(data.CreatesFloor || data.Element == PotionElement.Vaporization);
+        if (!_hasValidFootprint) return;
 
         if (_renderer != null)
         {
@@ -71,7 +91,7 @@ public class PotionGroundArea : MonoBehaviour
                 float diameter = _radius * 2f;
                 _renderer.transform.localScale = new Vector3(
                     diameter / Mathf.Max(0.001f, spriteSize.x * Mathf.Abs(parentScale.x)),
-                    diameter * 0.5f / Mathf.Max(0.001f, spriteSize.y * Mathf.Abs(parentScale.y)), 1f);
+                    diameter * GroundHeightRatio / Mathf.Max(0.001f, spriteSize.y * Mathf.Abs(parentScale.y)), 1f);
             }
         }
 
@@ -81,12 +101,41 @@ public class PotionGroundArea : MonoBehaviour
         }
 
         _visual.Bind(_renderer, data.VisualData);
+        _visual.SetFootprint(Footprint);
 
         if (data.CreatesFloor && data.VisualData.AreaVfxPrefab != null)
         {
             // Match the aim preview's 2:1 ground ellipse, including VFX placement.
-            SetAreaVfx(data.VisualData, data.AreaWidth, data.AreaWidth * 0.5f);
+            SetAreaVfx(data.VisualData, data.AreaWidth, data.AreaWidth * GroundHeightRatio);
         }
+    }
+
+    private void ConfigureAreaCollider(bool createsFloor)
+    {
+        Footprint = null;
+        _hasValidFootprint = true;
+        _impactCollider.radius = _radius;
+        _impactCollider.enabled = !createsFloor;
+        _floorCollider.enabled = false;
+        _collider = createsFloor ? _floorCollider : _impactCollider;
+        if (!createsFloor) return;
+
+        // Build in world space, like the combined puddle, to match the visual
+        // even when the prefab's parent has a non-unit scale.
+        var points = new Vector2[EllipseSegments];
+        Vector3 center = transform.position;
+        for (int i = 0; i < points.Length; i++)
+        {
+            float angle = i * Mathf.PI * 2f / points.Length;
+            Vector3 worldPoint = center + new Vector3(
+                Mathf.Cos(angle) * _radius,
+                Mathf.Sin(angle) * _radius * GroundHeightRatio, 0f);
+            points[i] = worldPoint;
+        }
+
+        Footprint = PotionAreaClipper.Clip(points, OriginalCenter, WallLayers);
+        _hasValidFootprint = Footprint != null;
+        if (_hasValidFootprint) Footprint.ApplyTo(_floorCollider);
     }
 
     public GameObject SetAreaVfx(PotionVisualData visualData, float width, float height)
@@ -103,9 +152,9 @@ public class PotionGroundArea : MonoBehaviour
             1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.x)),
             1f / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
         VFXBurstField field = _areaVfx.AddComponent<VFXBurstField>();
-        field.ConfigureArea(width, height, _renderer,
-            _vfxBurstCount, _vfxBurstSize, _vfxSpawnAreaRatio);
+        field.ConfigureArea(width, height, _renderer);
         field.SetVfx(visualData.AreaVfxPrefab);
+        field.ConfigureFootprint(Footprint);
         _vfxField = field;
         return _areaVfx;
     }
@@ -131,6 +180,11 @@ public class PotionGroundArea : MonoBehaviour
     public void Activate()
     {
         if (Data == null || _activated) return;
+        if (!_hasValidFootprint)
+        {
+            Remove();
+            return;
+        }
         _activated = true;
         SetExpiration(Time.time + _duration);
         if (_combiner != null) _combiner.RegisterArea();
@@ -138,14 +192,40 @@ public class PotionGroundArea : MonoBehaviour
         if (!IsCombined && _areaEffect != null)
         {
             _areaEffect.ActivateSingleProfile(Owner, _expiresAt);
-            _areaEffect.ApplySingleImpact();
+            _areaEffect.ApplySingleImpact(_collider);
         }
 
-        // 기화처럼 CreatesFloor=false인 포션은 착탄 효과만 적용하고 장판을 남기지 않는다.
+        // Instant effects may leave a trace; uncombined vaporization can still react.
         if (!IsCombined && !Data.CreatesFloor)
         {
-            Remove();
+            FinishInstantImpact();
         }
+    }
+
+    internal void FinishInstantImpact()
+    {
+        if (IsCombined && Data != null && Data.Element == PotionElement.Vaporization)
+        {
+            Remove();
+            return;
+        }
+
+        float visualDuration = Data != null && Data.Element == PotionElement.Vaporization
+            ? Data.VaporizationSettings != null ? Data.VaporizationSettings.WaitingDuration : 2f
+            : Data != null ? Data.VisualData.ImpactVisualDuration : 0f;
+        if (visualDuration <= 0f)
+        {
+            Remove();
+            return;
+        }
+
+        bool canAwaitCombination = !IsCombined && Data.Element == PotionElement.Vaporization;
+        foreach (Collider2D areaCollider in GetComponents<Collider2D>())
+            areaCollider.enabled = canAwaitCombination && areaCollider == _collider;
+        if (_areaEffect != null) _areaEffect.enabled = false;
+        if (_combiner != null) _combiner.enabled = canAwaitCombination;
+        ClearAreaVfx();
+        SetExpiration(Time.time + visualDuration);
     }
 
     public void SetExpiration(float expiresAt)
