@@ -141,13 +141,13 @@ namespace Entity.Inventory
 
         public int GetItemCount(int index)
         {
-            if(!IsValidSlotIndex(index))
+            if (!IsValidSlotIndex(index))
             {
                 return 0;
             }
 
             ItemSlot slot = _inventorySlots[index];
-            if(slot == null || slot.IsEmpty())
+            if (slot == null || slot.IsEmpty())
             {
                 return 0;
             }

@@ -28,11 +28,11 @@ public sealed class ThirstDialogueData : ScriptableObject
             return string.Empty;
         }
         string result = lines[Random.Range(0, lines.Length)];
-        if(result == null || string.IsNullOrWhiteSpace(result))
+        if (result == null || string.IsNullOrWhiteSpace(result))
         {
             return string.Empty;
         }
-        
+
         return result;
     }
 }

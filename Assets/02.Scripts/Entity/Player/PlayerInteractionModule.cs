@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using System;
 using Interactable;
 
@@ -15,7 +15,7 @@ public class PlayerInteractionModule : MonoBehaviour
     private float _holdTime;
 
     public IInteractable CurrentTarget => _currentTarget;
-    public bool IsInteracting {get; private set;}
+    public bool IsInteracting { get; private set; }
     public float HoldDuration => _holdDuration;
 
     public float InteractionProgress
@@ -26,7 +26,7 @@ public class PlayerInteractionModule : MonoBehaviour
             {
                 return 0f;
             }
-            return  Mathf.Clamp01(_holdTime / _holdDuration);
+            return Mathf.Clamp01(_holdTime / _holdDuration);
         }
     }
 
@@ -39,14 +39,14 @@ public class PlayerInteractionModule : MonoBehaviour
         ClearInvalidCandidates();
 
         if (!IsInteracting) return;
-        if(!IsCurrentTargetValid())
+        if (!IsCurrentTargetValid())
         {
             CancelInteraction();
             return;
         }
 
         _holdTime += Time.deltaTime;
-        if( _holdTime >= _holdDuration)
+        if (_holdTime >= _holdDuration)
         {
             CompleteInteraction();
         }
@@ -71,11 +71,11 @@ public class PlayerInteractionModule : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if(!_candidates.TryGetValue(other, out IInteractable interactable)) return;
+        if (!_candidates.TryGetValue(other, out IInteractable interactable)) return;
 
         _candidates.Remove(other);
 
-        if(IsInteracting && ReferenceEquals(interactable, _currentTarget))
+        if (IsInteracting && ReferenceEquals(interactable, _currentTarget))
         {
             CancelInteraction();
         }
@@ -83,11 +83,11 @@ public class PlayerInteractionModule : MonoBehaviour
 
     public bool TryBeginInteraction()
     {
-        if(IsInteracting) return false;
+        if (IsInteracting) return false;
         ClearInvalidCandidates();
 
         IInteractable target = FindClosestInteractable();
-        if(target == null || target is not MonoBehaviour targetBehaviour) return false;
+        if (target == null || target is not MonoBehaviour targetBehaviour) return false;
 
         _currentTarget = target;
         _currentTargetBehaviour = targetBehaviour;
@@ -100,7 +100,7 @@ public class PlayerInteractionModule : MonoBehaviour
 
     public void CancelInteraction()
     {
-        if(!IsInteracting) return;
+        if (!IsInteracting) return;
 
         IInteractable canceledTarget = _currentTarget;
 
@@ -110,7 +110,7 @@ public class PlayerInteractionModule : MonoBehaviour
 
     private void CompleteInteraction()
     {
-        if(!IsInteracting) return;
+        if (!IsInteracting) return;
 
         IInteractable completedTarget = _currentTarget;
 
@@ -129,11 +129,11 @@ public class PlayerInteractionModule : MonoBehaviour
 
     private void RegisterCandidate(Collider2D other)
     {
-        if(other == null || _candidates.ContainsKey(other)) return;
+        if (other == null || _candidates.ContainsKey(other)) return;
 
         IInteractable interactable = other.GetComponentInParent<IInteractable>();
 
-        if(interactable is not MonoBehaviour interactableBehaviour || !interactableBehaviour.isActiveAndEnabled) return;
+        if (interactable is not MonoBehaviour interactableBehaviour || !interactableBehaviour.isActiveAndEnabled) return;
         _candidates.Add(other, interactable);
     }
 
@@ -143,12 +143,12 @@ public class PlayerInteractionModule : MonoBehaviour
         float closestDistance = float.PositiveInfinity;
         int closestInstanceId = int.MaxValue;
 
-        foreach(KeyValuePair<Collider2D, IInteractable> pair in _candidates)
+        foreach (KeyValuePair<Collider2D, IInteractable> pair in _candidates)
         {
             Collider2D candidateCollider = pair.Key;
             IInteractable candidate = pair.Value;
 
-            if(!IsCandidateValid(candidateCollider, candidate) || !candidate.CanInteract(gameObject))
+            if (!IsCandidateValid(candidateCollider, candidate) || !candidate.CanInteract(gameObject))
             {
                 continue;
             }
@@ -156,19 +156,19 @@ public class PlayerInteractionModule : MonoBehaviour
             float distance = (candidateCollider.bounds.center - transform.position).sqrMagnitude;
             int instanceId = candidateCollider.GetInstanceID();
 
-            if(distance < closestDistance || (Mathf.Approximately(distance, closestDistance) && instanceId < closestInstanceId))
+            if (distance < closestDistance || (Mathf.Approximately(distance, closestDistance) && instanceId < closestInstanceId))
             {
                 closestTarget = candidate;
                 closestDistance = distance;
                 closestInstanceId = instanceId;
             }
-        }   
+        }
         return closestTarget;
     }
 
     private bool IsCurrentTargetValid()
     {
-        if(_currentTarget == null || _currentTargetBehaviour == null || !_currentTargetBehaviour.isActiveAndEnabled)
+        if (_currentTarget == null || _currentTargetBehaviour == null || !_currentTargetBehaviour.isActiveAndEnabled)
         {
             return false;
         }
@@ -178,9 +178,9 @@ public class PlayerInteractionModule : MonoBehaviour
 
     private bool HasCandidateFor(IInteractable target)
     {
-        foreach(KeyValuePair<Collider2D, IInteractable> pair in _candidates)
+        foreach (KeyValuePair<Collider2D, IInteractable> pair in _candidates)
         {
-            if(IsCandidateValid(pair.Key, pair.Value) && ReferenceEquals(pair.Value, target))
+            if (IsCandidateValid(pair.Key, pair.Value) && ReferenceEquals(pair.Value, target))
             {
                 return true;
             }
@@ -191,7 +191,7 @@ public class PlayerInteractionModule : MonoBehaviour
 
     private bool IsCandidateValid(Collider2D collider, IInteractable candidate)
     {
-        if(collider == null || !collider.enabled||!collider.gameObject.activeInHierarchy)
+        if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy)
         {
             return false;
         }
@@ -202,15 +202,15 @@ public class PlayerInteractionModule : MonoBehaviour
     private void ClearInvalidCandidates()
     {
         _staleColliders.Clear();
-        foreach(KeyValuePair<Collider2D, IInteractable> pair in _candidates)
+        foreach (KeyValuePair<Collider2D, IInteractable> pair in _candidates)
         {
-            if(!IsCandidateValid(pair.Key, pair.Value))
+            if (!IsCandidateValid(pair.Key, pair.Value))
             {
                 _staleColliders.Add(pair.Key);
             }
         }
 
-        foreach(Collider2D staleCollider in _staleColliders)
+        foreach (Collider2D staleCollider in _staleColliders)
         {
             _candidates.Remove(staleCollider);
         }

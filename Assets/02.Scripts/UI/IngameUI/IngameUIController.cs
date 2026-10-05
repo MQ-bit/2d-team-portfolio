@@ -113,7 +113,7 @@ public class IngameUIController : MonoBehaviour
             {
                 Debug.LogError($"{gameObject.name} : Can't find PlayerDialogueModule in target PlayerController!");
             }
-            
+
             _statPresneter.Initialize(status, _testSprite);
             _potionCodexPresenter.Initialize(inventory);
             _dashCooldownPresenter.Initialize(movement);
@@ -171,7 +171,7 @@ public class IngameUIController : MonoBehaviour
 
     private void InitializeThirstFeedbackPresenter(PlayerStatus status, PlayerDialogueModule dialogueModule)
     {
-       if (_thirstFeedbackPresenter == null) // 이 기능을 사용하지 않는 다른 씬은 그대로 통과.
+        if (_thirstFeedbackPresenter == null) // 이 기능을 사용하지 않는 다른 씬은 그대로 통과.
         {
             return;
         }

@@ -131,7 +131,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
         CurrentThirstLevel = nextLevel;
         OnThirstChanged?.Invoke(current, maximum);
 
-        if(nextLevel != prevLevel)
+        if (nextLevel != prevLevel)
         {
             OnThirstLevelChanged?.Invoke(prevLevel, nextLevel);
         }

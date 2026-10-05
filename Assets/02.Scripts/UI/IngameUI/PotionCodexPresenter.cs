@@ -23,7 +23,7 @@ public sealed class PotionCodexPresenter : MonoBehaviour
     public void Initialize(PlayerInventoryModule inventory)
     {
         if (inventory == null)
-        {   
+        {
             throw new ArgumentNullException(nameof(inventory));
         }
 
@@ -35,7 +35,7 @@ public sealed class PotionCodexPresenter : MonoBehaviour
         LinkEvents();
         RefreshAllSlots();
 
-        if(_inventory.SelectedSlotIndex  >= 0)
+        if (_inventory.SelectedSlotIndex >= 0)
         {
             MoveSelectionBox(_inventory.SelectedSlotIndex);
         }
@@ -69,24 +69,24 @@ public sealed class PotionCodexPresenter : MonoBehaviour
 
     private void CheckReferences(PlayerInventoryModule inventory)
     {
-        if(_slotViews == null || _slotViews.Length == 0)
+        if (_slotViews == null || _slotViews.Length == 0)
         {
             throw new InvalidOperationException($"{name} : PotionCodexView references are not assigned.");
         }
-        if(_slotViews.Length != inventory.SlotCount)
+        if (_slotViews.Length != inventory.SlotCount)
         {
             throw new InvalidOperationException($"{name} : PotionCodexView count ({_slotViews.Length}) does not match inventory slot count ({inventory.SlotCount}).");
         }
 
-        for(int i = 0 ; i< _slotViews.Length; i++)
+        for (int i = 0; i < _slotViews.Length; i++)
         {
-            if(_slotViews[i] == null || !_slotViews[i].IsElementOkay)
+            if (_slotViews[i] == null || !_slotViews[i].IsElementOkay)
             {
                 throw new InvalidOperationException($"{name} : PotionCodexView at index {i} is not properly configured.");
             }
         }
 
-        if(_selectionBox == null)
+        if (_selectionBox == null)
         {
             throw new InvalidOperationException($"{name} : SelectionBox reference is not assigned.");
         }
@@ -102,7 +102,7 @@ public sealed class PotionCodexPresenter : MonoBehaviour
 
     private void RefreshSlot(int slotIndex)
     {
-        if(!CheckSlotIndex(slotIndex))
+        if (!CheckSlotIndex(slotIndex))
         {
             return;
         }
@@ -126,11 +126,11 @@ public sealed class PotionCodexPresenter : MonoBehaviour
 
     private void MoveSelectionBox(int nextSlotIndex)
     {
-        if(!CheckSlotIndex(nextSlotIndex))
+        if (!CheckSlotIndex(nextSlotIndex))
         {
             return;
         }
-        
+
         Canvas.ForceUpdateCanvases();
 
         RectTransform selectedSlot = _slotViews[nextSlotIndex].RectTransform;
@@ -142,7 +142,7 @@ public sealed class PotionCodexPresenter : MonoBehaviour
     private bool CheckSlotIndex(int slotIndex)
     {
         return _slotViews != null
-            && ( 0 <= slotIndex  && slotIndex < _slotViews.Length)
+            && (0 <= slotIndex && slotIndex < _slotViews.Length)
             && _slotViews[slotIndex] != null;
     }
 
