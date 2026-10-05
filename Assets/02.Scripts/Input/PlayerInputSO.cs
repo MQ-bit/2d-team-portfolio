@@ -13,12 +13,14 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     private Vector2 _mousePosition = Vector2.zero;
     private bool _isPrimaryActionHolding = false;
     private bool _isDrinkingHolding = false;
+    private bool _isInteractHolding = false;
 
     //Properties
     public Vector2 MoveInput => _moveInput;
     public Vector2 MousePosition => _mousePosition;
     public bool IsPrimaryActionHolding => _isPrimaryActionHolding;
     public bool IsDrinkingHolding => _isDrinkingHolding;
+    public bool IsInteractHolding => _isInteractHolding;
 
     //Events
     public event Action OnMoveInput;
@@ -28,6 +30,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event Action<bool> OnDrinkInputChanged;
     public event Action OnMeleeToggleRequested;
     public event Action OnPotionInformationTabToggled;
+    public event Action<bool> OnInteractInputChanged;
 
     private void OnEnable()
     {
@@ -44,6 +47,13 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     {
         _isPrimaryActionHolding = false;
         _isDrinkingHolding = false;
+
+        if (_isInteractHolding)
+        {
+            _isInteractHolding = false;
+            OnInteractInputChanged?.Invoke(false);
+        }
+
         _playerInput.Player.Disable();
     }
 
@@ -61,7 +71,6 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         {
             OnMoveInput?.Invoke();
         }
-        Debug.Log("Dash input received");
     }
 
     public void OnAimPosition(CallbackContext context)
@@ -151,6 +160,24 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         if (context.performed)
         {
             OnPotionInformationTabToggled?.Invoke();
+        }
+    }
+
+    public void OnInteractionStart(CallbackContext context)
+    {
+        if (context.performed)
+        {
+            if(_isInteractHolding) return;
+
+            _isInteractHolding = true;
+            OnInteractInputChanged?.Invoke(true);
+            return;
+        }
+
+        if(context.canceled && _isInteractHolding)
+        {
+            _isInteractHolding = false;
+            OnInteractInputChanged?.Invoke(false);
         }
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class PlayerDrinkingModule : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PlayerDrinkingModule : MonoBehaviour
     [SerializeField] private float _thirstDecreaseAmount = 10f;
 
     public bool IsDrinking { get; private set; }
+    public event Action<bool> OnDrinkStateChanged; //UI 연결용 이벤트
 
     public float DrinkProgress
     {
@@ -81,7 +83,7 @@ public class PlayerDrinkingModule : MonoBehaviour
         }
 
         _drinkTimer = 0f;
-        IsDrinking = true;
+        SetDrinking(true);
 
         return true;
     }
@@ -116,7 +118,16 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     private void ResetState()
     {
-        IsDrinking = false;
         _drinkTimer = 0f;
+        SetDrinking(false);
+    }
+
+    private void SetDrinking(bool isDrinking)
+    {
+        if(IsDrinking != isDrinking)
+        {
+            IsDrinking = isDrinking;
+            OnDrinkStateChanged?.Invoke(isDrinking);
+        }
     }
 }

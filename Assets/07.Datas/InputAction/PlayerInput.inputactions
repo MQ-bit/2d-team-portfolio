@@ -85,6 +85,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "InteractionStart",
+                    "type": "Button",
+                    "id": "5e6a5e89-14d7-4c22-97f5-f382dec0d38d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -272,6 +282,17 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "ToggleInformationTab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f95e68ef-7921-415a-9288-af0ddffef245",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "InteractionStart",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
