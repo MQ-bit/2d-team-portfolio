@@ -1,23 +1,16 @@
 /// <summary>
-/// StageLayoutPlanner에서 계획된 연결 후보의 정보를 나타내는 클래스.
+/// StageLayoutPlanner에서 계획된 복도와 방의 연결 후보를 나타내는 구조체. Hallway는 연결될 복도의 정보를, Room은 연결될 방의 정보를 담고 있음.
 /// </summary>
-public class ConnectionCandidate
+internal readonly struct ConnectionCandidate
 {
-    public LayoutPlacement<HallwayDefinition> Hallway { get; }
-    public LayoutPlacement<RoomDefinition> Room { get; }
-    public ConnectorDirection ExitDirection { get; }
-    public ConnectorDirection EntryDirection => ExitDirection.OppositeDirection();
+    public PlannedHallway Hallway { get; }
+    public PlannedRoom Room { get; }
 
-    /// <summary>
-    /// ConnectionCandidate 생성자. 복도와 방의 배치 및 연결 방향 정보를 초기화함.
-    /// </summary>
-    /// <param name="hallway"> 복도의 배치 정보 </param>
-    /// <param name="room"> 방의 배치 정보 </param>
-    /// <param name="exitDirection"> 연결 방향 </param>
-    public ConnectionCandidate(LayoutPlacement<HallwayDefinition> hallway, LayoutPlacement<RoomDefinition> room, ConnectorDirection exitDirection)
+    public ConnectorDirection ExitDirection => Hallway.FromDirection;
+
+    public ConnectionCandidate(PlannedHallway hallway, PlannedRoom room)
     {
         Hallway = hallway;
         Room = room;
-        ExitDirection = exitDirection;
     }
 }

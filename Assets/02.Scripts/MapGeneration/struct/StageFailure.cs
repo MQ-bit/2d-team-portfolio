@@ -1,6 +1,6 @@
 
 /// <summary>
-/// StageFailure는 StageLayoutPlanner에서 발생한 실패 정보를 나타내는 구조체. 각각 Code는 실패 원인을 나타내며, Message는 실패에 대한 상세 설명을 제공함.
+/// StageLayoutPlanner에서 발생한 실패 정보를 나타내는 구조체. 각각 Code는 실패 원인을 나타내며, Message는 실패에 대한 상세 설명을 제공함.
 /// </summary>
 public readonly struct StageFailure
 {

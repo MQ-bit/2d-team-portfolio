@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+/// <summary>
+/// StageLayoutPlanner에서 계획된 방의 벽 타일 상태를 캡처해 스냅샷을 작성하고 복원하는 클래스.
+/// </summary>
 public class ConnectorWallSnapshot
 {
     private readonly RoomDefinition _room;
@@ -25,7 +28,6 @@ public class ConnectorWallSnapshot
             _room.WallTilemap.SetTile(tile.Key, tile.Value);
         }
 
-        _room.ResetConnectorUsage();
         _room.RefreshWallCollider();
     }
 

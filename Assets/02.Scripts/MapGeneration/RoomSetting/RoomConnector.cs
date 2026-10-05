@@ -2,30 +2,27 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// RoomConnector는 RoomDefinition에 연결된 Connector를 나타내며, 해당 Connector의 방향과 Carve 영역을 정의합니다.
+/// StageLayoutPlanner에서 계획된 방의 연결 지점을 나타내는 컴포넌트.
+/// 연결 지점은 방의 벽 타일맵에서 Carve 영역을 정의하며, 연결 지점의 방향과 월드 위치를 제공함. Carve 메서드를 사용하여 지정된 Wall Tilemap에서 Carve 영역에 해당하는 타일을 제거할 수 있음. 또한, ContainsWallTile 메서드를 사용하여 Carve 영역에 벽 타일
 /// </summary>
 public class RoomConnector : MonoBehaviour
 {
     [Header("Connector")]
     [SerializeField] private ConnectorDirection _direction;
 
-    [SerializeField] private BoundsInt _carveArea; //Wall Tilemap의 셀 좌표. Hallway Connector에서는 비워두기.
-
-    private bool _isUsed;
+    [SerializeField] private BoundsInt _carveArea; //Wall Tilemap의 셀 좌표. Hallway Connector에서는 비워둠.
 
     public ConnectorDirection Direction => _direction;
     public BoundsInt CarveArea => _carveArea;
 
     public Vector3 WorldPosition => transform.position;
     public Vector2 WorldDirection => transform.up.normalized;
-    
-    public bool IsUsed => _isUsed;
     public bool HasValidCarveArea => _carveArea.size.x > 0 && _carveArea.size.y > 0 && _carveArea.size.z > 0;
 
     /// <summary>
-    /// Carve 메서드는 지정된 Wall Tilemap에서 Carve 영역에 해당하는 타일을 제거합니다. 제거된 타일의 수를 반환하며, Carve 영역이 유효하지 않거나 Wall Tilemap이 null인 경우 0을 반환합니다.
+    /// RoomConnector의 Carve 영역에 해당하는 타일을 지정된 Wall Tilemap에서 제거함. 제거된 타일의 수를 반환함. Carve 영역이 유효하지 않거나 Wall Tilemap이 null인 경우, 제거된 타일 수는 0임.
     /// </summary>
-    /// <param name="wallTilemap"></param>
+    /// <param name="wallTilemap"> 제거할 타일이 있는 Wall Tilemap </param>
     /// <returns></returns>
     public int Carve(Tilemap wallTilemap)
     {
@@ -54,7 +51,6 @@ public class RoomConnector : MonoBehaviour
             removedTileCount++;
         }
 
-        _isUsed = true;
         return removedTileCount;
     }
 
@@ -74,11 +70,6 @@ public class RoomConnector : MonoBehaviour
         }
 
         return false;
-    }
-
-    public void ResetUsage()
-    {
-        _isUsed = false;
     }
 
     private void OnDrawGizmosSelected()

@@ -26,7 +26,7 @@ MonoBehaviour:
   _horizontalHallway: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
   _verticalHallway: {fileID: 145594401814618462, guid: c32cfb51d5460b84389f929050ca23b3, type: 3}
   _additionalRoomChance: 0.5
-  _eliteRoomProbability: 0.25
+  _eliteRoomProbability: 0.5
   _maxLayoutRetryCount: 100
   _overlapClearance: 0
   _connectorAlignmentEpsilon: 0.001

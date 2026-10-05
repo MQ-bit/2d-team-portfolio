@@ -1,25 +1,21 @@
 using UnityEngine;
 
 /// <summary>
-/// PlannedHallway는 StageLayoutPlanner에서 계획된 복도의 배치, 방향 및 연결과 같은 정보를 나타내는 클래스.
+/// StageLayoutPlanner에서 계획된 복도의 배치, 연결 및 속성과 같은 정보를 나타내는 클래스.
 /// </summary>
-public class PlannedHallway
+internal sealed class PlannedHallway
 {
-    public LayoutPlacement<HallwayDefinition> Placement { get; }
-    public HallwayDefinition Definition => Placement.Definition;
-    public Vector3 WorldPosition => Placement.WorldPosition;
-    public Bounds WorldBounds => Placement.WorldBounds;
-    public HallwayOrientation Orientation => Definition.Orientation;
-    public StageConnection Connection { get; }
+    public HallwayDefinition Definition { get; }
+    public Vector3 WorldPosition { get; }
+    public Bounds WorldBounds { get; }
+    public ConnectorDirection FromDirection { get; }
+    public ConnectorDirection ToDirection => FromDirection.OppositeDirection();
 
-    /// <summary>
-    /// PlannedHallway 생성자. 복도의 배치 및 연결 정보를 초기화함.
-    /// </summary>
-    /// <param name="placement"> 복도의 배치 정보 </param>
-    /// <param name="connection"> 복도의 연결 정보 </param>
-    public PlannedHallway(LayoutPlacement<HallwayDefinition> placement, StageConnection connection)
+    public PlannedHallway(HallwayDefinition definition, Vector3 worldPosition, Bounds worldBounds, ConnectorDirection fromDirection)
     {
-        Placement = placement;
-        Connection = connection;
+        Definition = definition;
+        WorldPosition = worldPosition;
+        WorldBounds = worldBounds;
+        FromDirection = fromDirection;
     }
 }

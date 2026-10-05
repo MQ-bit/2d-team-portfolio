@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Stage를 생성하기 위한 설정을 나타내는 ScriptableObject.
+/// 방 프리팹, 복도 프리팹, 방 선택 확률, 레이아웃 설정 등의 정보를 포함하며, StageLayoutPlanner가 Stage를 계획할 때 사용됨.
+/// </summary>
 [CreateAssetMenu(fileName = "StageGenerationProfile", menuName = "Map Generation/Stage Generation Profile")]
 public class StageGenerationProfileSO : ScriptableObject
 {

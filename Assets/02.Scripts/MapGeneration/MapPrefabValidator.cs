@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_EDITOR
+/// <summary>
+/// Map Prefab의 유효성을 검사하는 에디터 전용 클래스. 지정된 폴더 내의 모든 Map Prefab을 검색하고, 각 Prefab에 대해 RoomDefinition과 HallwayDefinition의 존재 여부 및 유효성을 검증함.
+/// </summary>
 public static class MapPrefabValidator
 {
     private static readonly string[] SearchFolders =

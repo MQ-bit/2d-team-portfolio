@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-///  StageGenerator는 StageLayoutPlanner와 StageMaterializer를 사용하여 Stage를 생성하는 컴포넌트.
+///  StageLayoutPlanner와 StageMaterializer를 사용하여 Stage를 생성하는 컴포넌트.
 /// </summary>
 public class StageGenerator : MonoBehaviour
 {
@@ -19,9 +19,6 @@ public class StageGenerator : MonoBehaviour
 
     [Header("Runtime")]
     [SerializeField] private bool _generateOnStart = true;
-
-    private readonly StageLayoutPlanner _planner = new StageLayoutPlanner();
-    private readonly StageMaterializer _materializer = new StageMaterializer();
 
     public GeneratedStage CurrentStage { get; private set; }
 
@@ -67,14 +64,14 @@ public class StageGenerator : MonoBehaviour
 
         StageLayoutRequest layoutRequest = new StageLayoutRequest(_startRoom, _profile, seed);
 
-        if (!_planner.TryCreatePlan(layoutRequest, out StagePlan plan, out failure))
+        if (!StageLayoutPlanner.TryCreatePlan(layoutRequest, out StagePlan plan, out failure))
         {
             return false;
         }
 
-        StageBuildRequest buildRequest = new StageBuildRequest(plan, _startRoom, _generatedStageParent, _profile);
+        StageBuildContext buildContext = new StageBuildContext(plan, _startRoom, _generatedStageParent, _profile);
 
-        if (!_materializer.TryBuild(buildRequest, out stage, out failure))
+        if (!StageMaterializer.TryBuild(buildContext, out stage, out failure))
         {
             return false;
         }

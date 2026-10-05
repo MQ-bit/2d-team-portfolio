@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// RoomDefinition은 방의 유형, 경계, 벽 타일맵, 커넥터 및 스폰 지점과 같은, 방의 속성을 정의하는 MonoBehaviour 클래스입니다.
+/// Stage를 구성하는 방의 정의를 나타내는 컴포넌트. 
+/// 방의 유형, 로컬 경계, 벽 타일맵, 벽 콜라이더, 연결 지점, 스폰 지점 등의 정보를 포함하며, 방의 유효성을 검증하고 연결 지점을 관리함.
 /// </summary>
 public class RoomDefinition : MonoBehaviour
 {
@@ -88,14 +89,6 @@ public class RoomDefinition : MonoBehaviour
         }
 
         _wallCollider.ProcessTilemapChanges();
-    }
-
-    public void ResetConnectorUsage()
-    {
-        foreach(RoomConnector connector in _connectors)
-        {
-            connector?.ResetUsage();
-        }
     }
 
     public void CollectValidationErrors(List<string> errors)

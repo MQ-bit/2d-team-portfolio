@@ -1,9 +1,16 @@
-using System;
+using UnityEngine;
 using System.Collections.Generic;
+using Random = System.Random;
 
-public class StageLayoutPlanner
+/// <summary>
+/// StageLayoutRequest를 기반으로 StagePlan을 생성하는 정적 클래스. StageLayoutPlanner는 StageLayoutRequest의 유효성을 검증하고, StagePlan을 생성하며, 방과 복도의 배치를 계획함. 
+/// </summary>
+internal static class StageLayoutPlanner
 {
-    public bool TryCreatePlan(StageLayoutRequest request, out StagePlan plan, out StageFailure failure)
+    private const int Standard_Additional_RoomCount = 1;
+    private const int Extended_Additional_RoomCount = 2;
+
+    public static bool TryCreatePlan(StageLayoutRequest request, out StagePlan plan, out StageFailure failure)
     {
         plan = null;
 
@@ -17,14 +24,8 @@ public class StageLayoutPlanner
         for (int attempt = 1; attempt <= request.Profile.MaxLayoutRetryCount; attempt++)
         {
             StagePlan candidate = CreateInitialPlan(request, attempt);
-            List<RoomType> sequence = CreateRoomSequence(request.Profile, random);
 
-            if (!TryBuildSequence(request, candidate, sequence, random))
-            {
-                continue;
-            }
-
-            if (!StagePlanValidator.TryValidate(request, candidate, out failure))
+            if (!TryPopulatePlan(request, candidate, random))
             {
                 continue;
             }
@@ -43,45 +44,52 @@ public class StageLayoutPlanner
     {
         RoomDefinition startRoom = request.StartRoom;
 
-        LayoutPlacement<RoomDefinition> placement = new(startRoom, startRoom.transform.position, startRoom.WorldBounds);
-
         StagePlan plan = new StagePlan(request.Seed)
         {
             GenerationAttemptCount = attempt
         };
 
-        plan.AddRoom(new PlannedRoom(placement, null, true));
+        plan.AddRoom(new PlannedRoom(startRoom, startRoom.transform.position, startRoom.WorldBounds, null));
+
         return plan;
     }
 
-    private static List<RoomType> CreateRoomSequence(StageGenerationProfileSO profile, Random random)
+    private static bool TryPopulatePlan(StageLayoutRequest request, StagePlan plan, Random random)
     {
-        List<RoomType> sequence = new() { RoomType.Normal };
+        // 기존 구현과 동일한 난수 호출 순서를 유지한다.
+        int additionalRoomCount = (random.NextDouble() < request.Profile.AdditionalRoomChance) ? Extended_Additional_RoomCount : Standard_Additional_RoomCount;
 
-        int additionalRoomCount = (random.NextDouble() < profile.AdditionalRoomChance) ? 2 : 1; // TODO: 1 또는 2개의 추가 전투방을 배치. 이는 매직 넘버이므로 수정 요망
+        RoomType firstAdditionalRoom = SelectCombatRoomType(request.Profile, random);
 
-        for (int i = 0; i < additionalRoomCount; i++)
+        RoomType secondAdditionalRoom = default;
+
+        if (additionalRoomCount == Extended_Additional_RoomCount)
         {
-            RoomType roomType = (random.NextDouble() < profile.EliteRoomProbability) ? RoomType.Elite : RoomType.Normal;
-
-            sequence.Add(roomType);
+            secondAdditionalRoom = SelectCombatRoomType(request.Profile, random);
         }
 
-        sequence.Add(RoomType.End);
-        return sequence;
+        if (!TryAppendRoom(request, plan, RoomType.Normal, random))
+        {
+            return false;
+        }
+
+        if (!TryAppendRoom( request, plan, firstAdditionalRoom, random))
+        {
+            return false;
+        }
+
+        if (additionalRoomCount == Extended_Additional_RoomCount &&
+            !TryAppendRoom( request, plan, secondAdditionalRoom, random))
+        {
+            return false;
+        }
+
+        return TryAppendRoom(request, plan, RoomType.End, random);
     }
 
-    private static bool TryBuildSequence(StageLayoutRequest request, StagePlan plan, IReadOnlyList<RoomType> sequence, Random random)
+    private static RoomType SelectCombatRoomType(StageGenerationProfileSO profile, Random random)
     {
-        foreach (RoomType roomType in sequence)
-        {
-            if (!TryAppendRoom(request, plan, roomType, random))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return (random.NextDouble() < profile.EliteRoomProbability) ? RoomType.Elite : RoomType.Normal;
     }
 
     private static bool TryAppendRoom(StageLayoutRequest request, StagePlan plan, RoomType nextRoomType, Random random)
@@ -89,11 +97,12 @@ public class StageLayoutPlanner
         int currentRoomIndex = plan.Rooms.Count - 1;
         PlannedRoom currentRoom = plan.Rooms[currentRoomIndex];
 
-        List<ConnectorDirection> exitDirections = new();
+        List<ConnectorDirection> exitDirections = new List<ConnectorDirection>();
+        
         CollectExitDirections(currentRoom, exitDirections);
         Shuffle(exitDirections, random);
 
-        List<RoomDefinition> roomCandidates = new();
+        List<RoomDefinition> roomCandidates = new List<RoomDefinition>();
         request.Profile.CollectRoomPrefabs(nextRoomType, roomCandidates);
 
         Shuffle(roomCandidates, random);
@@ -104,19 +113,19 @@ public class StageLayoutPlanner
 
             foreach (RoomDefinition room in roomCandidates)
             {
-                ConnectionCandidate candidate = ConnectionCandidateFactory.Create(currentRoom, hallway, room, exitDirection);
+                ConnectionCandidate? candidate = CreateCandidate(currentRoom, hallway, room, exitDirection);
 
-                if (candidate == null)
+                if (!candidate.HasValue)
                 {
                     continue;
                 }
 
-                if (!StageCollisionValidator.CanPlace(request, plan, currentRoomIndex, candidate))
+                if (!StageCollisionValidator.CanPlace(request, plan, currentRoomIndex, candidate.Value))
                 {
                     continue;
                 }
 
-                CommitCandidate(plan, candidate);
+                CommitCandidate(plan, candidate.Value);
                 return true;
             }
         }
@@ -124,18 +133,57 @@ public class StageLayoutPlanner
         return false;
     }
 
+    private static ConnectionCandidate? CreateCandidate(PlannedRoom currentRoom, HallwayDefinition hallway, RoomDefinition nextRoom, ConnectorDirection exitDirection)
+    {
+        if (currentRoom == null || hallway == null || nextRoom == null)
+        {
+            return null;
+        }
+
+        ConnectorDirection entryDirection = exitDirection.OppositeDirection();
+
+        if (!currentRoom.Definition.TryGetConnector(exitDirection, out RoomConnector currentExit) ||
+            !hallway.TryGetConnector(entryDirection, out RoomConnector hallwayEntry) ||
+            !hallway.TryGetConnector(exitDirection, out RoomConnector hallwayExit) ||
+            !nextRoom.TryGetConnector(entryDirection, out RoomConnector roomEntry))
+        {
+            return null;
+        }
+
+        if (nextRoom.Type != RoomType.End && !HasExitOtherThan(nextRoom, entryDirection))
+        {
+            return null;
+        }
+
+        Vector3 currentExitPosition = GetConnectorWorldPosition(currentRoom, currentExit);
+
+        Vector3 hallwayEntryOffset = GetConnectorLocalPosition(hallway, hallwayEntry);
+        Vector3 hallwayPosition = currentExitPosition - hallwayEntryOffset;
+        Bounds hallwayBounds = TranslateBounds(hallway.LocalBounds, hallwayPosition);
+
+        Vector3 hallwayExitPosition = hallwayPosition + GetConnectorLocalPosition(hallway, hallwayExit);
+
+        Vector3 roomEntryOffset = GetConnectorLocalPosition(nextRoom, roomEntry);
+
+        Vector3 roomPosition = hallwayExitPosition - roomEntryOffset;
+
+        Bounds roomBounds = TranslateBounds(nextRoom.LocalBounds, roomPosition);
+
+        PlannedHallway plannedHallway = new PlannedHallway(hallway, hallwayPosition, hallwayBounds, exitDirection);
+
+        PlannedRoom plannedRoom = new PlannedRoom(nextRoom, roomPosition, roomBounds, entryDirection);
+
+        return new ConnectionCandidate(plannedHallway, plannedRoom);
+    }
+
     private static void CommitCandidate(StagePlan plan, ConnectionCandidate candidate)
     {
-        int currentRoomIndex = plan.Rooms.Count - 1;
-        int nextRoomIndex = plan.Rooms.Count;
+        PlannedRoom currentRoom = plan.Rooms[plan.Rooms.Count - 1];
 
-        PlannedRoom currentRoom = plan.Rooms[currentRoomIndex];
         currentRoom.ExitDirection = candidate.ExitDirection;
 
-        StageConnection connection = new(currentRoomIndex, nextRoomIndex, candidate.ExitDirection);
-
-        plan.AddHallway(new PlannedHallway(candidate.Hallway, connection));
-        plan.AddRoom(new PlannedRoom(candidate.Room, candidate.EntryDirection, false));
+        plan.AddHallway(candidate.Hallway);
+        plan.AddRoom(candidate.Room);
     }
 
     private static void CollectExitDirections(PlannedRoom room, List<ConnectorDirection> destination)
@@ -159,6 +207,36 @@ public class StageLayoutPlanner
                 destination.Add(connector.Direction);
             }
         }
+    }
+
+    private static bool HasExitOtherThan(RoomDefinition room, ConnectorDirection entryDirection)
+    {
+        foreach (RoomConnector connector in room.Connectors)
+        {
+            if (connector != null && connector.Direction != entryDirection)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static Vector3 GetConnectorLocalPosition(Component owner, RoomConnector connector) //TODO: owner는 RoomDefinition 또는 HallwayDefinition이어야 함. Component 대신 이를 위한 무언가 추가하기.
+    {
+        return owner.transform.InverseTransformPoint(connector.WorldPosition);
+    }
+
+    private static Vector3 GetConnectorWorldPosition(PlannedRoom room, RoomConnector connector)
+    {
+        Vector3 offset = GetConnectorLocalPosition(room.Definition, connector);
+
+        return room.WorldPosition + offset;
+    }
+
+    private static Bounds TranslateBounds(Bounds localBounds, Vector3 worldPosition)
+    {
+        return new Bounds(worldPosition + localBounds.center, localBounds.size);
     }
 
     private static bool ValidateRequest(StageLayoutRequest request, out StageFailure failure)
@@ -187,6 +265,7 @@ public class StageLayoutPlanner
         if (!request.Profile.TryValidate(out string profileError))
         {
             failure = new StageFailure(StageFailureCode.InvalidProfile, profileError);
+
             return false;
         }
 
@@ -198,7 +277,7 @@ public class StageLayoutPlanner
     {
         for (int i = values.Count - 1; i > 0; i--)
         {
-            int targetIndex = random.Next(i + 1);   
+            int targetIndex = random.Next(i + 1);
 
             (values[i], values[targetIndex]) = (values[targetIndex], values[i]);
         }

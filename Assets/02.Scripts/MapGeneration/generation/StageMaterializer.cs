@@ -3,27 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// StageBuildRequest를 기반으로 실제 Stage를 생성하는 클래스.
+/// StagePlan을 기반으로 Stage를 생성하는 과정에서 Stage를 구성하는 방과 복도를 실제로 생성하고 배치하는 정적 클래스.
+/// StageBuildContext를 사용하여 Stage를 생성하며, 생성된 Stage의 루트 GameObject, 방 및 복도의 정의, 그리고 Stage의 월드 경계와 같은 정보를 반환함.
 /// </summary>
-public class StageMaterializer
+internal static class StageMaterializer
 {
-    public bool TryBuild(StageBuildRequest request, out GeneratedStage stage, out StageFailure failure)
+   public static bool TryBuild(StageBuildContext context, out GeneratedStage stage, out StageFailure failure)
     {
         stage = null;
 
-        if (!ValidateRequest(request, out failure))
+        if (!ValidateContext(context, out failure))
         {
             return false;
         }
 
-        GameObject root = new GameObject($"Stage_{request.Plan.Seed}_{request.Plan.GenerationAttemptCount}");
-
-        root.transform.SetParent(request.RootParent, false);
-        root.SetActive(false);
-
-        StageBuildContext context = new StageBuildContext(request, root);
         try
         {
+            context.BeginBuild();
             CreateHierarchy(context);
 
             if (!TryInstantiateRooms(context, out failure) ||
@@ -36,17 +32,17 @@ public class StageMaterializer
                 return false;
             }
 
-            root.SetActive(true);
+            context.Root.SetActive(true);
             Physics2D.SyncTransforms();
 
-            stage = new GeneratedStage(root, context.Rooms.AsReadOnly(), context.Hallways.AsReadOnly(), CalculateWorldBounds(request.Plan));
+            stage = new GeneratedStage(context.Root, context.Rooms.AsReadOnly(), context.Hallways.AsReadOnly(), CalculateWorldBounds(context.Plan));
 
             failure = StageFailure.None;
             return true;
         }
         catch (Exception exception)
         {
-            context.StartWallSnapshot.Restore();
+            context.StartWallSnapshot?.Restore();
             Cleanup(context);
 
             failure = new StageFailure(StageFailureCode.BuildFailed, $"Stage 생성 중 예외가 발생했습니다: {exception.Message}");
@@ -54,6 +50,7 @@ public class StageMaterializer
             return false;
         }
     }
+
 
     private static void CreateHierarchy(StageBuildContext context)
     {
@@ -65,8 +62,8 @@ public class StageMaterializer
 
     private static bool TryInstantiateRooms(StageBuildContext context, out StageFailure failure)
     {
-        StagePlan plan = context.Request.Plan;
-        context.Rooms.Add(context.Request.StartRoom);
+        StagePlan plan = context.Plan;
+        context.Rooms.Add(context.StartRoom);
 
         for (int i = 1; i < plan.Rooms.Count; i++)
         {
@@ -90,7 +87,7 @@ public class StageMaterializer
 
     private static bool TryInstantiateHallways(StageBuildContext context, out StageFailure failure)
     {
-        foreach (PlannedHallway planned in context.Request.Plan.Hallways)
+        foreach (PlannedHallway planned in context.Plan.Hallways)
         {
             HallwayDefinition hallway = GameObject.Instantiate(planned.Definition, planned.WorldPosition, Quaternion.identity, context.HallwaysRoot);
 
@@ -111,7 +108,7 @@ public class StageMaterializer
 
     private static bool TryValidateConnections(StageBuildContext context, out StageFailure failure)
     {
-        for (int i = 0; i < context.Request.Plan.Hallways.Count; i++)
+        for (int i = 0; i < context.Plan.Hallways.Count; i++)
         {
             if (!TryValidateConnection(context, i, out failure))
             {
@@ -125,25 +122,25 @@ public class StageMaterializer
 
     private static bool TryValidateConnection(StageBuildContext context, int hallwayIndex, out StageFailure failure)
     {
-        PlannedHallway planned = context.Request.Plan.Hallways[hallwayIndex];
+        PlannedHallway planned = context.Plan.Hallways[hallwayIndex];
 
-        StageConnection connection = planned.Connection;
-        RoomDefinition fromRoom = context.Rooms[connection.FromRoomIndex];
-
-        RoomDefinition toRoom = context.Rooms[connection.ToRoomIndex];
-
+        RoomDefinition fromRoom = context.Rooms[hallwayIndex];
+        RoomDefinition toRoom = context.Rooms[hallwayIndex + 1];
         HallwayDefinition hallway = context.Hallways[hallwayIndex];
 
-        if (!fromRoom.TryGetConnector(connection.FromDirection, out RoomConnector fromConnector) ||
-            !toRoom.TryGetConnector(connection.ToDirection, out RoomConnector toConnector) ||
-            !hallway.TryGetConnector(connection.FromDirection.OppositeDirection(), out RoomConnector hallwayEntry) ||
-            !hallway.TryGetConnector(connection.FromDirection, out RoomConnector hallwayExit))
+        ConnectorDirection fromDirection = planned.FromDirection;
+        ConnectorDirection toDirection = planned.ToDirection;
+
+        if (!fromRoom.TryGetConnector(fromDirection, out RoomConnector fromConnector) ||
+            !toRoom.TryGetConnector(toDirection, out RoomConnector toConnector) ||
+            !hallway.TryGetConnector(fromDirection.OppositeDirection(), out RoomConnector hallwayEntry) ||
+            !hallway.TryGetConnector(fromDirection, out RoomConnector hallwayExit))
         {
             failure = new StageFailure(StageFailureCode.MissingConnector, $"런타임 연결 {hallwayIndex}의 Connector가 없습니다.");
             return false;
         }
 
-        float epsilon = context.Request.Profile.ConnectorAlignmentEpsilon;
+        float epsilon = context.Profile.ConnectorAlignmentEpsilon;
 
         if (Vector3.Distance(fromConnector.WorldPosition, hallwayEntry.WorldPosition) > epsilon ||
             Vector3.Distance(hallwayExit.WorldPosition, toConnector.WorldPosition) > epsilon)
@@ -160,7 +157,7 @@ public class StageMaterializer
     {
         for (int i = 1; i < context.Rooms.Count; i++)
         {
-            if (!TryCarveRoom(context.Rooms[i], context.Request.Plan.Rooms[i], out failure))
+            if (!TryCarveRoom(context.Rooms[i], context.Plan.Rooms[i], out failure))
             {
                 return false;
             }
@@ -201,7 +198,7 @@ public class StageMaterializer
 
     private static bool TryCarveStartRoom(StageBuildContext context, out StageFailure failure)
     {
-        PlannedRoom plannedStart = context.Request.Plan.Rooms[0];
+        PlannedRoom plannedStart = context.Plan.Rooms[0];
 
         if (!plannedStart.ExitDirection.HasValue)
         {
@@ -211,7 +208,7 @@ public class StageMaterializer
 
         ConnectorDirection direction = plannedStart.ExitDirection.Value;
 
-        if (!context.Request.StartRoom.TryCarveConnector(direction, out int removedTileCount) || removedTileCount <= 0)
+        if (!context.StartRoom.TryCarveConnector(direction, out int removedTileCount) || removedTileCount <= 0)
         {
             context.StartWallSnapshot.Restore();
 
@@ -220,16 +217,20 @@ public class StageMaterializer
             return false;
         }
 
-        context.Request.StartRoom.RefreshWallCollider();
+        context.StartRoom.RefreshWallCollider();
         failure = StageFailure.None;
         return true;
     }
 
-    private static bool ValidateRequest(StageBuildRequest request, out StageFailure failure)
+    private static bool ValidateContext(StageBuildContext context, out StageFailure failure)
     {
-        if (request == null || request.Plan == null || request.StartRoom == null || request.RootParent == null || request.Profile == null)
+        if (context == null ||
+            context.Plan == null ||
+            context.StartRoom == null ||
+            context.RootParent == null ||
+            context.Profile == null)
         {
-            failure = new StageFailure(StageFailureCode.InvalidRequest, "StageBuildRequest 구성이 유효하지 않습니다.");
+            failure = new StageFailure( StageFailureCode.InvalidRequest, "StageBuildContext 구성이 유효하지 않습니다.");
 
             return false;
         }
