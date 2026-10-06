@@ -27,6 +27,9 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event Action<Vector2> OnPrimaryActionStart;
     public event Action<Vector2> OnPrimaryActionEnd;
     public event Action<int> OnItemSlotChanged;
+
+    public event Action<int> OnItemSlotChangedScrolled;
+
     public event Action<bool> OnDrinkInputChanged;
     public event Action OnMeleeToggleRequested;
     public event Action OnPotionInformationTabToggled;
@@ -127,6 +130,17 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
                 OnItemSlotChanged?.Invoke(slotIndex);
             }
         }
+    }
+
+    public void OnItemSlotChangeScroll(CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        float scroll = context.ReadValue<float>();
+        if (Mathf.Approximately(scroll, 0f)) return;
+
+        int direction = scroll < 0f ? 1 : -1;
+        OnItemSlotChangedScrolled?.Invoke(direction);
     }
 
     public void OnPotionDrink(CallbackContext context)

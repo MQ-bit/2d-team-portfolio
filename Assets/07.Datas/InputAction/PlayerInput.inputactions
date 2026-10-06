@@ -95,6 +95,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "ItemSlotChangeScroll",
+                    "type": "Value",
+                    "id": "1d9cb4c9-5e0d-4387-b77c-0b865c7732ef",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -293,6 +303,17 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "InteractionStart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fa72d6dd-282c-436a-9bbe-c4a6669cfc31",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChangeScroll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -58,6 +58,22 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         OnSelectedSlotChanged?.Invoke(index);
     }
 
+    public void SelectRelativeSlot(int direction)
+    {
+        int slotCount = SlotCount;
+        if (slotCount <= 0 || direction == 0) return;
+
+        if (_selectedSlotIndex < 0)
+        {
+            SelectSlot(0);
+            return;
+        }
+
+        int step = direction > 0 ? 1 : -1;
+        int nextIndex = (_selectedSlotIndex + step + slotCount) % slotCount;
+        SelectSlot(nextIndex);
+    }
+
     public bool TryTakeItem(PotionItem item, int quantity)
     {
         return _inventory.TryAddItem(item, quantity);
