@@ -27,7 +27,8 @@ internal static class StageMaterializer
                 !TryValidateConnections(context, out failure) ||
                 !TryCarveDynamicRooms(context, out failure) ||
                 !TryCarveStartRoom(context, out failure) ||
-                !TryCreateRoomNodes(context, out failure))
+                !TryCreateRoomNodes(context, out failure) ||
+                !TryInstantiatePortal(context, out failure))
             {
                 Cleanup(context);
                 return false;
@@ -275,6 +276,59 @@ internal static class StageMaterializer
             context.RoomNodes.Add(new GeneratedRoomNode(room, entry, exit, i));
         }
 
+        failure = StageFailure.None;
+        return true;
+    }
+
+    private static bool TryInstantiatePortal(StageBuildContext context, out StageFailure failure)
+    {
+        GeneratedRoomNode endRoomNode = null;
+
+        foreach (GeneratedRoomNode node in context.RoomNodes)
+        {
+            if (node?.Room == null || node.Room.Type != RoomType.End)
+            {
+                continue;
+            }
+
+            if (endRoomNode != null)
+            {
+                failure = new StageFailure(StageFailureCode.InvalidPlan, "생성된 Stage에 EndRoom이 두 개 이상 존재합니다.");
+                return false;
+            }
+
+            endRoomNode = node;
+        }
+
+        if (endRoomNode?.Room == null)
+        {
+            failure = new StageFailure(StageFailureCode.InvalidPlan, "생성된 Stage에서 EndRoom을 찾을 수 없습니다.");
+            return false;
+        }
+
+        Transform spawnPoint = endRoomNode.Room.PortalSpawnPoint;
+        if (spawnPoint == null)
+        {
+            failure = new StageFailure(StageFailureCode.InvalidPlan, $"{endRoomNode.Room.name}: PortalSpawnPoint가 없습니다.");
+            return false;
+        }
+
+        InteractablePortal portalPrefab = context.Profile.PortalPrefab;
+        if (portalPrefab == null)
+        {
+            failure = new StageFailure(StageFailureCode.InvalidProfile, "Portal 프리팹이 설정되지 않았습니다.");
+            return false;
+        }
+
+        InteractablePortal portal = GameObject.Instantiate(portalPrefab, spawnPoint.position, spawnPoint.rotation, context.PortalRoot);
+
+        if (portal == null)
+        {
+            failure = new StageFailure(StageFailureCode.BuildFailed, "Portal 생성에 실패했습니다.");
+            return false;
+        }
+
+        portal.name = portalPrefab.name;
         failure = StageFailure.None;
         return true;
     }

@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: -9216379575860310203, guid: d11ae46b1aa03a04d8c83d4b04e14c6a, type: 3}
   - {fileID: 4838776290454009359, guid: 52269b32dcd18c14ab31c62b00846068, type: 3}
   _endRoom: {fileID: 4307201373427224824, guid: 848773dcee5f5f446956be436ab0759c, type: 3}
+  _portalPrefab: {fileID: 6754475698265709867, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
   _horizontalHallway: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
   _verticalHallway: {fileID: 145594401814618462, guid: c32cfb51d5460b84389f929050ca23b3, type: 3}
   _additionalRoomChance: 0.5

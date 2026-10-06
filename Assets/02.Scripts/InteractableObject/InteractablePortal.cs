@@ -3,27 +3,20 @@ using UnityEngine;
 
 public class InteractablePortal : MonoBehaviour, IInteractable
 {
-    [Header("Portal Settings")]
-    [SerializeField] private Transform _destination;
-
     [Header("Visual Effect Settings")]
     [SerializeField] private ParticleSystem _effectOnPlayerEnter;
     [SerializeField] private ParticleSystem _teleportEffect;
 
-    public Transform Destination => _destination;
-
-    private void Awake()
-    {
-        if (_destination == null)
-        {
-            _destination = transform.GetChild(0);
-        }
-    }
-
     public bool CanInteract(GameObject interactor)
     {
-        return _destination != null
-            && _destination != transform;
+        if (interactor == null || !interactor.TryGetComponent(out PlayerController _))
+        {
+            return false;
+        }
+
+        LevelManager levelManager = LevelManager.Instance;
+
+        return levelManager != null && levelManager.CanCompleteStage;
     }
 
     public void Interact(GameObject interactor)
@@ -33,17 +26,9 @@ public class InteractablePortal : MonoBehaviour, IInteractable
             return;
         }
 
-        if (interactor.TryGetComponent(out PlayerController playerController))
-        {
-            playerController.CancelAllActions();
-        }
-        if (interactor.TryGetComponent(out Rigidbody2D rigid))
-        {
-            rigid.linearVelocity = Vector2.zero;
-            rigid.position = new Vector2(_destination.position.x, _destination.position.y);
-        }
+        _effectOnPlayerEnter?.Stop();
         _teleportEffect?.Play();
 
-        SceneVisualEffectManager.Instance.TryFadeOut(0.25f);
+        LevelManager.Instance.TryCompleteStage();
     }
 }

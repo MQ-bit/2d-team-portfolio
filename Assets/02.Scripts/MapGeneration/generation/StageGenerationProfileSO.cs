@@ -14,6 +14,9 @@ public class StageGenerationProfileSO : ScriptableObject
     [SerializeField] private RoomDefinition[] _eliteRooms = Array.Empty<RoomDefinition>();
     [SerializeField] private RoomDefinition _endRoom;
 
+    [Header("Stage Objects")]
+    [SerializeField] private InteractablePortal _portalPrefab;
+
     [Header("Hallway Prefabs")]
     [SerializeField] private HallwayDefinition _horizontalHallway;
     [SerializeField] private HallwayDefinition _verticalHallway;
@@ -30,6 +33,7 @@ public class StageGenerationProfileSO : ScriptableObject
     public IReadOnlyList<RoomDefinition> NormalRooms => _normalRooms;
     public IReadOnlyList<RoomDefinition> EliteRooms => _eliteRooms;
     public RoomDefinition EndRoom => _endRoom;
+    public InteractablePortal PortalPrefab => _portalPrefab;
     public float AdditionalRoomChance => _additionalRoomChance;
     public float EliteRoomProbability => _eliteRoomProbability;
     public int MaxLayoutRetryCount => _maxLayoutRetryCount;
@@ -88,6 +92,18 @@ public class StageGenerationProfileSO : ScriptableObject
             return false;
         }
 
+        if (_portalPrefab == null)
+        {
+            error = "Portal 프리팹이 없습니다.";
+            return false;
+        }
+
+        if (_endRoom.PortalSpawnPoint == null)
+        {
+            error = "EndRoom 프리팹에 PortalSpawnPoint가 없습니다.";
+            return false;
+        }
+
         if (_horizontalHallway == null || _horizontalHallway.Orientation != HallwayOrientation.Horizontal)
         {
             error = "HorizontalHallway 설정이 유효하지 않습니다.";
@@ -99,6 +115,7 @@ public class StageGenerationProfileSO : ScriptableObject
             error = "VerticalHallway 설정이 유효하지 않습니다.";
             return false;
         }
+
 
         error = null;
         return true;

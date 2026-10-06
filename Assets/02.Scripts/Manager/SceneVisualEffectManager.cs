@@ -120,7 +120,7 @@ public class SceneVisualEffectManager : MonoBehaviour
         }
 
         bool acquiredInputLock = AcquireFadeInputLock();
-        bool accepted = _fadeController.TryTransition(onCovered, fadeOutDuration, coveredDuration, fadeInDuration, onCompleted);
+        bool accepted = _fadeController.TryTransition(onCovered, fadeOutDuration, coveredDuration, fadeInDuration, CreateFadeInCompletedHandler(onCompleted));
 
         if (!accepted && acquiredInputLock)
         {

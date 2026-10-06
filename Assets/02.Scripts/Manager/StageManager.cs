@@ -48,6 +48,9 @@ public sealed class StageManager : MonoBehaviour
 
     public GeneratedStage CurrentStage { get; private set; }
     public GeneratedRoomNode CurrentRoom { get; private set; }
+    
+    public Transform PlayerSpawnPoint { get; private set; }
+    public bool IsStageCleared { get; private set; }
 
     public StageState State { get; private set; } = StageState.Initializing;
 
@@ -79,16 +82,6 @@ public sealed class StageManager : MonoBehaviour
         _waveController.CombatFailed += HandleCombatFailed;
     }
 
-    private void Start()
-    {
-        if (_instance != this)
-        {
-            return;
-        }
-
-        InitializeStage();
-    }
-
     private void OnDisable()
     {
         if (_instance != this)
@@ -114,14 +107,14 @@ public sealed class StageManager : MonoBehaviour
         }
     }
 
-    private void InitializeStage()
+    public bool TryInitializeStage()
     {
         SetState(StageState.Initializing);
 
         if (!ValidateReferences(out string referenceError))
         {
             Debug.LogError($"{nameof(StageManager)} 초기화 실패: {referenceError}");
-            return;
+            return false;
         }
 
         GeneratedStage stage = _stageGenerator.CurrentStage;
@@ -129,18 +122,19 @@ public sealed class StageManager : MonoBehaviour
         if (stage == null && !_stageGenerator.TryGenerateConfigured(out stage, out StageFailure failure))
         {
             Debug.LogError($"Stage 생성 실패 [{failure.Code}]: {failure.Message}");
-            return;
+            return false;
         }
 
         if (!TryBindGeneratedStage(stage, out string bindError))
         {
             Debug.LogError($"Stage 전투 시스템 초기화 실패: {bindError}");
-            return;
+            return false;
         }
 
         SetState(StageState.Exploring);
 
         Debug.Log($"Stage 전투 시스템 초기화 완료: CombatRooms={_combatRooms.Count}");
+        return true;
     }
 
     private bool TryBindGeneratedStage(GeneratedStage stage, out string error)
@@ -157,12 +151,33 @@ public sealed class StageManager : MonoBehaviour
             return false;
         }
 
+        GeneratedRoomNode startRoomNode = null;
+
+        foreach (GeneratedRoomNode node in stage.RoomNodes)
+        {
+            if (node?.Room == null || node.Room.Type != RoomType.Start)
+            {
+                continue;
+            }
+
+            startRoomNode = node;
+            break;
+        }
+
+        if (startRoomNode?.Room.PlayerSpawnPoint == null)
+        {
+            error = "StartRoom에 PlayerSpawnPoint가 없습니다.";
+            return false;
+        }
+
         _roomRuntimeByNode.Clear();
         _combatRooms.Clear();
         _currentCombatRoom = null;
 
         CurrentStage = stage;
         CurrentRoom = null;
+        PlayerSpawnPoint = startRoomNode.Room.PlayerSpawnPoint;
+        IsStageCleared = false;
 
         foreach (GeneratedRoomNode node in stage.RoomNodes)
         {
@@ -197,7 +212,6 @@ public sealed class StageManager : MonoBehaviour
             return false;
         }
 
-        // 모든 전투 방의 초기 문 상태: 입구 Open, 출구 Closed
         foreach (RoomRuntime room in _combatRooms)
         {
             room.Progress = RoomProgressState.Unvisited;
@@ -309,6 +323,8 @@ public sealed class StageManager : MonoBehaviour
         }
 
         _waveStartTrigger.Unbind();
+        IsStageCleared = true;
+
         Debug.Log("Stage의 모든 전투 방이 완료됐습니다.");
     }
 
@@ -435,5 +451,52 @@ public sealed class StageManager : MonoBehaviour
         }
 
         return node.Room.Type == RoomType.Normal || node.Room.Type == RoomType.Elite;
+    }
+
+    public bool TryRegenerateStage()
+    {
+        SetState(StageState.Initializing);
+
+        if (!ValidateReferences(out string referenceError))
+        {
+            Debug.LogError($"{nameof(StageManager)} 재생성 실패: {referenceError}");
+
+            return false;
+        }
+
+        ClearStageRuntime();
+
+        if (!_stageGenerator.TryRegenerateConfigured(out GeneratedStage stage, out StageFailure failure))
+        {
+            Debug.LogError($"Stage 재생성 실패 [{failure.Code}]: {failure.Message}");
+            return false;
+        }
+
+        if (!TryBindGeneratedStage(stage, out string bindError))
+        {
+            Debug.LogError($"Stage 전투 시스템 재설정 실패: {bindError}");
+            return false;
+        }
+
+        SetState(StageState.Exploring);
+
+        Debug.Log($"Stage 재생성 완료: Seed={stage.Seed}, CombatRooms={_combatRooms.Count}");
+
+        return true;
+    }
+
+    private void ClearStageRuntime()
+    {
+        _waveController?.CancelEncounter(true);
+        _waveStartTrigger?.Unbind();
+
+        _roomRuntimeByNode.Clear();
+        _combatRooms.Clear();
+
+        _currentCombatRoom = null;
+        CurrentRoom = null;
+        CurrentStage = null;
+        PlayerSpawnPoint = null;
+        IsStageCleared = false;
     }
 }
