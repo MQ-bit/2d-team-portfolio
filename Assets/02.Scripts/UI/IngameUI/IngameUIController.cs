@@ -147,7 +147,7 @@ public class IngameUIController : MonoBehaviour
         _previousTimeScale = Time.timeScale;
         _isPotionInformationOpen = true;
 
-        _player?.SetGamePlayInputEnabled(false);
+        _player?.AcquireGamePlayInputLock(this);
         _potionInformationHUD.SetActive(true);
         Time.timeScale = _pauseTimeScale;
     }
@@ -160,7 +160,7 @@ public class IngameUIController : MonoBehaviour
         }
 
         _isPotionInformationOpen = false;
-        _player?.SetGamePlayInputEnabled(true);
+        _player?.ReleaseGamePlayInputLock(this);
         if (_potionInformationHUD != null)
         {
             _potionInformationHUD.SetActive(false);

@@ -1,5 +1,5 @@
-using UnityEngine;
 using Interactable;
+using UnityEngine;
 
 public class InteractablePortal : MonoBehaviour, IInteractable
 {
@@ -43,5 +43,7 @@ public class InteractablePortal : MonoBehaviour, IInteractable
             rigid.position = new Vector2(_destination.position.x, _destination.position.y);
         }
         _teleportEffect?.Play();
+
+        SceneVisualEffectManager.Instance.TryFadeOut(0.25f);
     }
 }
