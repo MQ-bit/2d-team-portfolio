@@ -181,6 +181,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ItemSlotChangeScroll"",
+                    ""type"": ""Value"",
+                    ""id"": ""1d9cb4c9-5e0d-4387-b77c-0b865c7732ef"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -381,6 +391,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""InteractionStart"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fa72d6dd-282c-436a-9bbe-c4a6669cfc31"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChangeScroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -404,6 +425,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_ToggleAttackMode = m_Player.FindAction("ToggleAttackMode", throwIfNotFound: true);
         m_Player_ToggleInformationTab = m_Player.FindAction("ToggleInformationTab", throwIfNotFound: true);
         m_Player_InteractionStart = m_Player.FindAction("InteractionStart", throwIfNotFound: true);
+        m_Player_ItemSlotChangeScroll = m_Player.FindAction("ItemSlotChangeScroll", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -493,6 +515,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ToggleAttackMode;
     private readonly InputAction m_Player_ToggleInformationTab;
     private readonly InputAction m_Player_InteractionStart;
+    private readonly InputAction m_Player_ItemSlotChangeScroll;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -540,6 +563,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/InteractionStart".
         /// </summary>
         public InputAction @InteractionStart => m_Wrapper.m_Player_InteractionStart;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ItemSlotChangeScroll".
+        /// </summary>
+        public InputAction @ItemSlotChangeScroll => m_Wrapper.m_Player_ItemSlotChangeScroll;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -593,6 +620,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InteractionStart.started += instance.OnInteractionStart;
             @InteractionStart.performed += instance.OnInteractionStart;
             @InteractionStart.canceled += instance.OnInteractionStart;
+            @ItemSlotChangeScroll.started += instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.performed += instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.canceled += instance.OnItemSlotChangeScroll;
         }
 
         /// <summary>
@@ -631,6 +661,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @InteractionStart.started -= instance.OnInteractionStart;
             @InteractionStart.performed -= instance.OnInteractionStart;
             @InteractionStart.canceled -= instance.OnInteractionStart;
+            @ItemSlotChangeScroll.started -= instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.performed -= instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.canceled -= instance.OnItemSlotChangeScroll;
         }
 
         /// <summary>
@@ -747,5 +780,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractionStart(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemSlotChangeScroll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemSlotChangeScroll(InputAction.CallbackContext context);
     }
 }

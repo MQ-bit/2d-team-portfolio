@@ -53,9 +53,9 @@ public class RoomDefinition : MonoBehaviour
 
     public bool TryGetConnector(ConnectorDirection direction, out RoomConnector connector)
     {
-        foreach(RoomConnector candidate in _connectors)
+        foreach (RoomConnector candidate in _connectors)
         {
-            if(candidate == null || candidate.Direction != direction)
+            if (candidate == null || candidate.Direction != direction)
             {
                 continue;
             }
@@ -71,7 +71,7 @@ public class RoomDefinition : MonoBehaviour
     public bool TryCarveConnector(ConnectorDirection direction, out int removedTileCount)
     {
         removedTileCount = 0;
-        if(_wallTilemap == null || !TryGetConnector(direction, out RoomConnector connector))
+        if (_wallTilemap == null || !TryGetConnector(direction, out RoomConnector connector))
         {
             return false;
         }
@@ -82,7 +82,7 @@ public class RoomDefinition : MonoBehaviour
 
     public void RefreshWallCollider()
     {
-        if(_wallCollider == null)
+        if (_wallCollider == null)
         {
             Debug.LogError($"{name} : WallTilemapCollider2D is not assigned. Cannot refresh collider.");
             return;
@@ -115,7 +115,7 @@ public class RoomDefinition : MonoBehaviour
                 errors.Add($"{name}: CompositeCollider2D가 없습니다.");
             }
 
-            Rigidbody2D rigidbody2D =_wallCollider.GetComponent<Rigidbody2D>();
+            Rigidbody2D rigidbody2D = _wallCollider.GetComponent<Rigidbody2D>();
 
             if (rigidbody2D == null)
             {
@@ -149,13 +149,13 @@ public class RoomDefinition : MonoBehaviour
                     {
                         errors.Add($"{name}: PlayerSpawnPoint가 없습니다.");
                     }
-                    break;                    
+                    break;
                 }
 
             case RoomType.Normal:
             case RoomType.Elite:
                 {
-                    
+
                     if (_enemySpawnPoints == null || _enemySpawnPoints.Length == 0)
                     {
                         errors.Add($"{name}: EnemySpawnPoint가 없습니다.");
@@ -179,7 +179,7 @@ public class RoomDefinition : MonoBehaviour
                     {
                         errors.Add($"{name}: PortalSpawnPoint가 없습니다.");
                     }
-                    break;                    
+                    break;
                 }
         }
     }
@@ -226,7 +226,7 @@ public class RoomDefinition : MonoBehaviour
                 errors.Add($"{name}/{connector.name}: 입구 폭이 10칸이 아닙니다.");
             }
 
-            if (_wallTilemap != null &&!connector.ContainsWallTile(_wallTilemap))
+            if (_wallTilemap != null && !connector.ContainsWallTile(_wallTilemap))
             {
                 errors.Add($"{name}/{connector.name}: CarveArea 안에 Wall 타일이 없습니다.");
             }

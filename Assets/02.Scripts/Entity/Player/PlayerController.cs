@@ -76,9 +76,11 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnPrimaryActionStart += HandlePrimaryActionStart;
         _inputSO.OnPrimaryActionEnd += HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
+        _inputSO.OnItemSlotChangedScrolled += HandleItemSlotChangedScroll;
         _inputSO.OnDrinkInputChanged += HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested += HandleMeleeToggleRequested;
         _inputSO.OnInteractInputChanged += HandleInteractInputChanged;
+
     }
 
     private void UnLinkInputEvents()
@@ -87,6 +89,7 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnPrimaryActionStart -= HandlePrimaryActionStart;
         _inputSO.OnPrimaryActionEnd -= HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
+        _inputSO.OnItemSlotChangedScrolled -= HandleItemSlotChangedScroll;
         _inputSO.OnDrinkInputChanged -= HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested -= HandleMeleeToggleRequested;
         _inputSO.OnInteractInputChanged -= HandleInteractInputChanged;
@@ -146,6 +149,17 @@ public class PlayerController : MonoBehaviour
 
         _inventoryModule.SelectSlot(newSlotIndex);
     }
+
+    private void HandleItemSlotChangedScroll(int direction)
+    {
+        if (!CanReadInput || _drinkingModule.IsDrinking)
+        {
+            return;
+        }
+
+        _inventoryModule.SelectRelativeSlot(direction);
+    }
+
 
     private void HandleDrinkInputChanged(bool isHolding)
     {

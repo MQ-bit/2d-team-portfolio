@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 internal static class StageMaterializer
 {
-   public static bool TryBuild(StageBuildContext context, out GeneratedStage stage, out StageFailure failure)
+    public static bool TryBuild(StageBuildContext context, out GeneratedStage stage, out StageFailure failure)
     {
         stage = null;
 
@@ -230,7 +230,7 @@ internal static class StageMaterializer
             context.RootParent == null ||
             context.Profile == null)
         {
-            failure = new StageFailure( StageFailureCode.InvalidRequest, "StageBuildContext 구성이 유효하지 않습니다.");
+            failure = new StageFailure(StageFailureCode.InvalidRequest, "StageBuildContext 구성이 유효하지 않습니다.");
 
             return false;
         }

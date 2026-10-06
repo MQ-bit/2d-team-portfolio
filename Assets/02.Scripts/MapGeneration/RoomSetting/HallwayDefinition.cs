@@ -7,7 +7,7 @@ public class HallwayDefinition : MonoBehaviour
 {
     private const float Distance_Tolerance = 0.001f;
     private const float Expected_Length = 30f; // 복도 길이의 기대값
-    
+
     [Header("Hallway")]
     [SerializeField] private HallwayOrientation _orientation;
     [SerializeField] private Bounds _localBounds;
@@ -16,7 +16,7 @@ public class HallwayDefinition : MonoBehaviour
     [SerializeField] private RoomConnector[] _connectors = Array.Empty<RoomConnector>();
 
     [Header("Collider")]
-    [SerializeField] private TilemapCollider2D  _wallCollider;
+    [SerializeField] private TilemapCollider2D _wallCollider;
 
     public HallwayOrientation Orientation => _orientation;
     public Bounds LocalBounds => _localBounds;
@@ -41,9 +41,9 @@ public class HallwayDefinition : MonoBehaviour
     /// <returns></returns>
     public bool TryGetConnector(ConnectorDirection direction, out RoomConnector connector)
     {
-        foreach(RoomConnector candidate in _connectors)
+        foreach (RoomConnector candidate in _connectors)
         {
-            if(candidate == null || candidate.Direction != direction)
+            if (candidate == null || candidate.Direction != direction)
             {
                 continue;
             }
@@ -63,7 +63,7 @@ public class HallwayDefinition : MonoBehaviour
             return;
         }
 
-        if (_localBounds.size.x <= 0f ||_localBounds.size.y <= 0f)
+        if (_localBounds.size.x <= 0f || _localBounds.size.y <= 0f)
         {
             errors.Add($"{name}: LocalBounds 크기가 유효하지 않습니다.");
         }
@@ -118,7 +118,7 @@ public class HallwayDefinition : MonoBehaviour
         {
             if (_wallCollider.compositeOperation != Collider2D.CompositeOperation.Merge)
             {
-                errors.Add( $"{name}: TilemapCollider2D의 Composite Operation이 Merge가 아닙니다.");
+                errors.Add($"{name}: TilemapCollider2D의 Composite Operation이 Merge가 아닙니다.");
             }
 
             Rigidbody2D rigidbody2D = _wallCollider.GetComponent<Rigidbody2D>();
