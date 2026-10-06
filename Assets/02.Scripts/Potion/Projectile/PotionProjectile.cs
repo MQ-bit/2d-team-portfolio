@@ -10,7 +10,7 @@ public class PotionProjectile : MonoBehaviour
     [SerializeField] private SpriteRenderer _renderer;
 
     [Header("Wall Collision")]
-    [Tooltip("비워두면 Tilemap_Wall의 Collider만 검사한다. 지정하면 해당 레이어의 일반 Collider도 벽으로 처리한다.")]
+    [Tooltip("비워두면 Wall 레이어를 검사하고, Wall이 없으면 Tilemap_Wall을 검사한다. 지정하면 해당 레이어를 사용한다.")]
     [SerializeField] private LayerMask _wallCollisionLayers;
     [Tooltip("벽 충돌면에서 바깥 방향으로 장판 중심을 띄우는 간격")]
     [SerializeField, Min(0.01f)] private float _wallGroundClearance = 0.15f;

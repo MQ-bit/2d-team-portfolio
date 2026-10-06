@@ -24,11 +24,22 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     [SerializeField] private float _failedDropArcHeight = 0.75f;
     [SerializeField] private float _reactivateDelay = 1f;
 
+    [Header("Drop Wall Collision")]
+    [Tooltip("비워두면 Wall 레이어를 검사하고, Wall이 없으면 Tilemap_Wall을 검사한다.")]
+    [SerializeField] private LayerMask _dropWallLayers;
+    [SerializeField, Min(0.01f)] private float _dropWallPadding = 0.05f;
+    [SerializeField, Min(0.01f)] private float _wallLandingDuration = 0.2f;
+
+    private readonly Entity.Inventory.PotionWallCollision _wallCollision = new();
+
     private PotionItem _nowItemData;
 
     private WaitForSeconds _waitForReactivate;
     private Collider2D _collider;
     private Coroutine _collectionRoutine;
+    private Coroutine _dropRoutine;
+    private Vector3 _dropTarget;
+    private bool _isDropping;
 
     private Vector3 _originalPosition;
     private bool _isCollecting;
@@ -45,6 +56,18 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         if (_isBeingDestroyed)
         {
             return;
+        }
+
+        if (_dropRoutine != null)
+        {
+            StopCoroutine(_dropRoutine);
+            _dropRoutine = null;
+        }
+
+        if (_isDropping)
+        {
+            transform.position = _dropTarget;
+            _isDropping = false;
         }
 
         if (_collectionRoutine != null)
@@ -81,9 +104,94 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         _renderer.sprite = _nowItemData.BottleSprite;
     }
 
+    public bool CanSpawnAt(Vector3 position)
+    {
+        Collider2D itemCollider = _collider != null ? _collider : GetComponentInChildren<Collider2D>();
+        _wallCollision.Configure(itemCollider, transform, _dropWallLayers);
+        return _wallCollision.IsPositionClear(position);
+    }
+
+    public bool TryGetSpawnPosition(Vector3 origin, out Vector3 position)
+    {
+        Collider2D itemCollider = _collider != null ? _collider : GetComponentInChildren<Collider2D>();
+        _wallCollision.Configure(itemCollider, transform, _dropWallLayers);
+        return _wallCollision.TryGetSpawnPosition(origin, _dropWallPadding, out position);
+    }
+
+    public void PlayDropFlight(Vector3 target, float duration, float arcHeight)
+    {
+        if (!isActiveAndEnabled || _isCollecting || _isDropping) return;
+
+        _dropTarget = target;
+        _isDropping = true;
+        _wallCollision.Configure(_collider, transform, _dropWallLayers);
+        SetCollidersEnabled(false);
+        _dropRoutine = StartCoroutine(DropFlightCoroutine(Mathf.Max(0.01f, duration), Mathf.Max(0f, arcHeight)));
+    }
+
+    private IEnumerator DropFlightCoroutine(float duration, float arcHeight)
+    {
+        Vector3 start = transform.position;
+        Vector3 target = _dropTarget;
+        Vector3 lastSafeGround = start;
+        float elapsed = 0f;
+        float previousT = 0f;
+
+        while (elapsed < duration)
+        {
+            // 첫 프레임은 상자 위치에서 표시하고 Start의 포션 초기화를 기다린다.
+            yield return null;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            if (_wallCollision.TryTrace(start, target, arcHeight, previousT, t,
+                    _dropWallPadding, out PotionThrowPrediction hit))
+            {
+                // 투척용 검사 결과만 사용한다. 아이템은 깨뜨리지 않고 착지시킨다.
+                _dropTarget = _wallCollision.GetLandingPosition(hit, lastSafeGround);
+                transform.position = hit.ImpactPosition;
+                yield return LandAfterWallHit(hit.ImpactPosition, _dropTarget);
+                break;
+            }
+
+            Vector3 ground = ThrowTrajectory.EvaluateGroundPoint(start, target, t);
+            if (_wallCollision.IsPositionClear(ground) && _wallCollision.IsPathClear(lastSafeGround, ground))
+            {
+                lastSafeGround = ground;
+            }
+
+            transform.position = ThrowTrajectory.EvaluateVisualPoint(start, target, arcHeight, t);
+            previousT = t;
+        }
+
+        // 충돌이 없더라도 포션 크기를 포함해 최종 착지점을 확인한다.
+        if (!_wallCollision.IsPositionClear(_dropTarget)) _dropTarget = lastSafeGround;
+        transform.position = _dropTarget;
+        // 착지 후에도 1초 동안 수집을 막는다.
+        yield return new WaitForSeconds(1f);
+
+        _dropRoutine = null;
+        _isDropping = false;
+        SetCollidersEnabled(true);
+    }
+
+    private IEnumerator LandAfterWallHit(Vector3 impact, Vector3 ground)
+    {
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, _wallLandingDuration);
+        while (elapsed < duration)
+        {
+            yield return null;
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            transform.position = Vector3.Lerp(impact, ground, t);
+        }
+        transform.position = ground;
+    }
+
     public bool TryCollect(IItemReceiver receiver, Transform collectTarget, float collectRadius)
     {
-        if (!isActiveAndEnabled || _isCollecting || receiver == null || collectTarget == null)
+        if (!isActiveAndEnabled || _isCollecting || _isDropping || receiver == null || collectTarget == null)
         {
             return false;
         }

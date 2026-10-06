@@ -4,16 +4,32 @@ using UnityEngine;
 // Wall identification is shared by flight and floor clipping. No potion state here.
 internal static class PotionWallQuery
 {
-    internal static ContactFilter2D Filter(LayerMask layers) => new()
+    private static LayerMask ResolveLayers(LayerMask layers)
     {
-        useTriggers = false,
-        useLayerMask = true,
-        layerMask = layers.value != 0 ? layers : (LayerMask)Physics2D.DefaultRaycastLayers
-    };
+        return layers.value != 0 ? layers : (LayerMask)LayerMask.GetMask("Wall");
+    }
 
-    internal static bool IsWall(Collider2D collider, LayerMask layers) => collider != null &&
-        (layers.value != 0 ? (layers.value & (1 << collider.gameObject.layer)) != 0
-            : collider.gameObject.name == "Tilemap_Wall");
+    internal static ContactFilter2D Filter(LayerMask layers)
+    {
+        LayerMask resolvedLayers = ResolveLayers(layers);
+        return new ContactFilter2D
+        {
+            useTriggers = false,
+            useLayerMask = true,
+            layerMask = resolvedLayers.value != 0
+                ? resolvedLayers : (LayerMask)Physics2D.DefaultRaycastLayers
+        };
+    }
+
+    internal static bool IsWall(Collider2D collider, LayerMask layers)
+    {
+        if (collider == null) return false;
+
+        LayerMask resolvedLayers = ResolveLayers(layers);
+        return resolvedLayers.value != 0
+            ? (resolvedLayers.value & (1 << collider.gameObject.layer)) != 0
+            : collider.gameObject.name == "Tilemap_Wall";
+    }
 
     internal static List<Vector2[]> FindPolygons(Rect bounds, LayerMask layers)
     {
