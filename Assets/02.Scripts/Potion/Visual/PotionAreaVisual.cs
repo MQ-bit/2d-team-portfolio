@@ -16,6 +16,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
     [SerializeField, Min(0f)] private float _fadeDuration = 0.4f;
 
     private readonly PotionAreaSurfaceRenderer _surfaceRenderer = new();
+    private readonly PotionHealingSpringRenderer _healingSpring = new();
+    private readonly PotionFireVortexRenderer _fireVortex = new();
     private SpriteRenderer _renderer;
     private PotionPuddleShape _puddle;
     private PotionAreaFootprint _footprint;
@@ -49,6 +51,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
             PotionAreaSurfaceStyle.Bubbles => new Vector4(0.65f, 0.7f, 1f, 0.7f),
             PotionAreaSurfaceStyle.Frost => new Vector4(0.2f, 0.12f, 1f, 0.75f),
             PotionAreaSurfaceStyle.Life => new Vector4(0.55f, 0.25f, 0.8f, 0.65f),
+            PotionAreaSurfaceStyle.HealingSpring => new Vector4(0.8f, 0.15f, 1f, 0.8f),
+            PotionAreaSurfaceStyle.FireVortex => new Vector4(1.6f, 0.7f, 1f, 1f),
             PotionAreaSurfaceStyle.Electricity => new Vector4(2.2f, 0.4f, 1f, 0.65f),
             PotionAreaSurfaceStyle.Mist => new Vector4(0.8f, 0.8f, 0.8f, 0.6f),
             PotionAreaSurfaceStyle.Cracks => new Vector4(0.3f, 0.2f, 1f, 0.8f),
@@ -61,6 +65,9 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         Color previousColor = _surfaceRenderer.IsBound ? _currentColor : color;
         _surfaceRenderer.Restore();
+        _healingSpring.Hide();
+        _fireVortex.Hide();
+        _fireVortex.SetFootprint(null);
         _puddle = null;
         _footprint = null;
         _surfaceRenderer.SetFootprint(null);
@@ -74,6 +81,10 @@ public sealed class PotionAreaVisual : MonoBehaviour
         _currentColor = _fromColor;
         _startedAt = Time.time;
         _colorChangedAt = _startedAt;
+        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
+            _healingSpring.Bind(renderer, this);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+            _fireVortex.Bind(renderer, this);
         ApplyProperties();
     }
 
@@ -90,6 +101,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         _footprint = footprint;
         _surfaceRenderer.SetFootprint(footprint);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+            _fireVortex.SetFootprint(footprint);
         if (_surfaceRenderer.IsBound) ApplyProperties();
     }
 
@@ -107,7 +120,12 @@ public sealed class PotionAreaVisual : MonoBehaviour
 
     private void Update()
     {
-        if (!_surfaceRenderer.IsBound || _renderer == null || !_renderer.enabled) return;
+        if (!_surfaceRenderer.IsBound || _renderer == null || !_renderer.enabled)
+        {
+            _healingSpring.Hide();
+            _fireVortex.Hide();
+            return;
+        }
         _flowTime += Time.deltaTime * _flowSpeed * _styleSettings.x;
         ApplyProperties();
     }
@@ -125,6 +143,14 @@ public sealed class PotionAreaVisual : MonoBehaviour
         float fade = _fadeDuration > 0f
             ? Mathf.Clamp01((_expiresAt - Time.time) / _fadeDuration) : 1f;
         Visibility = Mathf.SmoothStep(0f, 1f, appear) * fade;
+        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
+        {
+            _healingSpring.Apply(_renderer, _currentColor, _accentColor, _flowTime,
+                Visibility * _opacity);
+        }
+
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+            _fireVortex.Apply(_renderer, _accentColor, _flowTime, Visibility * _opacity);
 
         _surfaceRenderer.Apply(
             _spread != null ? _targetColor : _currentColor, _accentColor,
@@ -151,9 +177,16 @@ public sealed class PotionAreaVisual : MonoBehaviour
 
     private void OnDisable()
     {
+        _healingSpring.Hide();
+        _fireVortex.Hide();
         _surfaceRenderer.Restore();
         Visibility = 1f;
     }
 
-    private void OnDestroy() => _surfaceRenderer.Release();
+    private void OnDestroy()
+    {
+        _healingSpring.Release();
+        _fireVortex.Release();
+        _surfaceRenderer.Release();
+    }
 }

@@ -181,7 +181,17 @@ Shader "Potion/Area"
             float edge = 0.965 + (flow * 2.0 - 1.0) * _Surface.x;
             if (_PuddleFrame.w > 0.5) edge = 1.0 - flow * _Surface.x;
             float style = _Surface.w;
-            float softness = max(fwidth(radius) * 1.5, style > 5.5 && style < 6.5 ? 0.09 : 0.015);
+            if (style > 9.5)
+            {
+                // Reuse smooth flowing noise for an uneven, breathing flame boundary.
+                // Keep the deformation inside the visible quad and the gameplay footprint.
+                float flameWobble = min(_Surface.x * 6.5, 0.11);
+                edge -= flameWobble * (1.0 - flow) + flameWobble * 0.55 * (0.5 - fine);
+                edge = min(edge, 0.985);
+            }
+            float edgeSoftness = style > 9.5 ? 0.06 + (1.0 - fine) * 0.035
+                : style > 5.5 && style < 6.5 ? 0.09 : 0.015;
+            float softness = max(fwidth(radius) * 1.5, edgeSoftness);
             float mask = 1.0 - smoothstep(edge - softness, edge, radius);
             float rim = smoothstep(edge - 0.09, edge - 0.025, radius) * mask;
             float ripple = pow(saturate(0.5 + 0.5 * sin(radius * 25.0 - t * 4.0 + flow * 4.0)), 8.0);
@@ -234,6 +244,31 @@ Shader "Potion/Area"
                 coverage = 0.35 + cloud * 0.65;
                 rim *= 0.25;
             }
+            else if (style > 9.5) // Fire: visible heated footprint, soot and scattered coals.
+            {
+                float soot = Noise(q * 4.0 + seed);
+                float coals = smoothstep(0.58, 0.85, fine) * smoothstep(0.25, 0.65, soot);
+                float boundary = smoothstep(edge - 0.16, edge - 0.035, radius);
+                pattern = coals * 0.65 + boundary * (0.18 + fine * 0.85);
+                shade = 0.4 + soot * 0.3;
+                // A continuous translucent base makes the entire effect radius readable.
+                coverage = saturate(0.64 + soot * 0.12 + boundary * 0.18 + coals * 0.16);
+                pulse = 1.0;
+                rim = 0.0;
+            }
+            else if (style > 7.5) // Healing spring: transparent water, foam and expanding rings.
+            {
+                float wave = frac(radius * 2.7 - t * 0.55);
+                float rings = exp(-pow((wave - 0.5) * 19.0, 2.0));
+                float glow = exp(-radius * radius * 14.0);
+                float foam = smoothstep(0.55, 0.85, fine) * smoothstep(0.5, 0.9, radius);
+                float glints = Sparkles(q * 6.0 + seed, t);
+                pattern = rings * 0.85 + glow * 0.8 + foam * 0.5 + glints;
+                coverage = 0.12 + rings * 0.4 + glow * 0.65 + foam * 0.25 + glints * 0.5;
+                shade = 0.9 + flow * 0.1;
+                pulse = 0.95 + sin(t * 1.7) * 0.05;
+                rim *= 0.65;
+            }
             else if (style > 6.5) // Thermal shock / thorn VFX: stable fractures with a pulse.
             {
                 pattern = Cracks(q * 3.0 + seed) * (0.45 + sin(t * 3.0) * 0.15);
@@ -241,6 +276,17 @@ Shader "Potion/Area"
             }
             float highlight = saturate(rim * 0.25 + detail * pattern);
             float3 color = lerp(_AreaColor.rgb * shade, _AccentColor.rgb, highlight);
+            if (style > 9.5)
+            {
+                float soot = Noise(q * 4.0 + seed);
+                float boundary = smoothstep(edge - 0.16, edge - 0.035, radius);
+                float3 ash = lerp(float3(0.24, 0.025, 0.018), _AreaColor.rgb, soot);
+                float3 heatColor = lerp(float3(0.78, 0.035, 0.018), float3(1.0, 0.24, 0.045), flow);
+                float3 edgeColor = lerp(heatColor, _AccentColor.rgb, fine * 0.18);
+                color = lerp(ash, heatColor, 0.4 + smoothstep(0.25, 0.8, flow) * 0.4);
+                color = lerp(color, edgeColor, boundary * (0.25 + fine * 0.6));
+                color = lerp(color, _AccentColor.rgb, saturate(detail * pattern) * 0.4);
+            }
             float colorAlpha = _AreaColor.a;
             if (_PuddleSpread.z > 0.5)
             {

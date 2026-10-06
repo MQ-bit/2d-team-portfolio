@@ -9,7 +9,9 @@ public enum PotionAreaSurfaceStyle
     Life = 4,
     Electricity = 5,
     Mist = 6,
-    Cracks = 7
+    Cracks = 7,
+    HealingSpring = 8,
+    FireVortex = 10
 }
 
 [System.Serializable]

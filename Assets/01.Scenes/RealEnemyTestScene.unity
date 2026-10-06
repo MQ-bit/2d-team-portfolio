@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 71220663}
   - component: {fileID: 71220662}
   - component: {fileID: 71220664}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98032,6 +98032,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &166432124
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -98312,6 +98317,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &455387278
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -99346,6 +99356,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &619315089
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -99521,6 +99536,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &706163261
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -100142,6 +100162,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1324443345
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -100317,6 +100342,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1363891319
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -100554,6 +100584,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1616609002
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -100764,6 +100799,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1756616291
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -133851,6 +133891,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1872098842
 CircleCollider2D:
   m_ObjectHideFlags: 0
