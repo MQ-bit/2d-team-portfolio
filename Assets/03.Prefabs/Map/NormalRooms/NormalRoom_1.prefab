@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2841748199050974929}
   - component: {fileID: 5111151646025675386}
+  - component: {fileID: 211889995716581805}
   m_Layer: 0
   m_Name: North
   m_TagString: Untagged
@@ -48,6 +49,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -3, y: 20, z: 0}
     m_Size: {x: 10, y: 5, z: 1}
+--- !u!114 &211889995716581805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 81025848608873013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 2841748199050974929}
+  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &916146820600668317
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,6 +108,7 @@ GameObject:
   m_Component:
   - component: {fileID: 318081536043288904}
   - component: {fileID: 6219421600922436050}
+  - component: {fileID: 290125237742687014}
   m_Layer: 0
   m_Name: West
   m_TagString: Untagged
@@ -129,6 +147,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -14, y: 0, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &290125237742687014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390513605918296320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 318081536043288904}
+  _triggerLocalCenter: {x: -0.5, y: -1.5}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &1646814089625663422
 GameObject:
   m_ObjectHideFlags: 0
@@ -10429,7 +10463,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cd939748cba286499f4a40b0e6bfe45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterController
-  _doorPrefab: {fileID: 0}
+  _doorPrefab: {fileID: 7956813577499729695, guid: c5540b89f1468db47b545826e95ab352, type: 3}
 --- !u!1 &3322572700740083283
 GameObject:
   m_ObjectHideFlags: 0
@@ -15600,6 +15634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3681260055437759145}
   - component: {fileID: 3285103311081527317}
+  - component: {fileID: 7293578878846981470}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -15638,6 +15673,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -3, y: -10, z: 0}
     m_Size: {x: 10, y: 1, z: 1}
+--- !u!114 &7293578878846981470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3931246686671133086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 3681260055437759145}
+  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &4249414452999165108
 GameObject:
   m_ObjectHideFlags: 0
@@ -15710,6 +15761,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3889489354991081338}
   - component: {fileID: 6235477639361820137}
+  - component: {fileID: 7117261071660958456}
   m_Layer: 0
   m_Name: East
   m_TagString: Untagged
@@ -15748,3 +15800,19 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: 16, y: 0, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &7117261071660958456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7547823240238387103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 3889489354991081338}
+  _triggerLocalCenter: {x: 0.5, y: -1.5}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0

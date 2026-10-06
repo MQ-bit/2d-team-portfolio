@@ -20343,6 +20343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2995592375489972713}
   - component: {fileID: 844153927050558806}
+  - component: {fileID: 481697239321528573}
   m_Layer: 0
   m_Name: East
   m_TagString: Untagged
@@ -20381,6 +20382,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: 44, y: 13, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &481697239321528573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5542299852766082229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 2995592375489972713}
+  _triggerLocalCenter: {x: 0.5, y: -1.5}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &5799855929050310056
 GameObject:
   m_ObjectHideFlags: 0
@@ -20422,6 +20439,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7280312231077629497}
   - component: {fileID: 8661896814999549259}
+  - component: {fileID: 2352009461744490710}
   m_Layer: 0
   m_Name: North
   m_TagString: Untagged
@@ -20460,6 +20478,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: 17, y: 37, z: 0}
     m_Size: {x: 10, y: 5, z: 1}
+--- !u!114 &2352009461744490710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6236121946791088085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 7280312231077629497}
+  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &6399066745750266393
 GameObject:
   m_ObjectHideFlags: 0
@@ -20537,6 +20571,7 @@ GameObject:
   - component: {fileID: 2611948415477512796}
   - component: {fileID: 6359132995291937355}
   - component: {fileID: -557248732941417263}
+  - component: {fileID: 996267725250920950}
   m_Layer: 0
   m_Name: EliteRoom_1
   m_TagString: Untagged
@@ -20604,6 +20639,19 @@ MonoBehaviour:
   _enemySpawnPoints:
   - {fileID: 3465549625331249033}
   - {fileID: 4811347853066133399}
+--- !u!114 &996267725250920950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6998520843319022667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd939748cba286499f4a40b0e6bfe45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterController
+  _doorPrefab: {fileID: 7956813577499729695, guid: c5540b89f1468db47b545826e95ab352, type: 3}
 --- !u!1 &7187368473629843465
 GameObject:
   m_ObjectHideFlags: 0
@@ -20647,6 +20695,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4935401079971305516}
   - component: {fileID: 2787050871043928299}
+  - component: {fileID: 2483190515117057276}
   m_Layer: 0
   m_Name: West
   m_TagString: Untagged
@@ -20685,6 +20734,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -1, y: 13, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &2483190515117057276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7409042522046328904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 4935401079971305516}
+  _triggerLocalCenter: {x: -0.5, y: -1.5}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &7771285300840413457
 GameObject:
   m_ObjectHideFlags: 0
@@ -26722,6 +26787,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6249538479227270301}
   - component: {fileID: 4271118042051240110}
+  - component: {fileID: 1557683384517063875}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -26760,3 +26826,19 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: 17, y: -1, z: 0}
     m_Size: {x: 10, y: 1, z: 1}
+--- !u!114 &1557683384517063875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8441848285429882244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 6249538479227270301}
+  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
