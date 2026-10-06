@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 플레이어에게 상태이상이 걸려 있는 동안 화면 테두리에 상태별 연출을 띄운다.
+// 플레이어에게 상태이상이 걸려 있거나 그 상태를 거는 장판 위에 서 있는 동안 화면 테두리에 상태별 연출을 띄운다.
 // 화상은 일렁이는 불길, 중독은 맥동하는 독 얼룩, 빙결은 결정 무늬와 서리, 마비는 번쩍이는 전류. 모양은 UI/StatusVignette 셰이더가 그린다.
 // 상태가 걸리고 풀리는 이벤트가 없어서 매 프레임 PotionEffectReceiver에 남은 시간을 물어본다.
 // 오버레이 캔버스는 런타임에 직접 만들므로 씬에 따로 배치할 것이 없다.
@@ -123,6 +123,12 @@ public class StatusScreenVignette : MonoBehaviour
         {
             float remaining = _receiver != null ? _receiver.GetStatusRemainingTime(vignette.Status) : 0f;
             float targetAlpha = remaining > 0f ? _maxAlpha * Mathf.Clamp01(remaining / _fadeOutTime) : 0f;
+
+            // 장판 위에서는 상태가 아직 걸리지 않고 나갈 때 걸리므로, 그 장판 안에 있는 동안에도 띄운다.
+            if (_receiver != null && _receiver.IsInStatusArea(vignette.Status))
+            {
+                targetAlpha = _maxAlpha;
+            }
 
             if (_usePreview && vignette.Status == _previewStatus)
             {

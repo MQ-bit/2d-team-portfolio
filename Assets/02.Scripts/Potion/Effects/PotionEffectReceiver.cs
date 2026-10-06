@@ -177,4 +177,10 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         return _statusEffects.GetRemainingTime(status);
     }
+
+    // 상태 연출용 조회. 해당 상태를 거는 장판 위에 서 있는지 알려준다. (상태 자체는 아직 안 걸렸을 수 있다)
+    public bool IsInStatusArea(PotionStatusEffectTracker status)
+    {
+        return _areaEffects.HasStatus(status);
+    }
 }

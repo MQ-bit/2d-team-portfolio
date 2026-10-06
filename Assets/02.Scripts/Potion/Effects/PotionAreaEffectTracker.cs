@@ -76,6 +76,27 @@ public sealed class PotionAreaEffectTracker
         return false;
     }
 
+    // 밟고 있는 장판 중에 해당 상태를 거는 장판이 있는지. 상태 연출용 조회.
+    // 상태는 장판 안에서 주기적으로 걸리거나(FloorTick) 나갈 때 잔류로 걸리며(FloorExit), 빙결은 서리 스택으로 걸린다.
+    public bool HasStatus(PotionStatusEffectTracker status)
+    {
+        foreach (Entry entry in _sources.Values)
+        {
+            foreach (var effect in entry.Profile.GetEffects(PotionEffectPhase.FloorTick))
+                if (AppliesStatus(effect, status)) return true;
+            foreach (var effect in entry.Profile.GetEffects(PotionEffectPhase.FloorExit))
+                if (AppliesStatus(effect, status)) return true;
+        }
+
+        return false;
+    }
+
+    private static bool AppliesStatus(PotionEffectDefinition effect, PotionStatusEffectTracker status)
+    {
+        if (effect.Operation == PotionEffectOperation.ApplyStatus) return effect.Status == status;
+        return effect.Operation == PotionEffectOperation.AddFrostStacks && status == PotionStatusEffectTracker.Frozen;
+    }
+
     public void Pulse(int sourceId, double now,
         Action<PotionEffectDefinition, IPotionEffectData, PotionEffectSource> apply)
     {
