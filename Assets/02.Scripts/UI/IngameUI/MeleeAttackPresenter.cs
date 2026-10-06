@@ -44,7 +44,7 @@ public class MeleeAttackPresenter : MonoBehaviour
 
     private void UnlinkEventsAll()
     {
-        if (_meleeModule == null || _isSubscribed) return;
+        if (_meleeModule == null || !_isSubscribed) return;
         _meleeModule.OnMeleeModeChanged -= HandleMeleeModeChanged;
         _isSubscribed = false;
     }
