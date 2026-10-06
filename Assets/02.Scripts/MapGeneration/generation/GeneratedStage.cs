@@ -9,14 +9,50 @@ public class GeneratedStage
 {
     public GameObject Root { get; }
     public IReadOnlyList<RoomDefinition> Rooms { get; }
+    public IReadOnlyList<GeneratedRoomNode> RoomNodes { get; }
     public IReadOnlyList<HallwayDefinition> Hallways { get; }
-    public Bounds WorldBounds { get; }
 
-    public GeneratedStage(GameObject root, IReadOnlyList<RoomDefinition> rooms, IReadOnlyList<HallwayDefinition> hallways, Bounds worldBounds)
+    public Transform EnemiesRoot { get; }
+    public Transform TransientsRoot { get; }
+    public Transform PortalRoot { get; }
+
+    public Bounds WorldBounds { get; }
+    public int Seed { get; }
+
+    public GeneratedStage( //TODO : 매개변수 9개 제거 방법 고려
+        GameObject root,
+        IReadOnlyList<RoomDefinition> rooms,
+        IReadOnlyList<GeneratedRoomNode> roomNodes,
+        IReadOnlyList<HallwayDefinition> hallways,
+        Transform enemiesRoot,
+        Transform transientsRoot,
+        Transform portalRoot,
+        Bounds worldBounds,
+        int seed)
     {
         Root = root;
         Rooms = rooms;
+        RoomNodes = roomNodes;
         Hallways = hallways;
+        EnemiesRoot = enemiesRoot;
+        TransientsRoot = transientsRoot;
+        PortalRoot = portalRoot;
         WorldBounds = worldBounds;
+        Seed = seed;
+    }
+
+    public bool TryGetRoomContaining(Vector3 worldPosition, out GeneratedRoomNode node)
+    {
+        foreach (GeneratedRoomNode candidate in RoomNodes)
+        {
+            if (candidate?.Room != null && candidate.Room.WorldBounds.Contains(worldPosition))
+            {
+                node = candidate;
+                return true;
+            }
+        }
+
+        node = null;
+        return false;
     }
 }

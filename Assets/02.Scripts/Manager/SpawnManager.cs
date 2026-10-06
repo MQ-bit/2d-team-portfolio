@@ -70,8 +70,29 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    public bool TrySpawn(EnemySpawnRequest request, Transform spawnPoint, Transform parent, out WaveEnemyHandle handle)
+    {
+        handle = null;
+
+        if (request.Prefab == null || spawnPoint == null)
+        {
+            return false;
+        }
+
+        handle = Instantiate(request.Prefab, spawnPoint.position, spawnPoint.rotation, parent);
+        return handle != null;
+    }
+
     public void ClearEnemySpawnPoints()
     {
         _enemySpawnPoints.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
     }
 }

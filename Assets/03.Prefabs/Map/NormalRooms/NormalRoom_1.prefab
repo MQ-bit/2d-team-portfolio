@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2841748199050974929}
   - component: {fileID: 5111151646025675386}
+  - component: {fileID: 211889995716581805}
   m_Layer: 0
   m_Name: North
   m_TagString: Untagged
@@ -48,6 +49,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -3, y: 20, z: 0}
     m_Size: {x: 10, y: 5, z: 1}
+--- !u!114 &211889995716581805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 81025848608873013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 2841748199050974929}
+  _triggerLocalCenter: {x: 0, y: -2}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &916146820600668317
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,6 +108,7 @@ GameObject:
   m_Component:
   - component: {fileID: 318081536043288904}
   - component: {fileID: 6219421600922436050}
+  - component: {fileID: 290125237742687014}
   m_Layer: 0
   m_Name: West
   m_TagString: Untagged
@@ -129,6 +147,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -14, y: 0, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &290125237742687014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390513605918296320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 318081536043288904}
+  _triggerLocalCenter: {x: -0.5, y: -2}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &1646814089625663422
 GameObject:
   m_ObjectHideFlags: 0
@@ -10349,6 +10383,7 @@ GameObject:
   - component: {fileID: 8850454425212153612}
   - component: {fileID: 6882546389126430280}
   - component: {fileID: 239847982383109468}
+  - component: {fileID: -7168128058712272768}
   m_Layer: 0
   m_Name: NormalRoom_1
   m_TagString: Untagged
@@ -10416,6 +10451,19 @@ MonoBehaviour:
   _enemySpawnPoints:
   - {fileID: 1541530970848808563}
   - {fileID: 6182564303993465574}
+--- !u!114 &-7168128058712272768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2558594827466001242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd939748cba286499f4a40b0e6bfe45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterController
+  _doorPrefab: {fileID: 7956813577499729695, guid: c5540b89f1468db47b545826e95ab352, type: 3}
 --- !u!1 &3322572700740083283
 GameObject:
   m_ObjectHideFlags: 0
@@ -15469,71 +15517,9 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 623374989393307860}
-    m_ColliderPaths:
-    - - X: 180000000
-        Y: 250000000
-      - X: -140000000
-        Y: 250000000
-      - X: -140000000
-        Y: -100000000
-      - X: 180000000
-        Y: -100000000
-    - - X: -125000000
-        Y: -90000000
-      - X: -125000000
-        Y: 200000000
-      - X: -124375000
-        Y: 200000000
-      - X: -120000000
-        Y: 203124992
-      - X: 160000000
-        Y: 203124992
-      - X: 164375008
-        Y: 200000000
-      - X: 165000000
-        Y: 200000000
-      - X: 165000000
-        Y: -90000000
-    - - X: 44375000
-        Y: 36875000
-      - X: 44375000
-        Y: 83125000
-      - X: 43125000
-        Y: 84375000
-      - X: -3125000
-        Y: 84375000
-      - X: -4375000
-        Y: 83125000
-      - X: -4375000
-        Y: 36875000
-      - X: -3125000
-        Y: 35625000
-      - X: 43125000
-        Y: 35625000
+  m_ColliderPaths: []
   m_CompositePaths:
-    m_Paths:
-    - - {x: 17.999971, y: -10}
-      - {x: 17.999971, y: 25}
-      - {x: -14, y: 24.999971}
-      - {x: -13.999971, y: -10}
-    - - {x: 16.5, y: -8.99997}
-      - {x: -12.5, y: -8.99997}
-      - {x: -12.49997, y: 20}
-      - {x: -12.437493, y: 20.000006}
-      - {x: -11.999992, y: 20.3125}
-      - {x: 16.000006, y: 20.312494}
-      - {x: 16.43751, y: 20}
-      - {x: 16.5, y: 19.999971}
-    - - {x: 4.312489, y: 3.5625}
-      - {x: 4.4375, y: 3.6875107}
-      - {x: 4.4374924, y: 8.312508}
-      - {x: 4.312489, y: 8.4375}
-      - {x: -0.3125076, y: 8.437493}
-      - {x: -0.4375, y: 8.3124895}
-      - {x: -0.4374924, y: 3.6874924}
-      - {x: -0.3124892, y: 3.5625}
+    m_Paths: []
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -15570,7 +15556,7 @@ TilemapCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
@@ -15586,6 +15572,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3681260055437759145}
   - component: {fileID: 3285103311081527317}
+  - component: {fileID: 7293578878846981470}
   m_Layer: 0
   m_Name: South
   m_TagString: Untagged
@@ -15624,6 +15611,22 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: -3, y: -10, z: 0}
     m_Size: {x: 10, y: 1, z: 1}
+--- !u!114 &7293578878846981470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3931246686671133086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 3681260055437759145}
+  _triggerLocalCenter: {x: 0, y: -2}
+  _triggerSize: {x: 10, y: 3}
+  _triggerLocalAngle: 0
 --- !u!1 &4249414452999165108
 GameObject:
   m_ObjectHideFlags: 0
@@ -15696,6 +15699,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3889489354991081338}
   - component: {fileID: 6235477639361820137}
+  - component: {fileID: 7117261071660958456}
   m_Layer: 0
   m_Name: East
   m_TagString: Untagged
@@ -15734,3 +15738,19 @@ MonoBehaviour:
   _carveArea:
     m_Position: {x: 16, y: 0, z: 0}
     m_Size: {x: 2, y: 11, z: 1}
+--- !u!114 &7117261071660958456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7547823240238387103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb09cc35ee81e264c82e8a174a6783f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
+  _doorAnchor: {fileID: 3889489354991081338}
+  _triggerLocalCenter: {x: 0.5, y: -2}
+  _triggerSize: {x: 11.5, y: 3}
+  _triggerLocalAngle: 0
