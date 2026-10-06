@@ -17,7 +17,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
     [SerializeField, Min(0f)] private float _dropArcHeight = 0.5f;
 
     public Transform DropPoint => _dropPoint;
-    private bool _isOPened;
+    private bool _isOpened;
     private static readonly int OpenTrigger = Animator.StringToHash("Open");
 
     private void Awake()
@@ -47,16 +47,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
 
     public bool CanInteract(GameObject interactor)
     {
-        if (_isOPened || interactor == null || _dropPrefabs == null || _dropPrefabs.Count == 0)
-        {
-            return false;
-        }
-
-        foreach (PotionFieldItem prefab in _dropPrefabs)
-        {
-            if (prefab == null) return false;
-        }
-        return true;
+        return !_isOpened && interactor != null && _dropPrefabs != null && _dropPrefabs.Count > 0;
     }
 
     public void Interact(GameObject interactor)
@@ -64,7 +55,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
         if (!CanInteract(interactor)) return;
 
         //중복 개봉 방지
-        _isOPened = true;
+        _isOpened = true;
 
         if (_animator != null)
         {
