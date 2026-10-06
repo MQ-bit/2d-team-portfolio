@@ -48,12 +48,12 @@ public class SceneVisualEffectManager : MonoBehaviour
         _instance = this;
 
         ResolveReferences();
-        ContollerInitialize();
+        ControllerInitialize();
 
         ResetAllEffects();
     }
 
-    private void ContollerInitialize()
+    private void ControllerInitialize()
     {
         if (_wobbleController != null)
         {
