@@ -12,7 +12,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerInteractionModule _interactionModule;
     [SerializeField] private PlayerStatus _playerStatus;
 
-    public bool CanReadInput { get; private set; } = true;
+    private InputLockHandler _inputLock = new InputLockHandler();
+    public bool CanReadInput => _inputLock.CanReadInput;
+
     public Vector2 ReadableMoveInput => GetEffectiveMoveInput();
 
     private void Awake()
@@ -66,6 +68,7 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         UnLinkInputEvents();
+        _playerStatus.OnDeath -= HandleDeath;
         _throwingModule?.CancelAim();
         _interactionModule?.CancelInteraction();
     }
@@ -169,7 +172,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (_throwingModule.IsAiming || _movementModule.IsDashing || _meleeModule.IsSwinging)
+        if (!CanReadInput || _throwingModule.IsAiming || _movementModule.IsDashing || _meleeModule.IsSwinging)
         {
             return;
         }
@@ -215,15 +218,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void SetGamePlayInputEnabled(bool isEnabled)
+    public void AcquireGamePlayInputLock(object owner)
     {
-        if (CanReadInput == isEnabled) return;
-
-        CanReadInput = isEnabled;
-        if (!CanReadInput)
+        bool wasReadable = _inputLock.CanReadInput;
+        if (_inputLock.TryAcquireGamePlayInputLock(owner) && wasReadable)
         {
             CancelAllActions();
         }
+    }
+
+    public void ReleaseGamePlayInputLock(object owner)
+    {
+        _inputLock.TryReleaseGamePlayInputLock(owner);
     }
 
     private void CancelActionsConflictWithDash()
@@ -257,7 +263,7 @@ public class PlayerController : MonoBehaviour
     private void HandleDeath()
     {
         CancelAllActions();
-        SetGamePlayInputEnabled(false);
+        AcquireGamePlayInputLock(this);
     }
 
     private Vector2 GetEffectiveMoveInput()
