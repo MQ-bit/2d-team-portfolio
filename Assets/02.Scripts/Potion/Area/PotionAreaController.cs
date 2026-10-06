@@ -7,7 +7,9 @@ public class PotionAreaController : MonoBehaviour
     private const int EllipseSegments = 128;
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
+    [SerializeField, Range(0f, 1f)] private float _loopSoundVolume = 1f;
 
+    private static int _activationCount;
 
     private Collider2D _collider;
     private CircleCollider2D _impactCollider;
@@ -20,6 +22,10 @@ public class PotionAreaController : MonoBehaviour
     private bool _activated;
     private GameObject _areaVfx;
     private VFXBurstField _vfxField;
+    private AudioSource _loopSound;
+
+    // 장판이 깔린 순서. 값이 클수록 나중에 던져진 포션이다.
+    internal int ActivationOrder { get; private set; }
 
     public PotionData Data { get; private set; }
     public IDamageable Owner { get; private set; }
@@ -197,7 +203,11 @@ public class PotionAreaController : MonoBehaviour
             return;
         }
         _activated = true;
+        ActivationOrder = ++_activationCount;
         SetExpiration(Time.time + _duration);
+        // 조합에서 먼저 던져진 쪽의 소리를 끌 수 있도록 조합 탐색보다 먼저 재생한다.
+        // 기화는 장판을 만들지 않지만 반응을 기다리는 동안 소리를 낸다.
+        if (Data.CreatesFloor || Data.Element == PotionElement.Vaporization) PlayLoopSound();
         if (_combiner != null) _combiner.RegisterArea();
 
         if (!IsCombined && _areaEffect != null)
@@ -213,8 +223,32 @@ public class PotionAreaController : MonoBehaviour
         }
     }
 
+    // 장판이 있는 동안 포션의 소리를 반복 재생한다. 장판 오브젝트가 사라지면 같이 멈춘다.
+    private void PlayLoopSound()
+    {
+        if (Data.AreaLoopSound == null) return;
+        if (_loopSound == null)
+        {
+            _loopSound = gameObject.AddComponent<AudioSource>();
+            _loopSound.playOnAwake = false;
+            _loopSound.loop = true;
+            _loopSound.spatialBlend = 0f;
+        }
+
+        _loopSound.clip = Data.AreaLoopSound;
+        _loopSound.volume = _loopSoundVolume;
+        _loopSound.Play();
+    }
+
+    internal void StopLoopSound()
+    {
+        if (_loopSound != null) _loopSound.Stop();
+    }
+
     internal void FinishInstantImpact()
     {
+        // 즉발 효과는 흔적만 남고 장판은 없으므로 소리를 끈다. 반응을 기다리는 기화만 계속 소리를 낸다.
+        if (IsCombined || Data == null || Data.Element != PotionElement.Vaporization) StopLoopSound();
         if (IsCombined && Data != null && Data.Element == PotionElement.Vaporization)
         {
             Remove();
