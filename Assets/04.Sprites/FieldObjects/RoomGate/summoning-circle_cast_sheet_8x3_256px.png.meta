@@ -631,6 +631,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: summoning-circle_cast_sheet_8x3_256px_23
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84c25fc661c93b94fb05a19418fe4f23
+      internalID: -1498563516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -663,6 +685,7 @@ TextureImporter:
       summoning-circle_cast_sheet_8x3_256px_20: -1665495894
       summoning-circle_cast_sheet_8x3_256px_21: 550721839
       summoning-circle_cast_sheet_8x3_256px_22: -825298088
+      summoning-circle_cast_sheet_8x3_256px_23: -1498563516
       summoning-circle_cast_sheet_8x3_256px_3: -2111219412
       summoning-circle_cast_sheet_8x3_256px_4: -1974992336
       summoning-circle_cast_sheet_8x3_256px_5: 1207563083

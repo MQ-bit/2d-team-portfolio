@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 4978655083737501352}
-  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerLocalCenter: {x: 0, y: -2}
   _triggerSize: {x: 10, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &1879007351028503279
@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 30079804581706567}
-  _triggerLocalCenter: {x: 0, y: -1.5}
+  _triggerLocalCenter: {x: 0, y: -2}
   _triggerSize: {x: 10, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &1912320927920522434
@@ -351,7 +351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 5968514917760258721}
-  _triggerLocalCenter: {x: -0.5, y: -1.5}
+  _triggerLocalCenter: {x: -0.5, y: -2}
   _triggerSize: {x: 11.5, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &4975838076391848378
@@ -416,7 +416,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 6766029575667734453}
-  _triggerLocalCenter: {x: 0.5, y: -1.5}
+  _triggerLocalCenter: {x: 0.5, y: -2}
   _triggerSize: {x: 11.5, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &5661237299070210863
@@ -20062,7 +20062,7 @@ TilemapCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
@@ -20133,110 +20133,9 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 2378805081956263605}
-    m_ColliderPaths:
-    - - X: 240000000
-        Y: 70000000
-      - X: 50000000
-        Y: 70000000
-      - X: 50000000
-        Y: 90000000
-      - X: 260000000
-        Y: 90000000
-      - X: 260000000
-        Y: 280000000
-      - X: -70000000
-        Y: 280000000
-      - X: -70000000
-        Y: 180000000
-      - X: -120000000
-        Y: 180000000
-      - X: -120000000
-        Y: -150000000
-      - X: 240000000
-        Y: -150000000
-    - - X: -105000000
-        Y: -140000000
-      - X: -105000000
-        Y: 130000000
-      - X: -104375000
-        Y: 130000000
-      - X: -100000000
-        Y: 133125000
-      - X: -56250000
-        Y: 133125000
-      - X: -55000000
-        Y: 134375008
-      - X: -55000000
-        Y: 230000000
-      - X: -54375000
-        Y: 230000000
-      - X: -50000000
-        Y: 233124992
-      - X: 240000000
-        Y: 233124992
-      - X: 244375008
-        Y: 230000000
-      - X: 245000000
-        Y: 230000000
-      - X: 245000000
-        Y: 100000000
-      - X: 40000000
-        Y: 100000000
-      - X: 40000000
-        Y: 95000000
-      - X: 36250000
-        Y: 95000000
-      - X: 35000000
-        Y: 93750000
-      - X: 35000000
-        Y: 24375000
-      - X: 36250000
-        Y: 23125000
-      - X: 220000000
-        Y: 23125000
-      - X: 224375008
-        Y: 20000000
-      - X: 225000000
-        Y: 20000000
-      - X: 225000000
-        Y: -140000000
+  m_ColliderPaths: []
   m_CompositePaths:
-    m_Paths:
-    - - {x: 23.999971, y: -15}
-      - {x: 23.999971, y: 7}
-      - {x: 5, y: 7.0000296}
-      - {x: 5.0000296, y: 9}
-      - {x: 26, y: 9.00003}
-      - {x: 25.999971, y: 28}
-      - {x: -7, y: 27.999971}
-      - {x: -7.0000296, y: 18}
-      - {x: -12, y: 17.999971}
-      - {x: -11.99997, y: -15}
-    - - {x: 22.5, y: -13.999971}
-      - {x: -10.5, y: -13.999971}
-      - {x: -10.49997, y: 13}
-      - {x: -10.437493, y: 13.000005}
-      - {x: -9.999992, y: 13.3125}
-      - {x: -5.6249924, y: 13.312508}
-      - {x: -5.5, y: 13.437512}
-      - {x: -5.4999704, y: 23}
-      - {x: -5.437494, y: 23.000006}
-      - {x: -4.999992, y: 23.3125}
-      - {x: 24.000008, y: 23.312494}
-      - {x: 24.43751, y: 23}
-      - {x: 24.5, y: 22.999971}
-      - {x: 24.499971, y: 10}
-      - {x: 4, y: 9.99997}
-      - {x: 3.9999704, y: 9.5}
-      - {x: 3.6249924, y: 9.499992}
-      - {x: 3.5, y: 9.374989}
-      - {x: 3.5000076, y: 2.4374924}
-      - {x: 3.6250107, y: 2.3125}
-      - {x: 22.000006, y: 2.3124952}
-      - {x: 22.43751, y: 2}
-      - {x: 22.5, y: 1.9999707}
+    m_Paths: []
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0

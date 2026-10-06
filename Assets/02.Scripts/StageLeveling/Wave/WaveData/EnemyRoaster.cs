@@ -4,18 +4,18 @@ using UnityEngine;
 [Serializable]
 public class EnemyRoster
 {
-    [SerializeField] private WaveEnemyHandle _melee;
+    [SerializeField] private WaveEnemyHandle _bomber;
     [SerializeField] private WaveEnemyHandle _ranged;
-    [SerializeField] private WaveEnemyHandle _eliteMelee;
+    [SerializeField] private WaveEnemyHandle _eliteBomber;
     [SerializeField] private WaveEnemyHandle _eliteRanged;
 
     public WaveEnemyHandle GetPrefab(EnemyKind kind)
     {
         return kind switch
         {
-            EnemyKind.Melee => _melee,
+            EnemyKind.Bomber => _bomber,
             EnemyKind.Ranged => _ranged,
-            EnemyKind.EliteMelee => _eliteMelee,
+            EnemyKind.EliteBomber => _eliteBomber,
             EnemyKind.EliteRanged => _eliteRanged,
             _ => null
         };

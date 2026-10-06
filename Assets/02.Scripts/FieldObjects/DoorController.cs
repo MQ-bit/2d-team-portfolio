@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class RoomGateController : MonoBehaviour
 {
-    [SerializeField] private Renderer[] _renderers;
-    [SerializeField] private Collider2D[] _blockingColliders;
+    [SerializeField] private Collider2D _blockingColliders;
+    [SerializeField] private Animator _animator;
 
     public bool IsOpen { get; private set; }
+    private static int _isOpenString = Animator.StringToHash("IsOpen");
 
     private void Awake()
     {
-        if (_renderers == null || _renderers.Length == 0)
+        if (_blockingColliders == null)
         {
-            _renderers = GetComponentsInChildren<Renderer>(true);
+            _blockingColliders = GetComponent<Collider2D>();
         }
-
-        if (_blockingColliders == null || _blockingColliders.Length == 0)
+        if (_animator == null)
         {
-            _blockingColliders = GetComponentsInChildren<Collider2D>(true);
+            _animator = GetComponent<Animator>();
         }
     }
 
@@ -27,36 +27,23 @@ public class RoomGateController : MonoBehaviour
         if (isOpen)
         {
             SetCollidersEnabled(false);
-            SetRenderersEnabled(false);
+            SetDoorOpenAnimation(true);
         }
         else
         {
-            SetRenderersEnabled(true);
             SetCollidersEnabled(true);
+            SetDoorOpenAnimation(false);
         }
     }
 
-    private void SetRenderersEnabled(bool enabled)
+    private void SetDoorOpenAnimation(bool isOpen)
     {
-        foreach (Renderer target in _renderers)
-        {
-            if (target != null)
-            {
-                target.enabled = enabled;
-            }
-        }
+        _animator.SetBool(_isOpenString, isOpen);
     }
 
     private void SetCollidersEnabled(bool enabled)
     {
-        foreach (Collider2D target in _blockingColliders)
-        {
-            if (target != null)
-            {
-                target.enabled = enabled;
-            }
-        }
-
-        Physics2D.SyncTransforms();
+        _blockingColliders.enabled = enabled;
+        //Physics2D.SyncTransforms();
     }
 }

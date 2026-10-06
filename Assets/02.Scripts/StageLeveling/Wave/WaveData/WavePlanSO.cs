@@ -64,7 +64,7 @@ public sealed class WavePlanSO : ScriptableObject
         int baseCount = NextInclusive(random, baseRange);
         int eliteCount = NextInclusive(random, eliteRange);
 
-        int meleeCount = Mathf.Clamp(Mathf.FloorToInt(baseCount * definition.MeleeRatio + 0.5f), 0, baseCount);
+        int meleeCount = Mathf.Clamp(Mathf.FloorToInt(baseCount * definition.BombRatio + 0.5f), 0, baseCount);
 
         int rangedCount = baseCount - meleeCount;
 
@@ -85,9 +85,9 @@ public sealed class WavePlanSO : ScriptableObject
 
         List<EnemySpawnRequest> requests = new List<EnemySpawnRequest>(baseCount + eliteCount);
 
-        if (!TryAddRequests(requests, EnemyKind.Melee, meleeCount, out error) ||
+        if (!TryAddRequests(requests, EnemyKind.Bomber, meleeCount, out error) ||
             !TryAddRequests(requests, EnemyKind.Ranged, rangedCount, out error) ||
-            !TryAddRequests(requests, EnemyKind.EliteMelee, eliteMeleeCount, out error) ||
+            !TryAddRequests(requests, EnemyKind.EliteBomber, eliteMeleeCount, out error) ||
             !TryAddRequests(requests, EnemyKind.EliteRanged, eliteRangedCount, out error))
         {
             return false;

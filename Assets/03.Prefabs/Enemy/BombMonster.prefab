@@ -99,5 +99,25 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2860674803404275474, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8661543858205422219}
   m_SourcePrefab: {fileID: 100100000, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+--- !u!1 &1377157155696017660 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2860674803404275474, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+  m_PrefabInstance: {fileID: 3796408803251224558}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-8661543858205422219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377157155696017660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f185abedc27390645a89a01a0d2d8301, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaveEnemyHandle

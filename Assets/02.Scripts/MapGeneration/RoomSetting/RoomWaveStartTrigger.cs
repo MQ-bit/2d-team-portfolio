@@ -72,7 +72,7 @@ public class RoomWaveStartTrigger : MonoBehaviour
             return;
         }
 
-        PlayerController player = other.GetComponentInParent<PlayerController>(); //TODO : 태그방식? 아니면 인터페이스?
+        PlayerController player = other.GetComponent<PlayerController>(); //TODO : 태그방식? 아니면 인터페이스?
 
         if (player == null)
         {

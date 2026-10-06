@@ -1,7 +1,7 @@
 public enum EnemyKind
 {
-    Melee,
+    Bomber,
     Ranged,
-    EliteMelee,
+    EliteBomber,
     EliteRanged
 }
