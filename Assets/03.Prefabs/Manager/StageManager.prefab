@@ -10,11 +10,13 @@ GameObject:
   m_Component:
   - component: {fileID: 6752184035342608151}
   - component: {fileID: 5344559511488696796}
-  - component: {fileID: 7127352592370934398}
   - component: {fileID: 3927931753644130531}
+  - component: {fileID: 7127352592370934398}
+  - component: {fileID: 3517091504903148408}
+  - component: {fileID: 5689443597141892876}
   - component: {fileID: 4910267320262829492}
   m_Layer: 0
-  m_Name: StageSystem
+  m_Name: StageManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54,22 +56,6 @@ MonoBehaviour:
   _useRandomSeed: 1
   _seed: 12345
   _generateOnStart: 0
---- !u!114 &7127352592370934398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 565521264326019836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3e33749b6041e247b0643ab0862a03d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  _stageGenerator: {fileID: 5344559511488696796}
-  _wavePlan: {fileID: 11400000, guid: a14fca78d23eaec4b8a30dc94319213a, type: 2}
-  _waveController: {fileID: 4910267320262829492}
-  _waveStartTrigger: {fileID: 4709515900665319116}
 --- !u!114 &3927931753644130531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +69,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
   _enemySpawnPoints: []
+--- !u!114 &7127352592370934398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565521264326019836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e33749b6041e247b0643ab0862a03d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageManager
+  _stageGenerator: {fileID: 5344559511488696796}
+  _encounterCoordinator: {fileID: 3517091504903148408}
+--- !u!114 &3517091504903148408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565521264326019836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a213ba1428988ce45a527c64dd2442f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageEncounterCoordinator
+  _roomProgress: {fileID: 5689443597141892876}
+  _wavePlan: {fileID: 11400000, guid: a14fca78d23eaec4b8a30dc94319213a, type: 2}
+  _waveController: {fileID: 4910267320262829492}
+  _waveStartTrigger: {fileID: 4709515900665319116}
+--- !u!114 &5689443597141892876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565521264326019836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e22934565dcc6044fb10649ad17344fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatRoomProgressController
 --- !u!114 &4910267320262829492
 MonoBehaviour:
   m_ObjectHideFlags: 0

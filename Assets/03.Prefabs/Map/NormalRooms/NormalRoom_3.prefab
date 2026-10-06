@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 1629985793214998294}
-  _triggerLocalCenter: {x: 0, y: -2}
+  _triggerLocalCenter: {x: 0, y: -3}
   _triggerSize: {x: 10, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &2200962747789612092
@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 7516870397620816189}
-  _triggerLocalCenter: {x: -0.5, y: -2}
+  _triggerLocalCenter: {x: -0.5, y: -3}
   _triggerSize: {x: 11.5, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &2677474405848554085
@@ -1681,7 +1681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 4752648634354229492}
-  _triggerLocalCenter: {x: 0, y: -2}
+  _triggerLocalCenter: {x: 0, y: -3}
   _triggerSize: {x: 10, y: 3}
   _triggerLocalAngle: 0
 --- !u!1 &3701441436719061462
@@ -16797,6 +16797,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterSocket
   _doorAnchor: {fileID: 3894453389253839545}
-  _triggerLocalCenter: {x: 0.5, y: -2}
+  _triggerLocalCenter: {x: 0.5, y: -3}
   _triggerSize: {x: 11.5, y: 3}
   _triggerLocalAngle: 0

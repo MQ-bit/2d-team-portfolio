@@ -20,6 +20,8 @@ public class StageGenerator : MonoBehaviour
     [Header("Runtime")]
     [SerializeField] private bool _generateOnStart = true;
 
+    private ConnectorWallSnapshot _currentStartWallSnapshot;
+
     public GeneratedStage CurrentStage { get; private set; }
 
     private void Start()
@@ -68,14 +70,17 @@ public class StageGenerator : MonoBehaviour
             return false;
         }
 
+        ConnectorWallSnapshot startWallSnapshot = new ConnectorWallSnapshot(_startRoom);
         StageBuildContext buildContext = new StageBuildContext(plan, _startRoom, _generatedStageParent, _profile);
 
         if (!StageMaterializer.TryBuild(buildContext, out stage, out failure))
         {
+            startWallSnapshot.Restore();
             return false;
         }
 
         CurrentStage = stage;
+        _currentStartWallSnapshot = startWallSnapshot;
         failure = StageFailure.None;
         return true;
     }
@@ -85,5 +90,29 @@ public class StageGenerator : MonoBehaviour
         int selectedSeed = _useRandomSeed ? Environment.TickCount : _seed;
 
         return TryGenerate(selectedSeed, out stage, out failure);
+    }
+
+    public bool TryRegenerateConfigured(out GeneratedStage stage, out StageFailure failure)
+    {
+        ClearCurrentStage();
+        return TryGenerateConfigured(out stage, out failure);
+    }
+
+    private void ClearCurrentStage()
+    {
+        GeneratedStage previousStage = CurrentStage;
+
+        CurrentStage = null;
+
+        _currentStartWallSnapshot?.Restore();
+        _currentStartWallSnapshot = null;
+
+        if (previousStage?.Root == null)
+        {
+            return;
+        }
+
+        previousStage.Root.SetActive(false); // 비활성화 후 삭제하여, Stage 재생성 시 이전 Stage가 잠시 보이지 않도록 함.
+        Destroy(previousStage.Root);
     }
 }
