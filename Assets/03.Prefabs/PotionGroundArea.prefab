@@ -194,6 +194,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionAreaVisual
   _flowSpeed: 0.7
   _edgeWobble: 0.018
+  _edgeIrregularity: 0.17
+  _edgeDensity: 4.5
+  _edgeMotionSpeed: 0.35
+  _edgeMotionAmount: 0.45
   _surfaceDetail: 0.65
   _opacity: 0.85
   _appearDuration: 0.25

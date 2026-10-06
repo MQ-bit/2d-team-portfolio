@@ -10,6 +10,12 @@ public sealed class PotionAreaVisual : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float _surfaceDetail = 0.65f;
     [SerializeField, Range(0f, 1f)] private float _opacity = 0.85f;
 
+    [Header("Visual Boundary")]
+    [SerializeField, Range(0f, 0.2f)] private float _edgeIrregularity = 0.17f;
+    [SerializeField, Range(2f, 12f)] private float _edgeDensity = 4.5f;
+    [SerializeField, Range(0f, 0.5f)] private float _edgeMotionSpeed = 0.35f;
+    [SerializeField, Range(0f, 0.5f)] private float _edgeMotionAmount = 0.45f;
+
     [Header("Transitions")]
     [SerializeField, Min(0f)] private float _appearDuration = 0.25f;
     [SerializeField, Min(0f)] private float _colorTransitionDuration = 0.35f;
@@ -18,6 +24,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
     private readonly PotionAreaSurfaceRenderer _surfaceRenderer = new();
     private readonly PotionHealingSpringRenderer _healingSpring = new();
     private readonly PotionFireVortexRenderer _fireVortex = new();
+    private readonly PotionFrostCrystalRenderer _frostCrystals = new();
     private SpriteRenderer _renderer;
     private PotionPuddleShape _puddle;
     private PotionAreaFootprint _footprint;
@@ -33,6 +40,21 @@ public sealed class PotionAreaVisual : MonoBehaviour
     private float _colorChangedAt;
     private float _expiresAt = float.PositiveInfinity;
     private float _flowTime;
+    private uint _combinationSeed;
+    private bool _hasCombinationSeed;
+    private bool IsVampiric => _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire
+        || _surfaceStyle == PotionAreaSurfaceStyle.VampiricPoison
+        || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost
+        || _surfaceStyle == PotionAreaSurfaceStyle.VampiricLightning;
+    internal uint CombinationSeed => _combinationSeed;
+
+    internal void SetCombinationSeed(uint seed)
+    {
+        _combinationSeed = seed;
+        _hasCombinationSeed = true;
+        _fireVortex.SetSeed(seed);
+        _frostCrystals.SetSeed(seed);
+    }
 
     public float Visibility { get; private set; } = 1f;
 
@@ -45,14 +67,21 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         _accentColor = visualData.AreaAccentColor;
         _surfaceStyle = visualData.AreaSurfaceStyle;
+        if (_surfaceStyle == PotionAreaSurfaceStyle.ThermalShock) _flowTime = 0f;
         _styleSettings = _surfaceStyle switch
         {
             PotionAreaSurfaceStyle.Embers => new Vector4(1.8f, 1f, 1f, 0.8f),
             PotionAreaSurfaceStyle.Bubbles => new Vector4(0.65f, 0.7f, 1f, 0.7f),
-            PotionAreaSurfaceStyle.Frost => new Vector4(0.2f, 0.12f, 1f, 0.75f),
+            PotionAreaSurfaceStyle.Frost => new Vector4(0.65f, 0.12f, 1f, 0.85f),
             PotionAreaSurfaceStyle.Life => new Vector4(0.55f, 0.25f, 0.8f, 0.65f),
             PotionAreaSurfaceStyle.HealingSpring => new Vector4(0.8f, 0.15f, 1f, 0.8f),
-            PotionAreaSurfaceStyle.FireVortex => new Vector4(1.6f, 0.7f, 1f, 1f),
+            PotionAreaSurfaceStyle.FireVortex => new Vector4(1.1f, 0.45f, 0.75f, 0.8f),
+            PotionAreaSurfaceStyle.ThermalShock => new Vector4(1f, 0.35f, 1f, 0.85f),
+            PotionAreaSurfaceStyle.VampiricFire => new Vector4(1f, 0.3f, 1f, 0.8f),
+            PotionAreaSurfaceStyle.VampiricPoison => new Vector4(0.8f, 0.5f, 1f, 0.85f),
+            PotionAreaSurfaceStyle.VampiricFrost => new Vector4(0.7f, 0.12f, 1f, 0.85f),
+            PotionAreaSurfaceStyle.VampiricLightning => new Vector4(1.6f, 0.25f, 1f, 0.8f),
+            PotionAreaSurfaceStyle.BlazingCurrent => new Vector4(1.2f, 0.25f, 1f, 0.85f),
             PotionAreaSurfaceStyle.Electricity => new Vector4(2.2f, 0.4f, 1f, 0.65f),
             PotionAreaSurfaceStyle.Mist => new Vector4(0.8f, 0.8f, 0.8f, 0.6f),
             PotionAreaSurfaceStyle.Cracks => new Vector4(0.3f, 0.2f, 1f, 0.8f),
@@ -67,6 +96,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
         _surfaceRenderer.Restore();
         _healingSpring.Hide();
         _fireVortex.Hide();
+        _frostCrystals.Hide();
+        _frostCrystals.SetFootprint(null);
         _fireVortex.SetFootprint(null);
         _puddle = null;
         _footprint = null;
@@ -81,10 +112,21 @@ public sealed class PotionAreaVisual : MonoBehaviour
         _currentColor = _fromColor;
         _startedAt = Time.time;
         _colorChangedAt = _startedAt;
-        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
+        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring || IsVampiric)
             _healingSpring.Bind(renderer, this);
-        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex
+            || _surfaceStyle == PotionAreaSurfaceStyle.BlazingCurrent
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire)
+        {
             _fireVortex.Bind(renderer, this);
+        }
+
+        if (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost)
+        {
+            _frostCrystals.Bind(renderer, this);
+        }
+
         ApplyProperties();
     }
 
@@ -101,8 +143,19 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         _footprint = footprint;
         _surfaceRenderer.SetFootprint(footprint);
-        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex
+            || _surfaceStyle == PotionAreaSurfaceStyle.BlazingCurrent
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire)
+        {
             _fireVortex.SetFootprint(footprint);
+        }
+
+        if (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost)
+        {
+            _frostCrystals.SetFootprint(footprint);
+        }
+
         if (_surfaceRenderer.IsBound) ApplyProperties();
     }
 
@@ -124,6 +177,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
         {
             _healingSpring.Hide();
             _fireVortex.Hide();
+            _frostCrystals.Hide();
             return;
         }
         _flowTime += Time.deltaTime * _flowSpeed * _styleSettings.x;
@@ -143,22 +197,48 @@ public sealed class PotionAreaVisual : MonoBehaviour
         float fade = _fadeDuration > 0f
             ? Mathf.Clamp01((_expiresAt - Time.time) / _fadeDuration) : 1f;
         Visibility = Mathf.SmoothStep(0f, 1f, appear) * fade;
-        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
-        {
-            _healingSpring.Apply(_renderer, _currentColor, _accentColor, _flowTime,
-                Visibility * _opacity);
-        }
-
-        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
-            _fireVortex.Apply(_renderer, _accentColor, _flowTime, Visibility * _opacity);
-
+        _surfaceRenderer.SetBoundarySettings(new Vector4(_edgeIrregularity, _edgeDensity,
+            _edgeMotionSpeed, _edgeMotionAmount));
         _surfaceRenderer.Apply(
             _spread != null ? _targetColor : _currentColor, _accentColor,
             new Vector4(_edgeWobble * _styleSettings.y, _surfaceDetail * _styleSettings.z,
                 _opacity * _styleSettings.w, (float)_surfaceStyle),
             new Vector4(_flowTime, Mathf.SmoothStep(0f, 1f, appear), fade,
-                (GetInstanceID() & 1023) * 0.137f),
+                _hasCombinationSeed ? (_combinationSeed & 1023u) * 0.137f : (GetInstanceID() & 1023) * 0.137f),
             _puddle, _spread);
+
+        // Flames read this frame's ground appearance and color to stay attached to it.
+        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
+            _healingSpring.Apply(_renderer, _currentColor, _accentColor, _flowTime, Visibility * _opacity);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)
+            _fireVortex.Apply(_renderer, _accentColor, _flowTime, Visibility * _opacity);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.BlazingCurrent)
+            _fireVortex.Apply(_renderer, _accentColor, _flowTime, Visibility * _opacity * 0.85f);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.Frost)
+            _frostCrystals.Apply(_renderer, _accentColor, Visibility * _opacity);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.ThermalShock)
+        {
+            _frostCrystals.Apply(_renderer, new Color(0.9f, 0.96f, 1f), Visibility * _opacity);
+        }
+        if (_surfaceStyle == PotionAreaSurfaceStyle.VampiricFire)
+        {
+            _fireVortex.Apply(_renderer, new Color(1f, 0.34f, 0.06f), _flowTime, Visibility * _opacity * 0.8f);
+        }
+        if (_surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost)
+            _frostCrystals.Apply(_renderer, _accentColor, Visibility * _opacity * 0.85f);
+        if (IsVampiric)
+        {
+            Color pillarColor = _surfaceStyle switch
+            {
+                PotionAreaSurfaceStyle.VampiricFire => new Color(1f, 0.3f, 0.055f),
+                PotionAreaSurfaceStyle.VampiricPoison => new Color(0.48f, 0.78f, 0.08f),
+                PotionAreaSurfaceStyle.VampiricFrost => new Color(0.3f, 0.72f, 0.95f),
+                _ => new Color(0.62f, 0.3f, 0.92f)
+            };
+            Color pillarAccent = Color.Lerp(pillarColor, Color.white, 0.5f);
+            _healingSpring.Apply(_renderer, pillarColor, pillarAccent,
+                _flowTime, Visibility * _opacity * 0.5f);
+        }
     }
 
     private void OnEnable()
@@ -179,6 +259,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         _healingSpring.Hide();
         _fireVortex.Hide();
+        _frostCrystals.Hide();
         _surfaceRenderer.Restore();
         Visibility = 1f;
     }
@@ -187,6 +268,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
     {
         _healingSpring.Release();
         _fireVortex.Release();
+        _frostCrystals.Release();
         _surfaceRenderer.Release();
     }
 }

@@ -25,6 +25,36 @@ public class VFXBurstField : MonoBehaviour
     private bool _legacySinglePotionBursts;
     private bool _intenseCombinationBursts;
     private bool _anchorAtBottom;
+    private bool _deterministicBursts;
+    private Random.State _burstRandomState;
+
+    internal void UseDeterministicBursts(uint seed)
+    {
+        Random.State previous = Random.state;
+        try
+        {
+            Random.InitState(unchecked((int)seed));
+            _burstRandomState = Random.state;
+            _deterministicBursts = true;
+        }
+        finally { Random.state = previous; }
+    }
+
+    private float BurstRange(float minimum, float maximum)
+    {
+        if (!_deterministicBursts) return Random.Range(minimum, maximum);
+        Random.State previous = Random.state;
+        try
+        {
+            Random.state = _burstRandomState;
+            return Random.Range(minimum, maximum);
+        }
+        finally
+        {
+            _burstRandomState = Random.state;
+            Random.state = previous;
+        }
+    }
 
     private class Burst
     {
@@ -106,6 +136,7 @@ public class VFXBurstField : MonoBehaviour
         _spread = null;
         _legacySinglePotionBursts = false;
         _intenseCombinationBursts = false;
+        _deterministicBursts = false;
         _footprint = null;
         _clippedFootprint = null;
         _clipMask.SetFootprint(null);
@@ -244,7 +275,7 @@ public class VFXBurstField : MonoBehaviour
             burst.Renderer.SetPropertyBlock(_clipProperties);
             burst.Renderer.color = _vfxColor * _tint;
             // 처음부터 전부 동시에 터지지 않도록 재생 시점을 흩어 둔다.
-            Respawn(burst, _playOnce ? Time.time : Time.time - Random.Range(0f, duration));
+            Respawn(burst, _playOnce ? Time.time : Time.time - BurstRange(0f, duration));
         }
     }
 
@@ -276,7 +307,7 @@ public class VFXBurstField : MonoBehaviour
             {
                 burst.Renderer.enabled = false;
                 if (!_playOnce)
-                    Respawn(burst, now + Random.Range(_restDelayRange.x, _restDelayRange.y));
+                    Respawn(burst, now + BurstRange(_restDelayRange.x, _restDelayRange.y));
                 continue;
             }
 
@@ -309,39 +340,53 @@ public class VFXBurstField : MonoBehaviour
 
     private void Respawn(Burst burst, float startTime)
     {
-        burst.StartTime = startTime;
-
-        // Sample uniformly inside the ellipse, without grid snapping or spacing correction.
-        float angle = Random.Range(0f, Mathf.PI * 2f);
-        float radius = Mathf.Sqrt(Random.value) * _spawnAreaRatio;
-        Vector3 local = new(Mathf.Cos(angle) * radius * _width * 0.5f,
-            Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
-        if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
-        if (_footprint != null) local = SampleFootprint();
-        if (_footprint == null && _fillArea && _burstCount == 1) local = Vector3.zero;
-        if (_clippedFootprint != null && !(_fillArea && _burstCount == 1))
+        // Keep all sampling local to this VFX field without changing gameplay randomness.
+        Random.State previous = Random.state;
+        if (_deterministicBursts) Random.state = _burstRandomState;
+        try
         {
-            // Rejection retains the profile's preferred spread; area-weighted
-            // sampling supplies a valid fallback for narrow remaining slivers.
-            if (!_clippedFootprint.Contains(transform.TransformPoint(local)))
-                local = transform.InverseTransformPoint(_clippedFootprint.SamplePoint());
+            burst.StartTime = startTime;
+
+            // Sample uniformly inside the ellipse, without grid snapping or spacing correction.
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float radius = Mathf.Sqrt(Random.value) * _spawnAreaRatio;
+            Vector3 local = new(Mathf.Cos(angle) * radius * _width * 0.5f,
+                Mathf.Sin(angle) * radius * Height * 0.5f, 0f);
+            if (_puddle != null) local = _puddle.SampleLocalPoint(_spawnAreaRatio);
+            if (_footprint != null) local = SampleFootprint();
+            if (_footprint == null && _fillArea && _burstCount == 1) local = Vector3.zero;
+            if (_clippedFootprint != null && !(_fillArea && _burstCount == 1))
+            {
+                // Rejection retains the profile's preferred spread; area-weighted
+                // sampling supplies a valid fallback for narrow remaining slivers.
+                if (!_clippedFootprint.Contains(transform.TransformPoint(local)))
+                    local = transform.InverseTransformPoint(_clippedFootprint.SamplePoint());
+            }
+
+            Transform t = burst.Renderer.transform;
+            burst.LocalAnchor = local;
+            float spriteWidth = Mathf.Max(0.0001f, _sprites[0].bounds.size.x);
+            float size = _fillArea && _footprint == null ? Width * _fillScale
+                : _burstSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
+            t.localScale = Vector3.one * (size / spriteWidth);
+            burst.Renderer.enabled = startTime <= Time.time;
+            burst.Renderer.flipX = Random.value < 0.5f;
+            ApplyFrame(burst, _sprites[0]);
+
+            // 아래쪽(앞쪽) 버스트가 위에 그려지도록 y 기준으로 정렬한다.
+            SpriteRenderer sortingRenderer = _sortingRenderer != null ? _sortingRenderer : _groundRenderer;
+            int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
+            burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
+            burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
         }
-
-        Transform t = burst.Renderer.transform;
-        burst.LocalAnchor = local;
-        float spriteWidth = Mathf.Max(0.0001f, _sprites[0].bounds.size.x);
-        float size = _fillArea && _footprint == null ? Width * _fillScale
-            : _burstSize * Random.Range(1f - _sizeJitter, 1f + _sizeJitter);
-        t.localScale = Vector3.one * (size / spriteWidth);
-        burst.Renderer.enabled = startTime <= Time.time;
-        burst.Renderer.flipX = Random.value < 0.5f;
-        ApplyFrame(burst, _sprites[0]);
-
-        // 아래쪽(앞쪽) 버스트가 위에 그려지도록 y 기준으로 정렬한다.
-        SpriteRenderer sortingRenderer = _sortingRenderer != null ? _sortingRenderer : _groundRenderer;
-        int baseOrder = sortingRenderer != null ? sortingRenderer.sortingOrder : 0;
-        burst.Renderer.sortingLayerID = sortingRenderer != null ? sortingRenderer.sortingLayerID : 0;
-        burst.Renderer.sortingOrder = baseOrder + 1 + Mathf.RoundToInt((Height * 0.5f - local.y) * 100f);
+        finally
+        {
+            if (_deterministicBursts)
+            {
+                _burstRandomState = Random.state;
+                Random.state = previous;
+            }
+        }
     }
 
     private void ApplyFrame(Burst burst, Sprite sprite)

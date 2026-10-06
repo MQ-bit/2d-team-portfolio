@@ -55,6 +55,7 @@ MonoBehaviour:
   fillArea: 1
   fillScale: 0.8
   playOnce: 1
+  anchorAtBottom: 1
 --- !u!212 &2644425383195600339
 SpriteRenderer:
   serializedVersion: 2
