@@ -10349,6 +10349,7 @@ GameObject:
   - component: {fileID: 8850454425212153612}
   - component: {fileID: 6882546389126430280}
   - component: {fileID: 239847982383109468}
+  - component: {fileID: -7168128058712272768}
   m_Layer: 0
   m_Name: NormalRoom_1
   m_TagString: Untagged
@@ -10416,6 +10417,19 @@ MonoBehaviour:
   _enemySpawnPoints:
   - {fileID: 1541530970848808563}
   - {fileID: 6182564303993465574}
+--- !u!114 &-7168128058712272768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2558594827466001242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd939748cba286499f4a40b0e6bfe45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEncounterController
+  _doorPrefab: {fileID: 0}
 --- !u!1 &3322572700740083283
 GameObject:
   m_ObjectHideFlags: 0
