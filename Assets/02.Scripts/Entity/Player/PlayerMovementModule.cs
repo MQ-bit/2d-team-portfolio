@@ -20,6 +20,7 @@ public class PlayerMovementModule : MonoBehaviour
 
     public bool IsDashing => _isDashing;
     public float DashDuration => _dashDuration; // 구르기 애니메이션 길이를 대시 시간에 맞추는 용도
+    public Vector2 LastDashDirection { get; private set; } = Vector2.down; // 대시 이펙트 방향용
 
     public bool CanDash => !_isDashing && Time.time >= _nextDashAvailableTime;
 
@@ -77,7 +78,9 @@ public class PlayerMovementModule : MonoBehaviour
         _isDashing = true;
         _nextDashAvailableTime = Time.time + _dashCooltime;
 
-        _dashCoroutine = StartCoroutine(DashCoroutine(moveInput.normalized));
+        LastDashDirection = moveInput.normalized;
+
+        _dashCoroutine = StartCoroutine(DashCoroutine(LastDashDirection));
         OnDashStarted?.Invoke(_dashCooltime);
         return true;
     }

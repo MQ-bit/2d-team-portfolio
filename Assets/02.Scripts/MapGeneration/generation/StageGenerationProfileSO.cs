@@ -56,7 +56,7 @@ public class StageGenerationProfileSO : ScriptableObject
             case RoomType.Elite:
                 {
                     destination.AddRange(_eliteRooms);
-                    break;                    
+                    break;
                 }
 
             case RoomType.End:
@@ -65,7 +65,7 @@ public class StageGenerationProfileSO : ScriptableObject
                     {
                         destination.Add(_endRoom);
                     }
-                    break;                    
+                    break;
                 }
         }
     }

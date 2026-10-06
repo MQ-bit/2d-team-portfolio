@@ -1,0 +1,1053 @@
+fileFormatVersion: 2
+guid: e5db0b973df833d4989fbe53de48c014
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -9066824843405346465
+    second: PlayerDashEffect_West_0
+  - first:
+      213: -144456159396845536
+    second: PlayerDashEffect_West_1
+  - first:
+      213: -1109856300907304827
+    second: PlayerDashEffect_West_2
+  - first:
+      213: -706680124883236466
+    second: PlayerDashEffect_West_3
+  - first:
+      213: 630856510134104666
+    second: PlayerDashEffect_West_4
+  - first:
+      213: 7129877809736566085
+    second: PlayerDashEffect_West_5
+  - first:
+      213: 548375129697996072
+    second: PlayerDashEffect_West_6
+  - first:
+      213: -7196174952729085975
+    second: PlayerDashEffect_West_7
+  - first:
+      213: 9197239360373483840
+    second: PlayerDashEffect_West_8
+  - first:
+      213: -7245101428982778503
+    second: PlayerDashEffect_West_9
+  - first:
+      213: -465628337333095037
+    second: PlayerDashEffect_West_10
+  - first:
+      213: 3091755023699001260
+    second: PlayerDashEffect_West_11
+  - first:
+      213: -3232719317325699003
+    second: PlayerDashEffect_West_12
+  - first:
+      213: -2263224544330638236
+    second: PlayerDashEffect_West_13
+  - first:
+      213: 2943877941195209768
+    second: PlayerDashEffect_West_14
+  - first:
+      213: 4063398056003980034
+    second: PlayerDashEffect_West_15
+  - first:
+      213: 676485973225746957
+    second: PlayerDashEffect_West_16
+  - first:
+      213: 2569648478547367061
+    second: PlayerDashEffect_West_17
+  - first:
+      213: -313364480343741812
+    second: PlayerDashEffect_West_18
+  - first:
+      213: 6906171722519948713
+    second: PlayerDashEffect_West_19
+  - first:
+      213: 3566932506584386437
+    second: PlayerDashEffect_West_20
+  - first:
+      213: -5041173912397207332
+    second: PlayerDashEffect_West_21
+  - first:
+      213: -8967496001193667978
+    second: PlayerDashEffect_West_22
+  - first:
+      213: 4903135521029649490
+    second: PlayerDashEffect_West_23
+  - first:
+      213: 7401204521011678417
+    second: PlayerDashEffect_West_24
+  - first:
+      213: -8899324964105320794
+    second: PlayerDashEffect_West_25
+  - first:
+      213: 7916895837833076023
+    second: PlayerDashEffect_West_26
+  - first:
+      213: -2309335416151480363
+    second: PlayerDashEffect_West_27
+  - first:
+      213: 4345553197007388778
+    second: PlayerDashEffect_West_28
+  - first:
+      213: 8540655921605572490
+    second: PlayerDashEffect_West_29
+  - first:
+      213: -8248202624443574576
+    second: PlayerDashEffect_West_30
+  - first:
+      213: 7310567440240784100
+    second: PlayerDashEffect_West_31
+  - first:
+      213: -3899212002349375941
+    second: PlayerDashEffect_West_32
+  - first:
+      213: 3657208774411700759
+    second: PlayerDashEffect_West_33
+  - first:
+      213: -2151226407077596625
+    second: PlayerDashEffect_West_34
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_0
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 29
+        width: 81
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f593320d7da2c2280800000000000000
+      internalID: -9066824843405346465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_1
+      rect:
+        serializedVersion: 2
+        x: 542
+        y: 53
+        width: 61
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 028a88d63e9cefdf0800000000000000
+      internalID: -144456159396845536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_2
+      rect:
+        serializedVersion: 2
+        x: 557
+        y: 98
+        width: 19
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 588e0b8139ff890f0800000000000000
+      internalID: -1109856300907304827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_3
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 103
+        width: 28
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e89818aab2e5136f0800000000000000
+      internalID: -706680124883236466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_4
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 88
+        width: 18
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5239ce47a041c800800000000000000
+      internalID: 630856510134104666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_5
+      rect:
+        serializedVersion: 2
+        x: 687
+        y: 86
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 545c94d971a62f260800000000000000
+      internalID: 7129877809736566085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_6
+      rect:
+        serializedVersion: 2
+        x: 721
+        y: 101
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82dce4966483c9700800000000000000
+      internalID: 548375129697996072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_7
+      rect:
+        serializedVersion: 2
+        x: 825
+        y: 97
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e7f409e10d022c90800000000000000
+      internalID: -7196174952729085975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_8
+      rect:
+        serializedVersion: 2
+        x: 837
+        y: 89
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0496d4d187823af70800000000000000
+      internalID: 9197239360373483840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_9
+      rect:
+        serializedVersion: 2
+        x: 602
+        y: 82
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9757ec3f2aa347b90800000000000000
+      internalID: -7245101428982778503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_10
+      rect:
+        serializedVersion: 2
+        x: 614
+        y: 73
+        width: 10
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 385b7e38e71c989f0800000000000000
+      internalID: -465628337333095037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_11
+      rect:
+        serializedVersion: 2
+        x: 671
+        y: 78
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cafbb1030de18ea20800000000000000
+      internalID: 3091755023699001260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_12
+      rect:
+        serializedVersion: 2
+        x: 695
+        y: 74
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 548224898e21323d0800000000000000
+      internalID: -3232719317325699003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_13
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 88
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46c1a3c94496790e0800000000000000
+      internalID: -2263224544330638236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_14
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 83
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82c7c03e361cad820800000000000000
+      internalID: 2943877941195209768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_15
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 85
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20b412dc007146830800000000000000
+      internalID: 4063398056003980034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_16
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 23
+        width: 90
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d02b7a1986c536900800000000000000
+      internalID: 676485973225746957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_17
+      rect:
+        serializedVersion: 2
+        x: 601
+        y: 68
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59450793da939a320800000000000000
+      internalID: 2569648478547367061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_18
+      rect:
+        serializedVersion: 2
+        x: 684
+        y: 66
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8ae2e75aa4b6abf0800000000000000
+      internalID: -313364480343741812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_19
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 80
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ad26a65796a7df50800000000000000
+      internalID: 6906171722519948713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_20
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 75
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58b81c0673a408130800000000000000
+      internalID: 3566932506584386437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_21
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 78
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd8299439072a0ab0800000000000000
+      internalID: -5041173912397207332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_22
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 68
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6729d1416ed0d8380800000000000000
+      internalID: -8967496001193667978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_23
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 63
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 254729847cf6b0440800000000000000
+      internalID: 4903135521029649490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_24
+      rect:
+        serializedVersion: 2
+        x: 688
+        y: 58
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dc8ae07c4c56b660800000000000000
+      internalID: 7401204521011678417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_25
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 63
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a68cb5881f3f7480800000000000000
+      internalID: -8899324964105320794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_26
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 57
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73d1fc9a1d67edd60800000000000000
+      internalID: 7916895837833076023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_27
+      rect:
+        serializedVersion: 2
+        x: 815
+        y: 68
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d7ef05aca793ffd0800000000000000
+      internalID: -2309335416151480363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_28
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 56
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a604034eb918e4c30800000000000000
+      internalID: 4345553197007388778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_29
+      rect:
+        serializedVersion: 2
+        x: 622
+        y: 57
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a87f2247f41868670800000000000000
+      internalID: 8540655921605572490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_30
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 57
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d69896f96f788d80800000000000000
+      internalID: -8248202624443574576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_31
+      rect:
+        serializedVersion: 2
+        x: 816
+        y: 60
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e2b6169a5a547560800000000000000
+      internalID: 7310567440240784100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_32
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 22
+        width: 52
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3e9600c75733e9c0800000000000000
+      internalID: -3899212002349375941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_33
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 22
+        width: 74
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71a404ce00401c230800000000000000
+      internalID: 3657208774411700759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerDashEffect_West_34
+      rect:
+        serializedVersion: 2
+        x: 610
+        y: 46
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2233befafe4522e0800000000000000
+      internalID: -2151226407077596625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      PlayerDashEffect_West_0: -9066824843405346465
+      PlayerDashEffect_West_1: -144456159396845536
+      PlayerDashEffect_West_10: -465628337333095037
+      PlayerDashEffect_West_11: 3091755023699001260
+      PlayerDashEffect_West_12: -3232719317325699003
+      PlayerDashEffect_West_13: -2263224544330638236
+      PlayerDashEffect_West_14: 2943877941195209768
+      PlayerDashEffect_West_15: 4063398056003980034
+      PlayerDashEffect_West_16: 676485973225746957
+      PlayerDashEffect_West_17: 2569648478547367061
+      PlayerDashEffect_West_18: -313364480343741812
+      PlayerDashEffect_West_19: 6906171722519948713
+      PlayerDashEffect_West_2: -1109856300907304827
+      PlayerDashEffect_West_20: 3566932506584386437
+      PlayerDashEffect_West_21: -5041173912397207332
+      PlayerDashEffect_West_22: -8967496001193667978
+      PlayerDashEffect_West_23: 4903135521029649490
+      PlayerDashEffect_West_24: 7401204521011678417
+      PlayerDashEffect_West_25: -8899324964105320794
+      PlayerDashEffect_West_26: 7916895837833076023
+      PlayerDashEffect_West_27: -2309335416151480363
+      PlayerDashEffect_West_28: 4345553197007388778
+      PlayerDashEffect_West_29: 8540655921605572490
+      PlayerDashEffect_West_3: -706680124883236466
+      PlayerDashEffect_West_30: -8248202624443574576
+      PlayerDashEffect_West_31: 7310567440240784100
+      PlayerDashEffect_West_32: -3899212002349375941
+      PlayerDashEffect_West_33: 3657208774411700759
+      PlayerDashEffect_West_34: -2151226407077596625
+      PlayerDashEffect_West_4: 630856510134104666
+      PlayerDashEffect_West_5: 7129877809736566085
+      PlayerDashEffect_West_6: 548375129697996072
+      PlayerDashEffect_West_7: -7196174952729085975
+      PlayerDashEffect_West_8: 9197239360373483840
+      PlayerDashEffect_West_9: -7245101428982778503
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

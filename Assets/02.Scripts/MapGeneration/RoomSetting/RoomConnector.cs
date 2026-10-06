@@ -26,13 +26,13 @@ public class RoomConnector : MonoBehaviour
     /// <returns></returns>
     public int Carve(Tilemap wallTilemap)
     {
-        if(wallTilemap == null)
+        if (wallTilemap == null)
         {
             Debug.LogError("Wall Tilemap is null. Cannot carve.");
             return 0;
         }
 
-        if(!HasValidCarveArea)
+        if (!HasValidCarveArea)
         {
             Debug.LogWarning("Carve area is not valid. Cannot carve.");
             return 0;
@@ -40,7 +40,7 @@ public class RoomConnector : MonoBehaviour
 
         int removedTileCount = 0;
 
-        foreach(Vector3Int cellCoordinate in _carveArea.allPositionsWithin)
+        foreach (Vector3Int cellCoordinate in _carveArea.allPositionsWithin)
         {
             if (!wallTilemap.HasTile(cellCoordinate))
             {
@@ -56,12 +56,12 @@ public class RoomConnector : MonoBehaviour
 
     public bool ContainsWallTile(Tilemap wallTilemap)
     {
-        if(wallTilemap == null || !HasValidCarveArea)
+        if (wallTilemap == null || !HasValidCarveArea)
         {
             return false;
         }
 
-        foreach(Vector3Int cellCoordinate in _carveArea.allPositionsWithin)
+        foreach (Vector3Int cellCoordinate in _carveArea.allPositionsWithin)
         {
             if (wallTilemap.HasTile(cellCoordinate))
             {

@@ -9,7 +9,7 @@ public class StageGenerator : MonoBehaviour
     [Header("Scene")]
     [SerializeField] private RoomDefinition _startRoom;
     [SerializeField] private Transform _generatedStageParent;
-    
+
     [Header("Profile")]
     [SerializeField] private StageGenerationProfileSO _profile;
 
