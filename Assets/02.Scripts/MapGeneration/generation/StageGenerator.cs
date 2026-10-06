@@ -33,15 +33,14 @@ public class StageGenerator : MonoBehaviour
     [ContextMenu("Generate Configured Stage")]
     public void GenerateConfiguredStage()
     {
-        int selectedSeed = _useRandomSeed ? Environment.TickCount : _seed;
-
-        if (!TryGenerate(selectedSeed, out GeneratedStage stage, out StageFailure failure))
+        if (!TryGenerateConfigured(out GeneratedStage stage, out StageFailure failure))
         {
             Debug.LogError($"Stage 생성 실패 [{failure.Code}]: {failure.Message}");
+
             return;
         }
 
-        Debug.Log($"Stage 생성 성공: Seed={stage.Root.name}, Rooms={stage.Rooms.Count}, Hallways={stage.Hallways.Count}");
+        Debug.Log($"Stage 생성 성공: Seed={stage.Seed}, Rooms={stage.Rooms.Count}, Hallways={stage.Hallways.Count}");
     }
 
     public bool TryGenerate(int seed, out GeneratedStage stage, out StageFailure failure)
@@ -79,5 +78,12 @@ public class StageGenerator : MonoBehaviour
         CurrentStage = stage;
         failure = StageFailure.None;
         return true;
+    }
+
+    public bool TryGenerateConfigured(out GeneratedStage stage, out StageFailure failure)
+    {
+        int selectedSeed = _useRandomSeed ? Environment.TickCount : _seed;
+
+        return TryGenerate(selectedSeed, out stage, out failure);
     }
 }

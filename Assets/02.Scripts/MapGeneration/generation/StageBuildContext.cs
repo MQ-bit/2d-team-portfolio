@@ -21,6 +21,12 @@ internal class StageBuildContext
 
     public ConnectorWallSnapshot StartWallSnapshot { get; private set; }
 
+    public Transform EnemiesRoot { get; set; }
+    public Transform TransientsRoot { get; set; }
+    public Transform PortalRoot { get; set; }
+
+    public List<GeneratedRoomNode> RoomNodes { get; } = new List<GeneratedRoomNode>();
+
     public StageBuildContext(StagePlan plan, RoomDefinition startRoom, Transform rootParent, StageGenerationProfileSO profile)
     {
         Plan = plan;

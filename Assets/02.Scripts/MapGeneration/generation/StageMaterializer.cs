@@ -26,7 +26,8 @@ internal static class StageMaterializer
                 !TryInstantiateHallways(context, out failure) ||
                 !TryValidateConnections(context, out failure) ||
                 !TryCarveDynamicRooms(context, out failure) ||
-                !TryCarveStartRoom(context, out failure))
+                !TryCarveStartRoom(context, out failure) ||
+                !TryCreateRoomNodes(context, out failure))
             {
                 Cleanup(context);
                 return false;
@@ -35,7 +36,16 @@ internal static class StageMaterializer
             context.Root.SetActive(true);
             Physics2D.SyncTransforms();
 
-            stage = new GeneratedStage(context.Root, context.Rooms.AsReadOnly(), context.Hallways.AsReadOnly(), CalculateWorldBounds(context.Plan));
+            stage = new GeneratedStage(
+                        context.Root,
+                        context.Rooms.AsReadOnly(),
+                        context.RoomNodes.AsReadOnly(),
+                        context.Hallways.AsReadOnly(),
+                        context.EnemiesRoot,
+                        context.TransientsRoot,
+                        context.PortalRoot,
+                        CalculateWorldBounds(context.Plan),
+                        context.Plan.Seed);
 
             failure = StageFailure.None;
             return true;
@@ -56,8 +66,9 @@ internal static class StageMaterializer
     {
         context.RoomsRoot = CreateChild(context.Root.transform, "Rooms");
         context.HallwaysRoot = CreateChild(context.Root.transform, "Hallways");
-        CreateChild(context.Root.transform, "Enemies");
-        CreateChild(context.Root.transform, "Portal");
+        context.EnemiesRoot = CreateChild(context.Root.transform, "Enemies");
+        context.TransientsRoot = CreateChild(context.Root.transform, "Transients");
+        context.PortalRoot = CreateChild(context.Root.transform, "Portal");
     }
 
     private static bool TryInstantiateRooms(StageBuildContext context, out StageFailure failure)
@@ -218,6 +229,52 @@ internal static class StageMaterializer
         }
 
         context.StartRoom.RefreshWallCollider();
+        failure = StageFailure.None;
+        return true;
+    }
+
+    private static bool TryCreateRoomNodes(StageBuildContext context, out StageFailure failure)
+    {
+        context.RoomNodes.Clear();
+
+        for (int i = 0; i < context.Rooms.Count; i++)
+        {
+            PlannedRoom planned = context.Plan.Rooms[i];
+            RoomDefinition room = context.Rooms[i];
+
+            RoomConnector entry = null;
+            RoomConnector exit = null;
+
+            if (planned.EntryDirection.HasValue && !room.TryGetConnector(planned.EntryDirection.Value, out entry))
+            {
+                failure = new StageFailure(StageFailureCode.MissingConnector, $"{room.name}: 생성된 Entry Connector를 찾을 수 없습니다.");
+                return false;
+            }
+
+            if (planned.ExitDirection.HasValue && !room.TryGetConnector(planned.ExitDirection.Value, out exit))
+            {
+                failure = new StageFailure(StageFailureCode.MissingConnector, $"{room.name}: 생성된 Exit Connector를 찾을 수 없습니다.");
+                return false;
+            }
+
+            bool valid = room.Type switch
+            {
+                RoomType.Start => entry == null && exit != null,
+                RoomType.Normal => entry != null && exit != null,
+                RoomType.Elite => entry != null && exit != null,
+                RoomType.End => entry != null && exit == null,
+                _ => false
+            };
+
+            if (!valid)
+            {
+                failure = new StageFailure(StageFailureCode.InvalidPlan, $"{room.name}: {room.Type} 방의 Entry/Exit 구성이 유효하지 않습니다.");
+                return false;
+            }
+
+            context.RoomNodes.Add(new GeneratedRoomNode(room, entry, exit, i));
+        }
+
         failure = StageFailure.None;
         return true;
     }
