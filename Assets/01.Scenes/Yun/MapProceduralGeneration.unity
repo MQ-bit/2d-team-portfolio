@@ -184,6 +184,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &52993583
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -611,6 +616,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+--- !u!114 &102420918 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5156675301869438822, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+  m_PrefabInstance: {fileID: 102420917}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5714ce5efa219bd47b50dce77d3a5a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenFadeController
 --- !u!1001 &112861542
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1035,6 +1051,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &569368489
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1241,6 +1262,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &698133234
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1416,6 +1442,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &777488588
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1591,6 +1622,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &923928815
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1820,6 +1856,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1369119781
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2163,6 +2204,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1429283393
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2338,6 +2384,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1431057433
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2453,6 +2504,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3612528117417103380, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
   m_PrefabInstance: {fileID: 1383181031}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1547649192 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 353974945982132991, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+  m_PrefabInstance: {fileID: 1383181031}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 718b33b13781ad0418aeb0d4beb656c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
 --- !u!1 &1642679961
 GameObject:
   m_ObjectHideFlags: 0
@@ -2518,6 +2580,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1642679963
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2899,6 +2966,11 @@ MonoBehaviour:
   _failedDropDuration: 0.3
   _failedDropArcHeight: 0.75
   _reactivateDelay: 1
+  _dropWallLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _dropWallPadding: 0.05
+  _wallLandingDuration: 0.2
 --- !u!58 &1986605983
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3019,11 +3091,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2480221915323944124, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 820.5321
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2480221915323944124, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 178.89688
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2480221915323944124, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3061,6 +3133,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: SceneEffectManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4034653583514344298, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1547649192}
+    - target: {fileID: 4034653583514344298, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
+      propertyPath: _fadeController
+      value: 
+      objectReference: {fileID: 102420918}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3135,11 +3215,11 @@ SceneRoots:
   - {fileID: 307366280}
   - {fileID: 309220167}
   - {fileID: 1294184359}
-  - {fileID: 102420917}
   - {fileID: 1422263104}
   - {fileID: 1383181031}
   - {fileID: 112861542}
   - {fileID: 314981316}
+  - {fileID: 102420917}
   - {fileID: 2078161265}
   - {fileID: 613919785}
   - {fileID: 8762795167000640000}
