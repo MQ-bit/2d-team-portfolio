@@ -16,7 +16,6 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     public bool IsDrinking { get; private set; }
     public event Action<bool> OnDrinkStateChanged; //UI 연결용 이벤트
-
     public float DrinkProgress
     {
         get
