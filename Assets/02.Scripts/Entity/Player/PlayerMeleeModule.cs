@@ -32,9 +32,12 @@ public class PlayerMeleeModule : MonoBehaviour
 
     public bool IsSwinging => Time.time < _swingEndTime;
     public float SwingDuration => _swingDuration;
+    public float AttackRange => _attackRange;   // 공격 이펙트 크기용
+    public float AttackAngle => _attackAngle;
     public Vector2 LastAttackDirection => _lastAttackDirection; // 공격 애니메이션 방향용
 
     public event Action<bool> OnMeleeModeChanged;   //UI용 이벤트
+    public event Action<Vector2> OnAttackStarted;   //공격 방향. 적중 여부와 상관없이 휘두를 때마다 호출
     public event Action<Vector2, bool> OnMeleeHit;  //공격 방향, 처치 여부. 한 번 휘두를 때 적중했으면 한 번만 호출
 
     private void Awake()
@@ -126,6 +129,7 @@ public class PlayerMeleeModule : MonoBehaviour
         _currentAttackTime = Time.time;
         _swingEndTime = Time.time + _swingDuration;
 
+        OnAttackStarted?.Invoke(attackDirection);
         ApplyAttack(attackDirection);
         return true;
     }

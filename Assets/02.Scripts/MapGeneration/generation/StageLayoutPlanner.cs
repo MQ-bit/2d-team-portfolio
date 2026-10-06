@@ -73,13 +73,13 @@ internal static class StageLayoutPlanner
             return false;
         }
 
-        if (!TryAppendRoom( request, plan, firstAdditionalRoom, random))
+        if (!TryAppendRoom(request, plan, firstAdditionalRoom, random))
         {
             return false;
         }
 
         if (additionalRoomCount == Extended_Additional_RoomCount &&
-            !TryAppendRoom( request, plan, secondAdditionalRoom, random))
+            !TryAppendRoom(request, plan, secondAdditionalRoom, random))
         {
             return false;
         }
@@ -98,7 +98,7 @@ internal static class StageLayoutPlanner
         PlannedRoom currentRoom = plan.Rooms[currentRoomIndex];
 
         List<ConnectorDirection> exitDirections = new List<ConnectorDirection>();
-        
+
         CollectExitDirections(currentRoom, exitDirections);
         Shuffle(exitDirections, random);
 

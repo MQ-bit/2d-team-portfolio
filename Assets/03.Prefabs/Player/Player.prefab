@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 910000000000000005}
   - component: {fileID: 5917174266888692404}
   - component: {fileID: 2064129735511734043}
+  - component: {fileID: 4001838003935887369}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -243,7 +244,7 @@ MonoBehaviour:
     _currentHealth: 0
   _initMaxThirst: 100
   _initCurrentThirst: 0
-  _itnitThirstIncreaseAmount: 10
+  _initThirstIncreaseAmount: 1
   _initThirstIncreaseInterval: 5
   _thirstWarningThreshold: 0.7
   _thirstCriticalThreshold: 1
@@ -533,6 +534,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDialogueModule
   _thirstDialogueData: {fileID: 11400000, guid: 4a6a04d96edb06c4692e1cdde6fd73bb, type: 2}
+--- !u!114 &4001838003935887369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa5194265b96564296d73fe76e34061, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActionVfx
+  _movementModule: {fileID: 1377203738665982733}
+  _meleeModule: {fileID: 4706277357270954568}
+  _visualRenderer: {fileID: 556253292886699385}
+  _attackOrigin: {fileID: 8044642822848136252}
+  _pixelsPerUnit: 100
+  _effectScale: 2
+  _dashEastSheet: {fileID: 2800000, guid: e6b377fb0d2725d48a1a5abe47b98753, type: 3}
+  _dashWestSheet: {fileID: 2800000, guid: e5db0b973df833d4989fbe53de48c014, type: 3}
+  _dashNorthSheet: {fileID: 2800000, guid: 4f36ca5759e214a40aa60d91375a1197, type: 3}
+  _dashSouthSheet: {fileID: 2800000, guid: 94f9e3a72a8bb2548afd0de6f644f0b1, type: 3}
+  _dashFps: 20
+  _dashOriginOffset: {x: 0, y: -1}
+  _dashEastPivot: {x: 0.5, y: 0.19}
+  _dashWestPivot: {x: 0.5, y: 0.19}
+  _dashNorthPivot: {x: 0.5, y: 0.09}
+  _dashSouthPivot: {x: 0.5, y: 0.8}
+  _dashSortingOrderOffset: -1
+  _attackSheet: {fileID: 2800000, guid: fa0df4d5c9ca7904898e0807bddbc882, type: 3}
+  _attackFrameCount: 4
+  _attackFps: 20
+  _attackDistance: 0.8
+  _attackSortingOrderOffset: 1
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0
