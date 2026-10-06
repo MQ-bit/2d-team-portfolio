@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 5917174266888692404}
   - component: {fileID: 2064129735511734043}
   - component: {fileID: 4001838003935887369}
+  - component: {fileID: 1855908175702151776}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -560,14 +561,55 @@ MonoBehaviour:
   _dashOriginOffset: {x: 0, y: -1}
   _dashEastPivot: {x: 0.5, y: 0.19}
   _dashWestPivot: {x: 0.5, y: 0.19}
-  _dashNorthPivot: {x: 0.5, y: 0.09}
-  _dashSouthPivot: {x: 0.5, y: 0.8}
+  _dashNorthPivot: {x: 0.5, y: 0.88}
+  _dashSouthPivot: {x: 0.5, y: 0.12}
   _dashSortingOrderOffset: -1
   _attackSheet: {fileID: 2800000, guid: fa0df4d5c9ca7904898e0807bddbc882, type: 3}
   _attackFrameCount: 4
   _attackFps: 20
-  _attackDistance: 0.8
+  _attackSizeMultiplier: 1
   _attackSortingOrderOffset: 1
+--- !u!114 &1855908175702151776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3045028924572124315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 591748620b8c77b49993d1aea56e2a27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerActionSound
+  _meleeModule: {fileID: 4706277357270954568}
+  _movementModule: {fileID: 1377203738665982733}
+  _inventoryModule: {fileID: 6544000177656053045}
+  _drinkingModule: {fileID: 6935868058329909207}
+  _animationDriver: {fileID: 7814849132968377541}
+  _audioSource: {fileID: 0}
+  _attackSwingSound: {fileID: 8300000, guid: e933cfe7a6def1d429c4c2deef134afc, type: 3}
+  _attackSwingVolume: 1
+  _dashSound: {fileID: 8300000, guid: 9d2a5bc2c9842514199fad7cc3e83ee3, type: 3}
+  _dashVolume: 1
+  _dashStartOffset: 0.34
+  _dashEndTime: 0.62
+  _dashFadeOutTime: 0.08
+  _pickupSound: {fileID: 8300000, guid: db5da40d06176d64b8b458133192955e, type: 3}
+  _pickupVolume: 1
+  _pickupStartOffset: 0.06
+  _pickupEndTime: 0.5
+  _pickupFadeOutTime: 0.2
+  _drinkSound: {fileID: 8300000, guid: 217df07ff4f7c1047b2b1f4656106ec5, type: 3}
+  _drinkVolume: 1
+  _drinkGain: 8
+  _drinkStartOffset: 0.05
+  _drinkEndTime: 1.1
+  _drinkFadeOutTime: 0.05
+  _footstepSound: {fileID: 8300000, guid: bb9c3697bdd249e43bd7cd74ad58f28f, type: 3}
+  _footstepVolume: 1
+  _footstepGain: 10
+  _footstepInterval: 0.35
+  _footstepStartOffset: 0.04
 --- !u!1 &7344726064901556103
 GameObject:
   m_ObjectHideFlags: 0

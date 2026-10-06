@@ -155,6 +155,9 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             templateProfile.LifeStealRatio, expiresAt, _combinedAreaShape.CombinationCollider);
         _areaController.SetExpiration(expiresAt);
         other.SetExpiration(expiresAt);
+        // 합쳐진 장판에서는 나중에 던져진 포션의 소리만 남긴다.
+        PotionAreaController earlier = _areaController.ActivationOrder < other.ActivationOrder ? _areaController : other;
+        earlier.StopLoopSound();
         return true;
     }
 

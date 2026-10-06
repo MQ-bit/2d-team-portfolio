@@ -27,8 +27,8 @@ public class PlayerActionVfx : MonoBehaviour
     // 프레임 안에서 대시 시작 지점(발 위치)에 놓일 점. (0,0)=왼쪽 아래, (1,1)=오른쪽 위
     [SerializeField] private Vector2 _dashEastPivot = new Vector2(0.5f, 0.19f);
     [SerializeField] private Vector2 _dashWestPivot = new Vector2(0.5f, 0.19f);
-    [SerializeField] private Vector2 _dashNorthPivot = new Vector2(0.5f, 0.09f);
-    [SerializeField] private Vector2 _dashSouthPivot = new Vector2(0.5f, 0.8f);
+    [SerializeField] private Vector2 _dashNorthPivot = new Vector2(0.5f, 0.88f);
+    [SerializeField] private Vector2 _dashSouthPivot = new Vector2(0.5f, 0.12f);
     [SerializeField] private int _dashSortingOrderOffset = -1;
 
     [Header("Attack Effect (아래쪽으로 휘두르는 모양의 시트)")]

@@ -127,8 +127,26 @@ internal sealed class PotionAreaVaporizer
         return true;
     }
 
+    // 기화 포션 하나가 여러 장판과 반응해도 소리는 한 번만 낸다.
+    private void PlayReactionSound()
+    {
+        PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
+        if (settings == null || settings.ReactionSound == null) return;
+
+        // 기화 장판은 바로 사라지므로 소리는 별도 오브젝트에서 끝까지 재생한다.
+        var soundObject = new GameObject("PotionVaporizationReactionSound");
+        soundObject.transform.position = _areaController.transform.position;
+        AudioSource source = soundObject.AddComponent<AudioSource>();
+        source.spatialBlend = 0f;
+        source.clip = settings.ReactionSound;
+        source.volume = settings.ReactionSoundVolume;
+        source.Play();
+        Object.Destroy(soundObject, settings.ReactionSound.length);
+    }
+
     private void FinishVaporization()
     {
+        PlayReactionSound();
         if (_areaController.AreaEffect != null) _areaController.AreaEffect.DisableForCombination();
         _areaController.FinishInstantImpact();
     }

@@ -83,3 +83,6 @@ MonoBehaviour:
     _areaAccentColor: {r: 1, g: 0.88, b: 0.96, a: 1}
     _areaSurfaceStyle: 5
     _areaVfxPrefab: {fileID: 5570802179912677701, guid: 5e3f9e527668d604381da9102f74cdff, type: 3}
+    _impactVisualDuration: 0
+  _areaLoopSound: {fileID: 8300000, guid: 42739df6b45a2584db55928b7a3b6567, type: 3}
+  _vaporizationSettings: {fileID: 0}

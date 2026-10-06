@@ -44,6 +44,8 @@ public class PlayerAnimationDriver : MonoBehaviour
     private int _currentState;
     private float _throwEndTime;
 
+    public bool IsWalking => _currentState == WalkState; // 발소리용
+
     private void Awake()
     {
         if (_animator == null)
