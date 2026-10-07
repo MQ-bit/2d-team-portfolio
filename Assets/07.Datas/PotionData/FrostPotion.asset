@@ -79,10 +79,10 @@ MonoBehaviour:
     _iconSprite: {fileID: 694522102, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _cardBackgroundSprite: {fileID: 2330094949270191781, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
     _areaSprite: {fileID: 1626052245, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 0.22, g: 0.63, b: 0.92, a: 0.65}
-    _areaAccentColor: {r: 0.72, g: 0.95, b: 1, a: 1}
+    _areaColor: {r: 0.29, g: 0.62, b: 0.67, a: 0.65}
+    _areaAccentColor: {r: 0.78, g: 0.96, b: 1, a: 1}
     _areaSurfaceStyle: 3
-    _areaVfxPrefab: {fileID: 4579996185533737049, guid: ccab241b986f9ea4581506f9ba125116, type: 3}
+    _areaVfxPrefab: {fileID: 0}
     _impactVisualDuration: 0
   _areaLoopSound: {fileID: 8300000, guid: 29a2b575e354fbe45ba6f1088c8509ec, type: 3}
   _vaporizationSettings: {fileID: 0}

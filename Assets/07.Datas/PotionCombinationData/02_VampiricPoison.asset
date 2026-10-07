@@ -37,7 +37,7 @@ MonoBehaviour:
   _visualData:
     _iconSprite: {fileID: -886470148, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 533610112, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 0.72, g: 0.52, b: 0.16, a: 0.65}
-    _areaAccentColor: {r: 1, g: 0.88, b: 0.48, a: 1}
-    _areaSurfaceStyle: 6
-    _areaVfxPrefab: {fileID: 6097614845457990773, guid: 9beef5ae195ab3142a1c6716124539da, type: 3}
+    _areaColor: {r: 0.18, g: 0.34, b: 0.055, a: 0.8}
+    _areaAccentColor: {r: 0.76, g: 1, b: 0.58, a: 1}
+    _areaSurfaceStyle: 14
+    _areaVfxPrefab: {fileID: 0}
