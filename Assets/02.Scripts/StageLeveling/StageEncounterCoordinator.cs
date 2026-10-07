@@ -128,7 +128,7 @@ public class StageEncounterCoordinator : MonoBehaviour
     public void TryEnterCombatRoom(GeneratedRoomNode node)
     {
         if (State != StageState.Exploring || node == null ||
-            !_roomProgress.TryGetRoomProgress(node,out RoomProgressState progress) ||
+            !_roomProgress.TryGetRoomProgress(node, out RoomProgressState progress) ||
             progress != RoomProgressState.Prepared)
         {
             return;
@@ -180,7 +180,7 @@ public class StageEncounterCoordinator : MonoBehaviour
     private void HandleCombatCompleted()
     {
         if (State != StageState.InCombat || _roomProgress.ActiveRoom == null) return;
-        
+
         CompleteRoom(_roomProgress.ActiveRoom);
     }
 

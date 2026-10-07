@@ -269,7 +269,7 @@ public class StageManager : MonoBehaviour
     {
         RoomEntered?.Invoke(node);
     }
-        
+
     private void HandleRoomCleared(GeneratedRoomNode node)
     {
         RoomCleared?.Invoke(node);
