@@ -6,6 +6,7 @@ using UnityEngine;
 public class EnemyStatus : MonoBehaviour, IDamageable
 {
     private EntityHealth _health;
+    [SerializeField] private EnemyKind _type;
 
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
@@ -24,6 +25,7 @@ public class EnemyStatus : MonoBehaviour, IDamageable
     private bool HasPotionMovementEffect => _potionEffectReceiver != null && _potionEffectReceiver.isActiveAndEnabled;
     public bool CanMove => !HasPotionMovementEffect || _potionEffectReceiver.CanMove;
     public float Speed => !CanMove ? 0f : _moveSpeed * (HasPotionMovementEffect ? _potionEffectReceiver.MoveSpeedMultiplier : 1f);
+    public EnemyKind EnemyType => _type;
 
     private void Awake()
     {

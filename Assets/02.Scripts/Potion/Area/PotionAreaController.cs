@@ -22,7 +22,7 @@ public class PotionAreaController : MonoBehaviour
     private bool _activated;
     private GameObject _areaVfx;
     private VFXBurstField _vfxField;
-    private AudioSource _loopSound;
+    private SoundHandle _loopSound;
 
     // 장판이 깔린 순서. 값이 클수록 나중에 던져진 포션이다.
     internal int ActivationOrder { get; private set; }
@@ -229,23 +229,18 @@ public class PotionAreaController : MonoBehaviour
     // 장판이 있는 동안 포션의 소리를 반복 재생한다. 장판 오브젝트가 사라지면 같이 멈춘다.
     private void PlayLoopSound()
     {
-        if (Data.AreaLoopSound == null) return;
-        if (_loopSound == null)
-        {
-            _loopSound = gameObject.AddComponent<AudioSource>();
-            _loopSound.playOnAwake = false;
-            _loopSound.loop = true;
-            _loopSound.spatialBlend = 0f;
-        }
-
-        _loopSound.clip = Data.AreaLoopSound;
-        _loopSound.volume = _loopSoundVolume;
-        _loopSound.Play();
+        _loopSound.Stop();
+        _loopSound = SoundManager.Play(Data.AreaLoopSound, SoundChannel.Potion, _loopSoundVolume, loop: true);
     }
 
     internal void StopLoopSound()
     {
-        if (_loopSound != null) _loopSound.Stop();
+        _loopSound.Stop();
+    }
+
+    private void OnDisable()
+    {
+        StopLoopSound();
     }
 
     internal void FinishInstantImpact()

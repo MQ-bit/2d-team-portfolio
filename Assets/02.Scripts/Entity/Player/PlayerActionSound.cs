@@ -13,7 +13,6 @@ public class PlayerActionSound : MonoBehaviour
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
     [SerializeField] private PlayerAnimationDriver _animationDriver; // 걷는 애니메이션이 나오는 동안만 발소리를 내기 위함
-    [SerializeField] private AudioSource _audioSource; // 비워두면 런타임에 생성
 
     [Header("Melee Attack")]
     [SerializeField] private AudioClip _attackSwingSound;
@@ -61,16 +60,8 @@ public class PlayerActionSound : MonoBehaviour
     [Tooltip("클립 앞부분을 이만큼(초) 건너뛰고 재생한다.")]
     [SerializeField, Min(0f)] private float _footstepStartOffset = 0.04f;
 
-    // 재생 구간을 잘라 쓰는 소리는 다른 소리와 섞이지 않게 따로 둔다.
-    private AudioSource _dashSource;
-    private AudioSource _pickupSource;
-    private AudioSource _drinkSource;
-    private AudioSource _footstepSource;
+    private SoundHandle _drinkHandle;
     private float _nextFootstepTime;
-
-    // Gain으로 키운 클립은 런타임에 새로 만든 것이라 직접 정리한다.
-    private AudioClip _amplifiedDrinkSound;
-    private AudioClip _amplifiedFootstepSound;
 
     private void Awake()
     {
@@ -94,77 +85,13 @@ public class PlayerActionSound : MonoBehaviour
         {
             _animationDriver = GetComponent<PlayerAnimationDriver>();
         }
-        if (_audioSource == null)
-        {
-            _audioSource = CreateAudioSource();
-        }
-        _dashSource = CreateAudioSource();
-        _pickupSource = CreateAudioSource();
-        _drinkSource = CreateAudioSource();
-        _footstepSource = CreateAudioSource();
 
         // 처음 재생할 때 로딩하느라 소리가 늦지 않도록 미리 읽어둔다.
-        Preload(_attackSwingSound);
-        Preload(_dashSound);
-        Preload(_pickupSound);
-        Preload(_drinkSound);
-        Preload(_footstepSound);
-
-        _amplifiedDrinkSound = CreateAmplifiedClip(_drinkSound, _drinkGain);
-        _amplifiedFootstepSound = CreateAmplifiedClip(_footstepSound, _footstepGain);
-    }
-
-    private void OnDestroy()
-    {
-        if (_amplifiedDrinkSound != null)
-        {
-            Destroy(_amplifiedDrinkSound);
-        }
-        if (_amplifiedFootstepSound != null)
-        {
-            Destroy(_amplifiedFootstepSound);
-        }
-    }
-
-    // 샘플 값을 gain배로 키운 복사본을 만든다. 키울 필요가 없거나 샘플을 읽을 수 없으면 null.
-    private static AudioClip CreateAmplifiedClip(AudioClip clip, float gain)
-    {
-        if (clip == null || gain <= 1f)
-        {
-            return null;
-        }
-
-        float[] samples = new float[clip.samples * clip.channels];
-        if (!clip.GetData(samples, 0))
-        {
-            Debug.LogWarning($"{clip.name} : 샘플을 읽을 수 없어 Gain을 적용하지 못함. (Load Type이 Decompress On Load여야 함)");
-            return null;
-        }
-
-        for (int i = 0; i < samples.Length; i++)
-        {
-            samples[i] = Mathf.Clamp(samples[i] * gain, -1f, 1f);
-        }
-
-        AudioClip amplified = AudioClip.Create($"{clip.name}_Amplified", clip.samples, clip.channels, clip.frequency, false);
-        amplified.SetData(samples, 0);
-        return amplified;
-    }
-
-    private AudioSource CreateAudioSource()
-    {
-        AudioSource source = gameObject.AddComponent<AudioSource>();
-        source.playOnAwake = false;
-        source.spatialBlend = 0f;
-        return source;
-    }
-
-    private static void Preload(AudioClip clip)
-    {
-        if (clip != null)
-        {
-            clip.LoadAudioData();
-        }
+        SoundManager.Preload(_attackSwingSound);
+        SoundManager.Preload(_dashSound);
+        SoundManager.Preload(_pickupSound);
+        SoundManager.Preload(_drinkSound, _drinkGain);
+        SoundManager.Preload(_footstepSound, _footstepGain);
     }
 
     private void OnEnable()
@@ -209,29 +136,7 @@ public class PlayerActionSound : MonoBehaviour
 
     private void Update()
     {
-        UpdateCutoff(_dashSource, _dashVolume, _dashEndTime, _dashFadeOutTime);
-        UpdateCutoff(_pickupSource, _pickupVolume, _pickupEndTime, _pickupFadeOutTime);
-        UpdateCutoff(_drinkSource, _drinkVolume, _drinkEndTime, _drinkFadeOutTime);
         UpdateFootstep();
-    }
-
-    // 재생 중인 소리를 지정한 지점에서 서서히 줄여 끝낸다.
-    private static void UpdateCutoff(AudioSource source, float volume, float endTime, float fadeOutTime)
-    {
-        if (endTime <= 0f || !source.isPlaying)
-        {
-            return;
-        }
-
-        float remaining = endTime - source.time;
-        if (remaining <= 0f)
-        {
-            source.Stop();
-            return;
-        }
-
-        float fade = fadeOutTime > 0f ? Mathf.Clamp01(remaining / fadeOutTime) : 1f;
-        source.volume = volume * fade;
     }
 
     private void UpdateFootstep()
@@ -254,67 +159,41 @@ public class PlayerActionSound : MonoBehaviour
         }
 
         _nextFootstepTime = Time.time + _footstepInterval;
-        AudioClip footstepClip = _amplifiedFootstepSound != null ? _amplifiedFootstepSound : _footstepSound;
-        PlayFrom(_footstepSource, footstepClip, _footstepVolume, _footstepStartOffset);
-    }
-
-    private static void PlayFrom(AudioSource source, AudioClip clip, float volume, float startOffset)
-    {
-        source.clip = clip;
-        source.volume = volume;
-        source.time = Mathf.Min(startOffset, Mathf.Max(0f, clip.length - 0.01f));
-        source.Play();
+        SoundManager.Play(_footstepSound, SoundChannel.Player, _footstepVolume,
+            gain: _footstepGain, startOffset: _footstepStartOffset);
     }
 
     private void HandleAttackStarted(Vector2 attackDirection)
     {
-        if (_attackSwingSound == null)
-        {
-            return;
-        }
-
-        _audioSource.PlayOneShot(_attackSwingSound, _attackSwingVolume);
+        SoundManager.Play(_attackSwingSound, SoundChannel.Player, _attackSwingVolume);
     }
 
     private void HandleDashStarted(float dashCooltime)
     {
-        if (_dashSound == null)
-        {
-            return;
-        }
-
-        PlayFrom(_dashSource, _dashSound, _dashVolume, _dashStartOffset);
+        SoundManager.Play(_dashSound, SoundChannel.Player, _dashVolume,
+            startOffset: _dashStartOffset, endTime: _dashEndTime, fadeOutTime: _dashFadeOutTime);
     }
 
     private void HandleItemTaken()
     {
-        if (_pickupSound == null)
-        {
-            return;
-        }
-
-        PlayFrom(_pickupSource, _pickupSound, _pickupVolume, _pickupStartOffset);
+        SoundManager.Play(_pickupSound, SoundChannel.Player, _pickupVolume,
+            startOffset: _pickupStartOffset, endTime: _pickupEndTime, fadeOutTime: _pickupFadeOutTime);
     }
 
     private void HandleDrinkStateChanged(bool isDrinking)
     {
-        if (_drinkSound == null)
-        {
-            return;
-        }
-
         if (isDrinking)
         {
-            AudioClip drinkClip = _amplifiedDrinkSound != null ? _amplifiedDrinkSound : _drinkSound;
-            PlayFrom(_drinkSource, drinkClip, _drinkVolume, _drinkStartOffset);
+            _drinkHandle = SoundManager.Play(_drinkSound, SoundChannel.Player, _drinkVolume, gain: _drinkGain,
+                startOffset: _drinkStartOffset, endTime: _drinkEndTime, fadeOutTime: _drinkFadeOutTime);
             return;
         }
 
         // 다 마셨으면 남은 끝부분은 마저 재생하고, 도중에 취소했으면 바로 끊는다.
-        bool isNearEnd = _drinkEndTime > 0f && _drinkSource.time >= _drinkEndTime - 0.2f;
+        bool isNearEnd = _drinkEndTime > 0f && _drinkHandle.Time >= _drinkEndTime - 0.2f;
         if (!isNearEnd)
         {
-            _drinkSource.Stop();
+            _drinkHandle.Stop();
         }
     }
 }
