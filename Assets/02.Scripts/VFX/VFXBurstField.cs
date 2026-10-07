@@ -25,6 +25,7 @@ public class VFXBurstField : MonoBehaviour
     private bool _legacySinglePotionBursts;
     private bool _intenseCombinationBursts;
     private bool _anchorAtBottom;
+    private float _bottomAnchorHeightRatio;
     private bool _deterministicBursts;
     private Random.State _burstRandomState;
 
@@ -78,6 +79,9 @@ public class VFXBurstField : MonoBehaviour
     private readonly PotionAreaMaskRenderer _clipMask = new();
     private MaterialPropertyBlock _clipProperties;
     private Material _clipMaterial;
+    private static readonly int FrostPoisonPaletteId = Shader.PropertyToID("_FrostPoisonPalette");
+    private static readonly int FrozenCurrentPaletteId = Shader.PropertyToID("_FrozenCurrentPalette");
+    private static readonly int ToxicCurrentPaletteId = Shader.PropertyToID("_ToxicCurrentPalette");
 
     public float Width => _width;
     public float Height => _width * _heightRatio;
@@ -166,6 +170,15 @@ public class VFXBurstField : MonoBehaviour
             burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
                 ? _clipMaterial : source.sharedMaterial;
             burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipProperties.SetFloat(FrostPoisonPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(FrostPoisonPaletteId)
+                ? source.sharedMaterial.GetFloat(FrostPoisonPaletteId) : 0f);
+            _clipProperties.SetFloat(FrozenCurrentPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(FrozenCurrentPaletteId)
+                ? source.sharedMaterial.GetFloat(FrozenCurrentPaletteId) : 0f);
+            _clipProperties.SetFloat(ToxicCurrentPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(ToxicCurrentPaletteId)
+                ? source.sharedMaterial.GetFloat(ToxicCurrentPaletteId) : 0f);
             _clipMask.Apply(_clipProperties);
             burst.Renderer.SetPropertyBlock(_clipProperties);
             Respawn(burst, burst.StartTime);
@@ -218,6 +231,7 @@ public class VFXBurstField : MonoBehaviour
             Mathf.Max(0f, Mathf.Max(delay.x, delay.y)));
         _tint = settings != null ? settings.tint : Color.white;
         _anchorAtBottom = settings != null && settings.anchorAtBottom;
+        _bottomAnchorHeightRatio = settings != null ? Mathf.Clamp01(settings.bottomAnchorHeightRatio) : 0f;
         _fillArea = settings != null && settings.fillArea;
         _fillScale = settings != null ? Mathf.Max(0.05f, settings.fillScale) : 1f;
         _playOnce = settings != null && settings.playOnce;
@@ -271,6 +285,15 @@ public class VFXBurstField : MonoBehaviour
             burst.Renderer.sharedMaterial = _clippedFootprint != null && _clipMaterial != null
                 ? _clipMaterial : source.sharedMaterial;
             burst.Renderer.GetPropertyBlock(_clipProperties);
+            _clipProperties.SetFloat(FrostPoisonPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(FrostPoisonPaletteId)
+                ? source.sharedMaterial.GetFloat(FrostPoisonPaletteId) : 0f);
+            _clipProperties.SetFloat(FrozenCurrentPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(FrozenCurrentPaletteId)
+                ? source.sharedMaterial.GetFloat(FrozenCurrentPaletteId) : 0f);
+            _clipProperties.SetFloat(ToxicCurrentPaletteId, source.sharedMaterial != null
+                && source.sharedMaterial.HasProperty(ToxicCurrentPaletteId)
+                ? source.sharedMaterial.GetFloat(ToxicCurrentPaletteId) : 0f);
             _clipMask.Apply(_clipProperties);
             burst.Renderer.SetPropertyBlock(_clipProperties);
             burst.Renderer.color = _vfxColor * _tint;
@@ -396,10 +419,10 @@ public class VFXBurstField : MonoBehaviour
         Vector3 position = burst.LocalAnchor;
         if (_anchorAtBottom)
         {
-            // Keep the bottom center on the sampled floor point, even when frame bounds change.
+            // Align the artwork's ground contact, allowing for transparent padding below it.
             Vector3 scale = renderer.transform.localScale;
             position.x -= sprite.bounds.center.x * scale.x * (renderer.flipX ? -1f : 1f);
-            position.y -= sprite.bounds.min.y * scale.y;
+            position.y -= (sprite.bounds.min.y + sprite.bounds.size.y * _bottomAnchorHeightRatio) * scale.y;
         }
         renderer.transform.localPosition = position;
     }

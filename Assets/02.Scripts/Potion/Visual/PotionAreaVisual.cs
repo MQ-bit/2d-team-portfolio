@@ -81,6 +81,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
             PotionAreaSurfaceStyle.VampiricPoison => new Vector4(0.8f, 0.5f, 1f, 0.85f),
             PotionAreaSurfaceStyle.VampiricFrost => new Vector4(0.7f, 0.12f, 1f, 0.85f),
             PotionAreaSurfaceStyle.VampiricLightning => new Vector4(1.6f, 0.25f, 1f, 0.8f),
+            PotionAreaSurfaceStyle.FrostPoison => new Vector4(0.6f, 0.18f, 1f, 0.9f),
+            PotionAreaSurfaceStyle.ToxicCurrent => new Vector4(1.2f, 0.6f, 1f, 0.85f),
             PotionAreaSurfaceStyle.BlazingCurrent => new Vector4(1.2f, 0.25f, 1f, 0.85f),
             PotionAreaSurfaceStyle.Electricity => new Vector4(2.2f, 0.4f, 1f, 0.65f),
             PotionAreaSurfaceStyle.Mist => new Vector4(0.8f, 0.8f, 0.8f, 0.6f),
@@ -122,7 +124,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
         }
 
         if (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
-            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost)
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost
+            || _surfaceStyle == PotionAreaSurfaceStyle.FrostPoison)
         {
             _frostCrystals.Bind(renderer, this);
         }
@@ -151,7 +154,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
         }
 
         if (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
-            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost)
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost
+            || _surfaceStyle == PotionAreaSurfaceStyle.FrostPoison)
         {
             _frostCrystals.SetFootprint(footprint);
         }
@@ -216,6 +220,8 @@ public sealed class PotionAreaVisual : MonoBehaviour
             _fireVortex.Apply(_renderer, _accentColor, _flowTime, Visibility * _opacity * 0.85f);
         if (_surfaceStyle == PotionAreaSurfaceStyle.Frost)
             _frostCrystals.Apply(_renderer, _accentColor, Visibility * _opacity);
+        if (_surfaceStyle == PotionAreaSurfaceStyle.FrostPoison)
+            _frostCrystals.Apply(_renderer, _accentColor, Visibility * _opacity * 0.85f);
         if (_surfaceStyle == PotionAreaSurfaceStyle.ThermalShock)
         {
             _frostCrystals.Apply(_renderer, new Color(0.9f, 0.96f, 1f), Visibility * _opacity);

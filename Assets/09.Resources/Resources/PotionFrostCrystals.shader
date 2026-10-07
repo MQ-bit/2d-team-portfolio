@@ -3,6 +3,7 @@ Shader "Potion/FrostCrystals"
     Properties
     {
         _IceAccent ("Ice Tint", Color) = (0.75, 0.96, 1, 1)
+        _IcePoison ("Toxic Frost", Float) = 0
         _IceAnimation ("Growth, Visibility, Time, Steam", Vector) = (1, 1, 0, 0)
         [HideInInspector] _AreaClipMask ("Ground Footprint", 2D) = "white" {}
         [HideInInspector] _AreaClipRect ("Footprint Bounds", Vector) = (0, 0, 1, 1)
@@ -33,6 +34,7 @@ Shader "Potion/FrostCrystals"
         };
         CBUFFER_START(UnityPerMaterial)
             float4 _IceAccent;
+            float _IcePoison;
             float4 _IceAnimation;
             float4 _AreaClipRect;
             float _AreaClipEnabled;
@@ -94,6 +96,7 @@ Shader "Potion/FrostCrystals"
                     * lerp(0.42, 0.55, _IceAnimation.w) * _IceAnimation.y * input.mist.w;
                 half3 color = lerp(half3(0.86, 0.97, 1.0), _IceAccent.rgb, 0.2);
                 color = lerp(color, half3(0.95, 0.96, 0.94), _IceAnimation.w * 0.65);
+                color = lerp(color, half3(0.46, 0.78, 0.3), _IcePoison * 0.65);
                 return half4(color * alpha, alpha);
             }
             // Thermal shock uses this mesh for steam only; no persistent ice shards.

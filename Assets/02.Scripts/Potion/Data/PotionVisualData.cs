@@ -17,7 +17,9 @@ public enum PotionAreaSurfaceStyle
     BlazingCurrent = 13,
     VampiricPoison = 14,
     VampiricFrost = 15,
-    VampiricLightning = 16
+    VampiricLightning = 16,
+    FrostPoison = 17,
+    ToxicCurrent = 18
 }
 
 [System.Serializable]

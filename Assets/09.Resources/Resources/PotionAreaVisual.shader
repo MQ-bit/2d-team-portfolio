@@ -225,7 +225,8 @@ Shader "Potion/Area"
             float edge = (_PuddleFrame.w > 0.5 ? 1.0 : 0.985)
                 - boundaryStrength * saturate(irregular)
                 - min(_Surface.x, boundaryStrength * 0.15) * motion;
-            float edgeSoftness = (style > 2.5 && style < 3.5) || (style > 14.5 && style < 15.5) ? 0.045
+            float edgeSoftness = (style > 2.5 && style < 3.5) || (style > 14.5 && style < 15.5)
+                || (style > 16.5 && style < 17.5) ? 0.045
                 : style > 9.5 ? 0.06 + (1.0 - fine) * 0.035
                 : style > 5.5 && style < 6.5 ? 0.09 : 0.015;
             float softness = max(fwidth(radius) * 1.5, edgeSoftness);
@@ -242,6 +243,11 @@ Shader "Potion/Area"
             float currentCharge = 0.0;
             float absorption = 0.0;
             float elementHighlight = 0.0;
+            float frostFissures = 0.0;
+            float toxicPools = 0.0;
+            float toxicBubbles = 0.0;
+            float frostCloud = 0.0;
+            float lobeRim = 0.0;
             if (style > 0.5 && style < 1.5) // Flame: moving heat and scattered embers.
             {
                 float heat = Noise(q * float2(6.0, 3.0) + float2(seed, -t * 1.4));
@@ -304,6 +310,44 @@ Shader "Potion/Area"
                 shade = 0.55 + cloud * 0.35;
                 coverage = 0.35 + cloud * 0.65;
                 rim *= 0.25;
+            }
+            else if (style > 17.5 && style < 18.5) // Conductive poison: bubbles underneath branching discharges.
+            {
+                toxicBubbles = Bubbles(q * 3.5 + seed, t * 0.65);
+                float tick = floor(t * 3.0);
+                float flash = pow(saturate(sin(t * 12.0 + seed)), 6.0);
+                currentArc = CurrentArc(q, t, seed);
+                elementHighlight = Cracks(q * 3.5 + float2(seed, tick * 0.7))
+                    * (0.2 + flash * 0.7) + currentArc * 0.65;
+                pattern = toxicBubbles * 0.9;
+                shade = 0.4 + flow * 0.35;
+                coverage = saturate(0.68 + flow * 0.12 + toxicBubbles * 0.15 + elementHighlight * 0.2);
+                rim *= 0.5;
+            }
+            else if (style > 16.5 && style < 17.5) // Toxic liquid trapped between frozen plates.
+            {
+                float frozen = Noise(q * 5.0 + seed);
+                toxicPools = smoothstep(0.4, 0.68, Noise(q * 3.0 + seed + 47.2));
+                frostFissures = Cracks(q * 3.5 + seed) * (1.0 - toxicPools * 0.65);
+                toxicBubbles = Bubbles(q * 3.5 + seed, t) * toxicPools;
+                float coldBand = smoothstep(0.3, 0.6, radius)
+                    * (1.0 - smoothstep(0.8, 1.0, radius));
+                frostCloud = coldBand * smoothstep(0.35, 0.75,
+                    Noise(q * 4.5 + float2(seed + t * 0.28, -t * 0.24)));
+                float motes = Sparkles(q * 10.0 + seed, t) * (1.0 - toxicPools);
+                // Keep the source puddles legible even after the reaction has finished.
+                if (_PuddleFrame.w > 0.5)
+                {
+                    float2 lobeDistances = PuddleLobeDistances(input.uv)
+                        / max(float2(0.001, 0.001), _PuddleShape.yz);
+                    float2 rings = 1.0 - smoothstep(0.018, 0.065, abs(lobeDistances + 0.1));
+                    lobeRim = max(rings.x, rings.y) * 0.22;
+                }
+                pattern = frostFissures * 0.65 + frostCloud * 0.45 + motes * 0.35;
+                shade = 0.55 + frozen * 0.25;
+                coverage = saturate(0.6 + frozen * 0.12 + toxicPools * 0.12
+                    + frostFissures * 0.15 + frostCloud * 0.12 + toxicBubbles * 0.14);
+                rim *= 0.65;
             }
             else if (style > 13.5 && style < 16.5) // Preserve each element under inward healing waves.
             {
@@ -413,7 +457,23 @@ Shader "Potion/Area"
             }
             float highlight = saturate(rim * 0.25 + detail * pattern);
             float3 color = lerp(_AreaColor.rgb * shade, _AccentColor.rgb, highlight);
-            if (style > 13.5 && style < 16.5)
+            if (style > 17.5 && style < 18.5)
+            {
+                color = lerp(_AreaColor.rgb * shade, _AccentColor.rgb,
+                    saturate(toxicBubbles * detail + rim * 0.2));
+                float3 currentColor = lerp(float3(0.65, 0.35, 1.0), float3(0.94, 1.0, 0.8),
+                    saturate(elementHighlight));
+                color = lerp(color, currentColor, saturate(elementHighlight * detail));
+            }
+            else if (style > 16.5 && style < 17.5)
+            {
+                float3 ice = lerp(_AreaColor.rgb * shade, float3(0.25, 0.57, 0.68), 0.6);
+                float3 poison = lerp(float3(0.1, 0.23, 0.07), float3(0.3, 0.48, 0.1), flow);
+                color = lerp(ice, poison, toxicPools * 0.85);
+                color = lerp(color, _AccentColor.rgb, saturate(detail * pattern + rim * 0.3 + lobeRim));
+                color = lerp(color, float3(0.68, 0.88, 0.16), saturate(toxicBubbles * detail));
+            }
+            else if (style > 13.5 && style < 16.5)
             {
                 float3 elementColor = style < 14.5 ? float3(0.7, 0.88, 0.08)
                     : style < 15.5 ? float3(0.72, 0.89, 1.0) : float3(0.83, 0.64, 1.0);

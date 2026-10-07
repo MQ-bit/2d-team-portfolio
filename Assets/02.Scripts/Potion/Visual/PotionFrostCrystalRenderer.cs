@@ -7,6 +7,7 @@ internal sealed class PotionFrostCrystalRenderer
     private const int CrystalCount = 30;
     private const int MistCount = 14;
     private static readonly int AccentId = Shader.PropertyToID("_IceAccent");
+    private static readonly int PoisonId = Shader.PropertyToID("_IcePoison");
     private static readonly int AnimationId = Shader.PropertyToID("_IceAnimation");
     private static readonly int SurfaceAnimationId = Shader.PropertyToID("_Animation");
     private static readonly int SurfaceId = Shader.PropertyToID("_Surface");
@@ -190,6 +191,8 @@ internal sealed class PotionFrostCrystalRenderer
             - (float)PotionAreaSurfaceStyle.ThermalShock) < 0.5f;
         _renderer.sortingOrder = ground.sortingOrder + (thermalShock ? 2 : 1);
         _properties.SetColor(AccentId, accent);
+        _properties.SetFloat(PoisonId, Mathf.Abs(_groundProperties.GetVector(SurfaceId).w
+            - (float)PotionAreaSurfaceStyle.FrostPoison) < 0.5f ? 1f : 0f);
         // Share the floor mask; rising mist is clipped by its projected ground support.
         _properties.SetFloat(ClipEnabledId, _groundProperties.GetFloat(ClipEnabledId));
         _properties.SetVector(ClipRectId, _groundProperties.GetVector(ClipRectId));
