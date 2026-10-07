@@ -155,12 +155,12 @@ public sealed class ScreenFadeController : MonoBehaviour
 
         while (elapsedTime < duration)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            float frameDelta = Mathf.Min(Time.unscaledDeltaTime, 0.05f); //첫 프레임의 FadeIn-Out 실행시 무시되는 현상 방지
+            elapsedTime += frameDelta;
 
             float progress = Mathf.Clamp01(elapsedTime / duration);
-            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
 
-            _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, easedProgress);
+            _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, progress);
 
             yield return null;
         }
