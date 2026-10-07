@@ -50,6 +50,10 @@ public class WaveEnemyHandle : MonoBehaviour
 
     private void HandleDeath()
     {
+        if (ScoreManager.Instance == null)
+        {
+            Debug.LogWarning($"{name} : ScoreManager 가 존재하지 않습니다!. 점수 기록 실패");
+        }
         ScoreManager.Instance.TryRecordEnemyKill(_status.EnemyType);
     }
 }

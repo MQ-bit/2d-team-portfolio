@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
-    private const string Best_Score_Save_Key = "ScoreManger.Best.v1";
+    private const string Best_Score_Save_Key = "ScoreManager.Best.v1";
     private static ScoreManager _instance;
     public static ScoreManager Instance
     {
