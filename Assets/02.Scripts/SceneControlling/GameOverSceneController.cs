@@ -44,10 +44,25 @@ public sealed class GameOverSceneController : MonoBehaviour
     [SerializeField, Min(0f)] private float _rowFadeDuration = 0.35f;
     [SerializeField, Min(0f)] private float _rowInterval = 0.2f;
 
+    [Header("Best Result")]
+    [SerializeField] private CanvasGroup _newBestText;
+
+    [SerializeField] private GameObject _bestScoreRoot;
+    [SerializeField] private CanvasGroup _bestScoreGroup;
+
+    [SerializeField] private TMP_Text _bestFloorText;
+    [SerializeField] private TMP_Text _bestEnemyText;
+    [SerializeField] private TMP_Text _bestPotionText;
+
+    [SerializeField, Min(0f)] private float _bestResultFadeDuration = 0.5f;
+    [SerializeField, Min(0f)] private float _bestResultInterval = 0.3f;
+
+    private bool _isNewBest;
+    private Sequence _newBestLoop;
+
     [Header("Game Over Timing")]
     [SerializeField, Min(0f)] private float _scoreFadeOutDuration = 0.3f;
     [SerializeField, Min(0f)] private float _gameOverFadeDuration = 0.4f;
-    [SerializeField, Min(0f)] private float _tombDuration = 1.5f;
     [SerializeField, Min(0f)] private float _tombFadeDuration = 1.5f;
     [SerializeField, Min(0f)] private float _exitPopDuration = 0.4f;
     [SerializeField] private float _tombStartOffsetY = 700f;
@@ -62,8 +77,8 @@ public sealed class GameOverSceneController : MonoBehaviour
     {
         Time.timeScale = 1f; // 게임 오버 씬 진입 시점에 Time.timeScale이 0으로 되어있을 수 있으므로 초기화
 
-        InitializePresentation();
         ApplyScore();
+        InitializePresentation();
     }
 
     private void OnEnable()
@@ -80,6 +95,9 @@ public sealed class GameOverSceneController : MonoBehaviour
 
         _inputSubscription?.Dispose();
         _inputSubscription = null;
+
+        _newBestLoop?.Kill();
+        _newBestLoop = null;
 
         _sequence?.Kill();
         _sequence = null;
@@ -121,20 +139,39 @@ public sealed class GameOverSceneController : MonoBehaviour
         SetHidden(_gameOverText);
         SetHidden(_tombCanvasGroup);
 
+        _newBestText.alpha = 1f;
+        _newBestText.gameObject.SetActive(false);
+
+        _bestScoreRoot.SetActive(false);
+
         _tombTargetY = _tombImage.anchoredPosition.y;
         _tombImage.gameObject.SetActive(false);
 
         _exitButton.gameObject.SetActive(false);
         _exitButton.transform.localScale = Vector3.zero;
-        _exitButton.interactable = true;
     }
+
     private void ApplyScore()
     {
-        ScoreData score = ScoreManager.Instance != null ? ScoreManager.Instance.GetCurrentScoreSnapshot() : new ScoreData();
+        ScoreManager scoreManager = ScoreManager.Instance;
+        if(scoreManager == null)
+        {
+            Debug.LogError("ScoreManager 인스턴스를 찾을 수 없습니다.", this);
+            return;
+        }
 
-        //_floorTarget = score.ClearedFloorCount;
-        //_enemyKillTarget = score.TotalKillCount;
-        //_potionTarget = score.ConsumedPotionCount;
+        ScoreData currentScore = scoreManager.GetCurrentScoreSnapshot();
+        ScoreData bestScore = scoreManager.GetBestScoreSnapshot();
+
+        _isNewBest = scoreManager.WasLastRunBest;
+
+        //_floorTarget = currentScore.ClearedFloorCount;
+        //_enemyKillTarget = currentScore.TotalKillCount;
+        //_potionTarget = currentScore.ConsumedPotionCount;
+
+        _bestFloorText.text = $"{bestScore.ClearedFloorCount}";
+        _bestEnemyText.text = $"{bestScore.TotalKillCount}";
+        _bestPotionText.text = $"{bestScore.ConsumedPotionCount}";
     }
 
     private Sequence CreateScoreRowSequence(CanvasGroup row, TMP_Text scoreText, int targetScore, string unit = "")
@@ -146,8 +183,7 @@ public sealed class GameOverSceneController : MonoBehaviour
         Sequence rowSequence = DOTween.Sequence();
 
         rowSequence.Append(row.DOFade(1f, _rowFadeDuration).SetEase(Ease.OutSine)); // Row 페이드 인
-        rowSequence.Join(
-                        DOTween.To(
+        rowSequence.Join(DOTween.To(
                                 () => displayedScore, 
                                 value => {displayedScore = value; scoreText.text = $"{displayedScore} {unit}";}, 
                                 targetScore, 
@@ -174,6 +210,8 @@ public sealed class GameOverSceneController : MonoBehaviour
             .Append(CreateScoreRowSequence(_enemyRow, _enemyKillText, _enemyKillTarget, "마리")) // 적 처치 수
             .AppendInterval(_rowInterval)
             .Append(CreateScoreRowSequence(_potionRow, _potionText, _potionTarget, "병")) // 포션 섭취 수
+            .AppendInterval(_bestResultInterval)
+            .AppendCallback(ShowBestResult)
             .AppendInterval(_rowInterval)
             .Append(_pressAnyKey.DOFade(1f, _rowFadeDuration).SetEase(Ease.OutSine)) // 모든 점수 표시 후 PRESS ANY KEY
             .OnComplete(BeginWaitingForInput);
@@ -191,8 +229,15 @@ public sealed class GameOverSceneController : MonoBehaviour
         _inputSubscription?.Dispose();
         _inputSubscription = null;
 
-        _sequence?.Kill();
+        _newBestLoop?.Kill();
+        _newBestLoop = null;
 
+        if (_newBestText != null)
+        {
+            _newBestText.transform.localScale = Vector3.one;
+        }
+
+        _sequence?.Kill();
         _sequence = DOTween.Sequence()
             .SetUpdate(true)
             .SetLink(gameObject, LinkBehaviour.KillOnDestroy)
@@ -249,5 +294,60 @@ public sealed class GameOverSceneController : MonoBehaviour
     private void LoadTitleScene()
     {
         SceneManager.LoadScene(_titleSceneName);
+    }
+
+    private Sequence CreateBestResultSequence()
+    {
+        Sequence resultSequence = DOTween.Sequence();
+
+        if (_isNewBest)
+        {
+            resultSequence.Append(_newBestText.DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
+            resultSequence.Join(_newBestText.transform.DOScale(Vector3.one, _bestResultFadeDuration).SetEase(Ease.OutBack, 1.7f));
+            resultSequence.Append(_newBestText.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, vibrato: 5, elasticity: 0.5f));
+        }
+        else
+        {
+            resultSequence.Append(_bestScoreGroup .DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
+        }
+
+        return resultSequence;
+    }
+
+    private void ShowBestResult()
+    {
+        if (_isNewBest)
+        {
+            _bestScoreRoot.SetActive(false);
+
+            _newBestText.gameObject.SetActive(true);
+            _newBestText.alpha = 1f;
+            _newBestText.transform.localScale = Vector3.one;
+
+            StartNewBestLoop();
+        }
+        else
+        {
+            _newBestText.gameObject.SetActive(false);
+
+            // 정확히 이 순간 확 나타남
+            _bestScoreRoot.SetActive(true);
+        }
+    }
+
+    private void StartNewBestLoop()
+    {
+        _newBestLoop?.Kill();
+
+        Transform target = _newBestText.transform;
+        target.localScale = Vector3.one;
+
+        _newBestLoop = DOTween.Sequence()
+            .SetUpdate(true)
+            .SetLink(gameObject, LinkBehaviour.KillOnDestroy)
+            .Append(target.DOScale(1.18f, 0.14f).SetEase(Ease.OutQuad))
+            .Append(target.DOScale(1f, 0.12f).SetEase(Ease.InQuad))
+            .AppendInterval(0.01f)
+            .SetLoops(-1, LoopType.Restart);
     }
 }
