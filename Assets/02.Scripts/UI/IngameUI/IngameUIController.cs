@@ -20,6 +20,9 @@ public class IngameUIController : MonoBehaviour
     [SerializeField] private GameObject _potionInformationHUD;
     [SerializeField] private float _pauseTimeScale = 0.2f;
 
+    [SerializeField] private AudioClip _potionInformationOpenSound;
+    [SerializeField, Range(0f, 1f)] private float _potionInformationOpenVolume = 1f;
+
     private bool _isPotionInformationOpen;
 
     [Header("Fallback Icon")]
@@ -174,6 +177,7 @@ public class IngameUIController : MonoBehaviour
 
         if (_isPotionInformationOpen)
         {
+            SoundManager.PlayUi(_potionInformationOpenSound, _potionInformationOpenVolume);
             ClosePotionInformation();
         }
         else
@@ -191,6 +195,7 @@ public class IngameUIController : MonoBehaviour
 
         _isPotionInformationOpen = true;
 
+        SoundManager.PlayUi(_potionInformationOpenSound, _potionInformationOpenVolume);
         _player?.AcquireGamePlayInputLock(this);
         _potionInformationHUD.SetActive(true);
         _gameTimeController.RequestTimeScale(_potionInformationTimeOwner, _pauseTimeScale);

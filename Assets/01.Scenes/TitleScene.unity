@@ -3760,6 +3760,8 @@ MonoBehaviour:
   _fadeGroup: {fileID: 1686313465}
   _ingameSceneName: IngameScene
   _fadeDuration: 0.8
+  _buttonClickSound: {fileID: 8300000, guid: b423dfe8581d3bb4c87d7674548ed8f9, type: 3}
+  _buttonClickVolume: 1
 --- !u!4 &1005989717
 Transform:
   m_ObjectHideFlags: 0

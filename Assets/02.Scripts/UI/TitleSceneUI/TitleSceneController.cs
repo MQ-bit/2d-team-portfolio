@@ -10,16 +10,41 @@ public class TitleSceneController : MonoBehaviour
     [SerializeField] private string _ingameSceneName = "IngameScene";
     [SerializeField] private float _fadeDuration = 0.8f;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip _buttonClickSound;
+    [SerializeField, Range(0f, 1f)] private float _buttonClickVolume = 1f;
+
     private bool _isTransitioning;
 
     private void Awake()
     {
+        SetupButtonSounds();
+
         if (_fadeGroup != null)
         {
             _fadeGroup.alpha = 0f;
             _fadeGroup.blocksRaycasts = false;
             _fadeGroup.interactable = false;
         }
+    }
+
+    // 씬에 있는 모든 버튼(튜토리얼 창처럼 꺼져 있는 것도 포함)에 클릭 소리를 붙인다.
+    private void SetupButtonSounds()
+    {
+        if (_buttonClickSound == null)
+            return;
+
+        SoundManager.Preload(_buttonClickSound);
+
+        foreach (Button button in FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            button.onClick.AddListener(PlayButtonClick);
+        }
+    }
+
+    private void PlayButtonClick()
+    {
+        SoundManager.PlayUi(_buttonClickSound, _buttonClickVolume);
     }
 
     // 게임 시작 버튼의 On Click()에 연결

@@ -589,6 +589,8 @@ MonoBehaviour:
   _audioSource: {fileID: 0}
   _attackSwingSound: {fileID: 8300000, guid: e933cfe7a6def1d429c4c2deef134afc, type: 3}
   _attackSwingVolume: 1
+  _meleeHitSound: {fileID: 8300000, guid: cec4f3afdee76f344aced2ca6528172b, type: 3}
+  _meleeHitVolume: 1
   _dashSound: {fileID: 8300000, guid: 9d2a5bc2c9842514199fad7cc3e83ee3, type: 3}
   _dashVolume: 1
   _dashStartOffset: 0.34

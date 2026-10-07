@@ -1,6 +1,7 @@
 using UnityEngine;
 
 // 플레이어 행동 소리: 근접 공격을 휘두르면(PlayerMeleeModule.OnAttackStarted) 적중 여부와 상관없이 휘두르는 소리를,
+// 근접 공격이 적에게 적중하면(PlayerMeleeModule.OnMeleeHit) 타격 소리를 한 번 낸다.
 // 대시(구르기)를 시작하면(PlayerMovementModule.OnDashStarted) 구르는 소리를 한 번 낸다.
 // 걷는 동안에는(PlayerAnimationDriver.IsWalking) 발소리를 일정 간격으로 반복한다.
 // 포션을 획득하면(PlayerInventoryModule.OnItemTaken) 획득 소리를 한 번 낸다.
@@ -17,6 +18,10 @@ public class PlayerActionSound : MonoBehaviour
     [Header("Melee Attack")]
     [SerializeField] private AudioClip _attackSwingSound;
     [SerializeField, Range(0f, 1f)] private float _attackSwingVolume = 1f;
+
+    [Header("Melee Hit")]
+    [SerializeField] private AudioClip _meleeHitSound;
+    [SerializeField, Range(0f, 1f)] private float _meleeHitVolume = 1f;
 
     [Header("Dash")]
     [SerializeField] private AudioClip _dashSound;
@@ -88,6 +93,7 @@ public class PlayerActionSound : MonoBehaviour
 
         // 처음 재생할 때 로딩하느라 소리가 늦지 않도록 미리 읽어둔다.
         SoundManager.Preload(_attackSwingSound);
+        SoundManager.Preload(_meleeHitSound);
         SoundManager.Preload(_dashSound);
         SoundManager.Preload(_pickupSound);
         SoundManager.Preload(_drinkSound, _drinkGain);
@@ -99,6 +105,7 @@ public class PlayerActionSound : MonoBehaviour
         if (_meleeModule != null)
         {
             _meleeModule.OnAttackStarted += HandleAttackStarted;
+            _meleeModule.OnMeleeHit += HandleMeleeHit;
         }
         if (_movementModule != null)
         {
@@ -119,6 +126,7 @@ public class PlayerActionSound : MonoBehaviour
         if (_meleeModule != null)
         {
             _meleeModule.OnAttackStarted -= HandleAttackStarted;
+            _meleeModule.OnMeleeHit -= HandleMeleeHit;
         }
         if (_movementModule != null)
         {
@@ -166,6 +174,11 @@ public class PlayerActionSound : MonoBehaviour
     private void HandleAttackStarted(Vector2 attackDirection)
     {
         SoundManager.Play(_attackSwingSound, SoundChannel.Player, _attackSwingVolume);
+    }
+
+    private void HandleMeleeHit(Vector2 attackDirection, bool hasKilled)
+    {
+        SoundManager.Play(_meleeHitSound, SoundChannel.Player, _meleeHitVolume);
     }
 
     private void HandleDashStarted(float dashCooltime)
