@@ -22,6 +22,9 @@ public sealed class PotionAreaVfxSettings : MonoBehaviour
     [Tooltip("VFX의 하단 중앙을 장판 안의 생성 위치에 맞춥니다. 불처럼 위로 솟는 이펙트에 사용합니다.")]
     public bool anchorAtBottom;
 
+    [Tooltip("하단 기준점을 이미지 높이의 이 비율만큼 위로 옮깁니다. 아래쪽 여백이 있는 폭발 이미지의 발화 지점을 장판 위치에 맞출 때 사용합니다.")]
+    [Range(0f, 1f)] public float bottomAnchorHeightRatio;
+
     [Tooltip("장판 너비 × fillScale로 VFX 크기를 정합니다. 버스트가 하나면 중앙에 고정합니다.")]
     public bool fillArea;
     [Tooltip("fillArea가 켜져 있을 때 장판 너비 대비 VFX 가로 크기 비율입니다. 1이면 장판 너비와 같고, 0.5이면 절반입니다.")]

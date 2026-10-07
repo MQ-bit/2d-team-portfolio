@@ -39,8 +39,13 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         Collider2D secondCollider = second.AreaCollider;
         Vector2 firstCenter = first.OriginalCenter;
         Vector2 secondCenter = second.OriginalCenter;
-        var shape = new PotionPuddleShape(firstCenter, first.OriginalRadius,
-            secondCenter, second.OriginalRadius,
+        // Thermal shock uses a stable spatial ordering, independent of throw order.
+        bool reverseShape = visualData.AreaSurfaceStyle == PotionAreaSurfaceStyle.ThermalShock
+            && (firstCenter.x > secondCenter.x || (firstCenter.x == secondCenter.x && firstCenter.y > secondCenter.y));
+        var shape = new PotionPuddleShape(reverseShape ? secondCenter : firstCenter,
+            reverseShape ? second.OriginalRadius : first.OriginalRadius,
+            reverseShape ? firstCenter : secondCenter,
+            reverseShape ? first.OriginalRadius : second.OriginalRadius,
             _connectionWidthRatio, _connectionBlendRatio);
         _combinationCollider.enabled = false;
         // Preserve original centers/radii; a clipped collider's bounds are not a lobe.
@@ -53,12 +58,14 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
             : PotionAreaClipper.Subtract(shape.Outline, firstCenter, walls);
         if (footprint == null || !footprint.Contains(secondCenter)) return;
         var spread = new PotionCombinationSpread(shape, _combinationCollider, Time.time,
-            spreadDuration, first.Data.VisualData.AreaColor, second.Data.VisualData.AreaColor);
+            spreadDuration,
+            reverseShape ? second.Data.VisualData.AreaColor : first.Data.VisualData.AreaColor,
+            reverseShape ? first.Data.VisualData.AreaColor : second.Data.VisualData.AreaColor);
         firstCollider.enabled = false;
         secondCollider.enabled = false;
         footprint.ApplyTo(_combinationCollider);
-        first.AreaEffect.PrepareOriginalForSpread(spread, true, first.Owner);
-        second.AreaEffect.PrepareOriginalForSpread(spread, false, second.Owner);
+        first.AreaEffect.PrepareOriginalForSpread(spread, !reverseShape, first.Owner);
+        second.AreaEffect.PrepareOriginalForSpread(spread, reverseShape, second.Owner);
 
         first.RetainAreaVfxForSpread(spread);
         second.RetainAreaVfxForSpread(spread);
@@ -106,6 +113,14 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         renderer.sharedMaterial = first.AreaVisual.OriginalMaterial;
         renderer.sortingLayerID = firstRenderer.sortingLayerID;
         renderer.sortingOrder = firstRenderer.sortingOrder;
+        if (visualData.AreaSurfaceStyle == PotionAreaSurfaceStyle.ThermalShock)
+        {
+            uint seed = unchecked((uint)Mathf.RoundToInt(shape.BoundsCenter.x * 1000f) * 747796405u
+                ^ (uint)Mathf.RoundToInt(shape.BoundsCenter.y * 1000f) * 2891336453u
+                ^ (uint)Mathf.RoundToInt(shape.BoundsSize.x * 1000f) * 2246822519u
+                ^ (uint)Mathf.RoundToInt(shape.BoundsSize.y * 1000f) * 3266489917u);
+            first.AreaVisual.SetCombinationSeed(seed);
+        }
         first.AreaVisual.Bind(renderer, visualData, transition: true);
         first.AreaVisual.SetPuddleShape(shape);
         firstRenderer.enabled = false;

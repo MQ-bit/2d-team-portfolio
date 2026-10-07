@@ -12,6 +12,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private PotionAreaTimeline<IPotionEffectTarget> _singleTimeline;
     private readonly PotionAreaSpreadEffect _spreadEffect = new();
     private readonly HashSet<IPotionEffectTarget> _affectedTargets = new();
+    private bool _isSynchronizingTimeline;
 
     public bool HasCombination => _hasCombination;
     internal IPotionEffectData ActiveProfile => _singleProfile ?? _data;
@@ -181,20 +182,31 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
 
     private void SynchronizeSingleTimeline()
     {
-        if (_spreadEffect.IsActive)
+        // Trigger/impact callbacks may request another synchronization mid-update.
+        // Contacts still update immediately; the next update reconciles them.
+        if (_isSynchronizingTimeline) return;
+        _isSynchronizingTimeline = true;
+        try
         {
-            if (!_spreadEffect.Synchronize(_singleTimeline, _hasCombination, ApplyCombinationImpact))
-                return;
-            if (!_hasCombination)
+            if (_spreadEffect.IsActive)
             {
-                DisableForCombination();
+                if (!_spreadEffect.Synchronize(_singleTimeline, _hasCombination, ApplyCombinationImpact))
+                    return;
+                if (!_hasCombination)
+                {
+                    DisableForCombination();
+                    return;
+                }
+                _contacts.Rebuild(_spreadEffect.Hits);
+                _spreadEffect.Clear();
                 return;
             }
-            _contacts.Rebuild(_spreadEffect.Hits);
-            _spreadEffect.Clear();
-            return;
+            _singleTimeline?.Synchronize(_contacts.Targets, Time.timeAsDouble);
         }
-        _singleTimeline?.Synchronize(_contacts.Targets, Time.timeAsDouble);
+        finally
+        {
+            _isSynchronizingTimeline = false;
+        }
     }
 
     private void ApplyCombinationImpact(IPotionEffectTarget target)

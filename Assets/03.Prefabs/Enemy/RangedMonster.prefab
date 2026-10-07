@@ -127,6 +127,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8195223905280176764, guid: 3c5ae160564aa424cb8e7941e018bc56, type: 3}
+      propertyPath: _type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8398785202606945658, guid: 3c5ae160564aa424cb8e7941e018bc56, type: 3}
       propertyPath: _firePoint
       value: 
@@ -163,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f185abedc27390645a89a01a0d2d8301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveEnemyHandle
+  _status: {fileID: 0}
 --- !u!4 &7146418001948172298 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6128226830160555071, guid: 3c5ae160564aa424cb8e7941e018bc56, type: 3}

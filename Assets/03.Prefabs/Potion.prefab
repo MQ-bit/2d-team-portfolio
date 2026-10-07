@@ -49,6 +49,14 @@ MonoBehaviour:
   _visual: {fileID: 8000000000000000002}
   _breakEffectPrefab: {fileID: 6545532118163206398, guid: fc41fa5460279014a8833c3ebc611d30, type: 3}
   _areaControllerPrefab: {fileID: 8441354467153822698, guid: 14784a82e51a53c4696bbcb2ff4d417f, type: 3}
+  _renderer: {fileID: 0}
+  _wallCollisionLayers:
+    serializedVersion: 2
+    m_Bits: 1024
+  _wallGroundClearance: 0.15
+  _impactShakeForce: 0.1
+  _enemyHitShakeForce: 0.25
+  _enemyHitStopDuration: 0.06
 --- !u!1 &8000000000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -127,7 +135,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -507127363
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1296918660627881746, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
@@ -218,7 +226,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -507127363
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: -5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1296918660627881746, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}

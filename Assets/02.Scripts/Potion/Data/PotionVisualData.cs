@@ -11,7 +11,15 @@ public enum PotionAreaSurfaceStyle
     Mist = 6,
     Cracks = 7,
     HealingSpring = 8,
-    FireVortex = 10
+    FireVortex = 10,
+    ThermalShock = 11,
+    VampiricFire = 12,
+    BlazingCurrent = 13,
+    VampiricPoison = 14,
+    VampiricFrost = 15,
+    VampiricLightning = 16,
+    FrostPoison = 17,
+    ToxicCurrent = 18
 }
 
 [System.Serializable]

@@ -42,9 +42,12 @@ public static class FireOptimizationValidation
             bind.Invoke(helper, new object[] { ground, ground });
             watch.Stop();
             double bindMs = watch.Elapsed.TotalMilliseconds;
+            // Allow all staggered ignition ramps to finish before the mature-flame preview.
+            type.GetField("_startedAt", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(helper, Time.time - 1.5f);
             var field = (MeshRenderer)type.GetField("_renderer", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(helper);
             mesh = field.GetComponent<MeshFilter>().sharedMesh;
-            if (mesh.vertexCount != 720) throw new Exception("Unexpected flame mesh size.");
+            if (mesh.vertexCount != 612) throw new Exception("Unexpected flame mesh size.");
             Vector3 position = field.transform.position;
             Vector3 scale = field.transform.localScale;
             ground.transform.localScale = new Vector3(20, 12, 1);
@@ -79,7 +82,7 @@ public static class FireOptimizationValidation
             if (lit < 100) throw new Exception("Flames were not rendered by the active URP pipeline.");
             if (ShaderUtil.ShaderHasError(field.sharedMaterial.shader)) throw new Exception("Shader compilation failed.");
             File.WriteAllBytes("Temp/FireOptimizationPreview.png", output.EncodeToPNG());
-            File.WriteAllText("Temp/FireOptimizationValidation.txt", "PASS: 40 flame strips / 720 vertices; fixed position and scale across 120 updates; URP rendered pixels=" + lit
+            File.WriteAllText("Temp/FireOptimizationValidation.txt", "PASS: 34 flame strips / 612 vertices; fixed position and scale across 120 updates; URP rendered pixels=" + lit
                 + "; bindMs=" + bindMs + "; reflection-inclusive 120 updateMs=" + watch.Elapsed.TotalMilliseconds);
         }
         catch (Exception error)

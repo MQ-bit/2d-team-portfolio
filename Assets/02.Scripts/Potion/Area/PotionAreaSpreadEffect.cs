@@ -40,6 +40,8 @@ internal sealed class PotionAreaSpreadEffect
     internal bool Synchronize(PotionAreaTimeline<IPotionEffectTarget> timeline,
         bool hasCombination, Action<IPotionEffectTarget> applyImpact)
     {
+        PotionCombinationSpread spread = _spread;
+        if (spread == null) return false;
         _reachedTargets.Clear();
         _originalTargets.Clear();
         foreach (Collider2D hit in _spread.Hits)
@@ -54,24 +56,33 @@ internal sealed class PotionAreaSpreadEffect
         }
         // 콜라이더가 여러 개인 대상도 확산이 닿는 순간 한 번만 전환한다.
         _originalTargets.ExceptWith(_reachedTargets);
+        // Effect callbacks can disable the area and clear its live target sets.
+        var reachedTargets = new List<IPotionEffectTarget>(_reachedTargets);
+        var originalTargets = new List<IPotionEffectTarget>(_originalTargets);
         double now = Time.timeAsDouble;
         if (hasCombination)
         {
-            _originalTimeline?.Synchronize(_originalTargets, now);
-            foreach (IPotionEffectTarget target in _reachedTargets)
+            _originalTimeline?.Synchronize(originalTargets, now);
+            if (_spread != spread) return false;
+            foreach (IPotionEffectTarget target in reachedTargets)
+            {
                 if (_pendingImpact.Remove(target)) applyImpact(target);
-            timeline?.Synchronize(_reachedTargets, now);
+                if (_spread != spread) return false;
+            }
+            timeline?.Synchronize(reachedTargets, now);
         }
         else
         {
-            timeline?.Synchronize(_originalTargets, now);
+            timeline?.Synchronize(originalTargets, now);
         }
 
-        if (!_spread.IsComplete) return false;
+        if (_spread != spread || !spread.IsComplete) return false;
         if (hasCombination)
         {
-            _originalTimeline?.End(false);
+            var originalTimeline = _originalTimeline;
             _originalTimeline = null;
+            originalTimeline?.End(false);
+            if (_spread != spread) return false;
             _pendingImpact.Clear();
         }
         return true;
@@ -79,11 +90,12 @@ internal sealed class PotionAreaSpreadEffect
 
     internal void Clear()
     {
-        _originalTimeline?.End(false);
+        var originalTimeline = _originalTimeline;
         _originalTimeline = null;
         _spread = null;
         _pendingImpact.Clear();
         _reachedTargets.Clear();
         _originalTargets.Clear();
+        originalTimeline?.End(false);
     }
 }

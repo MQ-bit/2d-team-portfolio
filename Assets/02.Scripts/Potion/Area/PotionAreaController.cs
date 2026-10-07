@@ -163,13 +163,16 @@ public class PotionAreaController : MonoBehaviour
         {
             field.UseLegacySinglePotionBursts();
         }
-        else if (IsCombined && Data != null && Data.Element != PotionElement.Vaporization &&
+        else if (IsCombined && visualData.AreaSurfaceStyle != PotionAreaSurfaceStyle.ThermalShock
+                 && Data != null && Data.Element != PotionElement.Vaporization &&
                  _combiner.PartnerArea != null && _combiner.PartnerArea.Data != null &&
                  _combiner.PartnerArea.Data.Element != PotionElement.Vaporization)
         {
             field.UseIntenseCombinationBursts();
         }
 
+        if (visualData.AreaSurfaceStyle == PotionAreaSurfaceStyle.ThermalShock)
+            field.UseDeterministicBursts(_visual.CombinationSeed);
         field.SetVfx(visualData.AreaVfxPrefab);
         field.ConfigureFootprint(Footprint);
         _vfxField = field;
