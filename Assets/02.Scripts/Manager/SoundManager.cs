@@ -63,8 +63,9 @@ internal sealed class SoundVoice
 // 씬에 없으면 처음 쓸 때 스스로 만들어진다.
 //
 // 볼륨은 AudioMixer로 관리한다. Resources/MainAudioMixer 에셋을 불러오며, 구조는 다음과 같다.
-//   Master 그룹 아래에 SoundChannel 이름과 같은 그룹(Bgm, Sfx, Ui, Player, Potion).
-//   Master 그룹 볼륨을 "MasterVolume", 각 채널 그룹 볼륨을 "<채널이름>Volume"(예: "PlayerVolume")으로 Expose.
+//   Master 아래에 Bgm, Sfx 그룹. Sfx 아래에 Ui, Player, Potion 그룹(채널 이름과 같은 이름).
+//   조절하는 볼륨은 전체/BGM/효과음 3개뿐이다. Master, Bgm, Sfx 그룹의 볼륨을
+//   각각 "MasterVolume", "BgmVolume", "SfxVolume"으로 Expose. (Sfx 아래 그룹은 Sfx 볼륨을 따라간다.)
 // 에셋이 없으면 경고를 내고 AudioSource 볼륨에 직접 곱하는 방식으로 대신한다.
 public class SoundManager : MonoBehaviour
 {
@@ -72,7 +73,7 @@ public class SoundManager : MonoBehaviour
     {
         public Transform Root;
         public AudioMixerGroup Group;
-        public float Volume = 1f;
+        public bool IsBgm;
         public int MaxVoices;
         public readonly List<SoundVoice> Voices = new List<SoundVoice>();
     }
@@ -82,6 +83,8 @@ public class SoundManager : MonoBehaviour
 
     private const string MixerResourcePath = "MainAudioMixer";
     private const string MasterVolumeParameter = "MasterVolume";
+    private const string BgmVolumeParameter = "BgmVolume";
+    private const string SfxVolumeParameter = "SfxVolume";
     private const float MinDecibel = -80f;
 
     private static SoundManager Instance
@@ -113,6 +116,8 @@ public class SoundManager : MonoBehaviour
 
     private Channel[] _channels;
     private float _masterVolume = 1f;
+    private float _bgmVolume = 1f;
+    private float _sfxVolume = 1f;
 
     // Gain으로 키운 클립은 런타임에 새로 만든 것이라 직접 정리한다.
     private readonly Dictionary<(AudioClip clip, float gain), AudioClip> _amplifiedClips =
@@ -148,7 +153,8 @@ public class SoundManager : MonoBehaviour
             _channels[i] = new Channel
             {
                 Root = root,
-                Group = FindGroup(names[i]),
+                Group = FindGroup((SoundChannel)i),
+                IsBgm = (SoundChannel)i == SoundChannel.Bgm,
                 MaxVoices = GetMaxVoices((SoundChannel)i),
             };
         }
@@ -156,26 +162,25 @@ public class SoundManager : MonoBehaviour
         ApplyMixerVolumes();
     }
 
-    private AudioMixerGroup FindGroup(string channelName)
+    // Bgm과 Sfx는 Master 바로 아래, 나머지 효과음 채널은 Sfx 아래에 있다.
+    private AudioMixerGroup FindGroup(SoundChannel channel)
     {
         if (_mixer == null)
         {
             return null;
         }
 
-        AudioMixerGroup[] groups = _mixer.FindMatchingGroups($"Master/{channelName}");
+        string path = channel == SoundChannel.Bgm || channel == SoundChannel.Sfx
+            ? $"Master/{channel}"
+            : $"Master/Sfx/{channel}";
+        AudioMixerGroup[] groups = _mixer.FindMatchingGroups(path);
         if (groups.Length == 0)
         {
-            Debug.LogWarning($"{_mixer.name} : Master/{channelName} 그룹이 없어 Master 그룹으로 출력함.");
+            Debug.LogWarning($"{_mixer.name} : {path} 그룹이 없어 Master 그룹으로 출력함.");
             return null;
         }
 
         return groups[0];
-    }
-
-    private static string GetVolumeParameter(SoundChannel channel)
-    {
-        return $"{channel}Volume";
     }
 
     // 0~1 볼륨을 믹서의 데시벨 값으로 바꿔 넣는다. 믹서가 없으면 아무것도 하지 않는다(소리 볼륨에 직접 곱한다).
@@ -192,16 +197,14 @@ public class SoundManager : MonoBehaviour
         }
 
         _mixer.SetFloat(MasterVolumeParameter, ToDecibel(_masterVolume));
-        for (int i = 0; i < _channels.Length; i++)
-        {
-            _mixer.SetFloat(GetVolumeParameter((SoundChannel)i), ToDecibel(_channels[i].Volume));
-        }
+        _mixer.SetFloat(BgmVolumeParameter, ToDecibel(_bgmVolume));
+        _mixer.SetFloat(SfxVolumeParameter, ToDecibel(_sfxVolume));
     }
 
     // 믹서가 볼륨을 맡으면 소리 자체에는 곱하지 않는다.
     private float GetSoftwareVolume(Channel channel)
     {
-        return _mixer != null ? 1f : channel.Volume * _masterVolume;
+        return _mixer != null ? 1f : (channel.IsBgm ? _bgmVolume : _sfxVolume) * _masterVolume;
     }
 
     private void OnDestroy()
@@ -323,22 +326,6 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public static void SetChannelVolume(SoundChannel channel, float volume)
-    {
-        SoundManager manager = Instance;
-        if (manager != null)
-        {
-            manager._channels[(int)channel].Volume = Mathf.Clamp01(volume);
-            manager.ApplyMixerVolumes();
-        }
-    }
-
-    public static float GetChannelVolume(SoundChannel channel)
-    {
-        SoundManager manager = Instance;
-        return manager != null ? manager._channels[(int)channel].Volume : 1f;
-    }
-
     public static void SetMasterVolume(float volume)
     {
         SoundManager manager = Instance;
@@ -353,6 +340,39 @@ public class SoundManager : MonoBehaviour
     {
         SoundManager manager = Instance;
         return manager != null ? manager._masterVolume : 1f;
+    }
+
+    public static void SetBgmVolume(float volume)
+    {
+        SoundManager manager = Instance;
+        if (manager != null)
+        {
+            manager._bgmVolume = Mathf.Clamp01(volume);
+            manager.ApplyMixerVolumes();
+        }
+    }
+
+    public static float GetBgmVolume()
+    {
+        SoundManager manager = Instance;
+        return manager != null ? manager._bgmVolume : 1f;
+    }
+
+    // Ui, Player, Potion 같은 BGM이 아닌 모든 채널의 볼륨.
+    public static void SetSfxVolume(float volume)
+    {
+        SoundManager manager = Instance;
+        if (manager != null)
+        {
+            manager._sfxVolume = Mathf.Clamp01(volume);
+            manager.ApplyMixerVolumes();
+        }
+    }
+
+    public static float GetSfxVolume()
+    {
+        SoundManager manager = Instance;
+        return manager != null ? manager._sfxVolume : 1f;
     }
 
     private SoundHandle PlayInternal(AudioClip clip, SoundChannel channelId, float volume, float gain,
