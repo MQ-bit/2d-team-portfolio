@@ -26,12 +26,9 @@ public sealed class LevelManager : MonoBehaviour
     [Header("Player")]
     [SerializeField] private PlayerController _player;
 
-    [Header("Score")]
-    [SerializeField] private int _clearedLayer;
 
     private Rigidbody2D _playerRigidbody;
     private bool _isTransitioning;
-    public int ClearedLayer => _clearedLayer;
     public bool CanCompleteStage => isActiveAndEnabled && !_isTransitioning && _stageManager != null && _stageManager.IsStageCleared;
 
     private void Awake()
@@ -74,7 +71,7 @@ public sealed class LevelManager : MonoBehaviour
         {
             _isTransitioning = false;
         }
-        _clearedLayer++;
+
         return accepted;
     }
 
@@ -90,6 +87,8 @@ public sealed class LevelManager : MonoBehaviour
         {
             Debug.LogError($"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.");
         }
+
+        ScoreManager.Instance?.TryRecordFloorCleared();
     }
 
     private void HandleTransitionCompleted()

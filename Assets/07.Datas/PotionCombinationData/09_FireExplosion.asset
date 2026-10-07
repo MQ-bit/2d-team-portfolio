@@ -45,8 +45,13 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.8
   _visualData:
     _iconSprite: {fileID: 0}
+    _cardBackgroundSprite: {fileID: 0}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
-    _areaVfxPrefab: {fileID: 133403889251271510, guid: a381f12b670e418ba6c333ee09efd2e9, type: 3}
+    _areaAccentColor: {r: 1, g: 1, b: 1, a: 1}
+    _areaSurfaceStyle: 0
+    _areaVfxPrefab: {fileID: 133403889251271510, guid: ca37d87e50604b5b98251c5dcd03d395, type: 3}
+    _impactVisualDuration: 0

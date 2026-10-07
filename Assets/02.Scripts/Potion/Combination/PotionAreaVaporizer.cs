@@ -84,7 +84,12 @@ internal sealed class PotionAreaVaporizer
         // Claim all participants before callbacks, so the shared collider cannot
         // consume the same combination twice through either original lobe.
         PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
-        if (primaryCombiner.IsCombined)
+        if (!primaryCombiner.IsCombined && primary.Data.Element == PotionElement.Heal)
+        {
+            // A healing reaction must not read as one of the damaging explosions.
+            PotionPurifyingLifeVfx.Spawn(effectCollider, primary.AreaRenderer, primary.Footprint);
+        }
+        else if (primaryCombiner.IsCombined)
         {
             // A two-element surface uses the shared VFX when vaporization is added.
             PotionVaporizationReactionVfx.Spawn(settings, effectCollider, primary.AreaRenderer);

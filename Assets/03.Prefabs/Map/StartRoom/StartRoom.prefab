@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 721293403781015546}
   - component: {fileID: 2722697660016212862}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: West
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ GameObject:
   - component: {fileID: 8467234691806660522}
   - component: {fileID: 2334653738395803689}
   - component: {fileID: 7363222648623537604}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_GroundDeco
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -734,7 +734,7 @@ GameObject:
   - component: {fileID: 4087826490111454666}
   - component: {fileID: 386744043966067202}
   - component: {fileID: 4668396464442221623}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7905,7 +7905,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4712397340432357052}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Probs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7936,7 +7936,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1229277689122464823}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PlayerSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7969,7 +7969,7 @@ GameObject:
   - component: {fileID: 3312743620447293084}
   - component: {fileID: 5211687995422421005}
   - component: {fileID: 2389862563778245072}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: StartRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8044,7 +8044,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8349313748149612107}
   - component: {fileID: 589118431049439219}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: East
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8096,7 +8096,7 @@ GameObject:
   - component: {fileID: 8240949962000007446}
   - component: {fileID: 1755036451437586011}
   - component: {fileID: 30450790995312895}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12435,7 +12435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7432976819200892641}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Markers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12468,7 +12468,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6825592075625877289}
   - component: {fileID: 2418196780900350175}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: South
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12515,7 +12515,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4336944862647989421}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Connectors
   m_TagString: Untagged
   m_Icon: {fileID: 0}

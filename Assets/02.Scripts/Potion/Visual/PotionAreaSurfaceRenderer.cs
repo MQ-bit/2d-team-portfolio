@@ -7,6 +7,7 @@ internal sealed class PotionAreaSurfaceRenderer
     private static readonly int AccentColorId = Shader.PropertyToID("_AccentColor");
     private static readonly int SurfaceId = Shader.PropertyToID("_Surface");
     private static readonly int AnimationId = Shader.PropertyToID("_Animation");
+    private static readonly int BoundaryId = Shader.PropertyToID("_Boundary");
     private static readonly int PuddleShapeId = Shader.PropertyToID("_PuddleShape");
     private static readonly int PuddleFrameId = Shader.PropertyToID("_PuddleFrame");
     private static readonly int PuddleBoundsId = Shader.PropertyToID("_PuddleBounds");
@@ -24,8 +25,18 @@ internal sealed class PotionAreaSurfaceRenderer
     private Color _originalColor;
     private Vector3 _originalScale;
     private readonly PotionAreaMaskRenderer _mask = new();
+    private Vector4 _boundarySettings = new(0.17f, 4.5f, 0.35f, 0.45f);
 
     internal void SetFootprint(PotionAreaFootprint footprint) => _mask.SetFootprint(footprint);
+    internal void SetBoundarySettings(Vector4 settings) => _boundarySettings = settings;
+
+    internal static void CopyCombinationProperties(MaterialPropertyBlock source, MaterialPropertyBlock target)
+    {
+        target.SetVector(PuddleShapeId, source.GetVector(PuddleShapeId));
+        target.SetVector(PuddleFrameId, source.GetVector(PuddleFrameId));
+        target.SetVector(PuddleBoundsId, source.GetVector(PuddleBoundsId));
+        target.SetVector(PuddleSpreadId, source.GetVector(PuddleSpreadId));
+    }
 
     internal bool IsBound { get; private set; }
     internal Material OriginalMaterial => _originalMaterial;
@@ -86,6 +97,7 @@ internal sealed class PotionAreaSurfaceRenderer
         _properties.SetColor(AccentColorId, accentColor);
         _properties.SetVector(SurfaceId, surface);
         _properties.SetVector(AnimationId, animation);
+        _properties.SetVector(BoundaryId, _boundarySettings);
         _mask.Apply(_properties);
         if (puddle != null)
         {

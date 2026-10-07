@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5894823665686151467}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Probs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 804271798972166804}
   - component: {fileID: 3167635153057155239}
   - component: {fileID: -428140211555779208}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: NormalRoom_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 2448411574246102163}
   - component: {fileID: 5957844562251764918}
   - component: {fileID: 2383557415735739396}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: West
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 7559182833072709158}
   - component: {fileID: 8941600596013584310}
   - component: {fileID: 4907220929174975332}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7498,7 +7498,7 @@ GameObject:
   - component: {fileID: 646242900309472244}
   - component: {fileID: 8445107875514246383}
   - component: {fileID: 3747043529424454379}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: South
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7563,7 +7563,7 @@ GameObject:
   - component: {fileID: 3622617745419466764}
   - component: {fileID: 3061100142437058413}
   - component: {fileID: 4103471921958880610}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: North
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7631,7 +7631,7 @@ GameObject:
   - component: {fileID: 580878602997343630}
   - component: {fileID: 5855604227594661298}
   - component: {fileID: 4531766342784919421}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12206,7 +12206,7 @@ GameObject:
   - component: {fileID: 8429822480807328858}
   - component: {fileID: 1358810937784937152}
   - component: {fileID: 7688685314293933999}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: East
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12269,7 +12269,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1896955970271173412}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 6519382022992737161, guid: 0000000000000000d000000000000000, type: 0}
@@ -12300,7 +12300,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1664189912338693588}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: EnemySpawnPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12333,7 +12333,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9114612388231266858}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Marksers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12368,7 +12368,7 @@ GameObject:
   - component: {fileID: 7471868989263617633}
   - component: {fileID: 4043267711114540070}
   - component: {fileID: 5214713739183935096}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_GroundDeco
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12673,7 +12673,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2541578103147845734}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SpawnPoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 6519382022992737161, guid: 0000000000000000d000000000000000, type: 0}
@@ -12704,7 +12704,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3872645272869443028}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Connectors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
