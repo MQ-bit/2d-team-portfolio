@@ -12,125 +12,6 @@ public enum SoundChannel
     Potion,
 }
 
-// 재생 중인 소리 하나를 가리키는 손잡이. 소리가 끝났거나 다른 소리가 그 자리를 차지했으면 무효가 된다.
-public readonly struct SoundHandle
-{
-    private readonly SoundVoice _voice;
-    private readonly int _id;
-
-    internal SoundHandle(SoundVoice voice)
-    {
-        _voice = voice;
-        _id = voice.Id;
-    }
-
-    public bool IsPlaying => _voice != null && _voice.Id == _id && _voice.Active;
-
-    // 재생 위치(초). 재생 중이 아니면 0.
-    public float Time => IsPlaying ? _voice.Source.time : 0f;
-
-    // 바로 멈춘다.
-    public void Stop()
-    {
-        if (IsPlaying)
-        {
-            _voice.Release();
-        }
-    }
-
-    // fadeTime초에 걸쳐 서서히 줄이다가 멈춘다.
-    public void FadeOut(float fadeTime)
-    {
-        if (IsPlaying)
-        {
-            _voice.StartFade(0f, fadeTime, true);
-        }
-    }
-
-    // fadeTime초에 걸쳐 볼륨을 targetVolume(0~1, 처음 정한 볼륨 대비 비율)으로 바꾼다. 멈추지는 않는다.
-    public void FadeTo(float targetVolume, float fadeTime)
-    {
-        if (IsPlaying)
-        {
-            _voice.StartFade(targetVolume, fadeTime, false);
-        }
-    }
-}
-
-internal sealed class SoundVoice
-{
-    public AudioSource Source;
-    public int Id;
-    public bool Active;
-    public float BaseVolume;
-    public float EndTime;
-    public float FadeOutTime;
-    public float StartedAt;
-
-    // 페이드 인/아웃. FadeValue는 현재 비율(0~1), 페이드 중이면 FadeTarget으로 FadeTime초에 걸쳐 바뀐다.
-    public float FadeValue = 1f;
-    public float FadeFrom;
-    public float FadeTarget;
-    public float FadeTime;
-    public float FadeElapsed;
-    public bool Fading;
-    public bool StopWhenFaded;
-
-    public void StartFade(float target, float time, bool stopWhenFaded)
-    {
-        target = Mathf.Clamp01(target);
-        StopWhenFaded = stopWhenFaded;
-        if (time <= 0f)
-        {
-            FadeValue = target;
-            Fading = false;
-            if (stopWhenFaded)
-            {
-                Release();
-            }
-            return;
-        }
-
-        FadeFrom = FadeValue;
-        FadeTarget = target;
-        FadeTime = time;
-        FadeElapsed = 0f;
-        Fading = true;
-    }
-
-    // 페이드를 한 단계 진행한다. 페이드가 끝나서 멈춰야 하면 true.
-    public bool AdvanceFade(float deltaTime)
-    {
-        if (!Fading)
-        {
-            return false;
-        }
-
-        FadeElapsed += deltaTime;
-        float t = Mathf.Clamp01(FadeElapsed / FadeTime);
-        FadeValue = Mathf.Lerp(FadeFrom, FadeTarget, t);
-        if (t < 1f)
-        {
-            return false;
-        }
-
-        Fading = false;
-        return StopWhenFaded;
-    }
-
-    public void Release()
-    {
-        if (Source != null)
-        {
-            Source.Stop();
-        }
-        Active = false;
-        Fading = false;
-        FadeValue = 1f;
-        Id++;
-    }
-}
-
 // 전역 사운드 관리자. 모든 소리는 여기서 채널을 골라 재생한다.
 // 씬에 없으면 처음 쓸 때 스스로 만들어진다.
 //
@@ -156,23 +37,8 @@ internal sealed class SoundVoice
 //  로딩     SoundManager.Preload(clip);                         // 처음 재생이 늦지 않게 미리 읽어두기
 public class SoundManager : MonoBehaviour
 {
-    private sealed class Channel
-    {
-        public Transform Root;
-        public AudioMixerGroup Group;
-        public bool IsBgm;
-        public int MaxVoices;
-        public readonly List<SoundVoice> Voices = new List<SoundVoice>();
-    }
-
     private static SoundManager _instance;
     private static bool _isQuitting;
-
-    private const string MixerResourcePath = "MainAudioMixer";
-    private const string MasterVolumeParameter = "MasterVolume";
-    private const string BgmVolumeParameter = "BgmVolume";
-    private const string SfxVolumeParameter = "SfxVolume";
-    private const float MinDecibel = -80f;
 
     private static SoundManager Instance
     {
@@ -201,11 +67,8 @@ public class SoundManager : MonoBehaviour
     [Tooltip("비워두면 Resources/MainAudioMixer를 불러온다.")]
     [SerializeField] private AudioMixer _mixer;
 
-    private Channel[] _channels;
-    private float _masterVolume = 1f;
-    private float _bgmVolume = 1f;
-    private float _sfxVolume = 1f;
-
+    private SoundPlayback _playback;
+    private SoundVolumeController _volumeController;
     private SoundHandle _bgmHandle;
     private AudioClip _bgmClip;
 
@@ -225,76 +88,8 @@ public class SoundManager : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        if (_mixer == null)
-        {
-            _mixer = Resources.Load<AudioMixer>(MixerResourcePath);
-        }
-        if (_mixer == null)
-        {
-            Debug.LogWarning($"Resources/{MixerResourcePath} AudioMixer를 찾을 수 없어 AudioSource 볼륨으로 대신 조절함.");
-        }
-
-        string[] names = System.Enum.GetNames(typeof(SoundChannel));
-        _channels = new Channel[names.Length];
-        for (int i = 0; i < _channels.Length; i++)
-        {
-            var root = new GameObject(names[i]).transform;
-            root.SetParent(transform, false);
-            _channels[i] = new Channel
-            {
-                Root = root,
-                Group = FindGroup((SoundChannel)i),
-                IsBgm = (SoundChannel)i == SoundChannel.Bgm,
-                MaxVoices = GetMaxVoices((SoundChannel)i),
-            };
-        }
-
-        ApplyMixerVolumes();
-    }
-
-    // Bgm과 Sfx는 Master 바로 아래, 나머지 효과음 채널은 Sfx 아래에 있다.
-    private AudioMixerGroup FindGroup(SoundChannel channel)
-    {
-        if (_mixer == null)
-        {
-            return null;
-        }
-
-        string path = channel == SoundChannel.Bgm || channel == SoundChannel.Sfx
-            ? $"Master/{channel}"
-            : $"Master/Sfx/{channel}";
-        AudioMixerGroup[] groups = _mixer.FindMatchingGroups(path);
-        if (groups.Length == 0)
-        {
-            Debug.LogWarning($"{_mixer.name} : {path} 그룹이 없어 Master 그룹으로 출력함.");
-            return null;
-        }
-
-        return groups[0];
-    }
-
-    // 0~1 볼륨을 믹서의 데시벨 값으로 바꿔 넣는다. 믹서가 없으면 아무것도 하지 않는다(소리 볼륨에 직접 곱한다).
-    private static float ToDecibel(float volume)
-    {
-        return volume <= 0.0001f ? MinDecibel : Mathf.Log10(volume) * 20f;
-    }
-
-    private void ApplyMixerVolumes()
-    {
-        if (_mixer == null)
-        {
-            return;
-        }
-
-        _mixer.SetFloat(MasterVolumeParameter, ToDecibel(_masterVolume));
-        _mixer.SetFloat(BgmVolumeParameter, ToDecibel(_bgmVolume));
-        _mixer.SetFloat(SfxVolumeParameter, ToDecibel(_sfxVolume));
-    }
-
-    // 믹서가 볼륨을 맡으면 소리 자체에는 곱하지 않는다.
-    private float GetSoftwareVolume(Channel channel)
-    {
-        return _mixer != null ? 1f : (channel.IsBgm ? _bgmVolume : _sfxVolume) * _masterVolume;
+        _volumeController = new SoundVolumeController(_mixer);
+        _playback = new SoundPlayback(transform, _volumeController);
     }
 
     private void OnDestroy()
@@ -334,48 +129,7 @@ public class SoundManager : MonoBehaviour
 
     private void Update()
     {
-        foreach (Channel channel in _channels)
-        {
-            foreach (SoundVoice voice in channel.Voices)
-            {
-                if (voice.Active)
-                {
-                    UpdateVoice(voice, channel);
-                }
-            }
-        }
-    }
-
-    // 끝난 소리는 반납하고, 끝 지점이 있는 소리는 거기서 서서히 줄여 끝낸다.
-    private void UpdateVoice(SoundVoice voice, Channel channel)
-    {
-        if (!voice.Source.isPlaying)
-        {
-            voice.Release();
-            return;
-        }
-
-        // 일시정지(timeScale 0) 중에도 페이드는 진행되게 한다.
-        if (voice.AdvanceFade(Time.unscaledDeltaTime))
-        {
-            voice.Release();
-            return;
-        }
-
-        float fade = 1f;
-        if (voice.EndTime > 0f)
-        {
-            float remaining = voice.EndTime - voice.Source.time;
-            if (remaining <= 0f)
-            {
-                voice.Release();
-                return;
-            }
-
-            fade = voice.FadeOutTime > 0f ? Mathf.Clamp01(remaining / voice.FadeOutTime) : 1f;
-        }
-
-        voice.Source.volume = voice.BaseVolume * fade * voice.FadeValue * GetSoftwareVolume(channel);
+        _playback.Update();
     }
 
     // 클립을 채널로 재생한다. 재생을 멈추거나 상태를 볼 수 있는 손잡이를 돌려준다.
@@ -390,7 +144,7 @@ public class SoundManager : MonoBehaviour
             return default;
         }
 
-        return manager.PlayInternal(clip, channel, volume, gain, startOffset, endTime, fadeOutTime, loop, fadeInTime);
+        return manager._playback.Play(manager.GetClip(clip, gain), channel, volume, startOffset, endTime, fadeOutTime, loop, fadeInTime);
     }
 
     // 일반 효과음(Sfx 채널).
@@ -501,13 +255,7 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
-        foreach (SoundVoice voice in manager._channels[(int)channel].Voices)
-        {
-            if (voice.Active)
-            {
-                voice.StartFade(0f, fadeTime, true);
-            }
-        }
+        manager._playback.FadeOutChannel(channel, fadeTime);
     }
 
     public static void SetMasterVolume(float volume)
@@ -515,15 +263,14 @@ public class SoundManager : MonoBehaviour
         SoundManager manager = Instance;
         if (manager != null)
         {
-            manager._masterVolume = Mathf.Clamp01(volume);
-            manager.ApplyMixerVolumes();
+            manager._volumeController.SetMasterVolume(volume);
         }
     }
 
     public static float GetMasterVolume()
     {
         SoundManager manager = Instance;
-        return manager != null ? manager._masterVolume : 1f;
+        return manager != null ? manager._volumeController.MasterVolume : 1f;
     }
 
     public static void SetBgmVolume(float volume)
@@ -531,15 +278,14 @@ public class SoundManager : MonoBehaviour
         SoundManager manager = Instance;
         if (manager != null)
         {
-            manager._bgmVolume = Mathf.Clamp01(volume);
-            manager.ApplyMixerVolumes();
+            manager._volumeController.SetBgmVolume(volume);
         }
     }
 
     public static float GetBgmVolume()
     {
         SoundManager manager = Instance;
-        return manager != null ? manager._bgmVolume : 1f;
+        return manager != null ? manager._volumeController.BgmVolume : 1f;
     }
 
     // Ui, Player, Potion 같은 BGM이 아닌 모든 채널의 볼륨.
@@ -548,76 +294,14 @@ public class SoundManager : MonoBehaviour
         SoundManager manager = Instance;
         if (manager != null)
         {
-            manager._sfxVolume = Mathf.Clamp01(volume);
-            manager.ApplyMixerVolumes();
+            manager._volumeController.SetSfxVolume(volume);
         }
     }
 
     public static float GetSfxVolume()
     {
         SoundManager manager = Instance;
-        return manager != null ? manager._sfxVolume : 1f;
-    }
-
-    private SoundHandle PlayInternal(AudioClip clip, SoundChannel channelId, float volume, float gain,
-        float startOffset, float endTime, float fadeOutTime, bool loop, float fadeInTime)
-    {
-        Channel channel = _channels[(int)channelId];
-        SoundVoice voice = AcquireVoice(channel);
-        AudioClip playClip = GetClip(clip, gain);
-
-        voice.BaseVolume = Mathf.Clamp01(volume);
-        voice.EndTime = endTime;
-        voice.FadeOutTime = fadeOutTime;
-        voice.StartedAt = Time.unscaledTime;
-        voice.Active = true;
-        voice.FadeValue = 1f;
-        voice.Fading = false;
-        if (fadeInTime > 0f)
-        {
-            voice.FadeValue = 0f;
-            voice.StartFade(1f, fadeInTime, false);
-        }
-
-        AudioSource source = voice.Source;
-        source.clip = playClip;
-        source.loop = loop;
-        source.volume = voice.BaseVolume * voice.FadeValue * GetSoftwareVolume(channel);
-        source.time = Mathf.Min(startOffset, Mathf.Max(0f, playClip.length - 0.01f));
-        source.Play();
-
-        return new SoundHandle(voice);
-    }
-
-    // 놀고 있는 보이스를 쓰고, 없으면 새로 만들고, 꽉 찼으면 가장 오래된 소리를 끊고 그 자리를 쓴다.
-    private SoundVoice AcquireVoice(Channel channel)
-    {
-        SoundVoice oldest = null;
-        foreach (SoundVoice voice in channel.Voices)
-        {
-            if (!voice.Active)
-            {
-                return voice;
-            }
-            if (oldest == null || voice.StartedAt < oldest.StartedAt)
-            {
-                oldest = voice;
-            }
-        }
-
-        if (channel.Voices.Count < channel.MaxVoices)
-        {
-            AudioSource source = channel.Root.gameObject.AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            source.spatialBlend = 0f;
-            source.outputAudioMixerGroup = channel.Group;
-            var created = new SoundVoice { Source = source };
-            channel.Voices.Add(created);
-            return created;
-        }
-
-        oldest.Release();
-        return oldest;
+        return manager != null ? manager._volumeController.SfxVolume : 1f;
     }
 
     private AudioClip GetClip(AudioClip clip, float gain)
