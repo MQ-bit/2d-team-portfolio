@@ -31,25 +31,47 @@ public class ScoreData
         };
     }
 
-    public bool TryAddClearedFloor(int amount = 1)
+    public ScoreData Clone()
     {
-        if (amount <= 0) return false;
+        return new ScoreData
+        {
+            _clearedFloorCount = _clearedFloorCount,
+            _consumedPotionCount = _consumedPotionCount,
+            _normalBomberKillCount = _normalBomberKillCount,
+            _eliteBomberKillCount = _eliteBomberKillCount,
+            _normalRangedKillCount = _normalRangedKillCount,
+            _eliteRangedKillCount = _eliteRangedKillCount
+        };
+    }
+
+    internal bool TryAddClearedFloor(int amount = 1)
+    {
+        if (amount <= 0)
+        {
+            return false;
+        }
 
         _clearedFloorCount += amount;
         return true;
     }
 
-    public bool TryAddConsumedPotion(int amount = 1)
+    internal bool TryAddConsumedPotion(int amount = 1)
     {
-        if (amount <= 0) return false;
+        if (amount <= 0)
+        {
+            return false;
+        }
 
         _consumedPotionCount += amount;
         return true;
     }
 
-    public bool TryAddEnemyKill(EnemyKind kind, int amount = 1)
+    internal bool TryAddEnemyKill(EnemyKind kind, int amount = 1)
     {
-        if (amount <= 0) return false;
+        if (amount <= 0)
+        {
+            return false;
+        }
 
         switch (kind)
         {

@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 530937756}
+  - component: {fileID: 530937757}
   m_Layer: 0
   m_Name: ScoreManager
   m_TagString: Untagged
@@ -150,6 +151,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &530937757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530937755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0601983344387f74783f33c2651e76b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
+  _bestScoreData:
+    _clearedFloorCount: 0
+    _consumedPotionCount: 0
+    _normalBomberKillCount: 0
+    _eliteBomberKillCount: 0
+    _normalRangedKillCount: 0
+    _eliteRangedKillCount: 0
+  _currentScoreData:
+    _clearedFloorCount: 0
+    _consumedPotionCount: 0
+    _normalBomberKillCount: 0
+    _eliteBomberKillCount: 0
+    _normalRangedKillCount: 0
+    _eliteRangedKillCount: 0
 --- !u!1 &1445736427
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,6 +538,7 @@ GameObject:
   - component: {fileID: 1989938484}
   - component: {fileID: 1989938483}
   - component: {fileID: 1989938482}
+  - component: {fileID: 1989938485}
   m_Layer: 5
   m_Name: StartButton
   m_TagString: Untagged
@@ -581,7 +609,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1989938483}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1989938485}
+        m_TargetAssemblyTypeName: ScoreManagerButton, Assembly-CSharp
+        m_MethodName: LoadNextScene
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1989938483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -620,6 +660,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989938480}
   m_CullTransparentMesh: 1
+--- !u!114 &1989938485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989938480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4388b4c29e9c3b4459c9d9e5fec59552, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreManagerButton
 --- !u!1 &2109584400
 GameObject:
   m_ObjectHideFlags: 0

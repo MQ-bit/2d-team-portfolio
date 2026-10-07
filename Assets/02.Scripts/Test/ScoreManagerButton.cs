@@ -1,14 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScoreManagerButton : MonoBehaviour
 {
-    private void Start()
+    public void LoadNextScene()
     {
-
-    }
-
-    private void Update()
-    {
-
+        ScoreManager.Instance?.BeginRun();
+        SceneManager.LoadScene("IngameScene");
     }
 }

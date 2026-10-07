@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public class PlayerDrinkingModule : MonoBehaviour
 {
@@ -112,6 +112,8 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
         _status.DecreaseThirst(_thirstDecreaseAmount);
+
+        ScoreManager.Instance?.TryRecordPotionConsumed();
         ResetState();
     }
 
