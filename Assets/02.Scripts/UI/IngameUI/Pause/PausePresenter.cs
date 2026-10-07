@@ -6,6 +6,7 @@ public class PausePresenter : MonoBehaviour
     [Header("View")]
     [SerializeField] private PauseView _view;
     [SerializeField] private QuitConfirmView _quitConfirmView;
+    [SerializeField] private PauseVolumeView _volumeView;
 
     private InputReader _inputReader;
     private PlayerController _player;
@@ -49,29 +50,52 @@ public class PausePresenter : MonoBehaviour
                 $"{name}: PauseView가 연결되지 않았습니다.");
         }
 
+        if (_volumeView == null)
+        {
+            throw new InvalidOperationException(
+                $"{name}: PauseVolumeView가 연결되지 않았습니다.");
+        }
+
         UnlinkEventsAll();
 
-        // 재초기화 전에 이전 플레이어의 잠금을 해제합니다.
         ClosePause();
 
         _inputReader = inputReader;
         _player = player;
 
         _view.Hide();
+
         if (_quitConfirmView != null)
         {
             _quitConfirmView.Hide();
         }
+
+        // SoundManager의 현재 볼륨을 UI에 반영
+        _volumeView.SetVolumes(
+            SoundManager.GetMasterVolume(),
+            SoundManager.GetBgmVolume(),
+            SoundManager.GetSfxVolume()
+        );
+
         LinkEventsAll();
     }
 
     private void LinkEventsAll()
     {
-        if (_inputReader == null || _isSubscribed || !isActiveAndEnabled) return;
+        if (_inputReader == null || _isSubscribed || !isActiveAndEnabled)
+        {
+            return;
+        }
 
         _inputReader.OnPauseToggled += HandlePauseToggled;
+
         _view.OnResumeRequested += HandleResumeRequested;
         _view.OnMainMenuRequested += HandleMainMenuRequested;
+
+        _volumeView.OnMasterVolumeChanged += HandleMasterVolumeChanged;
+        _volumeView.OnBgmVolumeChanged += HandleBgmVolumeChanged;
+        _volumeView.OnSfxVolumeChanged += HandleSfxVolumeChanged;
+
         if (_quitConfirmView != null)
         {
             _quitConfirmView.OnQuitRequested += HandleQuitRequested;
@@ -83,11 +107,20 @@ public class PausePresenter : MonoBehaviour
 
     private void UnlinkEventsAll()
     {
-        if (!_isSubscribed) return;
+        if (!_isSubscribed)
+        {
+            return;
+        }
 
         _inputReader.OnPauseToggled -= HandlePauseToggled;
+
         _view.OnResumeRequested -= HandleResumeRequested;
         _view.OnMainMenuRequested -= HandleMainMenuRequested;
+
+        _volumeView.OnMasterVolumeChanged -= HandleMasterVolumeChanged;
+        _volumeView.OnBgmVolumeChanged -= HandleBgmVolumeChanged;
+        _volumeView.OnSfxVolumeChanged -= HandleSfxVolumeChanged;
+
         if (_quitConfirmView != null)
         {
             _quitConfirmView.OnQuitRequested -= HandleQuitRequested;
@@ -149,6 +182,21 @@ public class PausePresenter : MonoBehaviour
 
         // 시간과 포션 정보창 정리, 씬 이동은 IngameUIController에서 처리한다.
         OnQuitConfirmed?.Invoke();
+    }
+
+    private void HandleMasterVolumeChanged(float value)
+    {
+        SoundManager.SetMasterVolume(value);
+    }
+
+    private void HandleBgmVolumeChanged(float value)
+    {
+        SoundManager.SetBgmVolume(value);
+    }
+
+    private void HandleSfxVolumeChanged(float value)
+    {
+        SoundManager.SetSfxVolume(value);
     }
 
     private void OpenPause()

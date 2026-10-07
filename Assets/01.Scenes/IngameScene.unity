@@ -1224,6 +1224,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3458749254831881592, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+      propertyPath: _volumeView
+      value: 
+      objectReference: {fileID: 1670615288}
     - target: {fileID: 4373829678834526877, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1492,6 +1496,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5714ce5efa219bd47b50dce77d3a5a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScreenFadeController
+--- !u!114 &1670615288 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5667869665826462923, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+  m_PrefabInstance: {fileID: 1670615286}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d168d04f8b4749b13fbc7d7e4343bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseVolumeView
 --- !u!1 &1848749300
 GameObject:
   m_ObjectHideFlags: 0

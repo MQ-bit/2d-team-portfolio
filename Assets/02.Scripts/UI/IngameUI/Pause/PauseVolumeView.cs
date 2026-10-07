@@ -44,7 +44,18 @@ public class PauseVolumeView : MonoBehaviour
         _sfxVolume.SetInteractable(interactable);
     }
 
-    private void HandleMasterVolumeChanged(float value) => OnMasterVolumeChanged?.Invoke(value);
-    private void HandleBgmVolumeChanged(float value) => OnBgmVolumeChanged?.Invoke(value);
-    private void HandleSfxVolumeChanged(float value) => OnSfxVolumeChanged?.Invoke(value);
+    private void HandleMasterVolumeChanged(float value)
+    {
+        OnMasterVolumeChanged?.Invoke(value);
+    }
+
+    private void HandleBgmVolumeChanged(float value)
+    {
+        OnBgmVolumeChanged?.Invoke(value);
+    }
+
+    private void HandleSfxVolumeChanged(float value)
+    {
+        OnSfxVolumeChanged?.Invoke(value);
+    }
 }
