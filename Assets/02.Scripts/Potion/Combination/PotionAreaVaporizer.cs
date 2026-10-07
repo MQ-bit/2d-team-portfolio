@@ -138,15 +138,8 @@ internal sealed class PotionAreaVaporizer
         PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
         if (settings == null || settings.ReactionSound == null) return;
 
-        // 기화 장판은 바로 사라지므로 소리는 별도 오브젝트에서 끝까지 재생한다.
-        var soundObject = new GameObject("PotionVaporizationReactionSound");
-        soundObject.transform.position = _areaController.transform.position;
-        AudioSource source = soundObject.AddComponent<AudioSource>();
-        source.spatialBlend = 0f;
-        source.clip = settings.ReactionSound;
-        source.volume = settings.ReactionSoundVolume;
-        source.Play();
-        Object.Destroy(soundObject, settings.ReactionSound.length);
+        // 기화 장판은 바로 사라지지만 소리는 매니저가 끝까지 재생한다.
+        SoundManager.Play(settings.ReactionSound, SoundChannel.Potion, settings.ReactionSoundVolume);
     }
 
     private void FinishVaporization()
