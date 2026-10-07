@@ -22916,6 +22916,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Stair
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 535
+        width: 41
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 674aa506da4677c4e9ae84fd447fb819
+      internalID: -1133511471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -22934,6 +22956,7 @@ TextureImporter:
     nameFileIdTable:
       Obj_Gate: 266723228
       Obj_Pillar: -265847575
+      Stair: -1133511471
       mainlevbuild_0: -418600334569417129
       mainlevbuild_1: -5727760111797192145
       mainlevbuild_10: 7849981455521004453
