@@ -335,6 +335,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c96d93f46539f4243ab73373cd7de38a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomDefinition
+--- !u!1001 &1210929610
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8954457827914677174, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+      propertyPath: m_Name
+      value: PotionBox_Gold
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
 --- !u!1 &1294322303
 GameObject:
   m_ObjectHideFlags: 0
@@ -1260,7 +1317,7 @@ Camera:
   far clip plane: 5000
   field of view: 40
   orthographic: 1
-  orthographic size: 3.75
+  orthographic size: 8.4375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1414,3 +1471,4 @@ SceneRoots:
   - {fileID: 299534873}
   - {fileID: 1634679216}
   - {fileID: 1670615286}
+  - {fileID: 1210929610}
