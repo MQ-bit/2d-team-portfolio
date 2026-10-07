@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 // 소리가 나가는 채널. 채널마다 볼륨을 따로 조절하고, 동시에 낼 수 있는 소리 수(보이스)가 정해져 있다.
 public enum SoundChannel
@@ -60,11 +61,17 @@ internal sealed class SoundVoice
 
 // 전역 사운드 관리자. 모든 소리는 여기서 채널을 골라 재생한다.
 // 씬에 없으면 처음 쓸 때 스스로 만들어진다.
+//
+// 볼륨은 AudioMixer로 관리한다. Resources/MainAudioMixer 에셋을 불러오며, 구조는 다음과 같다.
+//   Master 그룹 아래에 SoundChannel 이름과 같은 그룹(Bgm, Sfx, Ui, Player, Potion).
+//   Master 그룹 볼륨을 "MasterVolume", 각 채널 그룹 볼륨을 "<채널이름>Volume"(예: "PlayerVolume")으로 Expose.
+// 에셋이 없으면 경고를 내고 AudioSource 볼륨에 직접 곱하는 방식으로 대신한다.
 public class SoundManager : MonoBehaviour
 {
     private sealed class Channel
     {
         public Transform Root;
+        public AudioMixerGroup Group;
         public float Volume = 1f;
         public int MaxVoices;
         public readonly List<SoundVoice> Voices = new List<SoundVoice>();
@@ -72,6 +79,10 @@ public class SoundManager : MonoBehaviour
 
     private static SoundManager _instance;
     private static bool _isQuitting;
+
+    private const string MixerResourcePath = "MainAudioMixer";
+    private const string MasterVolumeParameter = "MasterVolume";
+    private const float MinDecibel = -80f;
 
     private static SoundManager Instance
     {
@@ -97,6 +108,9 @@ public class SoundManager : MonoBehaviour
         _isQuitting = false;
     }
 
+    [Tooltip("비워두면 Resources/MainAudioMixer를 불러온다.")]
+    [SerializeField] private AudioMixer _mixer;
+
     private Channel[] _channels;
     private float _masterVolume = 1f;
 
@@ -116,14 +130,78 @@ public class SoundManager : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
+        if (_mixer == null)
+        {
+            _mixer = Resources.Load<AudioMixer>(MixerResourcePath);
+        }
+        if (_mixer == null)
+        {
+            Debug.LogWarning($"Resources/{MixerResourcePath} AudioMixer를 찾을 수 없어 AudioSource 볼륨으로 대신 조절함.");
+        }
+
         string[] names = System.Enum.GetNames(typeof(SoundChannel));
         _channels = new Channel[names.Length];
         for (int i = 0; i < _channels.Length; i++)
         {
             var root = new GameObject(names[i]).transform;
             root.SetParent(transform, false);
-            _channels[i] = new Channel { Root = root, MaxVoices = GetMaxVoices((SoundChannel)i) };
+            _channels[i] = new Channel
+            {
+                Root = root,
+                Group = FindGroup(names[i]),
+                MaxVoices = GetMaxVoices((SoundChannel)i),
+            };
         }
+
+        ApplyMixerVolumes();
+    }
+
+    private AudioMixerGroup FindGroup(string channelName)
+    {
+        if (_mixer == null)
+        {
+            return null;
+        }
+
+        AudioMixerGroup[] groups = _mixer.FindMatchingGroups($"Master/{channelName}");
+        if (groups.Length == 0)
+        {
+            Debug.LogWarning($"{_mixer.name} : Master/{channelName} 그룹이 없어 Master 그룹으로 출력함.");
+            return null;
+        }
+
+        return groups[0];
+    }
+
+    private static string GetVolumeParameter(SoundChannel channel)
+    {
+        return $"{channel}Volume";
+    }
+
+    // 0~1 볼륨을 믹서의 데시벨 값으로 바꿔 넣는다. 믹서가 없으면 아무것도 하지 않는다(소리 볼륨에 직접 곱한다).
+    private static float ToDecibel(float volume)
+    {
+        return volume <= 0.0001f ? MinDecibel : Mathf.Log10(volume) * 20f;
+    }
+
+    private void ApplyMixerVolumes()
+    {
+        if (_mixer == null)
+        {
+            return;
+        }
+
+        _mixer.SetFloat(MasterVolumeParameter, ToDecibel(_masterVolume));
+        for (int i = 0; i < _channels.Length; i++)
+        {
+            _mixer.SetFloat(GetVolumeParameter((SoundChannel)i), ToDecibel(_channels[i].Volume));
+        }
+    }
+
+    // 믹서가 볼륨을 맡으면 소리 자체에는 곱하지 않는다.
+    private float GetSoftwareVolume(Channel channel)
+    {
+        return _mixer != null ? 1f : channel.Volume * _masterVolume;
     }
 
     private void OnDestroy()
@@ -197,7 +275,7 @@ public class SoundManager : MonoBehaviour
             fade = voice.FadeOutTime > 0f ? Mathf.Clamp01(remaining / voice.FadeOutTime) : 1f;
         }
 
-        voice.Source.volume = voice.BaseVolume * fade * channel.Volume * _masterVolume;
+        voice.Source.volume = voice.BaseVolume * fade * GetSoftwareVolume(channel);
     }
 
     // 클립을 채널로 재생한다. 재생을 멈추거나 상태를 볼 수 있는 손잡이를 돌려준다.
@@ -251,6 +329,7 @@ public class SoundManager : MonoBehaviour
         if (manager != null)
         {
             manager._channels[(int)channel].Volume = Mathf.Clamp01(volume);
+            manager.ApplyMixerVolumes();
         }
     }
 
@@ -266,6 +345,7 @@ public class SoundManager : MonoBehaviour
         if (manager != null)
         {
             manager._masterVolume = Mathf.Clamp01(volume);
+            manager.ApplyMixerVolumes();
         }
     }
 
@@ -291,7 +371,7 @@ public class SoundManager : MonoBehaviour
         AudioSource source = voice.Source;
         source.clip = playClip;
         source.loop = loop;
-        source.volume = voice.BaseVolume * channel.Volume * _masterVolume;
+        source.volume = voice.BaseVolume * GetSoftwareVolume(channel);
         source.time = Mathf.Min(startOffset, Mathf.Max(0f, playClip.length - 0.01f));
         source.Play();
 
@@ -319,6 +399,7 @@ public class SoundManager : MonoBehaviour
             AudioSource source = channel.Root.gameObject.AddComponent<AudioSource>();
             source.playOnAwake = false;
             source.spatialBlend = 0f;
+            source.outputAudioMixerGroup = channel.Group;
             var created = new SoundVoice { Source = source };
             channel.Voices.Add(created);
             return created;
