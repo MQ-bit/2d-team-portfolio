@@ -124,4 +124,9 @@ public class ScoreManager : MonoBehaviour
         PlayerPrefs.SetString(Best_Score_Save_Key, json);
         PlayerPrefs.Save();
     }
+
+    public ScoreData GetCurrentScoreSnapshot()
+    {
+        return _currentScoreData.Clone();
+    }
 }
