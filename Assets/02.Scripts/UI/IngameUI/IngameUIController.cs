@@ -20,15 +20,23 @@ public class IngameUIController : MonoBehaviour
     [SerializeField] private float _pauseTimeScale = 0.2f;
 
     private bool _isPotionInformationOpen;
-    private float _previousTimeScale = 1f;
 
     [Header("Fallback Icon")]
     [SerializeField] private Sprite _testSprite; //TODO : PlayerData가 담긴 ScriptableObject를 구현하면 이거 제거
 
+    [Header("Pause")]
+    [SerializeField] private PausePresenter _pausePresenter;
+    [SerializeField] private float _pauseMenuTimeScale = 0f;
+
+    private bool _isPauseOpen;
+    private GameTimeController _gameTimeController;
+    private readonly object _potionInformationTimeOwner = new();
+    private readonly object _pauseTimeOwner = new();
 
     private void Awake()
     {
         GetComponents();
+        _gameTimeController = GameTimeController.Instance;
     }
 
     private void OnEnable()
@@ -36,6 +44,11 @@ public class IngameUIController : MonoBehaviour
         if (_inputReaderSO != null)
         {
             _inputReaderSO.OnPotionInformationTabToggled += TogglePotionInformation;
+        }
+
+        if (_pausePresenter != null)
+        {
+            _pausePresenter.OnPauseStateChanged += HandlePauseStateChanged;
         }
     }
 
@@ -50,6 +63,19 @@ public class IngameUIController : MonoBehaviour
         {
             ClosePotionInformation();
         }
+
+        if (_pausePresenter != null)
+        {
+            _pausePresenter.ResetPause();
+            _pausePresenter.OnPauseStateChanged -= HandlePauseStateChanged;
+        }
+
+        if (_gameTimeController != null)
+        {
+            _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
+        }
+
+        _isPauseOpen = false;
     }
 
 
@@ -74,6 +100,11 @@ public class IngameUIController : MonoBehaviour
         if (_thirstFeedbackPresenter == null)
         {
             _thirstFeedbackPresenter = GetComponentInChildren<ThirstFeedbackPresenter>();
+        }
+
+        if (_pausePresenter == null)
+        {
+            _pausePresenter = GetComponentInChildren<PausePresenter>(true);
         }
     }
 
@@ -119,6 +150,10 @@ public class IngameUIController : MonoBehaviour
             _dashCooldownPresenter.Initialize(movement);
             _meleeAttackPresenter.Initialize(melee);
             InitializeThirstFeedbackPresenter(status, dialogueModule);
+            if (_pausePresenter != null)
+            {
+                _pausePresenter.Initialize(_inputReaderSO, _player);
+            }
         }
         else
         {
@@ -127,6 +162,12 @@ public class IngameUIController : MonoBehaviour
     }
     private void TogglePotionInformation()
     {
+        // Tab은 플레이어 입력 처리 경로를 거치지 않으므로 별도로 차단한다.
+        if (_isPauseOpen)
+        {
+            return;
+        }
+
         if (_isPotionInformationOpen)
         {
             ClosePotionInformation();
@@ -144,12 +185,11 @@ public class IngameUIController : MonoBehaviour
             return;
         }
 
-        _previousTimeScale = Time.timeScale;
         _isPotionInformationOpen = true;
 
         _player?.AcquireGamePlayInputLock(this);
         _potionInformationHUD.SetActive(true);
-        Time.timeScale = _pauseTimeScale;
+        _gameTimeController.RequestTimeScale(_potionInformationTimeOwner, _pauseTimeScale);
     }
 
     private void ClosePotionInformation()
@@ -166,7 +206,24 @@ public class IngameUIController : MonoBehaviour
             _potionInformationHUD.SetActive(false);
         }
 
-        Time.timeScale = _previousTimeScale;
+        if (_gameTimeController != null)
+        {
+            _gameTimeController.ReleaseTimeScale(_potionInformationTimeOwner);
+        }
+    }
+
+    private void HandlePauseStateChanged(bool isOpen)
+    {
+        _isPauseOpen = isOpen;
+
+        if (isOpen)
+        {
+            _gameTimeController.RequestTimeScale(_pauseTimeOwner, _pauseMenuTimeScale);
+        }
+        else if (_gameTimeController != null)
+        {
+            _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
+        }
     }
 
     private void InitializeThirstFeedbackPresenter(PlayerStatus status, PlayerDialogueModule dialogueModule)

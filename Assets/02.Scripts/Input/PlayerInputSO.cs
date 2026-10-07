@@ -33,6 +33,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
     public event Action<bool> OnDrinkInputChanged;
     public event Action OnMeleeToggleRequested;
     public event Action OnPotionInformationTabToggled;
+    public event Action OnPauseToggled;
     public event Action<bool> OnInteractInputChanged;
 
     private void OnEnable()
@@ -174,6 +175,14 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
         if (context.performed)
         {
             OnPotionInformationTabToggled?.Invoke();
+        }
+    }
+
+    public void OnPause(CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnPauseToggled?.Invoke();
         }
     }
 

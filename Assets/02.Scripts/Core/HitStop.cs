@@ -9,7 +9,8 @@ public class HitStop : MonoBehaviour
 
     private bool _isStopping;
     private float _endTime;
-    private float _restoreTimeScale = 1f;
+    private float _requestedTimeScale = 1f;
+    private GameTimeController _gameTimeController;
 
     // duration은 실제 시간(초) 기준. timeScale이 0이면 완전히 멈춘다.
     public static void Request(float duration, float timeScale = 0f)
@@ -34,14 +35,17 @@ public class HitStop : MonoBehaviour
         if (!_isStopping)
         {
             _isStopping = true;
-            _restoreTimeScale = Time.timeScale;
+            _gameTimeController = GameTimeController.Instance;
+            _requestedTimeScale = timeScale;
             _endTime = endTime;
-            Time.timeScale = timeScale;
+            _gameTimeController.RequestTimeScale(this, _requestedTimeScale);
             return;
         }
 
         _endTime = Mathf.Max(_endTime, endTime);
-        Time.timeScale = Mathf.Min(Time.timeScale, timeScale);
+        // 다른 시간 변경 요청을 가져오지 않고 히트스톱 자신의 배율만 비교한다.
+        _requestedTimeScale = Mathf.Min(_requestedTimeScale, timeScale);
+        _gameTimeController.RequestTimeScale(this, _requestedTimeScale);
     }
 
     // Update는 timeScale이 0이어도 매 프레임 호출된다.
@@ -67,6 +71,11 @@ public class HitStop : MonoBehaviour
         }
 
         _isStopping = false;
-        Time.timeScale = _restoreTimeScale;
+        if (_gameTimeController != null)
+        {
+            _gameTimeController.ReleaseTimeScale(this);
+        }
+
+        _requestedTimeScale = 1f;
     }
 }
