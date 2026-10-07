@@ -87,9 +87,7 @@ public class ScoreManager : MonoBehaviour
 
     public bool TryRecordEnemyKill(EnemyKind kind)
     {
-        Debug.Log($"{name} : KillRecored Func called");
         if (!IsRunActive) return false;
-        Debug.Log($"{name} : Record Start");
         return _currentScoreData.TryAddEnemyKill(kind, 1);
     }
 
