@@ -88,21 +88,13 @@ public class GameTimeController : MonoBehaviour
         Time.timeScale = timeScale;
     }
 
-    private void OnDisable()
-    {
-        if (_timeScaleRequests.Count == 0)
-        {
-            return;
-        }
-
-        _timeScaleRequests.Clear();
-        Time.timeScale = _normalTimeScale;
-    }
-
     private void OnDestroy()
     {
         if (_instance == this)
         {
+            // 비활성화 시에는 요청을 유지하고, 씬 종료 등 실제 파괴 시에만 정리한다.
+            _timeScaleRequests.Clear();
+            Time.timeScale = _normalTimeScale;
             _instance = null;
         }
     }
