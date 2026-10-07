@@ -5682,6 +5682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PausePresenter
   _view: {fileID: 5667869665826457684}
   _quitConfirmView: {fileID: 88002005}
+  _volumeView: {fileID: 88006002}
 --- !u!1 &5667869665826458285
 GameObject:
   m_ObjectHideFlags: 0
