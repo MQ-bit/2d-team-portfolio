@@ -29,11 +29,30 @@ public readonly struct SoundHandle
     // 재생 위치(초). 재생 중이 아니면 0.
     public float Time => IsPlaying ? _voice.Source.time : 0f;
 
+    // 바로 멈춘다.
     public void Stop()
     {
         if (IsPlaying)
         {
             _voice.Release();
+        }
+    }
+
+    // fadeTime초에 걸쳐 서서히 줄이다가 멈춘다.
+    public void FadeOut(float fadeTime)
+    {
+        if (IsPlaying)
+        {
+            _voice.StartFade(0f, fadeTime, true);
+        }
+    }
+
+    // fadeTime초에 걸쳐 볼륨을 targetVolume(0~1, 처음 정한 볼륨 대비 비율)으로 바꾼다. 멈추지는 않는다.
+    public void FadeTo(float targetVolume, float fadeTime)
+    {
+        if (IsPlaying)
+        {
+            _voice.StartFade(targetVolume, fadeTime, false);
         }
     }
 }
@@ -48,6 +67,57 @@ internal sealed class SoundVoice
     public float FadeOutTime;
     public float StartedAt;
 
+    // 페이드 인/아웃. FadeValue는 현재 비율(0~1), 페이드 중이면 FadeTarget으로 FadeTime초에 걸쳐 바뀐다.
+    public float FadeValue = 1f;
+    public float FadeFrom;
+    public float FadeTarget;
+    public float FadeTime;
+    public float FadeElapsed;
+    public bool Fading;
+    public bool StopWhenFaded;
+
+    public void StartFade(float target, float time, bool stopWhenFaded)
+    {
+        target = Mathf.Clamp01(target);
+        StopWhenFaded = stopWhenFaded;
+        if (time <= 0f)
+        {
+            FadeValue = target;
+            Fading = false;
+            if (stopWhenFaded)
+            {
+                Release();
+            }
+            return;
+        }
+
+        FadeFrom = FadeValue;
+        FadeTarget = target;
+        FadeTime = time;
+        FadeElapsed = 0f;
+        Fading = true;
+    }
+
+    // 페이드를 한 단계 진행한다. 페이드가 끝나서 멈춰야 하면 true.
+    public bool AdvanceFade(float deltaTime)
+    {
+        if (!Fading)
+        {
+            return false;
+        }
+
+        FadeElapsed += deltaTime;
+        float t = Mathf.Clamp01(FadeElapsed / FadeTime);
+        FadeValue = Mathf.Lerp(FadeFrom, FadeTarget, t);
+        if (t < 1f)
+        {
+            return false;
+        }
+
+        Fading = false;
+        return StopWhenFaded;
+    }
+
     public void Release()
     {
         if (Source != null)
@@ -55,6 +125,8 @@ internal sealed class SoundVoice
             Source.Stop();
         }
         Active = false;
+        Fading = false;
+        FadeValue = 1f;
         Id++;
     }
 }
@@ -67,6 +139,21 @@ internal sealed class SoundVoice
 //   조절하는 볼륨은 전체/BGM/효과음 3개뿐이다. Master, Bgm, Sfx 그룹의 볼륨을
 //   각각 "MasterVolume", "BgmVolume", "SfxVolume"으로 Expose. (Sfx 아래 그룹은 Sfx 볼륨을 따라간다.)
 // 에셋이 없으면 경고를 내고 AudioSource 볼륨에 직접 곱하는 방식으로 대신한다.
+//
+// ── 사용법 (전부 static이라 SoundManager.함수() 로 바로 부른다) ──
+//  효과음   SoundManager.PlaySfx(clip);                         // 일반 효과음
+//           SoundManager.PlayUi(clip);                          // 버튼 같은 UI 소리
+//           SoundManager.Play(clip, SoundChannel.Player, volume: 0.8f, gain: 2f, fadeInTime: 0.2f);  // 세부 옵션
+//  BGM      SoundManager.PlayBgm(clip);                         // BGM 시작. 이미 나오던 BGM은 바로 끊김
+//           SoundManager.PlayBgm(clip, fadeTime: 1.5f);         // 새 BGM은 서서히 커지고 이전 BGM은 서서히 줄어듦(크로스페이드)
+//           SoundManager.CrossFadeBgm(clip, 2f);                // 위와 같음(이름만 명확하게)
+//           SoundManager.FadeOutBgm(2f);                        // BGM을 서서히 줄이며 끄기
+//           SoundManager.StopBgm();                             // BGM 바로 끄기
+//  핸들     SoundHandle h = SoundManager.PlaySfx(clip);         // 반환값을 들고 있으면 나중에 제어 가능
+//           h.Stop();  h.FadeOut(1f);  h.FadeTo(0.3f, 0.5f);  h.IsPlaying;  h.Time;
+//  채널     SoundManager.StopChannel(SoundChannel.Sfx);  SoundManager.FadeOutChannel(SoundChannel.Sfx, 1f);
+//  볼륨     SoundManager.SetMasterVolume(v); SetBgmVolume(v); SetSfxVolume(v);  (v는 0~1, 설정창 슬라이더용)
+//  로딩     SoundManager.Preload(clip);                         // 처음 재생이 늦지 않게 미리 읽어두기
 public class SoundManager : MonoBehaviour
 {
     private sealed class Channel
@@ -118,6 +205,9 @@ public class SoundManager : MonoBehaviour
     private float _masterVolume = 1f;
     private float _bgmVolume = 1f;
     private float _sfxVolume = 1f;
+
+    private SoundHandle _bgmHandle;
+    private AudioClip _bgmClip;
 
     // Gain으로 키운 클립은 런타임에 새로 만든 것이라 직접 정리한다.
     private readonly Dictionary<(AudioClip clip, float gain), AudioClip> _amplifiedClips =
@@ -234,7 +324,7 @@ public class SoundManager : MonoBehaviour
     {
         switch (channel)
         {
-            case SoundChannel.Bgm: return 2;
+            case SoundChannel.Bgm: return 3; // 크로스페이드 중에는 두세 곡이 겹친다
             case SoundChannel.Ui: return 4;
             case SoundChannel.Player: return 8;
             case SoundChannel.Potion: return 8;
@@ -265,6 +355,13 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
+        // 일시정지(timeScale 0) 중에도 페이드는 진행되게 한다.
+        if (voice.AdvanceFade(Time.unscaledDeltaTime))
+        {
+            voice.Release();
+            return;
+        }
+
         float fade = 1f;
         if (voice.EndTime > 0f)
         {
@@ -278,14 +375,14 @@ public class SoundManager : MonoBehaviour
             fade = voice.FadeOutTime > 0f ? Mathf.Clamp01(remaining / voice.FadeOutTime) : 1f;
         }
 
-        voice.Source.volume = voice.BaseVolume * fade * GetSoftwareVolume(channel);
+        voice.Source.volume = voice.BaseVolume * fade * voice.FadeValue * GetSoftwareVolume(channel);
     }
 
     // 클립을 채널로 재생한다. 재생을 멈추거나 상태를 볼 수 있는 손잡이를 돌려준다.
     // gain: 작게 녹음된 소리를 키우는 배율(volume은 1이 최대라서). startOffset/endTime: 클립에서 재생할 구간(초, endTime 0이면 끝까지).
-    // fadeOutTime: endTime 직전에 줄이는 시간. loop: 멈출 때까지 반복.
+    // fadeOutTime: endTime 직전에 줄이는 시간. loop: 멈출 때까지 반복. fadeInTime: 시작할 때 서서히 커지는 시간.
     public static SoundHandle Play(AudioClip clip, SoundChannel channel, float volume = 1f, float gain = 1f,
-        float startOffset = 0f, float endTime = 0f, float fadeOutTime = 0f, bool loop = false)
+        float startOffset = 0f, float endTime = 0f, float fadeOutTime = 0f, bool loop = false, float fadeInTime = 0f)
     {
         SoundManager manager = Instance;
         if (clip == null || manager == null)
@@ -293,7 +390,88 @@ public class SoundManager : MonoBehaviour
             return default;
         }
 
-        return manager.PlayInternal(clip, channel, volume, gain, startOffset, endTime, fadeOutTime, loop);
+        return manager.PlayInternal(clip, channel, volume, gain, startOffset, endTime, fadeOutTime, loop, fadeInTime);
+    }
+
+    // 일반 효과음(Sfx 채널).
+    public static SoundHandle PlaySfx(AudioClip clip, float volume = 1f, float fadeInTime = 0f)
+    {
+        return Play(clip, SoundChannel.Sfx, volume, fadeInTime: fadeInTime);
+    }
+
+    // UI 소리(Ui 채널). 버튼 클릭 같은 것.
+    public static SoundHandle PlayUi(AudioClip clip, float volume = 1f)
+    {
+        return Play(clip, SoundChannel.Ui, volume);
+    }
+
+    // BGM을 반복 재생한다. 이미 같은 곡이 나오고 있으면 다시 시작하지 않는다.
+    // fadeTime이 0이면 이전 BGM을 바로 끄고 새 곡을 바로 틀고, 0보다 크면 이전 곡은 줄어들고 새 곡은 커지는 크로스페이드가 된다.
+    public static SoundHandle PlayBgm(AudioClip clip, float volume = 1f, float fadeTime = 0f)
+    {
+        SoundManager manager = Instance;
+        if (manager == null)
+        {
+            return default;
+        }
+
+        if (clip == null)
+        {
+            FadeOutBgm(fadeTime);
+            return default;
+        }
+
+        if (manager._bgmHandle.IsPlaying && manager._bgmClip == clip)
+        {
+            return manager._bgmHandle;
+        }
+
+        if (fadeTime > 0f)
+        {
+            manager._bgmHandle.FadeOut(fadeTime);
+        }
+        else
+        {
+            manager._bgmHandle.Stop();
+        }
+
+        manager._bgmClip = clip;
+        manager._bgmHandle = Play(clip, SoundChannel.Bgm, volume, loop: true, fadeInTime: fadeTime);
+        return manager._bgmHandle;
+    }
+
+    // 이전 BGM을 줄이면서 새 BGM을 키운다. PlayBgm(clip, volume, fadeTime)과 같다.
+    public static SoundHandle CrossFadeBgm(AudioClip clip, float fadeTime = 1f, float volume = 1f)
+    {
+        return PlayBgm(clip, volume, Mathf.Max(0.01f, fadeTime));
+    }
+
+    // 나오던 BGM을 fadeTime초에 걸쳐 줄이면서 끈다.
+    public static void FadeOutBgm(float fadeTime = 1f)
+    {
+        SoundManager manager = Instance;
+        if (manager == null)
+        {
+            return;
+        }
+
+        manager._bgmHandle.FadeOut(fadeTime);
+        manager._bgmClip = null;
+    }
+
+    // 나오던 BGM을 바로 끈다.
+    public static void StopBgm()
+    {
+        FadeOutBgm(0f);
+    }
+
+    public static bool IsBgmPlaying
+    {
+        get
+        {
+            SoundManager manager = Instance;
+            return manager != null && manager._bgmHandle.IsPlaying;
+        }
     }
 
     // 처음 재생할 때 로딩하느라 소리가 늦지 않도록 미리 읽어둔다. gain을 쓸 소리면 키운 클립도 미리 만든다.
@@ -311,6 +489,12 @@ public class SoundManager : MonoBehaviour
 
     public static void StopChannel(SoundChannel channel)
     {
+        FadeOutChannel(channel, 0f);
+    }
+
+    // 채널에서 나오는 소리 전부를 fadeTime초에 걸쳐 줄이면서 끈다.
+    public static void FadeOutChannel(SoundChannel channel, float fadeTime)
+    {
         SoundManager manager = Instance;
         if (manager == null)
         {
@@ -321,7 +505,7 @@ public class SoundManager : MonoBehaviour
         {
             if (voice.Active)
             {
-                voice.Release();
+                voice.StartFade(0f, fadeTime, true);
             }
         }
     }
@@ -376,7 +560,7 @@ public class SoundManager : MonoBehaviour
     }
 
     private SoundHandle PlayInternal(AudioClip clip, SoundChannel channelId, float volume, float gain,
-        float startOffset, float endTime, float fadeOutTime, bool loop)
+        float startOffset, float endTime, float fadeOutTime, bool loop, float fadeInTime)
     {
         Channel channel = _channels[(int)channelId];
         SoundVoice voice = AcquireVoice(channel);
@@ -387,11 +571,18 @@ public class SoundManager : MonoBehaviour
         voice.FadeOutTime = fadeOutTime;
         voice.StartedAt = Time.unscaledTime;
         voice.Active = true;
+        voice.FadeValue = 1f;
+        voice.Fading = false;
+        if (fadeInTime > 0f)
+        {
+            voice.FadeValue = 0f;
+            voice.StartFade(1f, fadeInTime, false);
+        }
 
         AudioSource source = voice.Source;
         source.clip = playClip;
         source.loop = loop;
-        source.volume = voice.BaseVolume * GetSoftwareVolume(channel);
+        source.volume = voice.BaseVolume * voice.FadeValue * GetSoftwareVolume(channel);
         source.time = Mathf.Min(startOffset, Mathf.Max(0f, playClip.length - 0.01f));
         source.Play();
 
