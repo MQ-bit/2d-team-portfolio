@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7763722971626062761}
   - component: {fileID: 1264079546427983026}
   - component: {fileID: 4307201373427224824}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: EndRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 438643106913177101}
   - component: {fileID: 1071542231054332313}
   - component: {fileID: 8037992437281710034}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_GroundDeco
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1308,7 +1308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3229100174804082411}
   - component: {fileID: 8468806757128941734}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: North
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1355,7 +1355,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7363681346813285232}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Probs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1391,7 +1391,7 @@ GameObject:
   - component: {fileID: 3413882393931951554}
   - component: {fileID: 7579151326612378434}
   - component: {fileID: 1314321664011894575}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6777,7 +6777,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3954165997830388535}
   - component: {fileID: 4021740106231460547}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: South
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6824,7 +6824,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5529963981810100369}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Connectors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6859,7 +6859,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8414676348198105122}
   - component: {fileID: 5071736280757958956}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: West
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6906,7 +6906,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 672960489418944776}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PortalSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6937,7 +6937,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 805730201899215150}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Markers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6972,7 +6972,7 @@ GameObject:
   - component: {fileID: 8053109083865888149}
   - component: {fileID: 8205474939987593987}
   - component: {fileID: 4596571438879745967}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}

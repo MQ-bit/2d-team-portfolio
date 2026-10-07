@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5389103026247546153}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Probs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9114074755728643210}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Connectors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 4143688085599224404}
   - component: {fileID: 6507466672333747192}
   - component: {fileID: 1523143416914674073}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HorizontalHallway
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +143,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3148441729582419050}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Markers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8794790329266319162}
   - component: {fileID: 2079104221527612352}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: West
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -225,7 +225,7 @@ GameObject:
   - component: {fileID: 384446942878669001}
   - component: {fileID: 5923506829786012740}
   - component: {fileID: 8548762221523243327}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_GroundDeco
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +587,7 @@ GameObject:
   m_Component:
   - component: {fileID: 884814656694099187}
   - component: {fileID: 1175957653356461211}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: East
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -636,7 +636,7 @@ GameObject:
   - component: {fileID: 3061293651872905823}
   - component: {fileID: 2126782258745543503}
   - component: {fileID: 4764239745460152528}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5212,7 +5212,7 @@ GameObject:
   - component: {fileID: 3985911085327241975}
   - component: {fileID: 105457796174470555}
   - component: {fileID: 4526013953371632625}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
