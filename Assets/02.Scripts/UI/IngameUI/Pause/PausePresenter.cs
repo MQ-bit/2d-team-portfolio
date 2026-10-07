@@ -5,12 +5,14 @@ public class PausePresenter : MonoBehaviour
 {
     [Header("View")]
     [SerializeField] private PauseView _view;
+    [SerializeField] private QuitConfirmView _quitConfirmView;
 
     private InputReader _inputReader;
     private PlayerController _player;
     private bool _isSubscribed;
 
     public event Action<bool> OnPauseStateChanged;
+    public event Action OnQuitConfirmed;
 
     // 컨트롤러가 비활성화될 때 화면과 입력 잠금도 함께 정리한다.
     public void ResetPause()
@@ -56,6 +58,10 @@ public class PausePresenter : MonoBehaviour
         _player = player;
 
         _view.Hide();
+        if (_quitConfirmView != null)
+        {
+            _quitConfirmView.Hide();
+        }
         LinkEventsAll();
     }
 
@@ -65,6 +71,12 @@ public class PausePresenter : MonoBehaviour
 
         _inputReader.OnPauseToggled += HandlePauseToggled;
         _view.OnResumeRequested += HandleResumeRequested;
+        _view.OnMainMenuRequested += HandleMainMenuRequested;
+        if (_quitConfirmView != null)
+        {
+            _quitConfirmView.OnQuitRequested += HandleQuitRequested;
+            _quitConfirmView.OnCancelRequested += HandleCancelRequested;
+        }
 
         _isSubscribed = true;
     }
@@ -75,12 +87,24 @@ public class PausePresenter : MonoBehaviour
 
         _inputReader.OnPauseToggled -= HandlePauseToggled;
         _view.OnResumeRequested -= HandleResumeRequested;
+        _view.OnMainMenuRequested -= HandleMainMenuRequested;
+        if (_quitConfirmView != null)
+        {
+            _quitConfirmView.OnQuitRequested -= HandleQuitRequested;
+            _quitConfirmView.OnCancelRequested -= HandleCancelRequested;
+        }
 
         _isSubscribed = false;
     }
 
     private void HandlePauseToggled()
     {
+        if (_quitConfirmView != null && _quitConfirmView.IsOpen)
+        {
+            HandleCancelRequested();
+            return;
+        }
+
         if (_view.IsOpen)
         {
             ClosePause();
@@ -93,7 +117,38 @@ public class PausePresenter : MonoBehaviour
 
     private void HandleResumeRequested()
     {
+        if (_quitConfirmView != null && _quitConfirmView.IsOpen) return;
         ClosePause();
+    }
+
+    private void HandleMainMenuRequested()
+    {
+        if (!_view.IsOpen) return;
+        if (_quitConfirmView == null)
+        {
+            Debug.LogError($"{name}: QuitConfirmView가 연결되지 않았습니다.", this);
+            return;
+        }
+
+        _view.SetButtonsInteractable(false);
+        _quitConfirmView.Show();
+    }
+
+    private void HandleCancelRequested()
+    {
+        if (_quitConfirmView == null || !_quitConfirmView.IsOpen) return;
+
+        _quitConfirmView.Hide();
+        _view.SetButtonsInteractable(true);
+        _view.SelectMainMenuButton();
+    }
+
+    private void HandleQuitRequested()
+    {
+        if (!_view.IsOpen || _quitConfirmView == null || !_quitConfirmView.IsOpen) return;
+
+        // 시간과 포션 정보창 정리, 씬 이동은 IngameUIController에서 처리한다.
+        OnQuitConfirmed?.Invoke();
     }
 
     private void OpenPause()
@@ -108,10 +163,15 @@ public class PausePresenter : MonoBehaviour
     private void ClosePause()
     {
         bool wasOpen = _view != null && _view.IsOpen;
+        if (_quitConfirmView != null)
+        {
+            _quitConfirmView.Hide();
+        }
         _player?.ReleaseGamePlayInputLock(this);
 
         if (_view != null)
         {
+            _view.SetButtonsInteractable(true);
             _view.Hide();
         }
 

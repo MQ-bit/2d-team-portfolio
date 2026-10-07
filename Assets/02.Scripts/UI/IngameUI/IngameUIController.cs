@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class IngameUIController : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class IngameUIController : MonoBehaviour
     [Header("Pause")]
     [SerializeField] private PausePresenter _pausePresenter;
     [SerializeField] private float _pauseMenuTimeScale = 0f;
+    [SerializeField] private string _titleSceneName;
 
     private bool _isPauseOpen;
     private GameTimeController _gameTimeController;
@@ -49,6 +51,7 @@ public class IngameUIController : MonoBehaviour
         if (_pausePresenter != null)
         {
             _pausePresenter.OnPauseStateChanged += HandlePauseStateChanged;
+            _pausePresenter.OnQuitConfirmed += HandleQuitConfirmed;
         }
     }
 
@@ -68,6 +71,7 @@ public class IngameUIController : MonoBehaviour
         {
             _pausePresenter.ResetPause();
             _pausePresenter.OnPauseStateChanged -= HandlePauseStateChanged;
+            _pausePresenter.OnQuitConfirmed -= HandleQuitConfirmed;
         }
 
         if (_gameTimeController != null)
@@ -224,6 +228,20 @@ public class IngameUIController : MonoBehaviour
         {
             _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
         }
+    }
+
+    private void HandleQuitConfirmed()
+    {
+        // 이동할 수 없는 경우 확인창과 일시정지를 유지한다.
+        if (string.IsNullOrWhiteSpace(_titleSceneName) || !Application.CanStreamedLevelBeLoaded(_titleSceneName))
+        {
+            Debug.LogError($"{name}: 이동할 타이틀 씬을 지정하고 Build Profiles의 Scene List에 등록해주세요. ({_titleSceneName})", this);
+            return;
+        }
+
+        ClosePotionInformation();
+        _pausePresenter.ResetPause();
+        SceneManager.LoadScene(_titleSceneName);
     }
 
     private void InitializeThirstFeedbackPresenter(PlayerStatus status, PlayerDialogueModule dialogueModule)
