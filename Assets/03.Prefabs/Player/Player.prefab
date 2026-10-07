@@ -397,7 +397,7 @@ MonoBehaviour:
   _effectReceiver: {fileID: 910000000000000003}
   _inventoryModule: {fileID: 6544000177656053045}
   _status: {fileID: 0}
-  _drinkDuration: 1
+  _drinkDuration: 0.5
   _drinkTimer: 0
   _thirstDecreaseAmount: 10
 --- !u!114 &4706277357270954568
@@ -603,7 +603,7 @@ MonoBehaviour:
   _drinkVolume: 1
   _drinkGain: 8
   _drinkStartOffset: 0.05
-  _drinkEndTime: 1.1
+  _drinkEndTime: 0.55
   _drinkFadeOutTime: 0.05
   _footstepSound: {fileID: 8300000, guid: bb9c3697bdd249e43bd7cd74ad58f28f, type: 3}
   _footstepVolume: 1

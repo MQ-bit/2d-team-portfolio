@@ -45,8 +45,8 @@ public class PlayerActionSound : MonoBehaviour
     [SerializeField, Min(1f)] private float _drinkGain = 8f;
     [Tooltip("클립 앞부분을 이만큼(초) 건너뛰고 재생한다.")]
     [SerializeField, Min(0f)] private float _drinkStartOffset = 0.05f;
-    [Tooltip("클립의 이 지점(초)에서 재생을 끝낸다. Potion_sip_2는 1.1초 이후가 거의 무음인 여운이라 그 전에 끊는다. 0이면 끝까지 재생한다.")]
-    [SerializeField, Min(0f)] private float _drinkEndTime = 1.1f;
+    [Tooltip("클립의 이 지점(초)에서 재생을 끝낸다. 마시는 시간(0.5초)이 끝나는 지점(시작 오프셋 + 0.5초)에서 끊는다. 0이면 끝까지 재생한다.")]
+    [SerializeField, Min(0f)] private float _drinkEndTime = 0.55f;
     [Tooltip("끝나기 전 이 시간(초) 동안 서서히 줄여서 뚝 끊기지 않게 한다.")]
     [SerializeField, Min(0f)] private float _drinkFadeOutTime = 0.05f;
 
@@ -190,7 +190,7 @@ public class PlayerActionSound : MonoBehaviour
         }
 
         // 다 마셨으면 남은 끝부분은 마저 재생하고, 도중에 취소했으면 바로 끊는다.
-        bool isNearEnd = _drinkEndTime > 0f && _drinkHandle.Time >= _drinkEndTime - 0.2f;
+        bool isNearEnd = _drinkEndTime > 0f && _drinkHandle.Time >= _drinkEndTime - 0.1f;
         if (!isNearEnd)
         {
             _drinkHandle.Stop();
