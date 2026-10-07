@@ -1,0 +1,78 @@
+using System;
+using UnityEngine;
+
+[Serializable]
+public class ScoreData
+{
+    [SerializeField] private int _clearedFloorCount;
+    [SerializeField] private int _consumedPotionCount;
+
+    [SerializeField] private int _normalBomberKillCount;
+    [SerializeField] private int _eliteBomberKillCount;
+    [SerializeField] private int _normalRangedKillCount;
+    [SerializeField] private int _eliteRangedKillCount;
+
+    public int ClearedFloorCount => _clearedFloorCount;
+    public int ConsumedPotionCount => _consumedPotionCount;
+
+    public int NormalKillCount => _normalBomberKillCount + _normalRangedKillCount;
+    public int EliteKillCount => _eliteBomberKillCount + _eliteRangedKillCount;
+    public int TotalKillCount => NormalKillCount + EliteKillCount;
+
+    public int GetKillCount(EnemyKind kind)
+    {
+        return kind switch
+        {
+            EnemyKind.Bomber => _normalBomberKillCount,
+            EnemyKind.EliteBomber => _eliteBomberKillCount,
+            EnemyKind.Ranged => _normalRangedKillCount,
+            EnemyKind.EliteRanged => _eliteRangedKillCount,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+        };
+    }
+
+    public bool TryAddClearedFloor(int amount = 1)
+    {
+        if (amount <= 0) return false;
+
+        _clearedFloorCount += amount;
+        return true;
+    }
+
+    public bool TryAddConsumedPotion(int amount = 1)
+    {
+        if (amount <= 0) return false;
+
+        _consumedPotionCount += amount;
+        return true;
+    }
+
+    public bool TryAddEnemyKill(EnemyKind kind, int amount = 1)
+    {
+        if (amount <= 0) return false;
+
+        switch (kind)
+        {
+            case EnemyKind.Bomber:
+                _normalBomberKillCount += amount;
+                break;
+
+            case EnemyKind.EliteBomber:
+                _eliteBomberKillCount += amount;
+                break;
+
+            case EnemyKind.Ranged:
+                _normalRangedKillCount += amount;
+                break;
+
+            case EnemyKind.EliteRanged:
+                _eliteRangedKillCount += amount;
+                break;
+
+            default:
+                return false;
+        }
+
+        return true;
+    }
+}
