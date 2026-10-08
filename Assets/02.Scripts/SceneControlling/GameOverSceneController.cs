@@ -154,7 +154,7 @@ public sealed class GameOverSceneController : MonoBehaviour
     private void ApplyScore()
     {
         ScoreManager scoreManager = ScoreManager.Instance;
-        if(scoreManager == null)
+        if (scoreManager == null)
         {
             Debug.LogError("ScoreManager 인스턴스를 찾을 수 없습니다.", this);
             return;
@@ -184,9 +184,9 @@ public sealed class GameOverSceneController : MonoBehaviour
 
         rowSequence.Append(row.DOFade(1f, _rowFadeDuration).SetEase(Ease.OutSine)); // Row 페이드 인
         rowSequence.Join(DOTween.To(
-                                () => displayedScore, 
-                                value => {displayedScore = value; scoreText.text = $"{displayedScore} {unit}";}, 
-                                targetScore, 
+                                () => displayedScore,
+                                value => { displayedScore = value; scoreText.text = $"{displayedScore} {unit}"; },
+                                targetScore,
                                 _scoreCountDuration).SetEase(Ease.Linear)
                         ); // 점수 카운트 애니메이션
 
@@ -308,7 +308,7 @@ public sealed class GameOverSceneController : MonoBehaviour
         }
         else
         {
-            resultSequence.Append(_bestScoreGroup .DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
+            resultSequence.Append(_bestScoreGroup.DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
         }
 
         return resultSequence;

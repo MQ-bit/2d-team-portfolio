@@ -1,7 +1,6 @@
 using UnityEngine;
 
-[DisallowMultipleComponent]
-public sealed class LevelManager : MonoBehaviour
+public class LevelManager : MonoBehaviour
 {
     private static LevelManager _instance;
     public static LevelManager Instance

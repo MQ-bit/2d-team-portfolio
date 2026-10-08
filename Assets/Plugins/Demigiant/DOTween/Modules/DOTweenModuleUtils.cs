@@ -76,7 +76,7 @@ namespace DG.Tweening
         // Fires OnApplicationPause in DOTweenComponent even when Editor is paused (otherwise it's only fired at runtime)
 #if UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5 || UNITY_2017_1
         static void PlaymodeStateChanged()
-        #else
+#else
         static void PlaymodeStateChanged(UnityEditor.PlayModeStateChange state)
 #endif
         {
@@ -135,13 +135,16 @@ namespace DG.Tweening
 #endif
             public static TweenerCore<Vector3, Path, PathOptions> CreateDOTweenPathTween(
                 MonoBehaviour target, bool tweenRigidbody, bool isLocal, Path path, float duration, PathMode pathMode
-            ){
+            )
+            {
                 TweenerCore<Vector3, Path, PathOptions> t = null;
                 bool rBodyFoundAndTweened = false;
 #if !DOTWEEN_NOPHYSICS // PHYSICS_MARKER
-                if (tweenRigidbody) {
+                if (tweenRigidbody)
+                {
                     Rigidbody rBody = target.GetComponent<Rigidbody>();
-                    if (rBody != null) {
+                    if (rBody != null)
+                    {
                         rBodyFoundAndTweened = true;
                         t = isLocal
                             ? rBody.DOLocalPath(path, duration, pathMode)
@@ -150,9 +153,11 @@ namespace DG.Tweening
                 }
 #endif
 #if !DOTWEEN_NOPHYSICS2D // PHYSICS2D_MARKER
-                if (!rBodyFoundAndTweened && tweenRigidbody) {
+                if (!rBodyFoundAndTweened && tweenRigidbody)
+                {
                     Rigidbody2D rBody2D = target.GetComponent<Rigidbody2D>();
-                    if (rBody2D != null) {
+                    if (rBody2D != null)
+                    {
                         rBodyFoundAndTweened = true;
                         t = isLocal
                             ? rBody2D.DOLocalPath(path, duration, pathMode)
@@ -160,7 +165,8 @@ namespace DG.Tweening
                     }
                 }
 #endif
-                if (!rBodyFoundAndTweened) {
+                if (!rBodyFoundAndTweened)
+                {
                     t = isLocal
                         ? target.transform.DOLocalPath(path, duration, pathMode)
                         : target.transform.DOPath(path, duration, pathMode);
