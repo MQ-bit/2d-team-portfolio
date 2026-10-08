@@ -297,6 +297,8 @@ MonoBehaviour:
   _controller: {fileID: 7609875869182641865}
   _effectPrefab: {fileID: 6038294298135730153, guid: 60b242f93f6bdcc4486274a6b659ac96, type: 3}
   _effectLifetime: 2
+  _explosionSound: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
+  _explosionSoundVolume: 1
 --- !u!1 &4949332651527946146
 GameObject:
   m_ObjectHideFlags: 0

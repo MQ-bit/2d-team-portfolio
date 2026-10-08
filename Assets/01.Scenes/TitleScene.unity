@@ -5876,6 +5876,7 @@ GameObject:
   - component: {fileID: 1005989716}
   - component: {fileID: 1005989718}
   - component: {fileID: 1005989719}
+  - component: {fileID: 1005989720}
   m_Layer: 0
   m_Name: TitleSceneController
   m_TagString: Untagged
@@ -5950,6 +5951,22 @@ MonoBehaviour:
   _optionWindowSet: {fileID: 1568813910}
   _volumeView: {fileID: 1878710913}
   _escButton: {fileID: 1241863110}
+--- !u!114 &1005989720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005989715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f9fb4bb4212184fbe94c70199c8f3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TitleButtonSoundController
+  _buttonRoot: {fileID: 1692559225}
+  _buttonHoverSound: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
+  _volume: 0.35
+  _soundInterval: 0.08
 --- !u!1 &1021557241
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,6 +11,10 @@ public class EnemyExplosionEffect : MonoBehaviour
     [SerializeField] private GameObject _effectPrefab;
     [SerializeField, Min(0.1f)] private float _effectLifetime = 2f;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip _explosionSound;
+    [SerializeField, Range(0f, 1f)] private float _explosionSoundVolume = 1f;
+
     private void Awake()
     {
         if (_controller == null)
@@ -45,6 +49,11 @@ public class EnemyExplosionEffect : MonoBehaviour
 
     private void HandleExploded()
     {
+        if (_explosionSound != null)
+        {
+            SoundManager.PlaySfx(_explosionSound, _explosionSoundVolume);
+        }
+
         if (_effectPrefab == null)
         {
             return;
