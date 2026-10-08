@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -12,7 +11,7 @@ public enum SoundChannel
     Potion,
 }
 
-// 전역 사운드 관리자. 모든 소리는 여기서 채널을 골라 재생한다.
+// 전역 사운드 진입점. 담당 객체를 생성하고 재생/볼륨/Pause 요청을 전달한다.
 // 씬에 없으면 처음 쓸 때 스스로 만들어진다.
 //
 // 볼륨은 AudioMixer로 관리한다. Resources/MainAudioMixer 에셋을 불러오며, 구조는 다음과 같다.
@@ -69,12 +68,8 @@ public class SoundManager : MonoBehaviour
 
     private SoundPlayback _playback;
     private SoundVolumeController _volumeController;
-    private SoundHandle _bgmHandle;
-    private AudioClip _bgmClip;
-
-    // Gain으로 키운 클립은 런타임에 새로 만든 것이라 직접 정리한다.
-    private readonly Dictionary<(AudioClip clip, float gain), AudioClip> _amplifiedClips =
-        new Dictionary<(AudioClip clip, float gain), AudioClip>();
+    private SoundBgmController _bgmController;
+    private SoundClipCache _clipCache;
 
     private void Awake()
     {
@@ -90,6 +85,8 @@ public class SoundManager : MonoBehaviour
 
         _volumeController = new SoundVolumeController(_mixer);
         _playback = new SoundPlayback(transform, _volumeController);
+        _bgmController = new SoundBgmController(_playback);
+        _clipCache = new SoundClipCache();
     }
 
     private void OnDestroy()
@@ -100,31 +97,14 @@ public class SoundManager : MonoBehaviour
         }
 
         _instance = null;
-        foreach (AudioClip amplified in _amplifiedClips.Values)
-        {
-            if (amplified != null)
-            {
-                Destroy(amplified);
-            }
-        }
-        _amplifiedClips.Clear();
+        // 생성 클립을 해제하기 전에 이를 참조하는 보이스부터 정리한다.
+        _playback.StopAll();
+        _clipCache.Dispose();
     }
 
     private void OnApplicationQuit()
     {
         _isQuitting = true;
-    }
-
-    private static int GetMaxVoices(SoundChannel channel)
-    {
-        switch (channel)
-        {
-            case SoundChannel.Bgm: return 3; // 크로스페이드 중에는 두세 곡이 겹친다
-            case SoundChannel.Ui: return 4;
-            case SoundChannel.Player: return 8;
-            case SoundChannel.Potion: return 8;
-            default: return 16;
-        }
     }
 
     private void Update()
@@ -144,7 +124,8 @@ public class SoundManager : MonoBehaviour
             return default;
         }
 
-        return manager._playback.Play(manager.GetClip(clip, gain), channel, volume, startOffset, endTime, fadeOutTime, loop, fadeInTime);
+        return manager._playback.Play(manager._clipCache.GetClip(clip, gain), channel, volume,
+            startOffset, endTime, fadeOutTime, loop, fadeInTime);
     }
 
     // 일반 효과음(Sfx 채널).
@@ -169,29 +150,7 @@ public class SoundManager : MonoBehaviour
             return default;
         }
 
-        if (clip == null)
-        {
-            FadeOutBgm(fadeTime);
-            return default;
-        }
-
-        if (manager._bgmHandle.IsPlaying && manager._bgmClip == clip)
-        {
-            return manager._bgmHandle;
-        }
-
-        if (fadeTime > 0f)
-        {
-            manager._bgmHandle.FadeOut(fadeTime);
-        }
-        else
-        {
-            manager._bgmHandle.Stop();
-        }
-
-        manager._bgmClip = clip;
-        manager._bgmHandle = Play(clip, SoundChannel.Bgm, volume, loop: true, fadeInTime: fadeTime);
-        return manager._bgmHandle;
+        return manager._bgmController.Play(clip, volume, fadeTime);
     }
 
     // 이전 BGM을 줄이면서 새 BGM을 키운다. PlayBgm(clip, volume, fadeTime)과 같다.
@@ -209,8 +168,7 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
-        manager._bgmHandle.FadeOut(fadeTime);
-        manager._bgmClip = null;
+        manager._bgmController.FadeOut(fadeTime);
     }
 
     // 나오던 BGM을 바로 끈다.
@@ -224,7 +182,7 @@ public class SoundManager : MonoBehaviour
         get
         {
             SoundManager manager = Instance;
-            return manager != null && manager._bgmHandle.IsPlaying;
+            return manager != null && manager._bgmController.IsPlaying;
         }
     }
 
@@ -237,14 +195,27 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
-        clip.LoadAudioData();
-        manager.GetClip(clip, gain);
+        manager._clipCache.Preload(clip, gain);
     }
 
     public static void StopChannel(SoundChannel channel)
     {
         FadeOutChannel(channel, 0f);
     }
+
+    // BGM/UI/Sfx는 유지하고 Player/Potion만 페이드 후 일시정지한다.
+    // Resume은 보존한 재생 위치에서 페이드 인한다. 사용자 볼륨 설정은 바꾸지 않는다.
+    public static void SetPaused(bool paused, float fadeTime = 0.3f)
+    {
+        // 해제만 요청할 때는 새 매니저를 만들지 않는다(씬 종료 정리 포함).
+        SoundManager manager = paused ? Instance : _instance;
+        if (manager != null)
+        {
+            manager._playback.SetPaused(paused, fadeTime);
+        }
+    }
+
+    public static bool IsPaused => _instance != null && _instance._playback.IsPaused;
 
     // 채널에서 나오는 소리 전부를 fadeTime초에 걸쳐 줄이면서 끈다.
     public static void FadeOutChannel(SoundChannel channel, float fadeTime)
@@ -304,41 +275,4 @@ public class SoundManager : MonoBehaviour
         return manager != null ? manager._volumeController.SfxVolume : 1f;
     }
 
-    private AudioClip GetClip(AudioClip clip, float gain)
-    {
-        if (gain <= 1f)
-        {
-            return clip;
-        }
-
-        var key = (clip, gain);
-        if (_amplifiedClips.TryGetValue(key, out AudioClip cached))
-        {
-            return cached != null ? cached : clip;
-        }
-
-        AudioClip amplified = CreateAmplifiedClip(clip, gain);
-        _amplifiedClips[key] = amplified;
-        return amplified != null ? amplified : clip;
-    }
-
-    // 샘플 값을 gain배로 키운 복사본을 만든다. 샘플을 읽을 수 없으면 null.
-    private static AudioClip CreateAmplifiedClip(AudioClip clip, float gain)
-    {
-        float[] samples = new float[clip.samples * clip.channels];
-        if (!clip.GetData(samples, 0))
-        {
-            Debug.LogWarning($"{clip.name} : 샘플을 읽을 수 없어 Gain을 적용하지 못함. (Load Type이 Decompress On Load여야 함)");
-            return null;
-        }
-
-        for (int i = 0; i < samples.Length; i++)
-        {
-            samples[i] = Mathf.Clamp(samples[i] * gain, -1f, 1f);
-        }
-
-        AudioClip amplified = AudioClip.Create($"{clip.name}_Amplified", clip.samples, clip.channels, clip.frequency, false);
-        amplified.SetData(samples, 0);
-        return amplified;
-    }
 }

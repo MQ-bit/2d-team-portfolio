@@ -28,6 +28,7 @@ public class IngameUIController : MonoBehaviour
     [Header("Pause")]
     [SerializeField] private PausePresenter _pausePresenter;
     [SerializeField] private float _pauseMenuTimeScale = 0f;
+    [SerializeField, Min(0f)] private float _pauseSoundFadeTime = 0.3f;
     [SerializeField] private string _titleSceneName;
 
     private bool _isPauseOpen;
@@ -79,6 +80,10 @@ public class IngameUIController : MonoBehaviour
             _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
         }
 
+        if (_isPauseOpen)
+        {
+            SoundManager.SetPaused(false, _pauseSoundFadeTime);
+        }
         _isPauseOpen = false;
     }
 
@@ -219,6 +224,7 @@ public class IngameUIController : MonoBehaviour
     private void HandlePauseStateChanged(bool isOpen)
     {
         _isPauseOpen = isOpen;
+        SoundManager.SetPaused(isOpen, _pauseSoundFadeTime);
 
         if (isOpen)
         {
