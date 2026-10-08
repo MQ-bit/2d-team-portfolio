@@ -70,6 +70,7 @@ MonoBehaviour:
   _potionInformationHUD: {fileID: 0}
   _pauseTimeScale: 0.2
   _testSprite: {fileID: 21300000, guid: 369ced1cec2bc7243a0d1dd51cb74bad, type: 3}
+  _titleSceneName: TitleScene
 --- !u!114 &8235088990738762838
 MonoBehaviour:
   m_ObjectHideFlags: 0

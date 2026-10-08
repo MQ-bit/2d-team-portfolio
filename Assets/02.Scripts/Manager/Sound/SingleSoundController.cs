@@ -1,7 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // 하나의 AudioSource에 대한 재생 상태, 개별 페이드, 종료 구간을 관리한다.
-internal sealed class SoundVoice
+internal sealed class SingleSoundController
 {
     public AudioSource Source { get; }
     public int Id { get; private set; }
@@ -20,7 +20,7 @@ internal sealed class SoundVoice
     private bool _fading;
     private bool _stopWhenFaded;
 
-    public SoundVoice(AudioSource source)
+    public SingleSoundController(AudioSource source)
     {
         Source = source;
     }
@@ -158,5 +158,51 @@ internal sealed class SoundVoice
 
         _fading = false;
         return _stopWhenFaded;
+    }
+}
+
+// 재생 중인 소리 하나를 가리키는 손잡이. 보이스가 재사용되면 이전 핸들은 무효가 된다.
+public readonly struct SoundHandle
+{
+    private readonly SingleSoundController _controller;
+    private readonly int _id;
+
+    internal SoundHandle(SingleSoundController controller)
+    {
+        _controller = controller;
+        _id = controller.Id;
+    }
+
+    // Pause 중에도 핸들은 유효하다. Stop/FadeOut으로 정리할 수 있다.
+    public bool IsPlaying => _controller != null && _controller.Id == _id && _controller.Active;
+    public bool IsPaused => IsPlaying && _controller.Paused;
+
+    // 재생 위치(초). 재생 중이 아니면 0.
+    public float Time => IsPlaying ? _controller.Source.time : 0f;
+
+    public void Stop()
+    {
+        if (IsPlaying)
+        {
+            _controller.Release();
+        }
+    }
+
+    // fadeTime초에 걸쳐 줄이다가 멈춘다. 이미 일시정지 중이면 바로 정리한다.
+    public void FadeOut(float fadeTime)
+    {
+        if (IsPlaying)
+        {
+            _controller.StartFade(0f, fadeTime, true);
+        }
+    }
+
+    // 처음 정한 볼륨 대비 비율을 바꾼다. 멈추지는 않는다.
+    public void FadeTo(float targetVolume, float fadeTime)
+    {
+        if (IsPlaying)
+        {
+            _controller.StartFade(targetVolume, fadeTime, false);
+        }
     }
 }
