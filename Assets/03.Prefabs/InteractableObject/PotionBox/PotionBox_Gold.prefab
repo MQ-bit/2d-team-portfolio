@@ -121,9 +121,6 @@ MonoBehaviour:
   _dropRadius: 3
   _dropFlightDuration: 0.45
   _dropArcHeight: 0.5
-  _openSound: {fileID: 8300000, guid: dbb938134e16d8c43a2603f1477786fc, type: 3}
-  _openSoundVolume: 1
-  _openSoundGain: 4
 --- !u!95 &956799019109799958
 Animator:
   serializedVersion: 7

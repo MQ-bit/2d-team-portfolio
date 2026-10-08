@@ -64,6 +64,8 @@ internal sealed class SoundBgmController
     private readonly SoundPlayback _playback;
     private SoundHandle _bgmHandle;
     private AudioClip _bgmClip;
+    private GameSoundData.BgmEntry _bgmEntry;
+    private AudioClip _pendingLoop;
 
     public bool IsPlaying => _bgmHandle.IsPlaying;
 
@@ -74,6 +76,8 @@ internal sealed class SoundBgmController
 
     public SoundHandle Play(AudioClip clip, float volume, float fadeTime)
     {
+        _bgmEntry = null;
+        _pendingLoop = null;
         if (clip == null)
         {
             FadeOut(fadeTime);
@@ -102,7 +106,38 @@ internal sealed class SoundBgmController
 
     public void FadeOut(float fadeTime)
     {
+        _bgmEntry = null;
+        _pendingLoop = null;
         _bgmHandle.FadeOut(fadeTime);
         _bgmClip = null;
+    }
+
+    public SoundHandle Play(GameSoundData.BgmEntry entry)
+    {
+        if (_bgmEntry == entry && (_bgmHandle.IsPlaying || _pendingLoop != null)) return _bgmHandle;
+        if (entry.IntroClip == null && entry.LoopClip == null) return default;
+        FadeOut(entry.FadeTime);
+        _bgmEntry = entry;
+        _pendingLoop = entry.IntroClip != null ? entry.LoopClip : null;
+        _bgmClip = entry.IntroClip != null ? entry.IntroClip : entry.LoopClip;
+        _bgmHandle = _playback.Play(_bgmClip, SoundChannel.Bgm, entry.Volume,
+            0f, 0f, 0f, entry.IntroClip == null, entry.FadeTime);
+        return _bgmHandle;
+    }
+
+    public void Update()
+    {
+        if (_pendingLoop == null || _bgmHandle.IsPlaying || _bgmEntry == null) return;
+        _bgmClip = _pendingLoop;
+        _pendingLoop = null;
+        _bgmHandle = _playback.Play(_bgmClip, SoundChannel.Bgm, _bgmEntry.Volume,
+            0f, 0f, 0f, true, 0f);
+    }
+
+    public bool IsPlayingId(GameBgmId id) => _bgmEntry != null && _bgmEntry.Id == id
+        && (_bgmHandle.IsPlaying || _pendingLoop != null);
+    public void StopId(GameBgmId id)
+    {
+        if (_bgmEntry != null && _bgmEntry.Id == id) FadeOut(_bgmEntry.FadeTime);
     }
 }

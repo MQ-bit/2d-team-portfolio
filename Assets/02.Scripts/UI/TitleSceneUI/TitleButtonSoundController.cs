@@ -10,15 +10,8 @@ public class TitleButtonSoundController : MonoBehaviour
 {
     [SerializeField] private Transform _buttonRoot;
 
-    [SerializeField] private AudioClip _buttonHoverSound;
-    [SerializeField, Range(0f, 1f)] private float _volume = 0.35f;
-
-    [SerializeField] private AudioClip _buttonClickSound;
-    [SerializeField, Range(0f, 1f)] private float _clickVolume = 1f;
-
     private readonly List<Button> _clickConnectedButtons = new();
 
-    [SerializeField, Min(0f)] private float _soundInterval = 0.08f;
 
     private readonly List<PauseButtonSound> _connectedButtons = new();
     private float _nextSoundTime;
@@ -63,22 +56,22 @@ public class TitleButtonSoundController : MonoBehaviour
 
     private void PlayHoverSound()
     {
-        if (!isActiveAndEnabled || _buttonHoverSound == null)
+        if (!isActiveAndEnabled || SoundManager.GetSound(GameSoundId.TitleHover)?.Clip == null)
             return;
 
         if (Time.unscaledTime < _nextSoundTime)
             return;
 
-        _nextSoundTime = Time.unscaledTime + _soundInterval;
-        SoundManager.PlayUi(_buttonHoverSound, _volume);
+        _nextSoundTime = Time.unscaledTime + SoundManager.GetSound(GameSoundId.TitleHover).Interval;
+        SoundManager.Play(GameSoundId.TitleHover);
     }
 
     private void PlayClickSound()
     {
-        if (!isActiveAndEnabled || _buttonClickSound == null)
+        if (!isActiveAndEnabled || SoundManager.GetSound(GameSoundId.TitleClick)?.Clip == null)
             return;
 
-        SoundManager.PlayUi(_buttonClickSound, _clickVolume);
+        SoundManager.Play(GameSoundId.TitleClick);
     }
 
     private void OnDestroy()

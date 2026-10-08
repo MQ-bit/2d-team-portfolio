@@ -65,6 +65,35 @@ public class SoundManager : MonoBehaviour
 
     [Tooltip("비워두면 Resources/MainAudioMixer를 불러온다.")]
     [SerializeField] private AudioMixer _mixer;
+    [Tooltip("비워두면 Resources/GameSoundData를 사용합니다.")]
+    [SerializeField] private GameSoundData _soundData;
+
+    public static GameSoundData Data => Instance != null ? Instance._soundData : null;
+    public static GameSoundData.Entry GetSound(GameSoundId id) => Data != null ? Data.Get(id) : null;
+    public static SoundHandle Play(GameSoundId id) => GetSound(id)?.Play() ?? default;
+    public static void Preload(GameSoundId id) => GetSound(id)?.Preload();
+
+    public static SoundHandle PlayBgm(GameBgmId id)
+    {
+        SoundManager manager = Instance;
+        GameSoundData.BgmEntry entry = manager != null && manager._soundData != null
+            ? manager._soundData.GetBgm(id) : null;
+        if (entry == null) return default;
+        Preload(entry.IntroClip);
+        Preload(entry.LoopClip);
+        return manager._bgmController.Play(entry);
+    }
+
+    // 특정 BGM이 재생 중인지 확인
+    public static bool IsBgmIdPlaying(GameBgmId id)
+    {
+        return Instance != null
+               && Instance._bgmController.IsPlayingId(id);
+    }
+    public static void StopBgm(GameBgmId id)
+    {
+        if (Instance != null) Instance._bgmController.StopId(id);
+    }
 
     private SoundPlayback _playback;
     private SoundVolumeController _volumeController;
@@ -82,6 +111,8 @@ public class SoundManager : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
+        if (_soundData == null) _soundData = Resources.Load<GameSoundData>("GameSoundData");
+        if (_soundData == null) Debug.LogWarning("Resources/GameSoundData 사운드 설정이 없습니다.", this);
 
         _volumeController = new SoundVolumeController(_mixer);
         _playback = new SoundPlayback(transform, _volumeController);
@@ -110,6 +141,7 @@ public class SoundManager : MonoBehaviour
     private void Update()
     {
         _playback.Update();
+        _bgmController.Update();
     }
 
     // 클립을 채널로 재생한다. 재생을 멈추거나 상태를 볼 수 있는 손잡이를 돌려준다.
@@ -177,6 +209,7 @@ public class SoundManager : MonoBehaviour
         FadeOutBgm(0f);
     }
 
+    // BGM이 하나라도 재생 중인지 확인
     public static bool IsBgmPlaying
     {
         get

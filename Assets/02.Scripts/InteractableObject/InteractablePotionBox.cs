@@ -16,12 +16,6 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
     [SerializeField, Min(0.01f)] private float _dropFlightDuration = 0.45f;
     [SerializeField, Min(0f)] private float _dropArcHeight = 0.5f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip _openSound;
-    [SerializeField, Range(0f, 1f)] private float _openSoundVolume = 1f;
-    [Tooltip("원본이 작아서 Volume 1로도 작을 때 키우는 배율. 1이면 원본 그대로.")]
-    [SerializeField, Min(1f)] private float _openSoundGain = 4f;
-
     public Transform DropPoint => _dropPoint;
     private bool _isOpened;
     private static readonly int OpenTrigger = Animator.StringToHash("Open");
@@ -33,7 +27,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
             _animator = GetComponent<Animator>();
         }
 
-        SoundManager.Preload(_openSound, _openSoundGain);
+        SoundManager.Preload(GameSoundId.PotionBoxOpen);
 
         if (_dropPrefabs == null || _dropPrefabs.Count == 0)
         {
@@ -70,7 +64,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
             _animator.SetTrigger(OpenTrigger);
         }
 
-        SoundManager.Play(_openSound, SoundChannel.Sfx, _openSoundVolume, gain: _openSoundGain);
+        SoundManager.Play(GameSoundId.PotionBoxOpen);
 
         Vector3 origin = _dropPoint != null ? _dropPoint.position : transform.position;
 

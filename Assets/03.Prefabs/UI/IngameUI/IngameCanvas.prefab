@@ -983,17 +983,9 @@ PrefabInstance:
       value: 4284045823
       objectReference: {fileID: 0}
     - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: _buttonClickSound
-      value: 
-      objectReference: {fileID: 8300000, guid: b423dfe8581d3bb4c87d7674548ed8f9, type: 3}
-    - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: _buttonHoverSound
-      value: 
-      objectReference: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
-    - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: _volumeFeedbackSound
-      value: 
-      objectReference: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
+      propertyPath: _clickSoundId
+      value: 15
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 88004005, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}

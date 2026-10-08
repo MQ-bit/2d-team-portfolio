@@ -7,7 +7,6 @@ public class PotionAreaController : MonoBehaviour
     private const int EllipseSegments = 128;
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
-    [SerializeField, Range(0f, 1f)] private float _loopSoundVolume = 1f;
 
     private static int _activationCount;
 
@@ -230,7 +229,7 @@ public class PotionAreaController : MonoBehaviour
     private void PlayLoopSound()
     {
         _loopSound.Stop();
-        _loopSound = SoundManager.Play(Data.AreaLoopSound, SoundChannel.Potion, _loopSoundVolume, loop: true);
+        _loopSound = SoundManager.Play(GameSoundData.GetAreaSoundId(Data.Element));
     }
 
     internal void StopLoopSound()

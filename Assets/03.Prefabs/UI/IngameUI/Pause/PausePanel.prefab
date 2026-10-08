@@ -5696,13 +5696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04db90e933274e51ac8ff04be2be29fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseSoundController
-  _buttonClickSound: {fileID: 0}
-  _uiSoundVolume: 1
-  _buttonHoverSound: {fileID: 0}
-  _buttonHoverSoundVolume: 0.35
-  _buttonHoverSoundInterval: 0.08
-  _volumeFeedbackSound: {fileID: 0}
-  _volumeFeedbackInterval: 0.1
+  _clickSoundId: 12
 --- !u!1 &5667869665826458285
 GameObject:
   m_ObjectHideFlags: 0

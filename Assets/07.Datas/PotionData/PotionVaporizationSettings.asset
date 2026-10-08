@@ -15,8 +15,6 @@ MonoBehaviour:
   _waitingDuration: 2
   _reactionVfxPrefab: {fileID: 133403889251271510, guid: 9a6c0be917ce42bcb420c03366fb345b, type: 3}
   _reactionVfxDuration: 1
-  _reactionSound: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
-  _reactionSoundVolume: 1
   _reactionShakeForce: 1
   _reactionShakePulseCount: 6
   _reactionShakeInterval: 0.08

@@ -135,11 +135,8 @@ internal sealed class PotionAreaVaporizer
     // 기화 포션 하나가 여러 장판과 반응해도 소리는 한 번만 낸다.
     private void PlayReactionSound()
     {
-        PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
-        if (settings == null || settings.ReactionSound == null) return;
-
         // 기화 장판은 바로 사라지지만 소리는 매니저가 끝까지 재생한다.
-        SoundManager.Play(settings.ReactionSound, SoundChannel.Potion, settings.ReactionSoundVolume);
+        SoundManager.Play(GameSoundId.VaporizationReaction);
     }
 
     private void FinishVaporization()
