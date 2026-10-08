@@ -26,7 +26,7 @@ public class RoomDefinition : MonoBehaviour
     [SerializeField] private Transform _playerSpawnPoint;
     [SerializeField] private Transform _portalSpawnPoint;
     [SerializeField] private Transform[] _enemySpawnPoints = Array.Empty<Transform>();
-    //[SerializeField] private Transform _rewardSpawnPoint; //보상 오브젝트가 있다면 사용
+    [SerializeField] private Transform[] _rewardSpawnPoints = Array.Empty<Transform>();
 
     public RoomType Type => _roomType;
     public Bounds LocalBounds => _localBounds;
@@ -35,10 +35,10 @@ public class RoomDefinition : MonoBehaviour
 
     public IReadOnlyList<RoomConnector> Connectors => _connectors;
     public IReadOnlyList<Transform> EnemySpawnPoints => _enemySpawnPoints;
+    public IReadOnlyList<Transform> RewardSpawnPoints => _rewardSpawnPoints;
 
     public Transform PlayerSpawnPoint => _playerSpawnPoint;
     public Transform PortalSpawnPoint => _portalSpawnPoint;
-    //public Transform RewardSpawnPoint => _rewardSpawnPoint;
 
     public Bounds WorldBounds
     {
@@ -182,6 +182,8 @@ public class RoomDefinition : MonoBehaviour
                     break;
                 }
         }
+
+        ValidateRewardSpawnPoints(errors);
     }
     private void ValidateConnectors(List<string> errors)
     {
@@ -229,6 +231,62 @@ public class RoomDefinition : MonoBehaviour
             if (_wallTilemap != null && !connector.ContainsWallTile(_wallTilemap))
             {
                 errors.Add($"{name}/{connector.name}: CarveArea 안에 Wall 타일이 없습니다.");
+            }
+        }
+    }
+
+    private void ValidateRewardSpawnPoints(List<string> errors)
+    {
+        bool isCombatRoom = _roomType == RoomType.Normal || _roomType == RoomType.Elite;
+
+        if (_rewardSpawnPoints == null || _rewardSpawnPoints.Length == 0)
+        {
+            if (isCombatRoom)
+            {
+                errors.Add($"{name}: 전투 방에 RewardSpawnPoint가 없습니다.");
+            }
+
+            return;
+        }
+
+        if (_rewardSpawnPoints == null || _rewardSpawnPoints.Length == 0)
+        {
+            errors.Add($"{name}: RewardSpawnPoint가 없습니다.");
+            return;
+        }
+
+        HashSet<Transform> uniquePoints = new HashSet<Transform>();
+
+        for (int i = 0; i < _rewardSpawnPoints.Length; i++)
+        {
+            Transform point = _rewardSpawnPoints[i];
+
+            if (point == null)
+            {
+                errors.Add($"{name}: RewardSpawnPoints[{i}]가 비어 있습니다.");
+                continue;
+            }
+
+            if (point == transform || !point.IsChildOf(transform))
+            {
+                errors.Add($"{name}/{point.name}: RewardSpawnPoint가 방 오브젝트의 자식이 아닙니다.");
+            }
+
+            if (!uniquePoints.Add(point))
+            {
+                errors.Add($"{name}/{point.name}: RewardSpawnPoint가 배열에 중복 등록되었습니다.");
+            }
+
+            Vector3 localPosition = transform.InverseTransformPoint(point.position);
+            Vector3 boundsMin = _localBounds.min;
+            Vector3 boundsMax = _localBounds.max;
+
+            bool insideBounds = boundsMin.x <= localPosition.x && localPosition.x <= boundsMax.x &&
+                                boundsMin.y <= localPosition.y && localPosition.y <= boundsMax.y;
+
+            if (!insideBounds)
+            {
+                errors.Add($"{name}/{point.name}: RewardSpawnPoint가 Room LocalBounds 밖에 있습니다.");
             }
         }
     }
