@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -22,6 +23,11 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         Damageable = GetComponentInParent<IDamageable>();
         Thirstable = GetComponentInParent<IThirstable>();
+        // 기존 씬과 프리팹의 대상에도 상태 연출을 자동으로 연결한다.
+        if (GetComponent<PotionStatusVisual>() == null)
+        {
+            gameObject.AddComponent<PotionStatusVisual>();
+        }
     }
 
     public void ClearStatuses()
@@ -182,5 +188,13 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public bool IsInStatusArea(PotionStatusEffectTracker status)
     {
         return _areaEffects.HasStatus(status);
+    }
+
+    // 장판과 남아 있는 상태의 조합 정보를 중복 없이 조회한다. 게임플레이 상태는 변경하지 않는다.
+    public void GetVisualCombinations(List<PotionCombinationData> result)
+    {
+        result.Clear();
+        _areaEffects.CollectVisualCombinations(result);
+        _statusEffects.CollectVisualCombinations(result);
     }
 }

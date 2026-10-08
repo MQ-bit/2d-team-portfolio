@@ -65,6 +65,15 @@ public sealed class PotionAreaEffectTracker
     public void Enter(IPotionEffectData profile, PotionEffectSource source) =>
         _sources[source.SourceId] = new Entry(profile, source);
 
+    public void CollectVisualCombinations(List<PotionCombinationData> result)
+    {
+        foreach (Entry entry in _sources.Values)
+        {
+            PotionCombinationData combination = entry.Source.Combination;
+            if (combination != null && !result.Contains(combination)) result.Add(combination);
+        }
+    }
+
     public bool HasDamageElement(PotionElement element)
     {
         foreach (Entry entry in _sources.Values)

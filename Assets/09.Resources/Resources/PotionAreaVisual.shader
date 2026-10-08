@@ -10,6 +10,8 @@ Shader "Potion/Area"
         _AccentColor ("VFX Accent Color", Color) = (0.7, 1, 0.8, 1)
         _Surface ("Wobble, Detail, Opacity, Style", Vector) = (0.018, 0.65, 0.7, 0)
         _Animation ("Time, Appearance, Fade, Seed", Vector) = (0, 1, 1, 0)
+        [HideInInspector] _Aura ("Aura Enabled, Core Spread, Diffusion Softness, Appearance", Vector) = (0, 0.55, 0.08, 0)
+        [HideInInspector] _AuraElements ("Aura Fire, Poison, Ice, Lightning", Vector) = (0, 0, 0, 0)
         _Boundary ("Irregularity, Density, Motion Speed, Motion Amount", Vector) = (0.17, 4.5, 0.35, 0.45)
         [HideInInspector] _PuddleShape ("Distance, Radii, Blend", Vector) = (0, 1, 1, 0.25)
         [HideInInspector] _PuddleFrame ("Direction, Neck, Enabled", Vector) = (1, 0, 0.55, 0)
@@ -54,6 +56,8 @@ Shader "Potion/Area"
             float4 _AccentColor;
             float4 _Surface;
             float4 _Animation;
+            float4 _Aura;
+            float4 _AuraElements;
             float4 _Boundary;
             float4 _PuddleShape;
             float4 _PuddleFrame;
@@ -178,8 +182,135 @@ Shader "Potion/Area"
             return exp(-pow((radius - waveRadius) * 22.0, 2.0)) * sin(phase * 3.14159);
         }
 
+        // A single tongue of fire using the puddle flame's taper, turbulence and heat palette.
+        half4 SingleFireAuraFrag(Varyings input)
+        {
+            float t = _Animation.x;
+            float seed = _Animation.w;
+            float appearance = smoothstep(0.0, 1.0, _Aura.w);
+            float growth = lerp(0.18, 1.0, appearance);
+            float2 q = (input.uv * 2.0 - 1.0) / growth;
+            float phase = t * 2.2 + seed;
+            float surge = Noise(float2(t * 3.5 + seed, seed));
+            float height = lerp(0.9, 1.08, surge);
+            float y = (q.y + 0.8) / (1.5 * height);
+            float bend = (sin(y * 3.2 - phase * 0.8) * 0.028
+                + sin(y * 6.0 + phase * 0.45 + seed) * 0.01)
+                * smoothstep(0.0, 0.85, y);
+            float2 p = float2(q.x * 0.16 - bend, y);
+            float baseWidth = 0.06;
+            float breathe = (1.0 + sin(phase * 0.7 + seed) * 0.09) * lerp(1.06, 0.9, surge);
+            float cap = saturate(p.y / 1.08);
+            float width = max(0.006, sqrt(saturate(1.0 - cap * cap)) * baseWidth * breathe);
+            float tongue = exp(-pow(p.x / width, 2.0));
+            float vertical = smoothstep(-0.1, 0.04, p.y) * (1.0 - smoothstep(0.55, 1.08, p.y));
+            float noise = Noise(p * float2(28.0, 4.0) + float2(seed, -t * 0.85));
+            float fine = Noise(p * float2(53.0, 8.0) + float2(seed + 13.0, -t * 1.2));
+            float turbulence = noise * 0.75 + fine * 0.25;
+            float density = tongue * vertical * lerp(0.55, 1.0,
+                smoothstep(0.14 + saturate(p.y) * 0.28, 0.65, turbulence + tongue * 0.28));
+            density *= 0.82 + surge * 0.12 + sin(phase * 1.1) * 0.03;
+            float temperature = saturate((1.0 - saturate(p.y)) * 0.65 + turbulence * 0.25);
+            float3 color = lerp(float3(0.95, 0.022, 0.012), float3(1.0, 0.16, 0.02),
+                smoothstep(0.18, 0.52, temperature));
+            color = lerp(color, lerp(float3(1.0, 0.7, 0.13), _AccentColor.rgb, 0.35),
+                smoothstep(0.52, 0.8, temperature));
+            color = lerp(color, float3(1.0, 0.82, 0.48), smoothstep(0.82, 0.98, temperature));
+            float3 contactColor = lerp(_AreaColor.rgb, _AccentColor.rgb, 0.3);
+            color = lerp(contactColor, color, smoothstep(0.0, 0.3, p.y));
+            float alpha = (1.0 - exp(-density * 1.8)) * _Surface.z * _AreaColor.a
+                * _Animation.y * _Animation.z;
+            return half4(color, saturate(alpha));
+        }
+
+        // Diffuse emission expands from the target; there is no hollow ring or bright rim.
+        half4 AuraFrag(Varyings input)
+        {
+            bool fireStyle = (_Surface.w > 0.5 && _Surface.w < 1.5)
+                || (_Surface.w > 9.5 && _Surface.w < 10.5);
+            bool combination = dot(_AuraElements, float4(1.0, 1.0, 1.0, 1.0)) > 0.5;
+            if (fireStyle && !combination) return SingleFireAuraFrag(input);
+            float2 p = input.uv * 2.0 - 1.0;
+            float t = _Animation.x;
+            float seed = _Animation.w;
+            float style = _Surface.w;
+            float appearance = smoothstep(0.0, 1.0, _Aura.w);
+            float growth = lerp(0.18, 1.0, appearance);
+            float2 drift = float2(
+                Noise(p * 2.0 + seed + t * 0.08),
+                Noise(p * 2.0 + seed + 17.3 - t * 0.06)) - 0.5;
+            float2 emitted = (p + drift * 0.16) / growth;
+            float radius = length(emitted);
+            float2 outward = emitted / max(radius, 0.001);
+            float2 moving = emitted * 3.5 - outward * t * 0.3 + seed;
+            float flow = Noise(moving);
+            float fine = Noise(moving * 1.7 + float2(t * 0.12, -t * 0.2));
+            float coverage = 0.32 + flow * 0.4;
+            float3 color = _AreaColor.rgb;
+
+            // Combination auras reuse the puddle palette and only its lightweight element motifs.
+            // One renderer blends the two motifs; full puddle VFX are never spawned here.
+            if (dot(_AuraElements, float4(1.0, 1.0, 1.0, 1.0)) > 0.5)
+            {
+                float motif = 0.0;
+                if (_AuraElements.x > 0.5)
+                {
+                    float heat = Noise(moving + float2(0.0, -t * 0.8));
+                    motif += heat * 0.32 + Sparkles(emitted * 6.0 + seed, t) * 0.26;
+                }
+                if (_AuraElements.y > 0.5)
+                    motif += Noise(moving * 0.8 + float2(t * 0.1, -t * 0.3)) * 0.24
+                        + Bubbles(emitted * 3.5 + seed, t) * 0.25;
+                if (_AuraElements.z > 0.5)
+                    motif += Cracks(emitted * 3.5 + seed) * 0.3
+                        + Sparkles(emitted * 7.0 + seed, t * 0.6) * 0.24;
+                if (_AuraElements.w > 0.5)
+                    motif += CurrentArc(emitted, t, seed) * 0.9;
+                coverage = 0.3 + fine * 0.25 + motif;
+                color = lerp(_AreaColor.rgb, _AccentColor.rgb, saturate(motif * 1.15));
+            }
+            else if (style > 1.5 && style < 2.5)
+            {
+                float mist = Noise(moving * 0.8 + float2(t * 0.1, -t * 0.3));
+                float bubbles = Bubbles(emitted * 3.5 + seed, t) * 0.25;
+                coverage = 0.3 + mist * 0.5 + bubbles;
+                color = lerp(_AreaColor.rgb * (0.8 + mist * 0.2), _AccentColor.rgb,
+                    mist * 0.25 + bubbles);
+            }
+            else if (style > 2.5 && style < 3.5)
+            {
+                float facets = Cracks(emitted * 3.5 + seed) * 0.3;
+                float glints = Sparkles(emitted * 7.0 + seed, t * 0.6) * 0.24;
+                coverage = 0.32 + flow * 0.35 + facets + glints;
+                color = lerp(_AreaColor.rgb, _AccentColor.rgb,
+                    saturate(flow * 0.3 + facets + glints));
+            }
+            else if (style > 4.5 && style < 5.5)
+            {
+                float arcs = CurrentArc(emitted, t, seed) * 0.9;
+                float branches = CurrentArc(emitted * 0.75 + float2(1.7, 4.1), t * 0.85, seed + 11.3) * 0.35;
+                float discharge = arcs + branches;
+                coverage = 0.3 + fine * 0.28 + discharge;
+                color = lerp(_AreaColor.rgb, _AccentColor.rgb, saturate(discharge));
+            }
+
+            // The fog thins continuously outward, with a soft distant cutoff.
+            float core = max(0.12, _Aura.y * 0.6 + max(0.01, _Aura.z) * 0.25);
+            float diffusion = exp(-dot(emitted, emitted) / (1.8 * core * core));
+            float distantFade = 1.0 - smoothstep(0.4, 0.95, radius);
+            float wisps = lerp(0.45, 1.0, smoothstep(0.15, 0.8, flow * 0.7 + fine * 0.3));
+            // Concentrate intensity near the source while leaving the distant fog faint.
+            float coreGlow = exp(-radius * radius * 6.0);
+            color = lerp(color, _AccentColor.rgb, coreGlow * 0.25);
+            float alpha = diffusion * distantFade * wisps * saturate(coverage)
+                * _Surface.z * _AreaColor.a * _Animation.y * _Animation.z
+                * (1.0 + coreGlow * 1.4);
+            return half4(color, saturate(alpha));
+        }
+
         half4 Frag(Varyings input) : SV_Target
         {
+            if (_Aura.x > 0.5) return AuraFrag(input);
             if (_AreaClipEnabled > 0.5)
             {
                 float2 clipUV = (input.positionWS - _AreaClipRect.xy) / _AreaClipRect.zw;

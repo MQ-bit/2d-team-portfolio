@@ -56,6 +56,17 @@ public sealed class PotionStatusEffectState
     public bool IsActive(PotionStatusEffectTracker status) => TryGetActive(status, _clock(), out _);
     public int GetStackCount(PotionStatusEffectTracker status) => IsActive(status) ? 1 : 0;
 
+    public void CollectVisualCombinations(List<PotionCombinationData> result)
+    {
+        double now = _clock();
+        foreach (ActiveStatus status in _statuses.Values)
+        {
+            PotionCombinationData combination = status.EffectInfo.Source.Combination;
+            if (status.ExpiresAt > now && combination != null && !result.Contains(combination))
+                result.Add(combination);
+        }
+    }
+
     // 상태 연출용 조회이며 피해 처리나 상태 만료 처리를 실행하지 않는다.
     public float GetRemainingTime(PotionStatusEffectTracker status)
     {
