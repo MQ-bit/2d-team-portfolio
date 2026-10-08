@@ -237,21 +237,9 @@ public class RoomDefinition : MonoBehaviour
 
     private void ValidateRewardSpawnPoints(List<string> errors)
     {
-        bool isCombatRoom = _roomType == RoomType.Normal || _roomType == RoomType.Elite;
-
         if (_rewardSpawnPoints == null || _rewardSpawnPoints.Length == 0)
         {
-            if (isCombatRoom)
-            {
-                errors.Add($"{name}: 전투 방에 RewardSpawnPoint가 없습니다.");
-            }
-
-            return;
-        }
-
-        if (_rewardSpawnPoints == null || _rewardSpawnPoints.Length == 0)
-        {
-            errors.Add($"{name}: RewardSpawnPoint가 없습니다.");
+            errors.Add($"{name}: 전투 방에 RewardSpawnPoint가 없습니다.");
             return;
         }
 
