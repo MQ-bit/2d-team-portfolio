@@ -12,7 +12,7 @@ public enum SoundChannel
 }
 
 // 전역 사운드 진입점. 담당 객체를 생성하고 재생/볼륨/Pause 요청을 전달한다.
-// 씬에 없으면 처음 쓸 때 스스로 만들어진다.
+// 씬에 배치하고 GameSoundData를 인스펙터에서 직접 연결한다.
 //
 // 볼륨은 AudioMixer로 관리한다. Resources/MainAudioMixer 에셋을 불러오며, 구조는 다음과 같다.
 //   Master 아래에 Bgm, Sfx 그룹. Sfx 아래에 Ui, Player, Potion 그룹(채널 이름과 같은 이름).
@@ -46,10 +46,6 @@ public class SoundManager : MonoBehaviour
             if (_instance == null && !_isQuitting)
             {
                 _instance = FindAnyObjectByType<SoundManager>();
-                if (_instance == null)
-                {
-                    new GameObject("SoundManager").AddComponent<SoundManager>();
-                }
             }
 
             return _instance;
@@ -65,7 +61,7 @@ public class SoundManager : MonoBehaviour
 
     [Tooltip("비워두면 Resources/MainAudioMixer를 불러온다.")]
     [SerializeField] private AudioMixer _mixer;
-    [Tooltip("비워두면 Resources/GameSoundData를 사용합니다.")]
+    [Tooltip("Assets/07.Datas/Sound/GameSoundData.asset을 직접 연결해주세요.")]
     [SerializeField] private GameSoundData _soundData;
 
     public static GameSoundData Data => Instance != null ? Instance._soundData : null;
@@ -76,6 +72,14 @@ public class SoundManager : MonoBehaviour
     public static SoundHandle PlayBgm(GameBgmId id)
     {
         SoundManager manager = Instance;
+        if (manager == null || manager._soundData == null) return default;
+        if (id == GameBgmId.InGame)
+        {
+            GameSoundData.BgmEntry[] tracks = manager._soundData.GetBgmTracks(id);
+            foreach (GameSoundData.BgmEntry track in tracks)
+                Preload(track.LoopClip != null ? track.LoopClip : track.IntroClip);
+            return manager._bgmController.PlayShuffled(tracks);
+        }
         GameSoundData.BgmEntry entry = manager != null && manager._soundData != null
             ? manager._soundData.GetBgm(id) : null;
         if (entry == null) return default;
@@ -111,8 +115,8 @@ public class SoundManager : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-        if (_soundData == null) _soundData = Resources.Load<GameSoundData>("GameSoundData");
-        if (_soundData == null) Debug.LogWarning("Resources/GameSoundData 사운드 설정이 없습니다.", this);
+        if (_soundData == null)
+            Debug.LogWarning("SoundManager의 Sound Data에 GameSoundData 에셋을 연결해주세요.", this);
 
         _volumeController = new SoundVolumeController(_mixer);
         _playback = new SoundPlayback(transform, _volumeController);

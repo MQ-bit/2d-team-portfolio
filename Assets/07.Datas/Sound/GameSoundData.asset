@@ -14,33 +14,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameSoundData
   _bgm:
   - _id: 0
-    _introClip: {fileID: 0}
-    _loopClip: {fileID: 0}
-    _volume: 1
+    _introClip: {fileID: 8300000, guid: 51370f3b64783da4a83cd50474a6d37d, type: 3}
+    _loopClip: {fileID: 8300000, guid: 0d46f3fd32f4c764ba18dab94442fdd4, type: 3}
+    _volume: 0.3
     _fadeTime: 1
   - _id: 1
     _introClip: {fileID: 0}
-    _loopClip: {fileID: 0}
-    _volume: 1
+    _loopClip: {fileID: 8300000, guid: f728bb1e886f95e44906a160ca37f6b1, type: 3}
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: 10b279559e2427148acb076d5aa81986, type: 3}
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: b9614e627ccd8654bbb5c4ce4e431e2e, type: 3}
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: b265612e9c6099046bbf850e7f43c302, type: 3}
+    _volume: 0.3
     _fadeTime: 1
   - _id: 2
     _introClip: {fileID: 0}
-    _loopClip: {fileID: 0}
-    _volume: 1
+    _loopClip: {fileID: 8300000, guid: b265612e9c6099046bbf850e7f43c302, type: 3}
+    _volume: 0.3
     _fadeTime: 1
-  - _id: 3
+  - _id: 1
     _introClip: {fileID: 0}
-    _loopClip: {fileID: 0}
-    _volume: 1
-    _fadeTime: 1
-  - _id: 4
-    _introClip: {fileID: 0}
-    _loopClip: {fileID: 0}
-    _volume: 1
+    _loopClip: {fileID: 8300000, guid: b265612e9c6099046bbf850e7f43c302, type: 3}
+    _volume: 0.3
     _fadeTime: 1
   _scene:
   - _id: 0
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 44de93f509e68444dbd53defde169767, type: 3}
     _channel: 1
     _volume: 1
     _gain: 1
@@ -48,10 +58,11 @@ MonoBehaviour:
     _endTime: 6
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 1
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 1042bfa28eae78e49baa479c3ae558dd, type: 3}
     _channel: 1
     _volume: 1
     _gain: 1
@@ -59,10 +70,11 @@ MonoBehaviour:
     _endTime: 2
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 2
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 0cd5c1b8e0a872f49bc563bab9459016, type: 3}
     _channel: 1
     _volume: 1
     _gain: 1
@@ -70,10 +82,11 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 3
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 10865ba5abe28e843974bacc9d6b8812, type: 3}
     _channel: 1
     _volume: 1
     _gain: 1
@@ -81,6 +94,7 @@ MonoBehaviour:
     _endTime: 3
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   _player:
@@ -93,10 +107,11 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 5
-    _clip: {fileID: 8300000, guid: cec4f3afdee76f344aced2ca6528172b, type: 3}
+    _clip: {fileID: 8300000, guid: ddaa6aa30f9b2dd40861315207f3083c, type: 3}
     _channel: 3
     _volume: 1
     _gain: 1
@@ -104,39 +119,43 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 6
-    _clip: {fileID: 8300000, guid: 9d2a5bc2c9842514199fad7cc3e83ee3, type: 3}
+    _clip: {fileID: 8300000, guid: ce5140948c5f54b42bd70a20309f993c, type: 3}
     _channel: 3
     _volume: 1
     _gain: 1
-    _startOffset: 0.34
-    _endTime: 0.62
-    _fadeOutTime: 0.08
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 7
-    _clip: {fileID: 8300000, guid: db5da40d06176d64b8b458133192955e, type: 3}
+    _clip: {fileID: 8300000, guid: 2e1b05fe61c7f914b8fd7fd18c6d900e, type: 3}
     _channel: 3
     _volume: 1
     _gain: 1
-    _startOffset: 0.06
-    _endTime: 0.5
-    _fadeOutTime: 0.2
+    _startOffset: 0
+    _endTime: 1
+    _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 8
-    _clip: {fileID: 8300000, guid: 217df07ff4f7c1047b2b1f4656106ec5, type: 3}
+    _clip: {fileID: 8300000, guid: 463954fb15af1bd40808a619112f31a3, type: 3}
     _channel: 3
     _volume: 1
     _gain: 8
-    _startOffset: 0.05
-    _endTime: 0.55
-    _fadeOutTime: 0.05
+    _startOffset: 0
+    _endTime: 0.8
+    _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 9
@@ -148,6 +167,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0.35
   _ui:
@@ -160,6 +180,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 11
@@ -171,6 +192,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0.08
   - _id: 12
@@ -182,6 +204,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 13
@@ -193,6 +216,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0.08
   - _id: 14
@@ -204,19 +228,9 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0.1
-  - _id: 15
-    _clip: {fileID: 8300000, guid: b423dfe8581d3bb4c87d7674548ed8f9, type: 3}
-    _channel: 2
-    _volume: 1
-    _gain: 1
-    _startOffset: 0
-    _endTime: 0
-    _fadeOutTime: 0
-    _loop: 0
-    _fadeInTime: 0
-    _interval: 0
   _enemy:
   - _id: 16
     _clip: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
@@ -227,6 +241,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 17
@@ -238,6 +253,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   _potion:
@@ -250,6 +266,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 19
@@ -261,6 +278,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 20
@@ -272,17 +290,19 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 21
     _clip: {fileID: 8300000, guid: 57c16dde8834c024087e214f5017af56, type: 3}
     _channel: 4
-    _volume: 1
+    _volume: 0.66
     _gain: 1
     _startOffset: 0
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 22
@@ -294,10 +314,11 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 23
-    _clip: {fileID: 8300000, guid: cfe18bc295ea8b14a89a32179cd9c7a9, type: 3}
+    _clip: {fileID: 8300000, guid: e848b92f5f4d60a4195c60000d6bc3e6, type: 3}
     _channel: 4
     _volume: 1
     _gain: 1
@@ -305,6 +326,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 1
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   - _id: 24
@@ -316,17 +338,7 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
-    _fadeInTime: 0
-    _interval: 0
-  - _id: 25
-    _clip: {fileID: 0}
-    _channel: 4
-    _volume: 1
-    _gain: 1
-    _startOffset: 0
-    _endTime: 0
-    _fadeOutTime: 0
-    _loop: 0
+    _repeatCount: 2
     _fadeInTime: 0
     _interval: 0
   _interaction:
@@ -339,5 +351,6 @@ MonoBehaviour:
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0

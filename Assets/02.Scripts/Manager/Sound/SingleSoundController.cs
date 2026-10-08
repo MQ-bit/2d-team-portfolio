@@ -19,6 +19,8 @@ internal sealed class SingleSoundController
     private float _fadeElapsed;
     private bool _fading;
     private bool _stopWhenFaded;
+    private int _repeatsRemaining = 1;
+    private float _repeatStartOffset;
 
     public SingleSoundController(AudioSource source)
     {
@@ -36,6 +38,7 @@ internal sealed class SingleSoundController
         Paused = false;
         _fadeValue = 1f;
         _fading = false;
+        _repeatsRemaining = 1;
         if (fadeInTime > 0f)
         {
             _fadeValue = 0f;
@@ -46,6 +49,7 @@ internal sealed class SingleSoundController
         Source.loop = loop;
         Source.volume = paused ? 0f : _baseVolume * _fadeValue * channelVolume;
         Source.time = Mathf.Min(startOffset, Mathf.Max(0f, clip.length - 0.01f));
+        _repeatStartOffset = Source.time;
         Source.Play();
         if (paused) Pause();
     }
@@ -54,11 +58,22 @@ internal sealed class SingleSoundController
     {
         // Pause도 isPlaying을 false로 만들므로 종료 판정보다 먼저 구분한다.
         if (!Active || Paused) return;
-        if (!Source.isPlaying || AdvanceFade(deltaTime)
-            || (_endTime > 0f && Source.time >= _endTime))
+        // 명시적인 FadeOut 종료는 반복 재생을 다시 시작하지 않습니다.
+        if (AdvanceFade(deltaTime))
         {
             Release();
             return;
+        }
+        if (!Source.isPlaying || (_endTime > 0f && Source.time >= _endTime))
+        {
+            if (_repeatsRemaining <= 1)
+            {
+                Release();
+                return;
+            }
+            _repeatsRemaining--;
+            Source.time = _repeatStartOffset;
+            Source.Play();
         }
 
         if (shouldPause)
@@ -82,6 +97,11 @@ internal sealed class SingleSoundController
         Source.volume = 0f;
         Source.Pause();
         Paused = true;
+    }
+
+    public void SetRepeatCount(int count)
+    {
+        if (Active && !Source.loop) _repeatsRemaining = Mathf.Max(1, count);
     }
 
     public void Resume(float channelVolume)
@@ -179,6 +199,11 @@ public readonly struct SoundHandle
 
     // 재생 위치(초). 재생 중이 아니면 0.
     public float Time => IsPlaying ? _controller.Source.time : 0f;
+
+    public void SetRepeatCount(int count)
+    {
+        if (IsPlaying) _controller.SetRepeatCount(count);
+    }
 
     public void Stop()
     {

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -18,6 +19,10 @@ public class LevelManager : MonoBehaviour
 
     [Header("Level")]
     [SerializeField] private StageManager _stageManager;
+
+    [Header("BGM")]
+    [SerializeField] private GameBgmId _bgmId = GameBgmId.InGame;
+    [SerializeField, Min(0f)] private float _bgmDelay = 2f;
 
     [Header("Transition")]
     [SerializeField] private SceneVisualEffectManager _visualEffectManager;
@@ -55,8 +60,21 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogError($"{nameof(LevelManager)}: 최초 Stage 생성에 실패했습니다.", this);
         }
+        else
+        {
+            StartCoroutine(PlayBgmAfterDelay());
+        }
 
 
+    }
+
+    private IEnumerator PlayBgmAfterDelay()
+    {
+        if (_bgmDelay > 0f)
+            yield return new WaitForSecondsRealtime(_bgmDelay);
+
+        if (isActiveAndEnabled)
+            SoundManager.PlayBgm(_bgmId);
     }
 
     public bool TryCompleteStage()
@@ -89,6 +107,10 @@ public class LevelManager : MonoBehaviour
         if (!_stageManager.TryRegenerateStage())
         {
             Debug.LogError($"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.");
+        }
+        else
+        {
+            SoundManager.Play(GameSoundId.FloorMove);
         }
 
         ScoreManager.Instance?.TryRecordFloorCleared();

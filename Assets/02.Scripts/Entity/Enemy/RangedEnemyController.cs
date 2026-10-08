@@ -230,6 +230,7 @@ public class RangedEnemyController : MonoBehaviour
 
         EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
         projectile.Launch(direction, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+        SoundManager.Play(GameSoundId.EnemyAttack);
     }
 
     // FirePoint는 오른쪽을 바라보는 기준으로 놓여 있으므로, 왼쪽을 보고 공격 중이면 x를 뒤집는다.

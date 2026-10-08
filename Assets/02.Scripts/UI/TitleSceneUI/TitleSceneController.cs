@@ -22,6 +22,11 @@ public class TitleSceneController : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        SoundManager.PlayBgm(GameBgmId.Title);
+    }
+
     // 게임 시작 버튼의 On Click()에 연결
     public void StartGame()
     {
@@ -33,6 +38,8 @@ public class TitleSceneController : MonoBehaviour
         if (_startButton != null)
             _startButton.interactable = false;
 
+        SoundManager.Play(GameSoundId.GameStart);
+        SoundManager.FadeOutBgm(_fadeDuration);
         StartCoroutine(FadeOutAndStartGame());
     }
 

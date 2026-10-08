@@ -267,11 +267,15 @@ public class StageManager : MonoBehaviour
 
     private void HandleRoomEntered(GeneratedRoomNode node)
     {
+        SoundManager.Play(GameSoundId.RoomPortal);
         RoomEntered?.Invoke(node);
     }
 
     private void HandleRoomCleared(GeneratedRoomNode node)
     {
+        SoundManager.Play(GameSoundId.RoomPortal);
+        if (IsStageCleared)
+            SoundManager.Play(GameSoundId.StageClear);
         RoomCleared?.Invoke(node);
     }
 }
