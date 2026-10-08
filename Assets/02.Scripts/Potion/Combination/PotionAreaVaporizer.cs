@@ -145,6 +145,17 @@ internal sealed class PotionAreaVaporizer
     private void FinishVaporization()
     {
         PlayReactionSound();
+        // 성공한 반응을 모두 처리한 뒤, 기화 포션 하나당 충격·잔진동 연출을 한 번만 시작한다.
+        PotionVaporizationSettings settings = _areaController.Data.VaporizationSettings;
+        if (settings != null && settings.ReactionShakeForce > 0f)
+        {
+            CameraController camera = CameraController.Instance;
+            if (camera != null)
+            {
+                camera.ShakeCameraBurst(settings.ReactionShakeForce,
+                settings.ReactionShakePulseCount, settings.ReactionShakeInterval, settings.ReactionShakeDecay);
+            }
+        }
         if (_areaController.AreaEffect != null) _areaController.AreaEffect.DisableForCombination();
         _areaController.FinishInstantImpact();
     }

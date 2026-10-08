@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -28,6 +29,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineImpulseSource _impulseSource; // 비워두면 아래 설정으로 런타임에 생성
     [SerializeField, Min(0.01f)] private float _shakeDuration = 0.15f;
     [SerializeField] private bool _shakeIgnoreTimeScale = true; // 히트스톱으로 시간이 멈춰도 흔들림은 재생되게
+    private Coroutine _shakeBurstRoutine;
 
     private void Awake()
     {
@@ -130,6 +132,50 @@ public class CameraController : MonoBehaviour
     public void ShakeCamera(float force)
     {
         ShakeCamera(Vector2.zero, force);
+    }
+
+    // 첫 충격 뒤 반대 방향의 약한 충격을 이어 화면이 짧게 떨리며 가라앉게 한다.
+    public void ShakeCameraBurst(float force, int pulseCount, float interval, float decay)
+    {
+        if (!isActiveAndEnabled || _impulseSource == null || force <= 0f) return;
+        if (_shakeBurstRoutine != null)
+        {
+            StopCoroutine(_shakeBurstRoutine);
+            _shakeBurstRoutine = null;
+        }
+        pulseCount = Mathf.Clamp(pulseCount, 1, 6);
+        decay = Mathf.Clamp01(decay);
+        if (pulseCount == 1 || decay <= 0f)
+        {
+            ShakeCamera(force);
+            return;
+        }
+        _shakeBurstRoutine = StartCoroutine(PlayShakeBurst(force, pulseCount,
+            Mathf.Max(0.01f, interval), decay));
+    }
+
+    private IEnumerator PlayShakeBurst(float force, int pulseCount, float interval, float decay)
+    {
+        Vector2 direction = Random.insideUnitCircle;
+        if (direction.sqrMagnitude < Mathf.Epsilon) direction = Vector2.right;
+        object delay = _shakeIgnoreTimeScale
+            ? (object)new WaitForSecondsRealtime(interval) : new WaitForSeconds(interval);
+        for (int i = 0; i < pulseCount; i++)
+        {
+            ShakeCamera(direction, force);
+            if (i == pulseCount - 1 || force * decay <= 0f) break;
+            yield return delay;
+            direction = -direction;
+            force *= decay;
+        }
+        _shakeBurstRoutine = null;
+    }
+
+    private void OnDisable()
+    {
+        if (_shakeBurstRoutine == null) return;
+        StopCoroutine(_shakeBurstRoutine);
+        _shakeBurstRoutine = null;
     }
 
     private void Start()
