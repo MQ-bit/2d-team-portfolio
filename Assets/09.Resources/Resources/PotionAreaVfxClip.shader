@@ -7,6 +7,7 @@ Shader "Potion/Clipped VFX"
         _FrostPoisonPalette ("Ice and Poison Palette", Float) = 0
         _FrozenCurrentPalette ("Ice and Electricity Palette", Float) = 0
         _ToxicCurrentPalette ("Poison and Electricity Palette", Float) = 0
+        [HideInInspector] _VfxTextureSize ("VFX Texture Dimensions", Vector) = (1, 1, 0, 0)
         [HideInInspector] _AreaClipMask ("Clipped Footprint", 2D) = "white" {}
         [HideInInspector] _AreaClipRect ("Footprint World Bounds", Vector) = (0, 0, 1, 1)
         [HideInInspector] _AreaClipEnabled ("Clip Enabled", Float) = 0
@@ -41,7 +42,7 @@ Shader "Potion/Clipped VFX"
                 float _FrostPoisonPalette;
                 float _FrozenCurrentPalette;
                 float _ToxicCurrentPalette;
-                float4 _MainTex_TexelSize;
+                float4 _VfxTextureSize;
                 float4 _AreaClipRect;
                 float _AreaClipEnabled;
             CBUFFER_END
@@ -82,7 +83,7 @@ Shader "Potion/Clipped VFX"
                     half3 iceColor = lerp(half3(0.16, 0.45, 0.8), half3(0.58, 0.86, 1.0),
                         smoothstep(0.15, 0.75, brightness));
                     float tick = floor(_Time.y * 12.0);
-                    float2 cell = floor(input.uv * _MainTex_TexelSize.zw / 4.0);
+                    float2 cell = floor(input.uv * _VfxTextureSize.xy / 4.0);
                     float charge = frac(sin(dot(cell, float2(127.1, 311.7)) + tick * 17.3) * 43758.5453);
                     half discharge = smoothstep(0.68, 0.94, charge) * smoothstep(0.3, 0.8, brightness);
                     sprite.rgb = lerp(iceColor, half3(0.88, 1.0, 1.0), discharge) * brightness;
@@ -94,7 +95,7 @@ Shader "Potion/Clipped VFX"
                     half brightness = max(sprite.r, max(sprite.g, sprite.b));
                     half3 poisonColor = lerp(half3(0.18, 0.46, 0.06), half3(0.62, 0.92, 0.16),
                         smoothstep(0.15, 0.7, brightness));
-                    float2 cell = floor(input.uv * _MainTex_TexelSize.zw / 6.0);
+                    float2 cell = floor(input.uv * _VfxTextureSize.xy / 6.0);
                     float phase = dot(cell, float2(127.1, 311.7));
                     float tick = floor(_Time.y * 10.0);
                     float charge = frac(sin(phase + tick * 17.3) * 43758.5453);
