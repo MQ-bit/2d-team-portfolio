@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public class SceneBgmPlayer : MonoBehaviour
+public class SceneSfxPlayer : MonoBehaviour
 {
     [Header("BGM")]
     [SerializeField] private AudioClip _bgmClip;
