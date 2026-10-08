@@ -1,6 +1,6 @@
+using DG.Tweening;
 using System;
 using System.Collections;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -54,7 +54,6 @@ public sealed class GameOverSceneController : MonoBehaviour
     [SerializeField] private TMP_Text _bestEnemyText;
     [SerializeField] private TMP_Text _bestPotionText;
 
-    [SerializeField, Min(0f)] private float _bestResultFadeDuration = 0.5f;
     [SerializeField, Min(0f)] private float _bestResultInterval = 0.3f;
 
     private bool _isNewBest;
@@ -154,7 +153,7 @@ public sealed class GameOverSceneController : MonoBehaviour
     private void ApplyScore()
     {
         ScoreManager scoreManager = ScoreManager.Instance;
-        if(scoreManager == null)
+        if (scoreManager == null)
         {
             Debug.LogError("ScoreManager 인스턴스를 찾을 수 없습니다.", this);
             return;
@@ -165,9 +164,9 @@ public sealed class GameOverSceneController : MonoBehaviour
 
         _isNewBest = scoreManager.WasLastRunBest;
 
-        //_floorTarget = currentScore.ClearedFloorCount;
-        //_enemyKillTarget = currentScore.TotalKillCount;
-        //_potionTarget = currentScore.ConsumedPotionCount;
+        _floorTarget = currentScore.ClearedFloorCount;
+        _enemyKillTarget = currentScore.TotalKillCount;
+        _potionTarget = currentScore.ConsumedPotionCount;
 
         _bestFloorText.text = $"{bestScore.ClearedFloorCount}";
         _bestEnemyText.text = $"{bestScore.TotalKillCount}";
@@ -184,9 +183,9 @@ public sealed class GameOverSceneController : MonoBehaviour
 
         rowSequence.Append(row.DOFade(1f, _rowFadeDuration).SetEase(Ease.OutSine)); // Row 페이드 인
         rowSequence.Join(DOTween.To(
-                                () => displayedScore, 
-                                value => {displayedScore = value; scoreText.text = $"{displayedScore} {unit}";}, 
-                                targetScore, 
+                                () => displayedScore,
+                                value => { displayedScore = value; scoreText.text = $"{displayedScore} {unit}"; },
+                                targetScore,
                                 _scoreCountDuration).SetEase(Ease.Linear)
                         ); // 점수 카운트 애니메이션
 
@@ -294,24 +293,6 @@ public sealed class GameOverSceneController : MonoBehaviour
     private void LoadTitleScene()
     {
         SceneManager.LoadScene(_titleSceneName);
-    }
-
-    private Sequence CreateBestResultSequence()
-    {
-        Sequence resultSequence = DOTween.Sequence();
-
-        if (_isNewBest)
-        {
-            resultSequence.Append(_newBestText.DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
-            resultSequence.Join(_newBestText.transform.DOScale(Vector3.one, _bestResultFadeDuration).SetEase(Ease.OutBack, 1.7f));
-            resultSequence.Append(_newBestText.transform.DOPunchScale(Vector3.one * 0.15f, 0.3f, vibrato: 5, elasticity: 0.5f));
-        }
-        else
-        {
-            resultSequence.Append(_bestScoreGroup .DOFade(1f, _bestResultFadeDuration).SetEase(Ease.OutSine));
-        }
-
-        return resultSequence;
     }
 
     private void ShowBestResult()

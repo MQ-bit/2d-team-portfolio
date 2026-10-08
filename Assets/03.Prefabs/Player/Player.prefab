@@ -416,7 +416,7 @@ MonoBehaviour:
   _attackOrigin: {fileID: 8044642822848136252}
   _status: {fileID: 0}
   _attackIndicator: {fileID: 834154830232334378}
-  _attackDamage: 10
+  _attackDamage: 5000
   _attackRange: 3
   _attackAngle: 90
   _attackCooltime: 0.5
@@ -586,7 +586,6 @@ MonoBehaviour:
   _inventoryModule: {fileID: 6544000177656053045}
   _drinkingModule: {fileID: 6935868058329909207}
   _animationDriver: {fileID: 7814849132968377541}
-  _audioSource: {fileID: 0}
   _attackSwingSound: {fileID: 8300000, guid: e933cfe7a6def1d429c4c2deef134afc, type: 3}
   _attackSwingVolume: 1
   _dashSound: {fileID: 8300000, guid: 9d2a5bc2c9842514199fad7cc3e83ee3, type: 3}
