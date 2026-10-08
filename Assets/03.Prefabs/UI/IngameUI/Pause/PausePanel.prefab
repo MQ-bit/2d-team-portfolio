@@ -5565,6 +5565,7 @@ GameObject:
   - component: {fileID: 5667869665826457685}
   - component: {fileID: 5667869665826457684}
   - component: {fileID: 7014254651597143233}
+  - component: {fileID: 7926123403819680271}
   m_Layer: 5
   m_Name: PausePanel
   m_TagString: Untagged
@@ -5683,6 +5684,25 @@ MonoBehaviour:
   _view: {fileID: 5667869665826457684}
   _quitConfirmView: {fileID: 88002005}
   _volumeView: {fileID: 88006002}
+--- !u!114 &7926123403819680271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5667869665826457681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04db90e933274e51ac8ff04be2be29fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseSoundController
+  _buttonClickSound: {fileID: 0}
+  _uiSoundVolume: 1
+  _buttonHoverSound: {fileID: 0}
+  _buttonHoverSoundVolume: 0.35
+  _buttonHoverSoundInterval: 0.08
+  _volumeFeedbackSound: {fileID: 0}
+  _volumeFeedbackInterval: 0.1
 --- !u!1 &5667869665826458285
 GameObject:
   m_ObjectHideFlags: 0
