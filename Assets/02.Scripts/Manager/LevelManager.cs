@@ -44,6 +44,8 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
+        ScoreManager.Instance?.BeginRun();
+
         if (!ValidateReferences())
         {
             return;
@@ -53,6 +55,8 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogError($"{nameof(LevelManager)}: 최초 Stage 생성에 실패했습니다.", this);
         }
+
+
     }
 
     public bool TryCompleteStage()

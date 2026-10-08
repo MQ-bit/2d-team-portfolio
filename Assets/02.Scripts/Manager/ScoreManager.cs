@@ -37,7 +37,6 @@ public class ScoreManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         ReadBestScore();
-        //BeginRun();
     }
 
     private void OnDestroy()
@@ -53,7 +52,6 @@ public class ScoreManager : MonoBehaviour
         _currentScoreData = new ScoreData();
         WasLastRunBest = false;
         IsRunActive = true;
-
     }
 
     public bool EndRun()
