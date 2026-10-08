@@ -10,6 +10,7 @@ public sealed class ScreenFadeController : MonoBehaviour
     [Header("Fade Settings")]
     [SerializeField] private float _defaultFadeOutDuration = 0.25f;
     [SerializeField] private float _defaultFadeInDuration = 0.25f;
+    [SerializeField] private bool _startCovered = false;
 
     private Coroutine _fadeCoroutine;
     private bool _isInitialized;
@@ -42,18 +43,20 @@ public sealed class ScreenFadeController : MonoBehaviour
         }
 
         _isInitialized = true;
-        ResetImmediately();
-
+        ResetImmediately(_startCovered ? 1.0f : 0.0f);
         return true;
     }
+
     public bool TryFadeOut(float duration = -1f, Action onCompleted = null)
     {
-        return TryStart(FadeOutCoroutine(ResolveFadeOutDuration(duration)), onCompleted);
+        float resolvedDuration = ResolveFadeOutDuration(duration);
+        return TryStart(FadeOutCoroutine(resolvedDuration), onCompleted);
     }
 
     public bool TryFadeIn(float duration = -1f, Action onCompleted = null)
     {
-        return TryStart(FadeInCoroutine(ResolveFadeInDuration(duration)), onCompleted);
+        float resolvedDuration = ResolveFadeInDuration(duration);
+        return TryStart(FadeInCoroutine(resolvedDuration), onCompleted);
     }
 
     public bool TryTransition(Action onCovered, float fadeOutDuration = -1f, float coveredDuration = 0f, float fadeInDuration = -1f, Action onCompleted = null)
@@ -65,7 +68,7 @@ public sealed class ScreenFadeController : MonoBehaviour
         return TryStart(TransitionCoroutine(onCovered, resolvedFadeOutDuration, coveredDuration, resolvedFadeInDuration), onCompleted);
     }
 
-    public void ResetImmediately()
+    public void ResetImmediately(float targetAlpha = 0f)
     {
         if (_fadeCoroutine != null)
         {
@@ -80,7 +83,7 @@ public sealed class ScreenFadeController : MonoBehaviour
             return;
         }
 
-        _canvasGroup.alpha = 0f;
+        _canvasGroup.alpha = targetAlpha;
         SetRaycastBlocked(false);
     }
 
@@ -152,12 +155,12 @@ public sealed class ScreenFadeController : MonoBehaviour
 
         while (elapsedTime < duration)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            float frameDelta = Mathf.Min(Time.unscaledDeltaTime, 0.05f); //첫 프레임의 FadeIn-Out 실행시 무시되는 현상 방지
+            elapsedTime += frameDelta;
 
             float progress = Mathf.Clamp01(elapsedTime / duration);
-            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
 
-            _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, easedProgress);
+            _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, progress);
 
             yield return null;
         }

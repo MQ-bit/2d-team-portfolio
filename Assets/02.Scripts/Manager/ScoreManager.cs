@@ -21,7 +21,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private ScoreData _bestScoreData;
     [SerializeField] private ScoreData _currentScoreData;
 
-    public bool IsRunActive = false;
+    public bool IsRunActive = false; //{get; praivate set;} 
+    public bool WasLastRunBest = false; //{get; private set;}
 
     private void Awake()
     {
@@ -50,6 +51,7 @@ public class ScoreManager : MonoBehaviour
     public void BeginRun()
     {
         _currentScoreData = new ScoreData();
+        WasLastRunBest = false;
         IsRunActive = true;
 
     }
@@ -57,9 +59,11 @@ public class ScoreManager : MonoBehaviour
     public bool EndRun()
     {
         if (!IsRunActive) return false;
+        
         IsRunActive = false;
 
-        if (!CheckBreakBestScore()) return false;
+        WasLastRunBest = CheckBreakBestRecord();
+        if(!WasLastRunBest) return false;
 
         _bestScoreData = _currentScoreData.Clone();
         SaveBestScore();
@@ -67,7 +71,7 @@ public class ScoreManager : MonoBehaviour
         return true;
     }
 
-    private bool CheckBreakBestScore()
+    private bool CheckBreakBestRecord()
     {
         if (_currentScoreData == null)
         {
@@ -79,10 +83,35 @@ public class ScoreManager : MonoBehaviour
             return true;
         }
 
-        return _currentScoreData.ClearedFloorCount > _bestScoreData.ClearedFloorCount
-            || _currentScoreData.EliteKillCount > _bestScoreData.EliteKillCount
-            || _currentScoreData.NormalKillCount > _bestScoreData.NormalKillCount
-            || _currentScoreData.ConsumedPotionCount > _bestScoreData.ConsumedPotionCount;
+        // 1순위: 클리어 층 수
+        if (_currentScoreData.ClearedFloorCount != _bestScoreData.ClearedFloorCount)
+        {
+            return _currentScoreData.ClearedFloorCount > _bestScoreData.ClearedFloorCount;
+        }
+
+        // 2순위: 전체 적 처치 수
+        if (_currentScoreData.TotalKillCount != _bestScoreData.TotalKillCount)
+        {
+            return _currentScoreData.TotalKillCount > _bestScoreData.TotalKillCount;
+        }
+
+        if (_currentScoreData.EliteKillCount != _bestScoreData.EliteKillCount)
+        {
+            return _currentScoreData.EliteKillCount > _bestScoreData.EliteKillCount;
+        }
+
+        if (_currentScoreData.NormalKillCount != _bestScoreData.NormalKillCount)
+        {
+            return _currentScoreData.NormalKillCount > _bestScoreData.NormalKillCount;
+        }
+
+        // 3순위: 포션 섭취 수
+        if (_currentScoreData.ConsumedPotionCount != _bestScoreData.ConsumedPotionCount)
+        {
+            return _currentScoreData.ConsumedPotionCount > _bestScoreData.ConsumedPotionCount;
+        }
+
+        return false;
     }
 
     public bool TryRecordEnemyKill(EnemyKind kind)
@@ -123,5 +152,15 @@ public class ScoreManager : MonoBehaviour
         string json = JsonUtility.ToJson(_bestScoreData);
         PlayerPrefs.SetString(Best_Score_Save_Key, json);
         PlayerPrefs.Save();
+    }
+
+    public ScoreData GetCurrentScoreSnapshot()
+    {
+        return _currentScoreData?.Clone() ?? new ScoreData();
+    }
+
+    public ScoreData GetBestScoreSnapshot()
+    {
+        return _bestScoreData?.Clone() ?? new ScoreData();
     }
 }

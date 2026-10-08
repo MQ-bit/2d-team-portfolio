@@ -17,6 +17,26 @@ ShaderVariantCollection:
         passType: 0
       - keywords: COLOR_FILTER EDGE_SHINY
         passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY SAMPLING_BLUR_DETAIL
+        passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY SAMPLING_BLUR_FAST
+        passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY SAMPLING_EDGE_LUMINANCE
+        passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY TARGET_HUE
+        passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY TARGET_LUMINANCE
+        passType: 0
+      - keywords: COLOR_FILTER EDGE_SHINY TRANSITION_FADE
+        passType: 0
+      - keywords: COLOR_FILTER TRANSITION_DISSOLVE
+        passType: 0
+      - keywords: COLOR_FILTER TRANSITION_FADE
+        passType: 0
+      - keywords: COLOR_FILTER TRANSITION_MELT
+        passType: 0
+      - keywords: DETAIL_MASKING EDGE_SHINY
+        passType: 0
       - keywords: EDGE_PLAIN
         passType: 0
       - keywords: EDGE_PLAIN GRADATION_COLOR2
