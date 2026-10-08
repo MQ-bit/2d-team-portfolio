@@ -104,6 +104,7 @@ MonoBehaviour:
   _canvasGroup: {fileID: 1332931567091882666}
   _defaultFadeOutDuration: 0.25
   _defaultFadeInDuration: 0.25
+  _startCovered: 0
 --- !u!1 &1112029722595678552
 GameObject:
   m_ObjectHideFlags: 0
@@ -700,6 +701,10 @@ PrefabInstance:
       propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5794188493588576607, guid: 237ec9e695e4e3944af4fb2e3b27b78d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5972606576132022767, guid: 237ec9e695e4e3944af4fb2e3b27b78d, type: 3}
       propertyPath: m_SortingLayer
       value: 0
@@ -917,6 +922,18 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4284045823
       objectReference: {fileID: 0}
+    - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
+      propertyPath: _buttonClickSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 648f0fdd7f5687041a9e0b233b74cbb5, type: 3}
+    - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
+      propertyPath: _buttonHoverSound
+      value: 
+      objectReference: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
+    - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
+      propertyPath: _volumeFeedbackSound
+      value: 
+      objectReference: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 88004005, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
