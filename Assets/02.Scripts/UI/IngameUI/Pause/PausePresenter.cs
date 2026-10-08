@@ -8,9 +8,20 @@ public class PausePresenter : MonoBehaviour
     [SerializeField] private QuitConfirmView _quitConfirmView;
     [SerializeField] private PauseVolumeView _volumeView;
 
+    [Header("UI Sound")]
+    [SerializeField] private AudioClip _pauseOpenSound;
+    [SerializeField] private AudioClip _pauseCloseSound;
+    [SerializeField] private AudioClip _buttonClickSound;
+    [SerializeField, Range(0f, 1f)] private float _uiSoundVolume = 1f;
+
+    [Header("Volume Feedback Sound")]
+    [SerializeField] private AudioClip _volumeFeedbackSound;
+    [SerializeField, Min(0f)] private float _volumeFeedbackInterval = 0.1f;
+
     private InputReader _inputReader;
     private PlayerController _player;
     private bool _isSubscribed;
+    private float _nextVolumeFeedbackTime;
 
     public event Action<bool> OnPauseStateChanged;
     public event Action OnQuitConfirmed;
@@ -140,6 +151,7 @@ public class PausePresenter : MonoBehaviour
 
         if (_view.IsOpen)
         {
+            PlayUiSound(_pauseCloseSound);
             ClosePause();
         }
         else
@@ -151,6 +163,8 @@ public class PausePresenter : MonoBehaviour
     private void HandleResumeRequested()
     {
         if (_quitConfirmView != null && _quitConfirmView.IsOpen) return;
+        if (!_view.IsOpen) return;
+        PlayUiSound(_pauseCloseSound);
         ClosePause();
     }
 
@@ -163,6 +177,7 @@ public class PausePresenter : MonoBehaviour
             return;
         }
 
+        PlayUiSound(_buttonClickSound);
         _view.SetButtonsInteractable(false);
         _quitConfirmView.Show();
     }
@@ -171,6 +186,7 @@ public class PausePresenter : MonoBehaviour
     {
         if (_quitConfirmView == null || !_quitConfirmView.IsOpen) return;
 
+        PlayUiSound(_buttonClickSound);
         _quitConfirmView.Hide();
         _view.SetButtonsInteractable(true);
         _view.SelectMainMenuButton();
@@ -180,6 +196,7 @@ public class PausePresenter : MonoBehaviour
     {
         if (!_view.IsOpen || _quitConfirmView == null || !_quitConfirmView.IsOpen) return;
 
+        PlayUiSound(_buttonClickSound);
         // 시간과 포션 정보창 정리, 씬 이동은 IngameUIController에서 처리한다.
         OnQuitConfirmed?.Invoke();
     }
@@ -187,16 +204,33 @@ public class PausePresenter : MonoBehaviour
     private void HandleMasterVolumeChanged(float value)
     {
         SoundManager.SetMasterVolume(value);
+        PlayVolumeFeedbackSound();
     }
 
     private void HandleBgmVolumeChanged(float value)
     {
         SoundManager.SetBgmVolume(value);
+        PlayVolumeFeedbackSound();
     }
 
     private void HandleSfxVolumeChanged(float value)
     {
         SoundManager.SetSfxVolume(value);
+        PlayVolumeFeedbackSound();
+    }
+
+    private void PlayVolumeFeedbackSound()
+    {
+        if (_volumeFeedbackSound == null || Time.unscaledTime < _nextVolumeFeedbackTime) return;
+
+        _nextVolumeFeedbackTime = Time.unscaledTime + _volumeFeedbackInterval;
+        PlayUiSound(_volumeFeedbackSound);
+    }
+
+    private void PlayUiSound(AudioClip clip)
+    {
+        if (clip == null) return;
+        SoundManager.PlayUi(clip, _uiSoundVolume);
     }
 
     private void OpenPause()
@@ -205,6 +239,7 @@ public class PausePresenter : MonoBehaviour
 
         _player.AcquireGamePlayInputLock(this);
         _view.Show();
+        PlayUiSound(_pauseOpenSound);
         OnPauseStateChanged?.Invoke(true);
     }
 

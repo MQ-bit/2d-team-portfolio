@@ -59,11 +59,11 @@ public class ScoreManager : MonoBehaviour
     public bool EndRun()
     {
         if (!IsRunActive) return false;
-        
+
         IsRunActive = false;
 
         WasLastRunBest = CheckBreakBestRecord();
-        if(!WasLastRunBest) return false;
+        if (!WasLastRunBest) return false;
 
         _bestScoreData = _currentScoreData.Clone();
         SaveBestScore();

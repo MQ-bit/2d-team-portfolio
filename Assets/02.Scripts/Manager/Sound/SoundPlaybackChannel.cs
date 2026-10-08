@@ -10,7 +10,7 @@ internal sealed class SoundPlaybackChannel
     private readonly bool _isBgm;
     private readonly int _maxVoices;
     private readonly SoundVolumeController _volumeController;
-    private readonly List<SoundVoice> _voices = new List<SoundVoice>();
+    private readonly List<SingleSoundController> _voices = new List<SingleSoundController>();
 
     private bool _pauseRequested;
     private float _pauseVolume = 1f;
@@ -38,7 +38,7 @@ internal sealed class SoundPlaybackChannel
         // Pause 중 단발음은 버리고, 반복음은 일시정지 상태로 보관한다.
         if (_pauseRequested && !loop) return default;
 
-        SoundVoice voice = AcquireVoice();
+        SingleSoundController voice = AcquireVoice();
         voice.Play(clip, volume, startOffset, endTime, fadeOutTime, loop, fadeInTime,
             ChannelVolume, _pauseRequested);
         return new SoundHandle(voice);
@@ -57,7 +57,7 @@ internal sealed class SoundPlaybackChannel
         }
 
         float channelVolume = ChannelVolume;
-        foreach (SoundVoice voice in _voices)
+        foreach (SingleSoundController voice in _voices)
         {
             if (!voice.Active) continue;
             if (!paused)
@@ -76,7 +76,7 @@ internal sealed class SoundPlaybackChannel
         UpdatePauseFade(deltaTime);
         float channelVolume = ChannelVolume;
         bool shouldPause = _pauseRequested && _pauseVolume <= 0f;
-        foreach (SoundVoice voice in _voices)
+        foreach (SingleSoundController voice in _voices)
         {
             if (voice.Active)
             {
@@ -87,7 +87,7 @@ internal sealed class SoundPlaybackChannel
 
     public void FadeOut(float fadeTime)
     {
-        foreach (SoundVoice voice in _voices)
+        foreach (SingleSoundController voice in _voices)
         {
             if (voice.Active)
             {
@@ -98,7 +98,7 @@ internal sealed class SoundPlaybackChannel
 
     public void StopAll()
     {
-        foreach (SoundVoice voice in _voices)
+        foreach (SingleSoundController voice in _voices)
         {
             voice.StopAndClearClip();
         }
@@ -114,10 +114,10 @@ internal sealed class SoundPlaybackChannel
     }
 
     // 비활성 보이스를 재사용하고, 풀이 꽉 찼으면 가장 오래된 소리를 교체한다.
-    private SoundVoice AcquireVoice()
+    private SingleSoundController AcquireVoice()
     {
-        SoundVoice oldest = null;
-        foreach (SoundVoice voice in _voices)
+        SingleSoundController oldest = null;
+        foreach (SingleSoundController voice in _voices)
         {
             if (!voice.Active) return voice;
             if (oldest == null || voice.StartedAt < oldest.StartedAt)
@@ -132,7 +132,7 @@ internal sealed class SoundPlaybackChannel
             source.playOnAwake = false;
             source.spatialBlend = 0f;
             source.outputAudioMixerGroup = _group;
-            var created = new SoundVoice(source);
+            var created = new SingleSoundController(source);
             _voices.Add(created);
             return created;
         }
