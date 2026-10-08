@@ -161,6 +161,46 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleInformationTab"",
+                    ""type"": ""Button"",
+                    ""id"": ""7a413432-115d-4797-8628-c38799c09049"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""InteractionStart"",
+                    ""type"": ""Button"",
+                    ""id"": ""5e6a5e89-14d7-4c22-97f5-f382dec0d38d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""ItemSlotChangeScroll"",
+                    ""type"": ""Value"",
+                    ""id"": ""1d9cb4c9-5e0d-4387-b77c-0b865c7732ef"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""c2fc27cf-ddbb-43b7-bdeb-d36b0013d83e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -339,6 +379,50 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleAttackMode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""45963629-626c-4251-be8f-9ffd4c2ef680"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ToggleInformationTab"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f95e68ef-7921-415a-9288-af0ddffef245"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""InteractionStart"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fa72d6dd-282c-436a-9bbe-c4a6669cfc31"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""ItemSlotChangeScroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5f85e135-29a9-4996-b01b-a83b0dc124ce"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";PC"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -360,6 +444,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_ItemSlotChange = m_Player.FindAction("ItemSlotChange", throwIfNotFound: true);
         m_Player_PotionDrink = m_Player.FindAction("PotionDrink", throwIfNotFound: true);
         m_Player_ToggleAttackMode = m_Player.FindAction("ToggleAttackMode", throwIfNotFound: true);
+        m_Player_ToggleInformationTab = m_Player.FindAction("ToggleInformationTab", throwIfNotFound: true);
+        m_Player_InteractionStart = m_Player.FindAction("InteractionStart", throwIfNotFound: true);
+        m_Player_ItemSlotChangeScroll = m_Player.FindAction("ItemSlotChangeScroll", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -447,6 +535,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ItemSlotChange;
     private readonly InputAction m_Player_PotionDrink;
     private readonly InputAction m_Player_ToggleAttackMode;
+    private readonly InputAction m_Player_ToggleInformationTab;
+    private readonly InputAction m_Player_InteractionStart;
+    private readonly InputAction m_Player_ItemSlotChangeScroll;
+    private readonly InputAction m_Player_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -486,6 +578,22 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleAttackMode".
         /// </summary>
         public InputAction @ToggleAttackMode => m_Wrapper.m_Player_ToggleAttackMode;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleInformationTab".
+        /// </summary>
+        public InputAction @ToggleInformationTab => m_Wrapper.m_Player_ToggleInformationTab;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/InteractionStart".
+        /// </summary>
+        public InputAction @InteractionStart => m_Wrapper.m_Player_InteractionStart;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ItemSlotChangeScroll".
+        /// </summary>
+        public InputAction @ItemSlotChangeScroll => m_Wrapper.m_Player_ItemSlotChangeScroll;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -533,6 +641,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleAttackMode.started += instance.OnToggleAttackMode;
             @ToggleAttackMode.performed += instance.OnToggleAttackMode;
             @ToggleAttackMode.canceled += instance.OnToggleAttackMode;
+            @ToggleInformationTab.started += instance.OnToggleInformationTab;
+            @ToggleInformationTab.performed += instance.OnToggleInformationTab;
+            @ToggleInformationTab.canceled += instance.OnToggleInformationTab;
+            @InteractionStart.started += instance.OnInteractionStart;
+            @InteractionStart.performed += instance.OnInteractionStart;
+            @InteractionStart.canceled += instance.OnInteractionStart;
+            @ItemSlotChangeScroll.started += instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.performed += instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.canceled += instance.OnItemSlotChangeScroll;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -565,6 +685,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ToggleAttackMode.started -= instance.OnToggleAttackMode;
             @ToggleAttackMode.performed -= instance.OnToggleAttackMode;
             @ToggleAttackMode.canceled -= instance.OnToggleAttackMode;
+            @ToggleInformationTab.started -= instance.OnToggleInformationTab;
+            @ToggleInformationTab.performed -= instance.OnToggleInformationTab;
+            @ToggleInformationTab.canceled -= instance.OnToggleInformationTab;
+            @InteractionStart.started -= instance.OnInteractionStart;
+            @InteractionStart.performed -= instance.OnInteractionStart;
+            @InteractionStart.canceled -= instance.OnInteractionStart;
+            @ItemSlotChangeScroll.started -= instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.performed -= instance.OnItemSlotChangeScroll;
+            @ItemSlotChangeScroll.canceled -= instance.OnItemSlotChangeScroll;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -667,5 +799,33 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleAttackMode(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleInformationTab" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleInformationTab(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "InteractionStart" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteractionStart(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemSlotChangeScroll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemSlotChangeScroll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
 }

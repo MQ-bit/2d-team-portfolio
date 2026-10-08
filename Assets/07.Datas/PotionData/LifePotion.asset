@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: life_potion
   _displayName: "\uC0DD\uBA85\uC758 \uBB3C\uC57D"
+  _description: "\uAC74\uAC15\uD558\uACE0 \uC2E0\uC131\uD55C \uAE30\uC6B4\uC758 \uC561\uCCB4.
+    \uB2FF\uB294 \uBAA8\uB4E0 \uC0DD\uBB3C\uC758 \uC2E0\uCCB4\uB97C \uD68C\uBCF5\uC2DC\uD0A8\uB2E4."
   _element: 4
   _targetType: 2
   _effectRadius: 3
@@ -54,6 +56,12 @@ MonoBehaviour:
   _thirstDelta: -40
   _visualData:
     _iconSprite: {fileID: -1461593386, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _cardBackgroundSprite: {fileID: 5406700177803471016, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
     _areaSprite: {fileID: 7840392335819879883, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
-    _areaColor: {r: 0.3, g: 1, b: 0.45, a: 0.65}
-    _areaVfxPrefab: {fileID: 7957495637218046237, guid: d7ed66a068ae3ae4dbbdd0dcb47b6a37, type: 3}
+    _areaColor: {r: 0.22, g: 0.72, b: 0.8, a: 0.65}
+    _areaAccentColor: {r: 0.78, g: 1, b: 1, a: 1}
+    _areaSurfaceStyle: 8
+    _areaVfxPrefab: {fileID: 0}
+    _impactVisualDuration: 0
+  _areaLoopSound: {fileID: 8300000, guid: 57c16dde8834c024087e214f5017af56, type: 3}
+  _vaporizationSettings: {fileID: 0}

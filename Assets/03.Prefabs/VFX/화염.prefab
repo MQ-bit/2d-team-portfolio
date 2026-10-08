@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1249834136962879955}
+  - component: {fileID: 7000000000000000001}
   - component: {fileID: 3089382425564037292}
   - component: {fileID: 8102852271313424417}
   m_Layer: 0
@@ -33,6 +34,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7000000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5417271631518840610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c8790e3e44caca3cbbfa97062b390, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PotionAreaVfxSettings
+  burstCount: 30
+  burstSize: 1
+  sizeJitter: 0.3
+  spawnAreaRatio: 0.75
+  restDelayRange: {x: 0, y: 0.08}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  anchorAtBottom: 1
+  fillArea: 0
+  fillScale: 1
+  playOnce: 0
 --- !u!212 &3089382425564037292
 SpriteRenderer:
   serializedVersion: 2

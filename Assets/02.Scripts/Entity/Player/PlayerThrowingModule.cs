@@ -15,8 +15,7 @@ public class PlayerThrowingModule : MonoBehaviour
     [SerializeField] private float _defaultAreaWidth = 1f;
 
     [Header("Throw Settings")]
-    [SerializeField] private ThrowAimPreview _aimPreviewPrefab;
-    private ThrowAimPreview _aimPreviewInstance;
+    [SerializeField] private ThrowAimPreview _aimPreviewInstance;
     [SerializeField] private float _arcHeight = 1.5f;
     [SerializeField] private float _throwDuration = 8f;
     [SerializeField] private float _rotationSpeed = 360f;
@@ -29,10 +28,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     public bool IsAiming { get; private set; }
     public Vector2 AimWorldPosition => _aimWorldPosition;
-
-    // 포션을 실제로 던진 순간 (조준 취소는 포함하지 않음). 인자는 착지 목표 위치.
     public event Action<Vector2> OnPotionThrown;
-
 
     private void Awake()
     {
@@ -51,8 +47,12 @@ public class PlayerThrowingModule : MonoBehaviour
         {
             _throwPoint = transform;
         }
+        if (_aimPreviewInstance == null)
+        {
+            Debug.LogError("Aim preview instance is not assigned.");
+            return;
+        }
 
-        _aimPreviewInstance = Instantiate(_aimPreviewPrefab, transform);
         _aimPreviewInstance.SetOwner(gameObject);
         _aimPreviewInstance.Hide();
     }
@@ -89,6 +89,12 @@ public class PlayerThrowingModule : MonoBehaviour
 
         _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
         UpdateAim(screenPosition);
+
+        _aimPreviewInstance.UpdateAoeIndicator(
+            _inventoryModule.SelectedPotion.VisualData.AreaColor,
+            _inventoryModule.SelectedPotion.AreaWidth);
+
+        UpdateAim(screenPosition);
     }
 
     public void UpdateAim(Vector2 screenPosition)
@@ -112,15 +118,18 @@ public class PlayerThrowingModule : MonoBehaviour
 
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
+        PotionThrowPrediction prediction = _potionPrefab != null
+            ? _potionPrefab.PredictThrow(startPosition, targetPosition, _arcHeight)
+            : new PotionThrowPrediction(false, 1f, targetPosition, targetPosition);
 
         PotionData selectedPotion = selectedPotionItem.PotionData;
         bool identified = _potionRunCatalog.IsIdentified(selectedPotion);
 
         Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
+        // Identification changes the displayed color, never the actual effect range.
         float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
-
-        _aimPreviewInstance.UpdateAoeIndicator(selectedPotion.VisualData.AreaColor, selectedPotion.AreaWidth);
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth,
+            prediction);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
@@ -186,7 +195,7 @@ public class PlayerThrowingModule : MonoBehaviour
             Vector3 startPosition = _throwPoint.position;
             float distance = Vector2.Distance(startPosition, targetPosition);
 
-            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity); //TODO : 포션 투사채 던질 때 투사체의 스프라이트도 같이 업데이트 되게 하기
+            PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
             proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
             OnPotionThrown?.Invoke(targetPosition);

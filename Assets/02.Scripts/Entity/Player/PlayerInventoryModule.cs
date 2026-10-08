@@ -12,6 +12,7 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
 
     public event Action<int> OnSelectedSlotChanged;
     public event Action<int> OnSlotChanged;
+    public event Action OnItemTaken; // 아이템을 획득해 인벤토리에 들어갔을 때 호출. 획득 소리용
 
     public int SelectedSlotIndex => _selectedSlotIndex;
     public int SlotCount => _inventory.MaxSlotSize;
@@ -58,9 +59,31 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         OnSelectedSlotChanged?.Invoke(index);
     }
 
+    public void SelectRelativeSlot(int direction)
+    {
+        int slotCount = SlotCount;
+        if (slotCount <= 0 || direction == 0) return;
+
+        if (_selectedSlotIndex < 0)
+        {
+            SelectSlot(0);
+            return;
+        }
+
+        int step = direction > 0 ? 1 : -1;
+        int nextIndex = (_selectedSlotIndex + step + slotCount) % slotCount;
+        SelectSlot(nextIndex);
+    }
+
     public bool TryTakeItem(PotionItem item, int quantity)
     {
-        return _inventory.TryAddItem(item, quantity);
+        if (!_inventory.TryAddItem(item, quantity))
+        {
+            return false;
+        }
+
+        OnItemTaken?.Invoke();
+        return true;
     }
 
     public bool TryConsumeSelectedPotion(out PotionData consumedPotion)
@@ -84,6 +107,11 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
     public PotionItem GetItemAt(int index)
     {
         return _inventory.GetPotionItem(index);
+    }
+
+    public int GetItemCountAt(int index)
+    {
+        return _inventory.GetItemCount(index);
     }
 
     private void LinkEvents()

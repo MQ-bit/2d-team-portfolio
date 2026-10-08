@@ -9,11 +9,12 @@ public class ThrowAimPreview : MonoBehaviour
     [SerializeField] private Transform _indicator;
 
     [Header("Settings")]
-    [SerializeField] private int _trajectoryPointCount = 24;
+    [SerializeField, Min(2)] private int _trajectoryPointCount = 24;
 
     private SpriteRenderer _ownerRenderer;
     private SpriteRenderer _indicatorRenderer;
     private SpriteRenderer _aoeRenderer;
+    private float _flightProgress = 1f;
 
     private void Awake()
     {
@@ -41,14 +42,14 @@ public class ThrowAimPreview : MonoBehaviour
     {
         if (_owner != null)
         {
-            ReorderSortingLayer();
+            //ReorderSortingLayer();
         }
     }
 
     public void SetOwner(GameObject owner)
     {
         _owner = owner;
-        _ownerRenderer = _owner.GetComponent<SpriteRenderer>();
+        _ownerRenderer = _owner.GetComponentInChildren<SpriteRenderer>();
     }
 
     public void Show()
@@ -63,45 +64,77 @@ public class ThrowAimPreview : MonoBehaviour
 
     public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor, float areaWidth)
     {
+        Draw(startPosition, targetPosition, arcHeight, areaColor, areaWidth, 1f);
+    }
+
+    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor,
+        float areaWidth, float flightProgress)
+    {
+        float progress = Mathf.Clamp01(flightProgress);
+        Vector3 ground = ThrowTrajectory.EvaluateGroundPoint(startPosition, targetPosition, progress);
+        Vector3 impact = progress < 1f
+            ? ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, progress) : ground;
+        Draw(startPosition, targetPosition, arcHeight, areaColor, areaWidth,
+            new PotionThrowPrediction(progress < 1f, progress, impact, ground));
+    }
+
+    public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor,
+        float areaWidth, PotionThrowPrediction prediction)
+    {
         if (_lineRenderer == null || _indicator == null)
         {
             return;
         }
 
-        _indicator.position = targetPosition;
-        _aoeIndicator.position = targetPosition;
+        _flightProgress = Mathf.Clamp01(prediction.FlightProgress);
+        _indicator.position = prediction.ImpactPosition;
+        _aoeIndicator.position = prediction.AreaPosition;
+        _aoeIndicator.gameObject.SetActive(prediction.CanCreateArea);
         UpdateAoeIndicator(areaColor, areaWidth);
 
+        _lineRenderer.transform.position = prediction.ImpactPosition;
         RedrawLine(startPosition, targetPosition, arcHeight);
+        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, prediction.ImpactPosition);
     }
 
     public void UpdateAoeIndicator(Color color, float areaWidth)
     {
+        if (_aoeRenderer == null || _aoeIndicator == null) return;
         _aoeRenderer.color = color;
-        _aoeIndicator.localScale = new Vector3(areaWidth, areaWidth * 0.5f, 1f);
+        if (_aoeRenderer.sprite == null) return;
+
+        // areaWidth is a world-space diameter, not a multiplier for the source sprite.
+        Vector2 spriteSize = _aoeRenderer.sprite.bounds.size;
+        Vector3 parentScale = _aoeIndicator.parent != null
+            ? _aoeIndicator.parent.lossyScale : Vector3.one;
+        float width = Mathf.Max(0f, areaWidth);
+        _aoeIndicator.localScale = new Vector3(
+            width / Mathf.Max(0.001f, spriteSize.x * Mathf.Abs(parentScale.x)),
+            width * 0.5f / Mathf.Max(0.001f, spriteSize.y * Mathf.Abs(parentScale.y)), 1f);
     }
 
     private void RedrawLine(Vector3 startPosition, Vector3 targetPosition, float arcHeight)
     {
-        _lineRenderer.positionCount = _trajectoryPointCount;
+        int pointCount = Mathf.Max(2, _trajectoryPointCount);
+        _lineRenderer.positionCount = pointCount;
 
-        for (int i = 0; i < _trajectoryPointCount; i++)
+        for (int i = 0; i < pointCount; i++)
         {
-            float t = i / (float)(_trajectoryPointCount - 1);
+            float t = i / (float)(pointCount - 1) * _flightProgress;
             Vector3 point = ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, t);
 
             _lineRenderer.SetPosition(i, point);
         }
     }
 
-    private void ReorderSortingLayer()
-    {
-        int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? -1 : 1;
+    // private void ReorderSortingLayer()
+    // {
+    //     int orderModifier = (_indicator.position.y > _owner.transform.position.y) ? -1 : 1;
 
-        _indicatorRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
-        _indicatorRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
+    //     _indicatorRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+    //     _indicatorRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
 
-        _lineRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
-        _lineRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
-    }
+    //     _lineRenderer.sortingLayerID = _ownerRenderer.sortingLayerID;
+    //     _lineRenderer.sortingOrder = _ownerRenderer.sortingOrder + orderModifier;
+    // }
 }

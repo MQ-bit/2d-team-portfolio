@@ -7,7 +7,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
 
     private readonly PotionStatusEffectState _statusEffects = new();
-    private readonly PotionFloorEffectState _floorEffects = new();
+    private readonly PotionAreaEffectTracker _areaEffects = new();
 
     public PotionTargetKind TargetKind => _targetKind;
     public IDamageable Damageable { get; private set; }
@@ -34,7 +34,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         if (!CanReceiveStatus()) return;
         TickStatuses();
-        _floorEffects.Enter(profile, source);
+        _areaEffects.Enter(profile, source);
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorTick))
         {
             if (effect.Operation == PotionEffectOperation.AddFrostStacks)
@@ -46,12 +46,12 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     public void PulseFloor(int sourceId)
     {
-        if (CanReceiveStatus()) _floorEffects.Pulse(sourceId, Time.timeAsDouble, ApplyEffect);
+        if (CanReceiveStatus()) _areaEffects.Pulse(sourceId, Time.timeAsDouble, ApplyEffect);
     }
 
     public void ExitFloor(int sourceId, bool applyResidual)
     {
-        if (!_floorEffects.Exit(sourceId, out var profile, out var source)) return;
+        if (!_areaEffects.Exit(sourceId, out var profile, out var source)) return;
         // 이탈 시점 이전의 억제된 DoT를 먼저 소비하여 밀린 피해가 튀어나오지 않게 한다.
         TickStatuses();
         RemoveAreaEffectsFromSource(sourceId);
@@ -59,7 +59,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         if (!applyResidual || !CanReceiveStatus()) return;
         foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorExit))
         {
-            if (!_floorEffects.HasDamageElement(effect.Element))
+            if (!_areaEffects.HasDamageElement(effect.Element))
                 ApplyEffect(effect, profile, source);
         }
     }
@@ -73,7 +73,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
                 ApplyDamage(effect.Amount, source, effect.Element, false);
                 break;
             case PotionEffectOperation.Heal:
-                PotionStatDispatcher.Heal(Damageable, effect.Amount);
+                PotionStatApplier.Heal(Damageable, effect.Amount);
                 break;
             case PotionEffectOperation.ApplyStatus:
                 ApplyStatus(effect, source);
@@ -86,8 +86,8 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void RefreshDamageSuppression()
     {
-        _statusEffects.SuppressDamage(PotionElement.Fire, _floorEffects.HasDamageElement(PotionElement.Fire));
-        _statusEffects.SuppressDamage(PotionElement.Poison, _floorEffects.HasDamageElement(PotionElement.Poison));
+        _statusEffects.SuppressDamage(PotionElement.Fire, _areaEffects.HasDamageElement(PotionElement.Fire));
+        _statusEffects.SuppressDamage(PotionElement.Poison, _areaEffects.HasDamageElement(PotionElement.Poison));
     }
 
     public void RemoveStatusesFromSource(int sourceId)
@@ -95,17 +95,17 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         _statusEffects.RemoveSource(sourceId);
     }
 
-    public void ApplyStatus(PotionStatusApplication application)
+    public void ApplyStatus(PotionStatusEffectInfo effectInfo)
     {
         if (!PrepareStatusApplication()) return;
-        _statusEffects.Apply(application);
+        _statusEffects.Apply(effectInfo);
         TickStatuses();
     }
 
     public void ApplyStatus(PotionEffectDefinition effect, PotionEffectSource source)
     {
         if (effect == null || effect.Operation != PotionEffectOperation.ApplyStatus) return;
-        ApplyStatus(PotionStatusApplication.FromDefinition(effect, source));
+        ApplyStatus(PotionStatusEffectInfo.FromDefinition(effect, source));
     }
 
     public void EnterFrostArea(int sourceId) => _statusEffects.EnterFrostArea(sourceId);
@@ -128,17 +128,17 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void OnDisable()
     {
-        _floorEffects.Clear();
+        _areaEffects.Clear();
         ClearStatuses();
     }
 
-    private bool CanReceiveStatus() => isActiveAndEnabled && (Damageable == null || PotionStatDispatcher.IsAlive(Damageable));
+    private bool CanReceiveStatus() => isActiveAndEnabled && (Damageable == null || PotionStatApplier.IsAlive(Damageable));
 
     private void TickStatuses()
     {
         if (!CanReceiveStatus())
         {
-            _floorEffects.Clear();
+            _areaEffects.Clear();
             ClearStatuses();
             return;
         }
@@ -154,22 +154,33 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
             return;
         }
 
-        ApplyDamage(tick.Amount, tick.Source, tick.Application.Element, true);
+        ApplyDamage(tick.Amount, tick.Source, tick.EffectInfo.Element, true);
         if (!CanReceiveStatus()) ClearStatuses();
     }
 
     private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
     {
-        PotionDamageResult result = PotionStatDispatcher.Damage(Damageable, amount, source, element);
+        PotionDamageResult result = PotionStatApplier.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
 
-        PotionStatDispatcher.Heal(source.Owner, result.LifeStealAmount);
+        PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }
 
-    public int GetStatusStackCount(PotionStatusEffect status)
+    public int GetStatusStackCount(PotionStatusEffectTracker status)
     {
         return _statusEffects.GetStackCount(status);
+    }
+
+    public float GetStatusRemainingTime(PotionStatusEffectTracker status)
+    {
+        return _statusEffects.GetRemainingTime(status);
+    }
+
+    // 상태 연출용 조회. 해당 상태를 거는 장판 위에 서 있는지 알려준다. (상태 자체는 아직 안 걸렸을 수 있다)
+    public bool IsInStatusArea(PotionStatusEffectTracker status)
+    {
+        return _areaEffects.HasStatus(status);
     }
 }

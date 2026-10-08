@@ -149,13 +149,14 @@ public class ExplodingEnemyController : MonoBehaviour
 
         Vector2 targetPosition = _target.position;
         float distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance <= _data.FuseTriggerRange)
+        // 벽 너머에서 예열하지 않도록 직접 보일 때만 예열을 시작한다.
+        if (distance <= _data.FuseTriggerRange && EnemyPathfinder.Instance.HasLineOfSight(transform.position, targetPosition))
         {
             StartFuse();
             return;
         }
 
-        _movementModule.MoveTowards(targetPosition, _status.Speed);
+        _movementModule.ChaseTarget(targetPosition, _status.Speed);
     }
 
     private void StartFuse()
@@ -210,8 +211,15 @@ public class ExplodingEnemyController : MonoBehaviour
 
             _damagedTargets.Add(receiver);
 
-            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
-            damageable?.DecreaseHealth(_data.ExplosionDamage);
+            // 폭발 중심에서 바깥으로 맞은 방향을 넘겨 피격 연출이 폭발 반대쪽으로 튀게 한다.
+            if (hit.GetComponentInParent<IDirectionalDamageable>() is IDirectionalDamageable directional)
+            {
+                directional.DecreaseHealth(_data.ExplosionDamage, (Vector2)(hit.bounds.center - transform.position));
+            }
+            else
+            {
+                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+            }
         }
 
         Destroy(gameObject);

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0484914e809f5424a96a507847876df2, type: 3}
+  m_Name: StageGenerationProfile
+  m_EditorClassIdentifier: Assembly-CSharp::StageGenerationProfileSO
+  _normalRooms:
+  - {fileID: 239847982383109468, guid: 9531cf7911bfafa4790a67fb780b1f54, type: 3}
+  - {fileID: 8221938216860872068, guid: 2d6dbfa7e1a6771449ba068a88b742c3, type: 3}
+  - {fileID: 1645495581559036565, guid: dbcb0e055e5d4f84692f76eeb761db7a, type: 3}
+  - {fileID: 3167635153057155239, guid: 8206eba18214b4341af5fdd66135f29c, type: 3}
+  _eliteRooms:
+  - {fileID: -557248732941417263, guid: 236349ea61e6cda4c8577fcefe6f26b0, type: 3}
+  - {fileID: -5179573216424164241, guid: 9e039660b98a09e4594f46ebc98c289a, type: 3}
+  - {fileID: -9216379575860310203, guid: d11ae46b1aa03a04d8c83d4b04e14c6a, type: 3}
+  - {fileID: 4838776290454009359, guid: 52269b32dcd18c14ab31c62b00846068, type: 3}
+  _endRoom: {fileID: 4307201373427224824, guid: 848773dcee5f5f446956be436ab0759c, type: 3}
+  _portalPrefab: {fileID: 6754475698265709867, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
+  _horizontalHallway: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
+  _verticalHallway: {fileID: 145594401814618462, guid: c32cfb51d5460b84389f929050ca23b3, type: 3}
+  _additionalRoomChance: 0.5
+  _eliteRoomProbability: 0.5
+  _maxLayoutRetryCount: 100
+  _overlapClearance: 0
+  _connectorAlignmentEpsilon: 0.001

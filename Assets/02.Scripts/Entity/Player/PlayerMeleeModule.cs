@@ -32,14 +32,26 @@ public class PlayerMeleeModule : MonoBehaviour
 
     public bool IsSwinging => Time.time < _swingEndTime;
     public float SwingDuration => _swingDuration;
+    public float AttackRange => _attackRange;   // 공격 이펙트 크기용
+    public float AttackAngle => _attackAngle;
     public Vector2 LastAttackDirection => _lastAttackDirection; // 공격 애니메이션 방향용
 
     public event Action<bool> OnMeleeModeChanged;   //UI용 이벤트
+    public event Action<Vector2> OnAttackStarted;   //공격 방향. 적중 여부와 상관없이 휘두를 때마다 호출
+    public event Action<Vector2, bool> OnMeleeHit;  //공격 방향, 처치 여부. 한 번 휘두를 때 적중했으면 한 번만 호출
 
     private void Awake()
     {
         InitiateComponents();
         _currentAttackTime = 0f;
+    }
+
+    private void OnEnable()
+    {
+        if (_status != null)
+        {
+            _status.OnDeath += HandleDeath;
+        }
     }
 
     private void Start()
@@ -80,8 +92,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
     private void OnDisable()
     {
-        CancelSwing();
-        SetMeleeMode(false);
+        if (_status != null)
+        {
+            _status.OnDeath -= HandleDeath;
+        }
+        HandleDeath(); //비활성화 처리 로직이 HandleDeath때와 똑같음.
     }
 
     public bool CanAttack()
@@ -93,7 +108,7 @@ public class PlayerMeleeModule : MonoBehaviour
 
     public bool TryToggleMeleeMode()
     {
-        if (IsSwinging)
+        if (IsSwinging || _status.IsDead)
         {
             return false;
         }
@@ -114,6 +129,7 @@ public class PlayerMeleeModule : MonoBehaviour
         _currentAttackTime = Time.time;
         _swingEndTime = Time.time + _swingDuration;
 
+        OnAttackStarted?.Invoke(attackDirection);
         ApplyAttack(attackDirection);
         return true;
     }
@@ -169,6 +185,7 @@ public class PlayerMeleeModule : MonoBehaviour
         Collider2D[] hits = Physics2D.OverlapCircleAll(origin, _attackRange, _targetLayer);
 
         _damagedTarget.Clear();
+        bool hasKilled = false;
 
         foreach (Collider2D hit in hits)
         {
@@ -187,6 +204,7 @@ public class PlayerMeleeModule : MonoBehaviour
             }
 
             damageable.DecreaseHealth(_attackDamage);
+            hasKilled |= damageable.IsDead;
 
             if (!hit.TryGetComponent(out IKnockbackable knockbackable))
             {
@@ -201,6 +219,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
             knockbackDirection.Normalize();
             knockbackable.ApplyKnockback(knockbackDirection, _knockbackForce);
+        }
+
+        if (_damagedTarget.Count > 0)
+        {
+            OnMeleeHit?.Invoke(attackDirection, hasKilled);
         }
     }
 
@@ -264,5 +287,11 @@ public class PlayerMeleeModule : MonoBehaviour
 
         Vector2 direction = GetAttackDirection(mousePosition);
         _attackIndicator.Draw(_attackOrigin.position, direction);
+    }
+
+    private void HandleDeath()
+    {
+        CancelSwing();
+        SetMeleeMode(false);
     }
 }

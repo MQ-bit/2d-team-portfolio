@@ -18,6 +18,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [Header("Identity")]
     [SerializeField] private string _id;
     [SerializeField] private string _displayName;
+    [SerializeField, TextArea] private string _description;
     [SerializeField] private PotionElement _element;
 
     [Header("Thrown Effect")]
@@ -40,14 +41,25 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null);
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null, null);
+
+    [Header("Sound")]
+    [Tooltip("장판이 있는 동안 반복 재생하는 소리. 비워두면 소리가 나지 않는다.")]
+    [SerializeField] private AudioClip _areaLoopSound;
+
+    [Tooltip("기화 포션에서만 사용하는 전용 설정 에셋입니다.")]
+    [SerializeField] private PotionVaporizationSettings _vaporizationSettings;
 
     public string Id => _id;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _id : _displayName;
+    public string Description => _description;
     public PotionElement Element => _element;
     public float AreaWidth => _effectRadius * 2f;
     public float ThirstDelta => _thirstDelta;
     public PotionVisualData VisualData => _visualData;
+    public AudioClip AreaLoopSound => _areaLoopSound;
+    public PotionVaporizationSettings VaporizationSettings =>
+        _element == PotionElement.Vaporization ? _vaporizationSettings : null;
     public PotionTargetType TargetType => _targetType;
     public float EffectRadius => _effectRadius;
     public bool CreatesFloor => _createsFloor;
@@ -62,6 +74,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     {
         _id = _id?.Trim();
         _displayName = _displayName?.Trim();
+        _description = _description?.Trim();
         _thirstDelta = PotionDataValidation.Finite(_thirstDelta);
         _effectRadius = PotionDataValidation.NonNegative(_effectRadius);
         _floorDuration = PotionDataValidation.NonNegative(_floorDuration);

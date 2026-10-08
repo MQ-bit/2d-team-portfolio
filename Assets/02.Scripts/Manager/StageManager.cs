@@ -1,0 +1,277 @@
+using System;
+using UnityEngine;
+
+public class StageManager : MonoBehaviour
+{
+    private static StageManager _instance;
+
+    public static StageManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindAnyObjectByType<StageManager>();
+            }
+
+            return _instance;
+        }
+    }
+
+    [Header("Stage")]
+    [SerializeField] private StageGenerator _stageGenerator;
+
+    [Header("Encounter")]
+    [SerializeField] private StageEncounterCoordinator _encounterCoordinator;
+
+    public GeneratedStage CurrentStage { get; private set; }
+
+    public GeneratedRoomNode CurrentRoom => _encounterCoordinator != null ? _encounterCoordinator.CurrentRoom : null;
+
+    public Transform PlayerSpawnPoint { get; private set; }
+    public bool IsStageCleared => _encounterCoordinator != null && _encounterCoordinator.IsCompleted;
+    public StageState State => _encounterCoordinator != null ? _encounterCoordinator.State : StageState.Initializing;
+
+    public event Action<StageState> StateChanged;
+    public event Action<GeneratedRoomNode> RoomEntered;
+    public event Action<GeneratedRoomNode> RoomCleared;
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            enabled = false;
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = this;
+        ResolveReferences();
+    }
+
+    private void OnEnable()
+    {
+        if (_instance == this)
+        {
+            SubscribeEncounterEvents();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_instance != this)
+        {
+            return;
+        }
+
+        UnsubscribeEncounterEvents();
+        _encounterCoordinator?.Suspend();
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
+    }
+
+    public bool TryInitializeStage()
+    {
+        ResolveReferences();
+        SubscribeEncounterEvents();
+        _encounterCoordinator?.BeginInitialization();
+
+        if (!ValidateReferences(out string referenceError))
+        {
+            Debug.LogError($"{nameof(StageManager)} 초기화 실패: {referenceError}");
+            return false;
+        }
+
+        GeneratedStage stage = _stageGenerator.CurrentStage;
+
+        if (stage == null && !_stageGenerator.TryGenerateConfigured(out stage, out StageFailure failure))
+        {
+            Debug.LogError($"Stage 생성 실패 [{failure.Code}]: {failure.Message}");
+            return false;
+        }
+
+        if (!TryBindStage(stage, out string bindError))
+        {
+            Debug.LogError($"Stage 전투 시스템 초기화 실패: {bindError}");
+            return false;
+        }
+
+        Debug.Log($"Stage 전투 시스템 초기화 완료: CombatRooms={_encounterCoordinator.CombatRoomCount}");
+        return true;
+    }
+
+    public bool TryRegenerateStage()
+    {
+        ResolveReferences();
+        SubscribeEncounterEvents();
+        _encounterCoordinator?.BeginInitialization();
+
+        if (!ValidateReferences(out string referenceError))
+        {
+            Debug.LogError($"{nameof(StageManager)} 재생성 실패: {referenceError}");
+            return false;
+        }
+
+        ClearStageRuntime();
+
+        if (!_stageGenerator.TryRegenerateConfigured(out GeneratedStage stage, out StageFailure failure))
+        {
+            Debug.LogError($"Stage 재생성 실패 [{failure.Code}]: {failure.Message}");
+            return false;
+        }
+
+        if (!TryBindStage(stage, out string bindError))
+        {
+            Debug.LogError($"Stage 전투 시스템 재설정 실패: {bindError}");
+            return false;
+        }
+
+        Debug.Log($"Stage 재생성 완료: Seed={stage.Seed}, CombatRooms={_encounterCoordinator.CombatRoomCount}");
+        return true;
+    }
+
+    public void TryEnterCombatRoom(GeneratedRoomNode node)
+    {
+        _encounterCoordinator?.TryEnterCombatRoom(node);
+    }
+
+    public bool TryGetRoomProgress(GeneratedRoomNode node, out RoomProgressState progress)
+    {
+        if (_encounterCoordinator != null)
+        {
+            return _encounterCoordinator.TryGetRoomProgress(node, out progress);
+        }
+
+        progress = RoomProgressState.Unvisited;
+        return false;
+    }
+
+    private bool TryBindStage(GeneratedStage stage, out string error)
+    {
+        if (!TryFindPlayerSpawnPoint(stage, out Transform spawnPoint, out error))
+        {
+            return false;
+        }
+
+        CurrentStage = stage;
+        PlayerSpawnPoint = spawnPoint;
+
+        return _encounterCoordinator.TryBind(stage, out error);
+    }
+
+    private static bool TryFindPlayerSpawnPoint(GeneratedStage stage, out Transform spawnPoint, out string error)
+    {
+        spawnPoint = null;
+
+        if (stage?.RoomNodes == null || stage.RoomNodes.Count == 0)
+        {
+            error = "GeneratedStage에 RoomNodes가 없습니다.";
+            return false;
+        }
+
+        foreach (GeneratedRoomNode node in stage.RoomNodes)
+        {
+            if (node?.Room == null || node.Room.Type != RoomType.Start)
+            {
+                continue;
+            }
+
+            spawnPoint = node.Room.PlayerSpawnPoint;
+            break;
+        }
+
+        if (spawnPoint == null)
+        {
+            error = "StartRoom에 PlayerSpawnPoint가 없습니다.";
+            return false;
+        }
+
+        error = null;
+        return true;
+    }
+
+    private bool ValidateReferences(out string error)
+    {
+        if (_stageGenerator == null)
+        {
+            error = "StageGenerator 참조가 없습니다.";
+            return false;
+        }
+
+        if (_encounterCoordinator == null)
+        {
+            error = "StageEncounterCoordinator 참조가 없습니다.";
+            return false;
+        }
+
+        return _encounterCoordinator.TryValidateConfiguration(out error);
+    }
+
+    private void ResolveReferences()
+    {
+        if (_stageGenerator == null)
+        {
+            _stageGenerator = GetComponent<StageGenerator>();
+        }
+
+        if (_encounterCoordinator == null)
+        {
+            _encounterCoordinator = GetComponent<StageEncounterCoordinator>();
+        }
+    }
+
+    private void ClearStageRuntime()
+    {
+        _encounterCoordinator?.ClearRuntime(true);
+
+        CurrentStage = null;
+        PlayerSpawnPoint = null;
+    }
+
+    private void SubscribeEncounterEvents()
+    {
+        if (_encounterCoordinator == null)
+        {
+            return;
+        }
+
+        UnsubscribeEncounterEvents();
+
+        _encounterCoordinator.StateChanged += HandleStateChanged;
+        _encounterCoordinator.RoomEntered += HandleRoomEntered;
+        _encounterCoordinator.RoomCleared += HandleRoomCleared;
+    }
+
+    private void UnsubscribeEncounterEvents()
+    {
+        if (_encounterCoordinator == null)
+        {
+            return;
+        }
+
+        _encounterCoordinator.StateChanged -= HandleStateChanged;
+        _encounterCoordinator.RoomEntered -= HandleRoomEntered;
+        _encounterCoordinator.RoomCleared -= HandleRoomCleared;
+    }
+
+    private void HandleStateChanged(StageState state)
+    {
+        StateChanged?.Invoke(state);
+    }
+
+    private void HandleRoomEntered(GeneratedRoomNode node)
+    {
+        RoomEntered?.Invoke(node);
+    }
+
+    private void HandleRoomCleared(GeneratedRoomNode node)
+    {
+        RoomCleared?.Invoke(node);
+    }
+}

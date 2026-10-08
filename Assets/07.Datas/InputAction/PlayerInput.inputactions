@@ -75,6 +75,46 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "ToggleInformationTab",
+                    "type": "Button",
+                    "id": "7a413432-115d-4797-8628-c38799c09049",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "InteractionStart",
+                    "type": "Button",
+                    "id": "5e6a5e89-14d7-4c22-97f5-f382dec0d38d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "ItemSlotChangeScroll",
+                    "type": "Value",
+                    "id": "1d9cb4c9-5e0d-4387-b77c-0b865c7732ef",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "c2fc27cf-ddbb-43b7-bdeb-d36b0013d83e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -251,6 +291,50 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "ToggleAttackMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "45963629-626c-4251-be8f-9ffd4c2ef680",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ToggleInformationTab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f95e68ef-7921-415a-9288-af0ddffef245",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "InteractionStart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fa72d6dd-282c-436a-9bbe-c4a6669cfc31",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "ItemSlotChangeScroll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5f85e135-29a9-4996-b01b-a83b0dc124ce",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

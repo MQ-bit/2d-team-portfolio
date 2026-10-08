@@ -171,4 +171,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectile
   _rigid: {fileID: 0}
   _spriteRenderer: {fileID: 0}
+  _impactEffectPrefab: {fileID: 3905996241888050708, guid: 81da5d5637b19c9489cf6f52bec98f7e, type: 3}
+  _impactEffectLifetime: 1
   _color: {r: 1, g: 0, b: 1, a: 1}

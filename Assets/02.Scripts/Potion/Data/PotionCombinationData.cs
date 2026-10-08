@@ -51,7 +51,9 @@ public sealed class PotionCombinationData : ScriptableObject, IPotionEffectData
     [SerializeField] private PotionFrostSettings _frost = new();
 
     [Header("Visual")]
-    [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null);
+    [Tooltip("겹친 영역에서 장판 전체로 조합 이미지와 효과가 퍼지는 시간. 0이면 즉시 전환한다.")]
+    [SerializeField, Min(0f)] private float _spreadDuration = 0.8f;
+    [SerializeField] private PotionVisualData _visualData = new(null, Color.white, null, null);
 
     public PotionCombination Combination => _combination;
     public string Name => string.IsNullOrWhiteSpace(_displayName) ? _combination.ToString() : _displayName;
@@ -60,6 +62,7 @@ public sealed class PotionCombinationData : ScriptableObject, IPotionEffectData
     public PotionElement ElementB => _elementB;
     public PotionElement InheritThrownEffectsFrom => _inheritThrownEffectsFrom;
     public PotionVisualData VisualData => _visualData;
+    public float SpreadDuration => _spreadDuration;
     public PotionTargetType TargetType => _targetType;
     public float EffectRadius => _effectRadius;
     public bool CreatesFloor => _createsFloor;
@@ -79,6 +82,7 @@ public sealed class PotionCombinationData : ScriptableObject, IPotionEffectData
         _description = _description?.Trim();
         _effectRadius = PotionDataValidation.NonNegative(_effectRadius);
         _floorDuration = PotionDataValidation.NonNegative(_floorDuration);
+        _spreadDuration = PotionDataValidation.NonNegative(_spreadDuration);
         _tickInterval = PotionDataValidation.NonNegative(_tickInterval);
         _lifeStealRatio = Mathf.Clamp01(PotionDataValidation.Finite(_lifeStealRatio));
         _effects ??= new List<PotionEffectDefinition>();

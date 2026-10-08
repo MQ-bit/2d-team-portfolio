@@ -5,7 +5,7 @@ public static class PotionEffectApplier
     public static void ApplyDrinkEffect(PotionData data, IPotionEffectTarget target)
     {
         if (data == null || !IsTargetAvailable(target)) return;
-        PotionStatDispatcher.ChangeThirst(target.Thirstable, data.ThirstDelta);
+        PotionStatApplier.ChangeThirst(target.Thirstable, data.ThirstDelta);
         var source = new PotionEffectSource(data.GetInstanceID(), data, owner: target.Damageable);
         // 섭취는 투척용 TargetType과 관계없이 마신 대상 자신에게 적용한다.
         ApplyEffects(data, PotionEffectPhase.Drink, target, source);
@@ -13,6 +13,10 @@ public static class PotionEffectApplier
 
     public static IPotionEffectTarget FindTarget(Component component)
     {
+        // Sensor triggers (such as the player's item collection radius) are not
+        // body contacts. Resolving their parent would apply effects at a distance.
+        if (component is Collider2D collider && collider.isTrigger) return null;
+
         Transform current = component == null ? null : component.transform;
         while (current != null)
         {

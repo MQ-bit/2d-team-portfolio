@@ -8,6 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 7000000000000000001}
   - component: {fileID: 1434780445882864839}
   - component: {fileID: 316266621437894709}
   - component: {fileID: 5784747062065285742}
@@ -59,7 +60,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 2f7cc5316d82426abdb6f63189951b22, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -111,3 +112,24 @@ MonoBehaviour:
   fps: 15
   pixelsPerUnit: 64
   timeOffset: 0
+--- !u!114 &7000000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100311748143192802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c8790e3e44caca3cbbfa97062b390, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PotionAreaVfxSettings
+  burstCount: 12
+  burstSize: 0.4
+  sizeJitter: 0.3
+  spawnAreaRatio: 0.85
+  restDelayRange: {x: 0, y: 0.08}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  fillArea: 0
+  fillScale: 1
+  playOnce: 0

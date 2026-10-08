@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerDrinkingModule : MonoBehaviour
@@ -9,12 +10,12 @@ public class PlayerDrinkingModule : MonoBehaviour
     [SerializeField] private PlayerStatus _status;
 
     [Header("Drink Settings")]
-    [SerializeField] private float _drinkDuration = 1f; //TODO: Scriptable Object로 초기화하는 로직 반영
+    [SerializeField] private float _drinkDuration = 0.5f; //TODO: Scriptable Object로 초기화하는 로직 반영
     [SerializeField] private float _drinkTimer = 0f; //TODO: Progress를 확인하고자 SerializeField로 노출함. 디버그 끝나고 롤백시키기
     [SerializeField] private float _thirstDecreaseAmount = 10f;
 
     public bool IsDrinking { get; private set; }
-
+    public event Action<bool> OnDrinkStateChanged; //UI 연결용 이벤트
     public float DrinkProgress
     {
         get
@@ -81,7 +82,7 @@ public class PlayerDrinkingModule : MonoBehaviour
         }
 
         _drinkTimer = 0f;
-        IsDrinking = true;
+        SetDrinking(true);
 
         return true;
     }
@@ -111,12 +112,23 @@ public class PlayerDrinkingModule : MonoBehaviour
 
         PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
         _status.DecreaseThirst(_thirstDecreaseAmount);
+
+        ScoreManager.Instance?.TryRecordPotionConsumed();
         ResetState();
     }
 
     private void ResetState()
     {
-        IsDrinking = false;
         _drinkTimer = 0f;
+        SetDrinking(false);
+    }
+
+    private void SetDrinking(bool isDrinking)
+    {
+        if (IsDrinking != isDrinking)
+        {
+            IsDrinking = isDrinking;
+            OnDrinkStateChanged?.Invoke(isDrinking);
+        }
     }
 }

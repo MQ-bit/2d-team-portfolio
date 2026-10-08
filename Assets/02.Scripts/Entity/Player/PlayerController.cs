@@ -9,15 +9,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
     [SerializeField] private PlayerMeleeModule _meleeModule;
+    [SerializeField] private PlayerInteractionModule _interactionModule;
     [SerializeField] private PlayerStatus _playerStatus;
 
-    // UI 연결을 위한 프로퍼티
-    public PlayerMovementModule MovementModule => _movementModule;
-    public PlayerThrowingModule ThrowingModule => _throwingModule;
-    public PlayerInventoryModule InventoryModule => _inventoryModule;
-    public PlayerDrinkingModule DrinkingModule => _drinkingModule;
-    public PlayerMeleeModule MeleeModule => _meleeModule;
-    public PlayerStatus PlayerStatus => _playerStatus;
+    private InputLockHandler _inputLock = new InputLockHandler();
+    public bool CanReadInput => _inputLock.CanReadInput;
+
+    public Vector2 ReadableMoveInput => GetEffectiveMoveInput();
 
     private void Awake()
     {
@@ -50,6 +48,10 @@ public class PlayerController : MonoBehaviour
         {
             _meleeModule = GetComponent<PlayerMeleeModule>();
         }
+        if (_interactionModule == null)
+        {
+            _interactionModule = GetComponent<PlayerInteractionModule>();
+        }
         if (_playerStatus == null)
         {
             _playerStatus = GetComponent<PlayerStatus>();
@@ -59,15 +61,16 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         LinkInputEvents();
+
+        _playerStatus.OnDeath += HandleDeath;
     }
 
     private void OnDisable()
     {
         UnLinkInputEvents();
-        if (_throwingModule != null)
-        {
-            _throwingModule.CancelAim();
-        }
+        _playerStatus.OnDeath -= HandleDeath;
+        _throwingModule?.CancelAim();
+        _interactionModule?.CancelInteraction();
     }
 
     private void LinkInputEvents()
@@ -76,8 +79,11 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnPrimaryActionStart += HandlePrimaryActionStart;
         _inputSO.OnPrimaryActionEnd += HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged += HandleItemSlotChanged;
+        _inputSO.OnItemSlotChangedScrolled += HandleItemSlotChangedScroll;
         _inputSO.OnDrinkInputChanged += HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested += HandleMeleeToggleRequested;
+        _inputSO.OnInteractInputChanged += HandleInteractInputChanged;
+
     }
 
     private void UnLinkInputEvents()
@@ -86,17 +92,22 @@ public class PlayerController : MonoBehaviour
         _inputSO.OnPrimaryActionStart -= HandlePrimaryActionStart;
         _inputSO.OnPrimaryActionEnd -= HandlePrimaryActionEnd;
         _inputSO.OnItemSlotChanged -= HandleItemSlotChanged;
+        _inputSO.OnItemSlotChangedScrolled -= HandleItemSlotChangedScroll;
         _inputSO.OnDrinkInputChanged -= HandleDrinkInputChanged;
         _inputSO.OnMeleeToggleRequested -= HandleMeleeToggleRequested;
+        _inputSO.OnInteractInputChanged -= HandleInteractInputChanged;
     }
 
     private void FixedUpdate()
     {
+        if (!CanReadInput) return;
         HandleMoveInput();
     }
 
     private void Update()
     {
+        if (!CanReadInput) return;
+
         if (_throwingModule.IsAiming)
         {
             _throwingModule.UpdateAim(_inputSO.MousePosition);
@@ -109,14 +120,16 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMoveInput()
     {
-        if (_meleeModule.IsSwinging) return;
+        if (!CanReadInput || _meleeModule.IsSwinging) return;
 
-        _movementModule.MovePosition(_inputSO.MoveInput);
+        _movementModule.MovePosition(ReadableMoveInput);
     }
 
     private void HandleDashInput()
     {
-        Vector2 moveInput = _inputSO.MoveInput;
+        if (!CanReadInput) return;
+
+        Vector2 moveInput = ReadableMoveInput;
 
         if (moveInput == Vector2.zero)
         {
@@ -127,20 +140,29 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        _meleeModule.CancelSwing();
-        _drinkingModule.CancelDrink();
-        _throwingModule.CancelAim();
+        CancelActionsConflictWithDash();
     }
 
     private void HandleItemSlotChanged(int newSlotIndex)
     {
-        if (_drinkingModule.IsDrinking)
+        if (!CanReadInput || _drinkingModule.IsDrinking)
         {
             return;
         }
 
         _inventoryModule.SelectSlot(newSlotIndex);
     }
+
+    private void HandleItemSlotChangedScroll(int direction)
+    {
+        if (!CanReadInput || _drinkingModule.IsDrinking)
+        {
+            return;
+        }
+
+        _inventoryModule.SelectRelativeSlot(direction);
+    }
+
 
     private void HandleDrinkInputChanged(bool isHolding)
     {
@@ -150,7 +172,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (_throwingModule.IsAiming || _movementModule.IsDashing || _meleeModule.IsSwinging)
+        if (!CanReadInput || _throwingModule.IsAiming || _movementModule.IsDashing || _meleeModule.IsSwinging)
         {
             return;
         }
@@ -160,7 +182,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePrimaryActionStart(Vector2 mousePosition)
     {
-        if (_drinkingModule.IsDrinking) return;
+        if (!CanReadInput || _drinkingModule.IsDrinking) return;
 
         if (_meleeModule.IsMeleeModeActivated)
         {
@@ -178,12 +200,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePrimaryActionEnd(Vector2 mousePosition)
     {
+        if (!CanReadInput) return;
+
         _throwingModule.ReleaseThrow(mousePosition);
     }
 
     private void HandleMeleeToggleRequested()
     {
-        if (!_meleeModule.TryToggleMeleeMode())
+        if (!CanReadInput || !_meleeModule.TryToggleMeleeMode())
         {
             return;
         }
@@ -192,5 +216,73 @@ public class PlayerController : MonoBehaviour
         {
             _throwingModule.CancelAim();
         }
+    }
+
+    public void AcquireGamePlayInputLock(object owner)
+    {
+        bool wasReadable = _inputLock.CanReadInput;
+        if (_inputLock.TryAcquireGamePlayInputLock(owner) && wasReadable)
+        {
+            CancelAllActions();
+        }
+    }
+
+    public void ReleaseGamePlayInputLock(object owner)
+    {
+        _inputLock.TryReleaseGamePlayInputLock(owner);
+    }
+
+    private void CancelActionsConflictWithDash()
+    {
+        _throwingModule.CancelAim();
+        _drinkingModule.CancelDrink();
+        _meleeModule.CancelSwing();
+    }
+
+    public void CancelAllActions()
+    {
+        CancelActionsConflictWithDash();
+        _movementModule.CancelDash();
+        _interactionModule.CancelInteraction();
+    }
+
+    private void HandleInteractInputChanged(bool isHolding)
+    {
+        if (_interactionModule == null) return;
+        if (!isHolding)
+        {
+            _interactionModule.CancelInteraction();
+        }
+        else
+        {
+            if (!CanReadInput) return;
+            _interactionModule.TryBeginInteraction();
+        }
+    }
+
+    private void HandleDeath()
+    {
+        CancelAllActions();
+        AcquireGamePlayInputLock(this);
+    }
+
+    private Vector2 GetEffectiveMoveInput()
+    {
+        //TODO: 이는 갈증 상태에 따라 이동 입력을 반전시키는 로직을 처리하는 함수인데 원래라면 
+        // 이는 CC모듈에서 처리해야하므로 CC모듈 구현되고 PotionEffectReceiver와 통합되면 해제하기.
+
+        if (!CanReadInput || _inputSO == null)
+        {
+            return Vector2.zero;
+        }
+
+        Vector2 moveInput = _inputSO.MoveInput;
+
+        if (_playerStatus != null && _playerStatus.CurrentThirstLevel == ThirstWarningLevel.Critical)
+        {
+            moveInput = -moveInput;
+        }
+
+        return moveInput;
     }
 }
