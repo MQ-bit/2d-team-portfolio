@@ -405,63 +405,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1210929610
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 19
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3104319216201948204, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8954457827914677174, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
-      propertyPath: m_Name
-      value: PotionBox_Gold
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
 --- !u!1 &1294322303
 GameObject:
   m_ObjectHideFlags: 0
@@ -2140,8 +2083,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.99970526
-    height: 0.99999994
+    width: 1
+    height: 1
   near clip plane: 0.1
   far clip plane: 5014
   field of view: 40
@@ -2296,7 +2239,6 @@ SceneRoots:
   - {fileID: 942094939}
   - {fileID: 1301456589}
   - {fileID: 957568145}
-  - {fileID: 1210929610}
   - {fileID: 971177755}
   - {fileID: 1670615286}
   - {fileID: 282069549}

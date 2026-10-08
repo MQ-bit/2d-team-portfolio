@@ -4,5 +4,4 @@ public enum StageState
     Exploring,
     InCombat,
     RoomCleared,
-    LayerTransition,
 }

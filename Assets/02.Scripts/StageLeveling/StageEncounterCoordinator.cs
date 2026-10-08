@@ -21,6 +21,7 @@ public class StageEncounterCoordinator : MonoBehaviour
 
     public StageState State { get; private set; } = StageState.Initializing;
 
+    public event Action<GeneratedRoomNode> CombatRoomCleared;
     public event Action<StageState> StateChanged;
     public event Action<GeneratedRoomNode> RoomEntered;
     public event Action<GeneratedRoomNode> RoomCleared;
@@ -138,7 +139,7 @@ public class StageEncounterCoordinator : MonoBehaviour
         {
             Debug.LogError($"{node.Room.name}: Wave 데이터 확정 실패: {resolveError}");
 
-            CompleteRoom(node);
+            CompleteRoom(node, false);
             return;
         }
 
@@ -146,7 +147,7 @@ public class StageEncounterCoordinator : MonoBehaviour
         {
             Debug.LogError($"{node.Room.name}: EnemySpawnPoint가 없습니다.");
 
-            CompleteRoom(node);
+            CompleteRoom(node, false);
             return;
         }
 
@@ -181,7 +182,7 @@ public class StageEncounterCoordinator : MonoBehaviour
     {
         if (State != StageState.InCombat || _roomProgress.ActiveRoom == null) return;
 
-        CompleteRoom(_roomProgress.ActiveRoom);
+        CompleteRoom(_roomProgress.ActiveRoom, true);
     }
 
     private void HandleCombatFailed(string reason)
@@ -196,12 +197,16 @@ public class StageEncounterCoordinator : MonoBehaviour
             return;
         }
 
-        CompleteRoom(activeRoom);
+        CompleteRoom(activeRoom, false);
     }
 
-    private void CompleteRoom(GeneratedRoomNode node)
+    private void CompleteRoom(GeneratedRoomNode node, bool wasCombatCompleted)
     {
         if (!_roomProgress.TryClearRoom(node, out GeneratedRoomNode nextRoom)) return;
+        if (wasCombatCompleted)
+        {
+            CombatRoomCleared?.Invoke(node);
+        }
 
         SetState(StageState.RoomCleared);
         RoomCleared?.Invoke(node);

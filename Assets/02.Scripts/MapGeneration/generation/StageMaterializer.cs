@@ -62,7 +62,6 @@ internal static class StageMaterializer
         }
     }
 
-
     private static void CreateHierarchy(StageBuildContext context)
     {
         context.RoomsRoot = CreateChild(context.Root.transform, "Rooms");
