@@ -13,6 +13,11 @@ public class TitleButtonSoundController : MonoBehaviour
     [SerializeField] private AudioClip _buttonHoverSound;
     [SerializeField, Range(0f, 1f)] private float _volume = 0.35f;
 
+    [SerializeField] private AudioClip _buttonClickSound;
+    [SerializeField, Range(0f, 1f)] private float _clickVolume = 1f;
+
+    private readonly List<Button> _clickConnectedButtons = new();
+
     [SerializeField, Min(0f)] private float _soundInterval = 0.08f;
 
     private readonly List<PauseButtonSound> _connectedButtons = new();
@@ -23,7 +28,7 @@ public class TitleButtonSoundController : MonoBehaviour
         if (_buttonRoot == null)
         {
             Debug.LogError(
-                "TitleButtonHoverSoundController의 Button Root에 Canvas를 연결하세요.",
+                "TitleButtonSoundController의 Button Root에 Canvas를 연결하세요.",
                 this);
             enabled = false;
             return;
@@ -34,19 +39,25 @@ public class TitleButtonSoundController : MonoBehaviour
 
         foreach (Button button in buttons)
         {
-            // 기존 인게임 UI가 사용하는 포인터/선택 감지 컴포넌트를 재사용합니다.
+            // 호버 효과음용 이벤트 연결
             PauseButtonSound buttonSound =
                 button.GetComponent<PauseButtonSound>();
 
             if (buttonSound == null)
                 buttonSound = button.gameObject.AddComponent<PauseButtonSound>();
 
-            // 같은 버튼에 이벤트가 중복 등록되지 않도록 확인합니다.
-            if (_connectedButtons.Contains(buttonSound))
-                continue;
+            if (!_connectedButtons.Contains(buttonSound))
+            {
+                buttonSound.OnFocused += PlayHoverSound;
+                _connectedButtons.Add(buttonSound);
+            }
 
-            buttonSound.OnFocused += PlayHoverSound;
-            _connectedButtons.Add(buttonSound);
+            // 클릭 효과음용 이벤트 연결
+            if (!_clickConnectedButtons.Contains(button))
+            {
+                button.onClick.AddListener(PlayClickSound);
+                _clickConnectedButtons.Add(button);
+            }
         }
     }
 
@@ -62,6 +73,14 @@ public class TitleButtonSoundController : MonoBehaviour
         SoundManager.PlayUi(_buttonHoverSound, _volume);
     }
 
+    private void PlayClickSound()
+    {
+        if (!isActiveAndEnabled || _buttonClickSound == null)
+            return;
+
+        SoundManager.PlayUi(_buttonClickSound, _clickVolume);
+    }
+
     private void OnDestroy()
     {
         // 씬이 종료될 때 이벤트 연결을 해제합니다.
@@ -70,6 +89,14 @@ public class TitleButtonSoundController : MonoBehaviour
             if (buttonSound != null)
                 buttonSound.OnFocused -= PlayHoverSound;
         }
+
+        foreach (Button button in _clickConnectedButtons)
+        {
+            if (button != null)
+                button.onClick.RemoveListener(PlayClickSound);
+        }
+
+        _clickConnectedButtons.Clear();
 
         _connectedButtons.Clear();
     }

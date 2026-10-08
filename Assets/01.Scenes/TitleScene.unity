@@ -5966,6 +5966,8 @@ MonoBehaviour:
   _buttonRoot: {fileID: 1692559225}
   _buttonHoverSound: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
   _volume: 0.35
+  _buttonClickSound: {fileID: 8300000, guid: 648f0fdd7f5687041a9e0b233b74cbb5, type: 3}
+  _clickVolume: 1
   _soundInterval: 0.08
 --- !u!1 &1021557241
 GameObject:
