@@ -12,6 +12,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: PotionFieldItem_Frost_EnemyDrop
       objectReference: {fileID: 0}
+    - target: {fileID: 8741785605629748556, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8741785605629748556, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8947438971573722298, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

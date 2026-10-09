@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2909178996453873225, guid: 99302c7fa3697994da75d3389b0f1574, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4621741833939702906, guid: 99302c7fa3697994da75d3389b0f1574, type: 3}
       propertyPath: m_Name
       value: PotionFieldItem_Life_EnemyDrop
