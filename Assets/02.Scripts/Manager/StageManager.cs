@@ -32,6 +32,7 @@ public class StageManager : MonoBehaviour
     public bool IsStageCleared => _encounterCoordinator != null && _encounterCoordinator.IsCompleted;
     public StageState State => _encounterCoordinator != null ? _encounterCoordinator.State : StageState.Initializing;
 
+    public event Action<GeneratedRoomNode> CombatRoomCleared;
     public event Action<StageState> StateChanged;
     public event Action<GeneratedRoomNode> RoomEntered;
     public event Action<GeneratedRoomNode> RoomCleared;
@@ -159,10 +160,20 @@ public class StageManager : MonoBehaviour
             return false;
         }
 
+        RoomRewardGenerator rewardGenerator = GetComponent<RoomRewardGenerator>();
+
+        if (rewardGenerator == null || !rewardGenerator.isActiveAndEnabled)
+        {
+            error = "활성화된 RoomRewardGenerator가 없습니다.";
+            return false;
+        }
+
         CurrentStage = stage;
         PlayerSpawnPoint = spawnPoint;
 
-        return _encounterCoordinator.TryBind(stage, out error);
+        if (!_encounterCoordinator.TryBind(stage, out error)) return false;
+
+        return rewardGenerator.TrySpawnInitialRewards(stage, out error);
     }
 
     private static bool TryFindPlayerSpawnPoint(GeneratedStage stage, out Transform spawnPoint, out string error)
@@ -246,6 +257,7 @@ public class StageManager : MonoBehaviour
         _encounterCoordinator.StateChanged += HandleStateChanged;
         _encounterCoordinator.RoomEntered += HandleRoomEntered;
         _encounterCoordinator.RoomCleared += HandleRoomCleared;
+        _encounterCoordinator.CombatRoomCleared += HandleCombatRoomCleared;
     }
 
     private void UnsubscribeEncounterEvents()
@@ -258,6 +270,7 @@ public class StageManager : MonoBehaviour
         _encounterCoordinator.StateChanged -= HandleStateChanged;
         _encounterCoordinator.RoomEntered -= HandleRoomEntered;
         _encounterCoordinator.RoomCleared -= HandleRoomCleared;
+        _encounterCoordinator.CombatRoomCleared -= HandleCombatRoomCleared;
     }
 
     private void HandleStateChanged(StageState state)
@@ -267,15 +280,16 @@ public class StageManager : MonoBehaviour
 
     private void HandleRoomEntered(GeneratedRoomNode node)
     {
-        SoundManager.Play(GameSoundId.RoomPortal);
         RoomEntered?.Invoke(node);
     }
 
     private void HandleRoomCleared(GeneratedRoomNode node)
     {
-        SoundManager.Play(GameSoundId.RoomPortal);
-        if (IsStageCleared)
-            SoundManager.Play(GameSoundId.StageClear);
         RoomCleared?.Invoke(node);
+    }
+
+    private void HandleCombatRoomCleared(GeneratedRoomNode node)
+    {
+        CombatRoomCleared?.Invoke(node);
     }
 }
