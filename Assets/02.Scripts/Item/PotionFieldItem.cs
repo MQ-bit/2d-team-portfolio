@@ -30,6 +30,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     [SerializeField, Min(0.01f)] private float _dropWallPadding = 0.05f;
     [SerializeField, Min(0.01f)] private float _wallLandingDuration = 0.2f;
 
+    [Header("Visual Effects")]
+    [SerializeField] private TrailRenderer _trailRenderer;
+    [SerializeField] private ParticleSystem _touchedParticlePrefab;
+
     private readonly Entity.Inventory.PotionWallCollision _wallCollision = new();
 
     private PotionItem _nowItemData;
@@ -49,6 +53,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     {
         _collider = GetComponentInChildren<Collider2D>();
         _renderer = GetComponentInChildren<SpriteRenderer>();
+        _trailRenderer = GetComponentInChildren<TrailRenderer>();
         _waitForReactivate = new WaitForSeconds(_reactivateDelay);
     }
     private void OnDisable()
@@ -79,6 +84,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         if (_isCollecting)
         {
             transform.position = _originalPosition;
+        }
+        if( _trailRenderer != null)
+        {
+            _trailRenderer.enabled = false;
         }
 
         _isCollecting = false;
@@ -222,6 +231,11 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
     private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionItem potionItem)
     {
+        if(_trailRenderer != null)
+        {
+            _trailRenderer.enabled = true;
+        }
+
         yield return FlyToPlayer(collectTarget);
 
         if (collectTarget == null)
@@ -235,6 +249,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             _collectionRoutine = null;
             _isBeingDestroyed = true;
 
+            if(_touchedParticlePrefab != null)
+            {
+                Instantiate(_touchedParticlePrefab, transform.position, Quaternion.identity);
+            }
             Destroy(gameObject); // TODO : 풀링 적용 시 SetActive(false)로 변경
         }
         else
@@ -243,6 +261,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
             _collectionRoutine = null;
             _isCollecting = false;
+            _trailRenderer.enabled = false;
 
             SetCollidersEnabled(true);
         }
@@ -339,6 +358,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
         _collectionRoutine = null;
         _isCollecting = false;
+        _trailRenderer.enabled = false;
 
         SetCollidersEnabled(true);
     }

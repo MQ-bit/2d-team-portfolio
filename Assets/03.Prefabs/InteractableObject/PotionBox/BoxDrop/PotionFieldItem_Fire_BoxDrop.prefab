@@ -10,8 +10,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4621741833939702906, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
       propertyPath: m_Name
-      value: PotionFieldItem_Fire_EnemyDrop
+      value: PotionFieldItem_Fire_BoxDrop
       objectReference: {fileID: 0}
+    - target: {fileID: 4738305527283598493, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
+      propertyPath: _trailRenderer
+      value: 
+      objectReference: {fileID: 5291936987706144190}
     - target: {fileID: 8947438971573722298, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -60,6 +64,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1477648650544364956}
   m_SourcePrefab: {fileID: 100100000, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
+--- !u!96 &5291936987706144190 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 6039721723418137464, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
+  m_PrefabInstance: {fileID: 1919054950675375814}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6521885138479755964 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4621741833939702906, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
