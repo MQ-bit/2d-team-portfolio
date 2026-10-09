@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplodingEnemyController : MonoBehaviour
+public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 {
     private enum State
     {
@@ -82,6 +82,31 @@ public class ExplodingEnemyController : MonoBehaviour
         }
     }
 
+    private void ResetState()
+    {
+        _state = State.Idle;
+        _target = null;
+        _fuseElapsed = 0f;
+
+        _overlapResults.Clear();
+        _damagedTargets.Clear();
+
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = _originalColor;
+        }
+
+        if (_status != null && _data != null)
+        {
+            _status.Initialize(_data.MaxHealth, _data.MoveSpeed);
+        }
+
+        if (_movementModule != null)
+        {
+            _movementModule.ResetState();
+        }
+    }
+
     private void OnEnable()
     {
         _status.OnDeath += HandleDeath;
@@ -101,7 +126,7 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         _state = State.Exploded;
-        Destroy(gameObject);
+        Release();
     }
 
     private void FixedUpdate()
@@ -222,7 +247,7 @@ public class ExplodingEnemyController : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        Release();
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
@@ -239,6 +264,30 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void OnSpawned()
+    {
+        ResetState();
+    }
+
+    public void OnDespawned()
+    {
+        ResetState();
+    }
+
+    /// <summary>
+    /// 풀에서 반환되거나, 풀에 속하지 않은 경우에는 그냥 파괴한다.
+    /// </summary>
+    private void Release()
+    {
+        if (TryGetComponent(out PoolMember member) && member.IsRented)
+        {
+            member.ReturnToPool();
+            return;
+        }
+
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

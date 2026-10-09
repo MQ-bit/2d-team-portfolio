@@ -85,7 +85,18 @@ public class SpawnManager : MonoBehaviour
             return false;
         }
 
-        handle = Instantiate(request.Prefab, spawnPoint.position, spawnPoint.rotation, parent);
+        GameObject instance = Spawn(request.Prefab.gameObject, spawnPoint.position, spawnPoint.rotation);
+
+        if(instance == null)
+        {
+            return false;
+        }
+        if(parent != null)
+        {
+            instance.transform.SetParent(parent, true);
+        }
+
+        handle = instance.GetComponent<WaveEnemyHandle>();
         return handle != null;
     }
 

@@ -69,8 +69,8 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         instance.transform.SetPositionAndRotation(position, rotation);
 
         PoolMember member = instance.GetComponent<PoolMember>();
-        member.SetRented();
         instance.SetActive(true);
+        member.SetRented();
         return instance;
     }
 
@@ -85,8 +85,8 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
             return;
         }
 
-        member.SetReturned();
         instance.SetActive(false);
+        member.SetReturned();
         instance.transform.SetParent(_inactiveRoot, false);
 
         _inactive.Push(instance);
@@ -98,7 +98,7 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         instance.name = _prefab.name;
 
         PoolMember member = instance.GetComponent<PoolMember>();
-        
+
         if (member == null)
         {
             member = instance.AddComponent<PoolMember>();
