@@ -4235,6 +4235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameOverSceneController
   _fadeController: {fileID: 125679505}
   _titleSceneName: TitleScene
+  _gameOverFirst: 0
   _introFadeDuration: 1.5
   _scoreRoot: {fileID: 2076789504}
   _floorRow: {fileID: 55035875}
@@ -4261,9 +4262,11 @@ MonoBehaviour:
   _bestResultInterval: 0.3
   _scoreFadeOutDuration: 0.3
   _gameOverFadeDuration: 1.2
-  _tombFadeDuration: 1.5
+  _tombFadeDuration: 0.15
+  _tombDropDuration: 0.55
+  _tombImpactDuration: 0.1
   _exitPopDuration: 0.4
-  _tombStartOffsetY: 80
+  _tombStartOffsetY: 700
 --- !u!4 &1880209817
 Transform:
   m_ObjectHideFlags: 0

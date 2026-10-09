@@ -12,6 +12,7 @@ public class PlayerActionSound : MonoBehaviour
     [SerializeField] private PlayerMovementModule _movementModule;
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerDrinkingModule _drinkingModule;
+    [SerializeField] private PlayerStatus _status;
     [SerializeField] private PlayerAnimationDriver _animationDriver; // 걷는 애니메이션이 나오는 동안만 발소리를 내기 위함
 
     private SoundHandle _drinkHandle;
@@ -19,6 +20,10 @@ public class PlayerActionSound : MonoBehaviour
 
     private void Awake()
     {
+        if (_status == null)
+        {
+            _status = GetComponent<PlayerStatus>();
+        }
         if (_meleeModule == null)
         {
             _meleeModule = GetComponent<PlayerMeleeModule>();
@@ -41,7 +46,8 @@ public class PlayerActionSound : MonoBehaviour
         }
 
         foreach (GameSoundId id in new[] { GameSoundId.PlayerSwing, GameSoundId.PlayerMeleeHit,
-            GameSoundId.PlayerDash, GameSoundId.PlayerPickup, GameSoundId.PlayerDrink, GameSoundId.PlayerFootstep })
+            GameSoundId.PlayerDash, GameSoundId.PlayerPickup, GameSoundId.PlayerDrink, GameSoundId.PlayerFootstep,
+            GameSoundId.PlayerDeath })
         {
             SoundManager.Preload(id);
         }
@@ -49,6 +55,10 @@ public class PlayerActionSound : MonoBehaviour
 
     private void OnEnable()
     {
+        if (_status != null)
+        {
+            _status.OnDeath += HandleDeath;
+        }
         if (_meleeModule != null)
         {
             _meleeModule.OnAttackStarted += HandleAttackStarted;
@@ -70,6 +80,10 @@ public class PlayerActionSound : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_status != null)
+        {
+            _status.OnDeath -= HandleDeath;
+        }
         if (_meleeModule != null)
         {
             _meleeModule.OnAttackStarted -= HandleAttackStarted;
@@ -96,6 +110,7 @@ public class PlayerActionSound : MonoBehaviour
 
     private void UpdateFootstep()
     {
+        if (_status != null && _status.IsDead) return;
         if (SoundManager.GetSound(GameSoundId.PlayerFootstep)?.Clip == null || _animationDriver == null)
         {
             return;
@@ -117,20 +132,36 @@ public class PlayerActionSound : MonoBehaviour
         SoundManager.Play(GameSoundId.PlayerFootstep);
     }
 
+    private void HandleDeath()
+    {
+        // 사망음이 나오기 전에 전투음과 장판의 반복음을 정리한다.
+        SoundManager.FadeOutChannel(SoundChannel.Player, 0.15f);
+        SoundManager.FadeOutChannel(SoundChannel.Potion, 0.15f);
+        SoundManager.FadeOutChannel(SoundChannel.Sfx, 0.15f);
+        SoundManager.PlayBgmAfterSound(GameSoundId.PlayerDeath, GameBgmId.GameEnd);
+    }
+
     private void HandleAttackStarted(Vector2 attackDirection)
     {
+        if (_status != null && _status.IsDead) return;
         SoundManager.Play(GameSoundId.PlayerSwing);
     }
 
-    private void HandleMeleeHit(Vector2 direction, bool killed) => SoundManager.Play(GameSoundId.PlayerMeleeHit);
+    private void HandleMeleeHit(Vector2 direction, bool killed)
+    {
+        if (_status != null && _status.IsDead) return;
+        SoundManager.Play(GameSoundId.PlayerMeleeHit);
+    }
 
     private void HandleDashStarted(float dashCooltime)
     {
+        if (_status != null && _status.IsDead) return;
         SoundManager.Play(GameSoundId.PlayerDash);
     }
 
     private void HandleItemTaken()
     {
+        if (_status != null && _status.IsDead) return;
         SoundManager.Play(GameSoundId.PlayerPickup);
     }
 
@@ -138,6 +169,7 @@ public class PlayerActionSound : MonoBehaviour
     {
         if (isDrinking)
         {
+            if (_status != null && _status.IsDead) return;
             _drinkHandle = SoundManager.Play(GameSoundId.PlayerDrink);
             return;
         }

@@ -38,17 +38,54 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     private void OnEnable()
     {
-        if (_playerInput == null)
-        {
-            _playerInput = new PlayerInput();
-        }
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+        UnityEditor.EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
+#endif
+        if (Application.isPlaying)
+            InitializeInput();
+    }
 
+    private void InitializeInput()
+    {
+        if (_playerInput != null) return;
+
+        _playerInput = new PlayerInput();
         _playerInput.Player.SetCallbacks(this);
         _playerInput.Player.Enable();
     }
 
     private void OnDisable()
     {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+#endif
+        ReleaseInput();
+    }
+
+#if UNITY_EDITOR
+    private void HandlePlayModeStateChanged(UnityEditor.PlayModeStateChange state)
+    {
+        if (state == UnityEditor.PlayModeStateChange.EnteredPlayMode)
+            InitializeInput();
+        else if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+            ReleaseInput();
+    }
+#endif
+
+    private void ReleaseInput()
+    {
+        if (_playerInput != null)
+        {
+            // Unsubscribe before Disable triggers canceled callbacks during teardown.
+            _playerInput.Player.SetCallbacks(null);
+            _playerInput.Disable();
+            _playerInput.Dispose();
+            _playerInput = null;
+        }
+
+        _moveInput = Vector2.zero;
+        _mousePosition = Vector2.zero;
         _isPrimaryActionHolding = false;
         _isDrinkingHolding = false;
 
@@ -57,8 +94,6 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
             _isInteractHolding = false;
             OnInteractInputChanged?.Invoke(false);
         }
-
-        _playerInput.Player.Disable();
     }
 
     public void OnMove(CallbackContext context)

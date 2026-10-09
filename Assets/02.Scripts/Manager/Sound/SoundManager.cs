@@ -65,6 +65,7 @@ public class SoundManager : MonoBehaviour
     {
         SoundManager manager = Instance;
         if (manager == null || manager._soundData == null) return default;
+        manager.CancelPendingBgm();
         if (id == GameBgmId.InGame)
         {
             GameSoundData.BgmEntry[] tracks = manager._soundData.GetBgmTracks(id);
@@ -84,6 +85,7 @@ public class SoundManager : MonoBehaviour
         return Instance != null
                && Instance._bgmController.IsPlayingId(id);
     }
+    public static bool IsBgmIdPending(GameBgmId id) => Instance != null && Instance._pendingBgmId == id;
     public static void StopBgm(GameBgmId id)
     {
         if (Instance != null) Instance._bgmController.StopId(id);
@@ -93,6 +95,32 @@ public class SoundManager : MonoBehaviour
     private SoundVolumeController _volumeController;
     private SoundBgmController _bgmController;
     private SoundClipCache _clipCache;
+    private GameBgmId? _pendingBgmId;
+    private SoundHandle _pendingBgmSound;
+
+    // SoundManager survives scene changes, so the sound can finish before the BGM starts.
+    public static void PlayBgmAfterSound(GameSoundId soundId, GameBgmId bgmId)
+    {
+        SoundManager manager = Instance;
+        if (manager == null) return;
+
+        FadeOutBgm(0.35f);
+        GameSoundData.BgmEntry bgm = Data != null ? Data.GetBgm(bgmId) : null;
+        if (bgm != null)
+        {
+            Preload(bgm.IntroClip);
+            Preload(bgm.LoopClip);
+        }
+        manager._pendingBgmSound = Play(soundId);
+        manager._pendingBgmId = bgmId;
+    }
+
+    private void CancelPendingBgm()
+    {
+        _pendingBgmId = null;
+        _pendingBgmSound.Stop();
+        _pendingBgmSound = default;
+    }
 
     private void Awake()
     {
@@ -142,6 +170,12 @@ public class SoundManager : MonoBehaviour
     {
         _playback.Update();
         _bgmController.Update();
+        if (_pendingBgmId.HasValue && !_pendingBgmSound.IsPlaying)
+        {
+            GameBgmId bgmId = _pendingBgmId.Value;
+            _pendingBgmId = null;
+            PlayBgm(bgmId);
+        }
     }
 
     // 클립을 채널로 재생한다. 재생을 멈추거나 상태를 볼 수 있는 손잡이를 돌려준다.
@@ -182,6 +216,7 @@ public class SoundManager : MonoBehaviour
             return default;
         }
 
+        manager.CancelPendingBgm();
         return manager._bgmController.Play(clip, volume, fadeTime);
     }
 
@@ -200,6 +235,7 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
+        manager.CancelPendingBgm();
         manager._bgmController.FadeOut(fadeTime);
     }
 
