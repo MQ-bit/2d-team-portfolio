@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangedEnemyController : MonoBehaviour
+public class RangedEnemyController : MonoBehaviour, IPoolMember
 {
     private enum State
     {
@@ -102,7 +102,7 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         _state = State.Dead;
-        Destroy(gameObject);
+        Release();
     }
 
     private void FixedUpdate()
@@ -286,4 +286,45 @@ public class RangedEnemyController : MonoBehaviour
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(transform.position, _data.ChaseResumeRange);
     }
+
+    public void OnSpawned()
+    {
+        ResetState();
+    }
+
+    public void OnDespawned()
+    {
+        ResetState();
+    }
+
+    private void ResetState()
+    {
+        _state = State.Idle;
+        _target = null;
+        _attackTimer = 0f;
+        _fireTimer = 0f;
+        _isFiring = false;
+        _isAttackFacingLeft = false;
+
+        if (_status != null && _data != null)
+        {
+            _status.Initialize(_data.MaxHealth, _data.MoveSpeed);
+        }
+    }
+
+
+    /// <summary>
+    /// 풀에서 반환되거나, 풀에 속하지 않은 경우에는 그냥 파괴한다.
+    /// </summary>
+    private void Release()
+    {
+        if (TryGetComponent(out PoolMember member) && member.IsRented)
+        {
+            member.ReturnToPool();
+            return;
+        }
+
+        Destroy(gameObject);
+    }
+
 }
