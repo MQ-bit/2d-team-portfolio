@@ -68,8 +68,7 @@ public class SoundManager : MonoBehaviour
         if (id == GameBgmId.InGame)
         {
             GameSoundData.BgmEntry[] tracks = manager._soundData.GetBgmTracks(id);
-            foreach (GameSoundData.BgmEntry track in tracks)
-                Preload(track.LoopClip != null ? track.LoopClip : track.IntroClip);
+            // 인게임 곡은 스트리밍으로 재생하므로 시작 시 전체 목록을 로딩하지 않는다.
             return manager._bgmController.PlayShuffled(tracks);
         }
         GameSoundData.BgmEntry entry = manager._soundData.GetBgm(id);

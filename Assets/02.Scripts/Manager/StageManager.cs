@@ -280,6 +280,8 @@ public class StageManager : MonoBehaviour
 
     private void HandleRoomEntered(GeneratedRoomNode node)
     {
+        // 방 진입으로 출입구가 닫히고 전투가 시작될 때 재생한다.
+        SoundManager.Play(GameSoundId.RoomPortal);
         RoomEntered?.Invoke(node);
     }
 
