@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 // 하나의 AudioSource에 대한 재생 상태, 개별 페이드, 종료 구간을 관리한다.
-internal sealed class SingleSoundController
+internal sealed class SoundVoice
 {
     public AudioSource Source { get; }
     public int Id { get; private set; }
@@ -22,7 +22,7 @@ internal sealed class SingleSoundController
     private int _repeatsRemaining = 1;
     private float _repeatStartOffset;
 
-    public SingleSoundController(AudioSource source)
+    public SoundVoice(AudioSource source)
     {
         Source = source;
     }
@@ -184,32 +184,32 @@ internal sealed class SingleSoundController
 // 재생 중인 소리 하나를 가리키는 손잡이. 보이스가 재사용되면 이전 핸들은 무효가 된다.
 public readonly struct SoundHandle
 {
-    private readonly SingleSoundController _controller;
+    private readonly SoundVoice _voice;
     private readonly int _id;
 
-    internal SoundHandle(SingleSoundController controller)
+    internal SoundHandle(SoundVoice voice)
     {
-        _controller = controller;
-        _id = controller.Id;
+        _voice = voice;
+        _id = voice.Id;
     }
 
     // Pause 중에도 핸들은 유효하다. Stop/FadeOut으로 정리할 수 있다.
-    public bool IsPlaying => _controller != null && _controller.Id == _id && _controller.Active;
-    public bool IsPaused => IsPlaying && _controller.Paused;
+    public bool IsPlaying => _voice != null && _voice.Id == _id && _voice.Active;
+    public bool IsPaused => IsPlaying && _voice.Paused;
 
     // 재생 위치(초). 재생 중이 아니면 0.
-    public float Time => IsPlaying ? _controller.Source.time : 0f;
+    public float Time => IsPlaying ? _voice.Source.time : 0f;
 
     public void SetRepeatCount(int count)
     {
-        if (IsPlaying) _controller.SetRepeatCount(count);
+        if (IsPlaying) _voice.SetRepeatCount(count);
     }
 
     public void Stop()
     {
         if (IsPlaying)
         {
-            _controller.Release();
+            _voice.Release();
         }
     }
 
@@ -218,7 +218,7 @@ public readonly struct SoundHandle
     {
         if (IsPlaying)
         {
-            _controller.StartFade(0f, fadeTime, true);
+            _voice.StartFade(0f, fadeTime, true);
         }
     }
 
@@ -227,7 +227,7 @@ public readonly struct SoundHandle
     {
         if (IsPlaying)
         {
-            _controller.StartFade(targetVolume, fadeTime, false);
+            _voice.StartFade(targetVolume, fadeTime, false);
         }
     }
 }

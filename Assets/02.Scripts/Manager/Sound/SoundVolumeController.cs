@@ -8,6 +8,9 @@ internal sealed class SoundVolumeController
     private const string MasterVolumeParameter = "MasterVolume";
     private const string BgmVolumeParameter = "BgmVolume";
     private const string SfxVolumeParameter = "SfxVolume";
+    private const string MasterVolumeSaveKey = "Sound.MasterVolume";
+    private const string BgmVolumeSaveKey = "Sound.BgmVolume";
+    private const string SfxVolumeSaveKey = "Sound.SfxVolume";
     private const float MinDecibel = -80f;
 
     private readonly AudioMixer _mixer;
@@ -21,6 +24,10 @@ internal sealed class SoundVolumeController
 
     public SoundVolumeController(AudioMixer mixer)
     {
+        _masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeSaveKey, 1f));
+        _bgmVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(BgmVolumeSaveKey, 1f));
+        _sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SfxVolumeSaveKey, 1f));
+
         _mixer = mixer;
         if (_mixer == null)
         {
@@ -31,7 +38,7 @@ internal sealed class SoundVolumeController
             Debug.LogWarning($"Resources/{MixerResourcePath} AudioMixer를 찾을 수 없어 AudioSource 볼륨으로 대신 조절함.");
         }
 
-        ApplyMixerVolumes();
+        // 복원한 믹서 볼륨은 SoundManager.Start에서 적용한다.
     }
 
     // Bgm과 Sfx는 Master 바로 아래, 나머지 효과음 채널은 Sfx 아래에 있다.
@@ -61,7 +68,7 @@ internal sealed class SoundVolumeController
         return volume <= 0.0001f ? MinDecibel : Mathf.Log10(volume) * 20f;
     }
 
-    private void ApplyMixerVolumes()
+    public void ApplyMixerVolumes()
     {
         if (_mixer == null)
         {
@@ -83,17 +90,26 @@ internal sealed class SoundVolumeController
     {
         _masterVolume = Mathf.Clamp01(volume);
         ApplyMixerVolumes();
+        SaveVolume(MasterVolumeSaveKey, _masterVolume);
     }
 
     public void SetBgmVolume(float volume)
     {
         _bgmVolume = Mathf.Clamp01(volume);
         ApplyMixerVolumes();
+        SaveVolume(BgmVolumeSaveKey, _bgmVolume);
     }
 
     public void SetSfxVolume(float volume)
     {
         _sfxVolume = Mathf.Clamp01(volume);
         ApplyMixerVolumes();
+        SaveVolume(SfxVolumeSaveKey, _sfxVolume);
+    }
+
+    private static void SaveVolume(string key, float volume)
+    {
+        PlayerPrefs.SetFloat(key, volume);
+        PlayerPrefs.Save();
     }
 }
