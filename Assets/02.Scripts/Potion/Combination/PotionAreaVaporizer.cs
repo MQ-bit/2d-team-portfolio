@@ -5,6 +5,8 @@ using UnityEngine;
 internal sealed class PotionAreaVaporizer
 {
     private const float VaporizationMultiplier = 1.2f;
+    private const float ElementSoundTailVolumeScale = 0.8f;
+    private const float ElementSoundTailFadeTime = 0.8f;
     private readonly PotionAreaController _areaController;
     private readonly PotionAreaCombiner _combiner;
 
@@ -115,9 +117,11 @@ internal sealed class PotionAreaVaporizer
             PotionAreaCombiner partnerCombiner = partner.GetComponent<PotionAreaCombiner>();
             if (partnerCombiner != null) partnerCombiner.MarkVaporized();
             partner.AreaEffect.StopForVaporization();
+            partner.FadeOutLoopSound(ElementSoundTailFadeTime, ElementSoundTailVolumeScale);
             partner.Remove();
         }
         primary.AreaEffect.StopForVaporization();
+        primary.FadeOutLoopSound(ElementSoundTailFadeTime, ElementSoundTailVolumeScale);
         primary.Remove();
 
         foreach (IPotionEffectTarget target in targets)

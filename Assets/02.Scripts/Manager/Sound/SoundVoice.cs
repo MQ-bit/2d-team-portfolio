@@ -139,6 +139,13 @@ internal sealed class SoundVoice
         _fading = true;
     }
 
+    public void FadeOutScaled(float fadeTime, float volumeScale)
+    {
+        // 현재 혼합 음량과 재생 위치를 유지한 채 잔향의 크기만 줄인다.
+        _fadeValue *= Mathf.Clamp01(volumeScale);
+        StartFade(0f, fadeTime, true);
+    }
+
     public void Release()
     {
         if (Source != null)
@@ -219,6 +226,15 @@ public readonly struct SoundHandle
         if (IsPlaying)
         {
             _voice.StartFade(0f, fadeTime, true);
+        }
+    }
+
+    // 현재 음량을 volumeScale배로 낮춘 뒤 페이드아웃한다.
+    public void FadeOut(float fadeTime, float volumeScale)
+    {
+        if (IsPlaying)
+        {
+            _voice.FadeOutScaled(fadeTime, volumeScale);
         }
     }
 

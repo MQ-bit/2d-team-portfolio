@@ -3,6 +3,10 @@ using UnityEngine;
 
 public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
+    private const float EarlierSoundVolumeRatio = 0.4f;
+    private const float LaterSoundVolumeRatio = 0.6f;
+    private const float CombinationSoundFadeTime = 0.3f;
+
     [SerializeField] private PotionCombinationDatabase _database;
     [SerializeField] private PotionCombinedAreaShape _combinedAreaShape;
 
@@ -155,9 +159,11 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             templateProfile.LifeStealRatio, expiresAt, _combinedAreaShape.CombinationCollider);
         _areaController.SetExpiration(expiresAt);
         other.SetExpiration(expiresAt);
-        // 합쳐진 장판에서는 나중에 던져진 포션의 소리만 남긴다.
+        // 두 장판음을 유지하고, 먼저 던진 포션 40% / 나중 포션 60%로 부드럽게 섞는다.
         PotionAreaController earlier = _areaController.ActivationOrder < other.ActivationOrder ? _areaController : other;
-        earlier.StopLoopSound();
+        PotionAreaController later = earlier == _areaController ? other : _areaController;
+        earlier.FadeLoopSoundTo(EarlierSoundVolumeRatio, CombinationSoundFadeTime);
+        later.FadeLoopSoundTo(LaterSoundVolumeRatio, CombinationSoundFadeTime);
         return true;
     }
 

@@ -24,6 +24,8 @@ public enum SoundChannel
 // Pause:  SoundManager.SetPaused(true); SoundManager.SetPaused(false);
 // 볼륨:   SoundManager.SetMasterVolume(v); SoundManager.SetBgmVolume(v); SoundManager.SetSfxVolume(v); // 0~1
 // 개별 제어: 반환된 SoundHandle로 Stop/FadeOut/FadeTo 및 재생 상태 확인.
+// 다른 컴포넌트의 Awake에서 사운드를 요청하기 전에 초기화한다.
+[DefaultExecutionOrder(-1000)]
 public class SoundManager : MonoBehaviour
 {
     private static SoundManager _instance;

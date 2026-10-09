@@ -137,7 +137,7 @@ MonoBehaviour:
   - _id: 7
     _clip: {fileID: 8300000, guid: 2e1b05fe61c7f914b8fd7fd18c6d900e, type: 3}
     _channel: 3
-    _volume: 1
+    _volume: 0.5
     _gain: 1
     _startOffset: 0
     _endTime: 1
@@ -150,7 +150,7 @@ MonoBehaviour:
     _clip: {fileID: 8300000, guid: 463954fb15af1bd40808a619112f31a3, type: 3}
     _channel: 3
     _volume: 1
-    _gain: 8
+    _gain: 5
     _startOffset: 0
     _endTime: 0.8
     _fadeOutTime: 0
@@ -161,7 +161,7 @@ MonoBehaviour:
   - _id: 9
     _clip: {fileID: 8300000, guid: bb9c3697bdd249e43bd7cd74ad58f28f, type: 3}
     _channel: 3
-    _volume: 1
+    _volume: 0.7
     _gain: 10
     _startOffset: 0.04
     _endTime: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   - _id: 16
     _clip: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
     _channel: 1
-    _volume: 1
+    _volume: 0.7
     _gain: 1
     _startOffset: 0
     _endTime: 0
@@ -332,13 +332,13 @@ MonoBehaviour:
   - _id: 24
     _clip: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
     _channel: 4
-    _volume: 1
+    _volume: 0.7
     _gain: 1
     _startOffset: 0
     _endTime: 0
     _fadeOutTime: 0
     _loop: 0
-    _repeatCount: 2
+    _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
   _interaction:

@@ -13,7 +13,8 @@ public enum GameSoundId
     EnemyExplosion = 16, EnemyAttack,
     FireArea, PoisonArea, FrostArea, LifeArea, LightningArea, VaporizationArea,
     VaporizationReaction,
-    PotionBoxOpen = 26
+    PotionBoxOpen = 26,
+    PotionCombination = 27
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]

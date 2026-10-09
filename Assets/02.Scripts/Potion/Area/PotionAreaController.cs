@@ -5,6 +5,7 @@ public class PotionAreaController : MonoBehaviour
 {
     private const float GroundHeightRatio = 0.5f;
     private const int EllipseSegments = 128;
+    private const float VaporizationSoundFadeOutTime = 0.3f;
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
 
@@ -225,16 +226,40 @@ public class PotionAreaController : MonoBehaviour
         }
     }
 
-    // 장판이 있는 동안 포션의 소리를 반복 재생한다. 장판 오브젝트가 사라지면 같이 멈춘다.
+    // 장판이 있는 동안 반복 재생하며, 증기 대기음은 종료 시 짧게 페이드아웃한다.
     private void PlayLoopSound()
     {
         _loopSound.Stop();
         _loopSound = SoundManager.Play(GameSoundData.GetAreaSoundId(Data.Element));
     }
 
+    // 각 클립의 원래 재생 음량에 대한 비율로 장판음을 조절한다.
+    internal void FadeLoopSoundTo(float volumeRatio, float fadeTime)
+    {
+        _loopSound.FadeTo(volumeRatio, fadeTime);
+    }
+
+    internal void FadeOutLoopSound(float fadeTime, float volumeScale)
+    {
+        _loopSound.FadeOut(fadeTime, volumeScale);
+        // 장판 제거 시 OnDisable이 잔향을 즉시 정지하지 않도록 소유권을 놓는다.
+        _loopSound = default;
+    }
+
     internal void StopLoopSound()
     {
-        _loopSound.Stop();
+        if (Data != null && Data.Element == PotionElement.Vaporization)
+        {
+            // 장판이 사라져도 매니저가 남은 페이드를 처리한다.
+            _loopSound.FadeOut(VaporizationSoundFadeOutTime);
+        }
+        else
+        {
+            _loopSound.Stop();
+        }
+
+        // 조합 처리와 OnDisable에서 중복 호출해도 페이드를 다시 시작하지 않는다.
+        _loopSound = default;
     }
 
     private void OnDisable()
