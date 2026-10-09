@@ -85,6 +85,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         {
             transform.position = _originalPosition;
         }
+        if( _trailRenderer != null)
+        {
+            _trailRenderer.enabled = false;
+        }
 
         _isCollecting = false;
         SetCollidersEnabled(true);
@@ -227,7 +231,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
     private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionItem potionItem)
     {
-        _trailRenderer.enabled = true;
+        if(_trailRenderer != null)
+        {
+            _trailRenderer.enabled = true;
+        }
 
         yield return FlyToPlayer(collectTarget);
 
@@ -242,7 +249,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
             _collectionRoutine = null;
             _isBeingDestroyed = true;
 
-            Instantiate(_touchedParticlePrefab, transform.position, Quaternion.identity);
+            if(_touchedParticlePrefab != null)
+            {
+                Instantiate(_touchedParticlePrefab, transform.position, Quaternion.identity);
+            }
             Destroy(gameObject); // TODO : 풀링 적용 시 SetActive(false)로 변경
         }
         else
@@ -348,6 +358,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
         _collectionRoutine = null;
         _isCollecting = false;
+        _trailRenderer.enabled = false;
 
         SetCollidersEnabled(true);
     }
