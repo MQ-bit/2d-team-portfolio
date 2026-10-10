@@ -87,11 +87,11 @@ public class SpawnManager : MonoBehaviour
 
         GameObject instance = Spawn(request.Prefab.gameObject, spawnPoint.position, spawnPoint.rotation);
 
-        if(instance == null)
+        if (instance == null)
         {
             return false;
         }
-        if(parent != null)
+        if (parent != null)
         {
             instance.transform.SetParent(parent, true);
         }
@@ -107,9 +107,9 @@ public class SpawnManager : MonoBehaviour
 
     private void InitializePools()
     {
-        foreach(GameObject prefab in _monsterPrefabs)
+        foreach (GameObject prefab in _monsterPrefabs)
         {
-            if(prefab == null)
+            if (prefab == null)
             {
                 Debug.LogWarning($"{name}: null 몬스터 Prefab({prefab.name})이 등록되어있습니다.");
                 continue;
@@ -132,7 +132,7 @@ public class SpawnManager : MonoBehaviour
 
     public GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        if(prefab == null || !_pools.TryGetValue(prefab, out IPoolSource<GameObject> pool))
+        if (prefab == null || !_pools.TryGetValue(prefab, out IPoolSource<GameObject> pool))
         {
             Debug.LogWarning($"{name}: {prefab?.name}에 대한 풀을 찾을 수 없습니다.");
             return null;

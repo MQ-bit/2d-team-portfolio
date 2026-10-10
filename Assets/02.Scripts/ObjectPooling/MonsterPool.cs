@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject> 
+public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
 {
     private readonly Stack<GameObject> _inactive = new Stack<GameObject>();
 
@@ -13,9 +13,9 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
 
     public int InactiveCount => _inactive.Count;
 
-    public void Initialize(GameObject prefab, int initialSize, Transform activeRoot) 
+    public void Initialize(GameObject prefab, int initialSize, Transform activeRoot)
     {
-        if (_initialized) 
+        if (_initialized)
         {
 
             throw new InvalidOperationException($"{name} 풀이 이미 초기화되었습니다.");
@@ -23,8 +23,8 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         if (prefab == null)
         {
             throw new ArgumentNullException(nameof(prefab));
-        } 
-        
+        }
+
 
         _initialized = true;
         _prefab = prefab;
@@ -40,17 +40,17 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         Prewarm(Mathf.Max(0, initialSize));
     }
 
-    public void Prewarm(int count) 
+    public void Prewarm(int count)
     {
         EnsureInitialized();
-        
+
         while (_inactive.Count < count)
         {
             _inactive.Push(CreateInstance());
-        }     
+        }
     }
 
-    public GameObject Rent(Vector3 position, Quaternion rotation) 
+    public GameObject Rent(Vector3 position, Quaternion rotation)
     {
         EnsureInitialized();
 
@@ -59,8 +59,8 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         {
             instance = _inactive.Pop();
         }
-        
-        if (instance == null) 
+
+        if (instance == null)
         {
             instance = CreateInstance();
         }
@@ -74,12 +74,12 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         return instance;
     }
 
-    public void Return(GameObject instance) 
+    public void Return(GameObject instance)
     {
         if (instance == null) return;
 
         PoolMember member = instance.GetComponent<PoolMember>();
-        if (member == null || !member.IsRented || !member.IsOwnedBy(this)) 
+        if (member == null || !member.IsRented || !member.IsOwnedBy(this))
         {
             Debug.LogWarning($"{instance.name} : {name}으로 돌려보낼 수 없습니다.");
             return;
@@ -92,7 +92,7 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         _inactive.Push(instance);
     }
 
-    private GameObject CreateInstance() 
+    private GameObject CreateInstance()
     {
         GameObject instance = Instantiate(_prefab, _inactiveRoot);
         instance.name = _prefab.name;
@@ -110,11 +110,11 @@ public sealed class MonsterPool : MonoBehaviour, IPoolSource<GameObject>
         return instance;
     }
 
-    private void EnsureInitialized() 
+    private void EnsureInitialized()
     {
         if (!_initialized)
         {
-            throw new InvalidOperationException($"{name} 풀이 초기화되지 않았습니다. Initialize()를 먼저 호출해야 합니다.");  
-        } 
+            throw new InvalidOperationException($"{name} 풀이 초기화되지 않았습니다. Initialize()를 먼저 호출해야 합니다.");
+        }
     }
 }

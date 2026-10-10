@@ -19,7 +19,8 @@ public enum GameSoundId
     Tomb = 29,
     ScoreCount = 30,
     ReturnToTitle = 31,
-    GameExit = 32
+    GameExit = 32,
+    PlayerFootstepB = 33
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]

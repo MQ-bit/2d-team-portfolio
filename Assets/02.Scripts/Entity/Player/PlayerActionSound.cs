@@ -2,7 +2,7 @@ using UnityEngine;
 
 // 플레이어 행동 소리: 근접 공격을 휘두르면(PlayerMeleeModule.OnAttackStarted) 적중 여부와 상관없이 휘두르는 소리를,
 // 대시(구르기)를 시작하면(PlayerMovementModule.OnDashStarted) 구르는 소리를 한 번 낸다.
-// 걷는 동안에는(PlayerAnimationDriver.IsWalking) 발소리를 일정 간격으로 반복한다.
+// 걷는 동안에는(PlayerAnimationDriver.IsWalking) A/B 발소리를 일정 간격으로 번갈아 재생한다.
 // 포션을 획득하면(PlayerInventoryModule.OnItemTaken) 획득 소리를 한 번 낸다.
 // 포션을 마시기 시작하면(PlayerDrinkingModule.OnDrinkStateChanged) 마시는 소리를 내고, 도중에 취소하면 끊는다.
 public class PlayerActionSound : MonoBehaviour
@@ -17,6 +17,7 @@ public class PlayerActionSound : MonoBehaviour
 
     private SoundHandle _drinkHandle;
     private float _nextFootstepTime;
+    private bool _playFootstepB;
 
     private void Awake()
     {
@@ -47,7 +48,7 @@ public class PlayerActionSound : MonoBehaviour
 
         foreach (GameSoundId id in new[] { GameSoundId.PlayerSwing, GameSoundId.PlayerMeleeHit,
             GameSoundId.PlayerDash, GameSoundId.PlayerPickup, GameSoundId.PlayerDrink, GameSoundId.PlayerFootstep,
-            GameSoundId.PlayerDeath })
+            GameSoundId.PlayerFootstepB, GameSoundId.PlayerDeath })
         {
             SoundManager.Preload(id);
         }
@@ -80,6 +81,8 @@ public class PlayerActionSound : MonoBehaviour
 
     private void OnDisable()
     {
+        _nextFootstepTime = 0f;
+        _playFootstepB = false;
         if (_status != null)
         {
             _status.OnDeath -= HandleDeath;
@@ -111,15 +114,16 @@ public class PlayerActionSound : MonoBehaviour
     private void UpdateFootstep()
     {
         if (_status != null && _status.IsDead) return;
-        if (SoundManager.GetSound(GameSoundId.PlayerFootstep)?.Clip == null || _animationDriver == null)
+        if (_animationDriver == null)
         {
             return;
         }
 
         if (!_animationDriver.IsWalking)
         {
-            // 다시 걷기 시작하면 첫 발소리가 바로 나게 한다.
+            // 다시 걷기 시작하면 A 발소리부터 바로 재생한다.
             _nextFootstepTime = 0f;
+            _playFootstepB = false;
             return;
         }
 
@@ -128,8 +132,13 @@ public class PlayerActionSound : MonoBehaviour
             return;
         }
 
-        _nextFootstepTime = Time.time + Mathf.Max(0.05f, SoundManager.GetSound(GameSoundId.PlayerFootstep).Interval);
-        SoundManager.Play(GameSoundId.PlayerFootstep);
+        GameSoundId footstepId = _playFootstepB ? GameSoundId.PlayerFootstepB : GameSoundId.PlayerFootstep;
+        GameSoundData.Entry footstep = SoundManager.GetSound(footstepId);
+        if (footstep?.Clip == null) return;
+
+        _nextFootstepTime = Time.time + Mathf.Max(0.05f, footstep.Interval);
+        footstep.Play();
+        _playFootstepB = !_playFootstepB;
     }
 
     private void HandleDeath()

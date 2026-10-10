@@ -1,4 +1,4 @@
-public interface IPoolMember 
+public interface IPoolMember
 {
     void OnSpawned();
     void OnDespawned();

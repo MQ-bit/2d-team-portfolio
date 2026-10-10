@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IPoolSource<T> 
+public interface IPoolSource<T>
 {
     int InactiveCount { get; }
     void Prewarm(int count);
