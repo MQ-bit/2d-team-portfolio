@@ -48,7 +48,8 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
+        if (_data != null) _status.Initialize(_data);
+        else _status.Initialize(100f, 2.5f);
     }
 
     private void GetModules()
@@ -308,7 +309,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
 
         if (_status != null && _data != null)
         {
-            _status.Initialize(_data.MaxHealth, _data.MoveSpeed);
+            _status.Initialize(_data);
         }
     }
 

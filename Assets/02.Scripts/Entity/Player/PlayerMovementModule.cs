@@ -17,6 +17,7 @@ public class PlayerMovementModule : MonoBehaviour
     private bool _isDashing;
     private float _nextDashAvailableTime;
     private readonly WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
+    private EntityBodyCollision _bodyCollision;
 
     public bool IsDashing => _isDashing;
     public float DashDuration => _dashDuration; // 구르기 애니메이션 길이를 대시 시간에 맞추는 용도
@@ -38,10 +39,12 @@ public class PlayerMovementModule : MonoBehaviour
         {
             _rigid = GetComponent<Rigidbody2D>();
         }
+        _bodyCollision = new EntityBodyCollision(_rigid, true);
     }
 
     private void OnEnable()
     {
+        _bodyCollision.Register();
         if (_playerStatus != null)
         {
             _playerStatus.OnDeath += HandleDeath;
@@ -50,12 +53,15 @@ public class PlayerMovementModule : MonoBehaviour
 
     private void OnDisable()
     {
+        _bodyCollision.Unregister();
         if (_playerStatus != null)
         {
             _playerStatus.OnDeath -= HandleDeath;
         }
         CancelDash();
     }
+
+    private void FixedUpdate() => _bodyCollision.UpdateContactDamage();
 
     public void MovePosition(Vector2 moveInput)
     {
@@ -65,7 +71,7 @@ public class PlayerMovementModule : MonoBehaviour
         }
 
         Vector2 movement = moveInput * _playerStatus.Speed * Time.fixedDeltaTime;
-        _rigid.MovePosition(_rigid.position + movement);
+        _bodyCollision.MoveTo(_rigid.position + movement);
     }
 
     public bool TryStartDash(Vector2 moveInput)
@@ -95,7 +101,7 @@ public class PlayerMovementModule : MonoBehaviour
             float stepTime = Mathf.Min(Time.fixedDeltaTime, dashRemainingTime);
             Vector2 movement = direction * _playerStatus.DashSpeed * stepTime;
 
-            _rigid.MovePosition(_rigid.position + movement);
+            _bodyCollision.MoveTo(_rigid.position + movement);
             dashRemainingTime -= stepTime;
         }
 

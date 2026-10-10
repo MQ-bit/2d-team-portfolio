@@ -20,7 +20,9 @@ public enum GameSoundId
     ScoreCount = 30,
     ReturnToTitle = 31,
     GameExit = 32,
-    PlayerFootstepB = 33
+    PlayerFootstepB = 33,
+    PlayerHurtA = 34
+    // 35는 제거한 PlayerHurtB의 번호이므로 재사용하지 않는다.
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]
@@ -42,7 +44,7 @@ public sealed class GameSoundData : ScriptableObject
         [Tooltip("루프가 꺼져 있을 때 지정한 구간을 재생하는 횟수입니다. 1이면 한 번만 재생합니다.")]
         [SerializeField, Min(1)] private int _repeatCount = 1;
         [SerializeField, Min(0f)] private float _fadeInTime;
-        [Tooltip("호버·확인음의 최소 간격 또는 발소리 반복 간격. 타이머는 재생 담당 객체가 관리합니다.")]
+        [Tooltip("호버·확인음·피격음의 최소 간격 또는 발소리 반복 간격. 타이머는 재생 담당 객체가 관리합니다.")]
         [SerializeField, Min(0f)] private float _interval;
 
         public GameSoundId Id => _id;

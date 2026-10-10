@@ -5,6 +5,7 @@ using UnityEngine;
 // 걷는 동안에는(PlayerAnimationDriver.IsWalking) A/B 발소리를 일정 간격으로 번갈아 재생한다.
 // 포션을 획득하면(PlayerInventoryModule.OnItemTaken) 획득 소리를 한 번 낸다.
 // 포션을 마시기 시작하면(PlayerDrinkingModule.OnDrinkStateChanged) 마시는 소리를 내고, 도중에 취소하면 끊는다.
+// 실제 피해를 받으면(PlayerStatus.OnDamaged) 피격음 A를 재생한다.
 public class PlayerActionSound : MonoBehaviour
 {
     [Header("Component References")]
@@ -16,6 +17,8 @@ public class PlayerActionSound : MonoBehaviour
     [SerializeField] private PlayerAnimationDriver _animationDriver; // 걷는 애니메이션이 나오는 동안만 발소리를 내기 위함
 
     private SoundHandle _drinkHandle;
+    private SoundHandle _hurtHandle;
+    private float _nextHurtTime;
     private float _nextFootstepTime;
     private bool _playFootstepB;
 
@@ -48,7 +51,7 @@ public class PlayerActionSound : MonoBehaviour
 
         foreach (GameSoundId id in new[] { GameSoundId.PlayerSwing, GameSoundId.PlayerMeleeHit,
             GameSoundId.PlayerDash, GameSoundId.PlayerPickup, GameSoundId.PlayerDrink, GameSoundId.PlayerFootstep,
-            GameSoundId.PlayerFootstepB, GameSoundId.PlayerDeath })
+            GameSoundId.PlayerFootstepB, GameSoundId.PlayerDeath, GameSoundId.PlayerHurtA })
         {
             SoundManager.Preload(id);
         }
@@ -59,6 +62,7 @@ public class PlayerActionSound : MonoBehaviour
         if (_status != null)
         {
             _status.OnDeath += HandleDeath;
+            _status.OnDamaged += HandleDamaged;
         }
         if (_meleeModule != null)
         {
@@ -81,11 +85,15 @@ public class PlayerActionSound : MonoBehaviour
 
     private void OnDisable()
     {
+        _hurtHandle.Stop();
+        _hurtHandle = default;
+        _nextHurtTime = 0f;
         _nextFootstepTime = 0f;
         _playFootstepB = false;
         if (_status != null)
         {
             _status.OnDeath -= HandleDeath;
+            _status.OnDamaged -= HandleDamaged;
         }
         if (_meleeModule != null)
         {
@@ -139,6 +147,19 @@ public class PlayerActionSound : MonoBehaviour
         _nextFootstepTime = Time.time + Mathf.Max(0.05f, footstep.Interval);
         footstep.Play();
         _playFootstepB = !_playFootstepB;
+    }
+
+    private void HandleDamaged(float amount, Vector2 hitDirection)
+    {
+        // 치명타는 기존 사망음을 사용한다. 접촉 재피격 대기 중에는 OnDamaged가 발생하지 않는다.
+        if (amount <= 0f || (_status != null && _status.IsDead)) return;
+        // 피해 계산과 별개로 신음의 연속 재생과 중첩만 제한한다.
+        if (_hurtHandle.IsPlaying || Time.time < _nextHurtTime) return;
+        GameSoundData.Entry sound = SoundManager.GetSound(GameSoundId.PlayerHurtA);
+        if (sound?.Clip == null) return;
+        _hurtHandle = sound.Play();
+        if (_hurtHandle.IsPlaying)
+            _nextHurtTime = Time.time + sound.Interval;
     }
 
     private void HandleDeath()

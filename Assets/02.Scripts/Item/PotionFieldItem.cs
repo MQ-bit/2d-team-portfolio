@@ -52,8 +52,11 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     private void Awake()
     {
         _collider = GetComponentInChildren<Collider2D>();
+        // 기존 씬에 직접 배치된 포션도 획득만 감지하고 이동을 막지 않는다.
+        if (_collider != null) _collider.isTrigger = true;
         _renderer = GetComponentInChildren<SpriteRenderer>();
         _trailRenderer = GetComponentInChildren<TrailRenderer>();
+        SetAirborneSorting(false);
         _waitForReactivate = new WaitForSeconds(_reactivateDelay);
     }
     private void OnDisable()
@@ -91,6 +94,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         }
 
         _isCollecting = false;
+        SetAirborneSorting(false);
         SetCollidersEnabled(true);
     }
 
@@ -133,6 +137,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
 
         _dropTarget = target;
         _isDropping = true;
+        SetAirborneSorting(true);
         _wallCollision.Configure(_collider, transform, _dropWallLayers);
         SetCollidersEnabled(false);
         _dropRoutine = StartCoroutine(DropFlightCoroutine(Mathf.Max(0.01f, duration), Mathf.Max(0f, arcHeight)));
@@ -176,6 +181,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         // 충돌이 없더라도 포션 크기를 포함해 최종 착지점을 확인한다.
         if (!_wallCollision.IsPositionClear(_dropTarget)) _dropTarget = lastSafeGround;
         transform.position = _dropTarget;
+        SetAirborneSorting(false);
         // 착지 후에도 1초 동안 수집을 막는다.
         yield return new WaitForSeconds(1f);
 
@@ -231,6 +237,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     // CollectCoroutine, FlyToPlayer, DropNearPlayer 순서로 호출됨.
     private IEnumerator CollectCoroutine(IItemReceiver receiver, Transform collectTarget, float collectRadius, PotionItem potionItem)
     {
+        SetAirborneSorting(true);
         if (_trailRenderer != null)
         {
             _trailRenderer.enabled = true;
@@ -339,6 +346,7 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         }
 
         transform.position = dropEnd;
+        SetAirborneSorting(false);
         yield return _waitForReactivate; // 일정 시간 후에 다시 수집 가능하도록 대기
     }
 
@@ -360,7 +368,25 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
         _isCollecting = false;
         _trailRenderer.enabled = false;
 
+        SetAirborneSorting(false);
         SetCollidersEnabled(true);
+    }
+
+    private void SetAirborneSorting(bool isAirborne)
+    {
+        // 바닥에서는 적(Enitty, 0) 뒤에, 비행 중에는 플레이어(FieldObject, 0) 앞에 표시한다.
+        int layerID = SortingLayer.NameToID(isAirborne ? "FieldObject" : "Enitty");
+        int order = isAirborne ? 1 : -1;
+        if (_renderer != null)
+        {
+            _renderer.sortingLayerID = layerID;
+            _renderer.sortingOrder = order;
+        }
+        if (_trailRenderer != null)
+        {
+            _trailRenderer.sortingLayerID = layerID;
+            _trailRenderer.sortingOrder = order - 1;
+        }
     }
 
     private void SetCollidersEnabled(bool isEnabled)

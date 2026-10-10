@@ -12,6 +12,8 @@ public class EnemyStatus : MonoBehaviour, IDamageable
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
 
     private float _moveSpeed;
+    private float _contactDamage;
+    public float ContactDamage => _health != null && !_health.IsDead ? _contactDamage : 0f;
     public float CurrentHealth => _health.Current;
     public float MaxHealth => _health.Max;
     public bool IsDead => _health.IsDead;
@@ -38,11 +40,13 @@ public class EnemyStatus : MonoBehaviour, IDamageable
     public void Initialize(EnemyData data)
     {
         Initialize(data.MaxHealth, data.MoveSpeed);
+        _contactDamage = data.ContactDamage;
     }
     public void Initialize(float maxHealth, float moveSpeed)
     {
         _health = new EntityHealth(maxHealth, maxHealth);
         _moveSpeed = moveSpeed;
+        _contactDamage = 10f;
     }
 
 

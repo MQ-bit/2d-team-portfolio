@@ -9,10 +9,14 @@ public abstract class EnemyData : ScriptableObject
     [Header("Movement")]
     [SerializeField, Min(0f)] private float _moveSpeed = 2.5f;
 
+    [Header("Contact Damage")]
+    [SerializeField, Min(0f)] private float _contactDamage = 10f;
+
     [Header("Detection")]
     [SerializeField, Min(0f)] private float _detectRange = 6f;
 
     public float MaxHealth => _maxHealth;
     public float MoveSpeed => _moveSpeed;
+    public float ContactDamage => _contactDamage;
     public float DetectRange => _detectRange;
 }

@@ -11,6 +11,11 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     [SerializeField, Min(0f)] private float _initHealth = 100f;
     [SerializeField] private EntityHealth _healthInstance;
 
+    [Header("Contact Damage")]
+    [Tooltip("여러 적과 겹쳐도 이 간격으로만 접촉 피해를 받는다.")]
+    [SerializeField, Min(0.01f)] private float _contactDamageInterval = 0.5f;
+    private float _nextContactDamageTime = float.NegativeInfinity;
+
     [Header("Player Thirst Settings")] //TODO: 하나의 ScriptableObject로 두는게..?
     [SerializeField, Min(1f)] private float _initMaxThirst = 100f;
     [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
@@ -64,6 +69,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     {
         _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _initThirstIncreaseAmount, _initThirstIncreaseInterval);
         _healthInstance = new EntityHealth(_initHealth, _maxHealth);
+        _nextContactDamageTime = float.NegativeInfinity;
 
         CurrentThirstLevel = EvaluateThirstLevel(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
     }
@@ -85,6 +91,15 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     public void DecreaseHealth(float amount)
     {
         DecreaseHealth(amount, Vector2.zero);
+    }
+
+    public bool TryTakeContactDamage(float amount, Vector2 hitDirection)
+    {
+        if (amount <= 0f || IsDead || Time.time < _nextContactDamageTime) return false;
+        // 적별 타이머가 아닌 플레이어 공통 타이머로 다중 접촉 피해를 제한한다.
+        _nextContactDamageTime = Time.time + Mathf.Max(0.01f, _contactDamageInterval);
+        DecreaseHealth(amount, hitDirection);
+        return true;
     }
 
     public void DecreaseHealth(float amount, Vector2 hitDirection)
