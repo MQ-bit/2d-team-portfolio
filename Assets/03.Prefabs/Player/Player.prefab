@@ -879,7 +879,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55ce3920f027f724ca7559542677812d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
-  _icon: {fileID: 21300000, guid: 369ced1cec2bc7243a0d1dd51cb74bad, type: 3}
+  _icon: {fileID: 0}
   _color: {r: 1, g: 0.9372188, b: 0, a: 1}
   _markerSize: 10
   _renderPriority: 300
