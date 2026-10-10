@@ -12,12 +12,14 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
     [SerializeField, Min(1)] private int _minDropCount = 1;
     [SerializeField, Min(1)] private int _maxDropCount = 10;
     [SerializeField, Min(0f)] private float _dropRadius = 1f;
+
     [Header("Drop Animation")]
     [SerializeField, Min(0.01f)] private float _dropFlightDuration = 0.45f;
     [SerializeField, Min(0f)] private float _dropArcHeight = 0.5f;
 
     public Transform DropPoint => _dropPoint;
     private bool _isOpened;
+    public bool IsOpened => _isOpened;
     private static readonly int OpenTrigger = Animator.StringToHash("Open");
 
     private void Awake()
