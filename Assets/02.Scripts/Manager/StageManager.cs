@@ -33,7 +33,7 @@ public class StageManager : MonoBehaviour
     public StageState State => _encounterCoordinator != null ? _encounterCoordinator.State : StageState.Initializing;
 
     public event Action<GeneratedRoomNode> CombatRoomCleared;
-    public event Action<StageState> StateChanged;
+    public event Action<GeneratedStage> CurrentStageChanged;
     public event Action<GeneratedRoomNode> RoomEntered;
     public event Action<GeneratedRoomNode> RoomCleared;
 
@@ -137,22 +137,6 @@ public class StageManager : MonoBehaviour
         return true;
     }
 
-    public void TryEnterCombatRoom(GeneratedRoomNode node)
-    {
-        _encounterCoordinator?.TryEnterCombatRoom(node);
-    }
-
-    public bool TryGetRoomProgress(GeneratedRoomNode node, out RoomProgressState progress)
-    {
-        if (_encounterCoordinator != null)
-        {
-            return _encounterCoordinator.TryGetRoomProgress(node, out progress);
-        }
-
-        progress = RoomProgressState.Unvisited;
-        return false;
-    }
-
     private bool TryBindStage(GeneratedStage stage, out string error)
     {
         if (!TryFindPlayerSpawnPoint(stage, out Transform spawnPoint, out error))
@@ -171,9 +155,14 @@ public class StageManager : MonoBehaviour
         CurrentStage = stage;
         PlayerSpawnPoint = spawnPoint;
 
-        if (!_encounterCoordinator.TryBind(stage, out error)) return false;
+        if (!_encounterCoordinator.TryBind(stage, out error)||
+            !rewardGenerator.TrySpawnInitialRewards(stage, out error)) 
+        {
+            return false;
+        }
 
-        return rewardGenerator.TrySpawnInitialRewards(stage, out error);
+        CurrentStageChanged?.Invoke(stage);
+        return true;
     }
 
     private static bool TryFindPlayerSpawnPoint(GeneratedStage stage, out Transform spawnPoint, out string error)
@@ -243,6 +232,8 @@ public class StageManager : MonoBehaviour
 
         CurrentStage = null;
         PlayerSpawnPoint = null;
+
+        CurrentStageChanged?.Invoke(null);
     }
 
     private void SubscribeEncounterEvents()
@@ -254,7 +245,6 @@ public class StageManager : MonoBehaviour
 
         UnsubscribeEncounterEvents();
 
-        _encounterCoordinator.StateChanged += HandleStateChanged;
         _encounterCoordinator.RoomEntered += HandleRoomEntered;
         _encounterCoordinator.RoomCleared += HandleRoomCleared;
         _encounterCoordinator.CombatRoomCleared += HandleCombatRoomCleared;
@@ -267,15 +257,9 @@ public class StageManager : MonoBehaviour
             return;
         }
 
-        _encounterCoordinator.StateChanged -= HandleStateChanged;
         _encounterCoordinator.RoomEntered -= HandleRoomEntered;
         _encounterCoordinator.RoomCleared -= HandleRoomCleared;
         _encounterCoordinator.CombatRoomCleared -= HandleCombatRoomCleared;
-    }
-
-    private void HandleStateChanged(StageState state)
-    {
-        StateChanged?.Invoke(state);
     }
 
     private void HandleRoomEntered(GeneratedRoomNode node)
