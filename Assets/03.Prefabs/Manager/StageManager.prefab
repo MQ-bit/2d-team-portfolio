@@ -70,6 +70,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
   _enemySpawnPoints: []
+  _spawnPortalPrefab: {fileID: 8323107680524810300, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
+  _spawnPortalColor: {r: 1, g: 0.15, b: 0.15, a: 1}
+  _spawnPortalLifetime: 1.5
 --- !u!114 &7127352592370934398
 MonoBehaviour:
   m_ObjectHideFlags: 0
