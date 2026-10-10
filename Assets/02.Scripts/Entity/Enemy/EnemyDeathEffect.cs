@@ -52,6 +52,9 @@ public class EnemyDeathEffect : MonoBehaviour
         }
 
         GameObject effect = Instantiate(_effectPrefab, transform.position, Quaternion.identity);
+        // 적이 커졌으면 시체도 같은 비율로 키운다.
+        Vector3 scale = transform.lossyScale;
+        effect.transform.localScale = Vector3.Scale(effect.transform.localScale, new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), 1f));
         Destroy(effect, _effectLifetime); // TODO : 풀링 적용 시 반환으로 변경
     }
 }
