@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class MinimapPresenter : MonoBehaviour
+public class MinimapPresenter : MonoBehaviour
 {
+    private static readonly Comparison<MinimapMarkerViewData> MarkerComparison = CompareMarkers;
+
     [Header("View")]
     [SerializeField] private MinimapView _view;
 
@@ -19,7 +22,8 @@ public sealed class MinimapPresenter : MonoBehaviour
     private GeneratedStage _stage;
     private MinimapTerrainData _terrainData;
 
-    private readonly List<MinimapMarkerViewData> _markerBuffer = new(32);
+    private readonly List<MinimapMarker> _sourceBuffer = new List<MinimapMarker>(32);
+    private readonly List<MinimapMarkerViewData> _markerBuffer = new List<MinimapMarkerViewData>(32);
 
     private void Awake()
     {
@@ -37,7 +41,7 @@ public sealed class MinimapPresenter : MonoBehaviour
 
     private void OnEnable()
     {
-        ResolveDependencies();
+        CheckReferences();
         RefreshStageManagerSubscription();
 
         BindStage(_stageManager != null ? _stageManager.CurrentStage : null);
@@ -54,9 +58,14 @@ public sealed class MinimapPresenter : MonoBehaviour
         DisposeTerrainData();
     }
 
+    private void OnValidate()
+    {
+        _viewWorldSize = Mathf.Max(1f, _viewWorldSize);
+    }
+
     private void LateUpdate()
     {
-        ResolveDependencies();
+        CheckReferences();
         RefreshStageManagerSubscription();
 
         GeneratedStage currentStage = _stageManager != null ? _stageManager.CurrentStage : null;
@@ -66,19 +75,18 @@ public sealed class MinimapPresenter : MonoBehaviour
             BindStage(currentStage);
         }
 
-        if (_stage == null || _player == null || _terrainData == null)
+        if (_stage == null || _stage.Root == null ||
+            _player == null || _terrainData == null)
         {
-            _view.SetPlayerVisible(false);
+            RenderNoMarkers();
             return;
         }
-
-        _view.SetPlayerVisible(true);
 
         UpdateTerrainWindow();
         UpdateMarkers();
     }
 
-    private void ResolveDependencies()
+    private void CheckReferences()
     {
         if (_stageManager == null)
         {
@@ -135,6 +143,7 @@ public sealed class MinimapPresenter : MonoBehaviour
         DisposeTerrainData();
 
         _stage = stage;
+        _sourceBuffer.Clear();
         _markerBuffer.Clear();
         _view.Clear();
 
@@ -143,29 +152,33 @@ public sealed class MinimapPresenter : MonoBehaviour
             return;
         }
 
-        bool built = MinimapTerrainRasterizer.TryBuild(_stage, _viewWorldSize, (Color32)_groundColor, (Color32)_wallColor, out _terrainData);
+        bool builtResult = MinimapTerrainRasterizer.TryBuild(_stage, _viewWorldSize, (Color32)_groundColor, (Color32)_wallColor, out _terrainData);
 
-        if (!built)
+        if (!builtResult)
         {
             Debug.LogError($"{nameof(MinimapPresenter)}: 미니맵 지형 생성에 실패했습니다.");
             return;
         }
 
         _view.SetTerrain(_terrainData.Texture);
-        _view.SetPlayerVisible(_player != null);
     }
 
     private void UpdateTerrainWindow()
     {
         Vector3 playerPosition = _player.transform.position;
-
         float halfView = _viewWorldSize * 0.5f;
 
         float textureX = playerPosition.x - halfView - _terrainData.MinCell.x;
         float textureY = playerPosition.y - halfView - _terrainData.MinCell.y;
 
         Texture2D texture = _terrainData.Texture;
-        Rect uvRect = new(textureX / texture.width, textureY / texture.height, _viewWorldSize / texture.width, _viewWorldSize / texture.height);
+
+        float uvX = textureX / texture.width;
+        float uvY = textureY / texture.height;
+        float uvWidth = _viewWorldSize / texture.width;
+        float uvHeight = _viewWorldSize / texture.height;   
+
+        Rect uvRect = new(uvX, uvY, uvWidth, uvHeight);
 
         _view.SetTerrainWindow(uvRect);
     }
@@ -176,93 +189,43 @@ public sealed class MinimapPresenter : MonoBehaviour
 
         Vector2 markerAreaSize = _view.MarkerAreaSize;
 
-        if (markerAreaSize.x <= 0f || markerAreaSize.y <= 0f)
+        if (markerAreaSize.x <= 0f || markerAreaSize.y <= 0f) // 마커 영역이 유효하지 않으면 마커를 렌더링하지 않음.
         {
             _view.RenderMarkers(_markerBuffer);
             return;
         }
 
-        // 호출 순서가 기본 렌더링 우선순위.
-        CollectRewardBoxMarkers(markerAreaSize);
-        CollectPortalMarkers(markerAreaSize);
-        CollectEnemyMarkers(markerAreaSize);
+        MinimapMarkerRegistry.CopyActiveMarkersTo(_sourceBuffer);
 
+        foreach (MinimapMarker marker in _sourceBuffer)
+        {
+            TryAddMarker(marker, markerAreaSize);
+        }
+
+        _markerBuffer.Sort(MarkerComparison);
         _view.RenderMarkers(_markerBuffer);
     }
 
-    private void CollectRewardBoxMarkers(Vector2 markerAreaSize)
+    private void TryAddMarker(MinimapMarker marker, Vector2 markerAreaSize)
     {
-        Transform root = _stage.TransientsRoot;
-
-        if (root == null)
+        if (marker == null || !marker.IsVisible)
         {
             return;
         }
 
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform target = root.GetChild(i);
+        bool isPlayerMarker = IsPlayerMarker(marker);
+        bool isStageMarker = IsCurrentStageMarker(marker);
 
-            if (!target.gameObject.activeInHierarchy ||
-                !target.TryGetComponent(out InteractablePotionBox box) ||
-                box.IsOpened)
-            {
-                continue;
-            }
-
-            TryAddMarker(target, MinimapMarkerType.RewardBox, markerAreaSize);
-        }
-    }
-
-    private void CollectPortalMarkers(Vector2 markerAreaSize)
-    {
-        Transform root = _stage.PortalRoot;
-
-        if (root == null)
+        if (!isPlayerMarker && !isStageMarker)
         {
             return;
         }
 
-        for (int i = 0; i < root.childCount; i++)
+        Vector2 delta = Vector2.zero;
+        if (!isPlayerMarker)
         {
-            Transform target = root.GetChild(i);
-
-            if (!target.gameObject.activeInHierarchy ||
-                !target.TryGetComponent(out InteractablePortal _))
-            {
-                continue;
-            }
-
-            TryAddMarker(target, MinimapMarkerType.Portal, markerAreaSize);
+            delta = (Vector2)(marker.WorldPosition - _player.transform.position);
         }
-    }
-
-    private void CollectEnemyMarkers(Vector2 markerAreaSize)
-    {
-        Transform root = _stage.EnemiesRoot;
-
-        if (root == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform target = root.GetChild(i);
-
-            if (!target.gameObject.activeInHierarchy ||
-                !target.TryGetComponent(out WaveEnemyHandle _))
-            {
-                continue;
-            }
-
-            TryAddMarker(target, MinimapMarkerType.Enemy, markerAreaSize);
-        }
-    }
-
-    private void TryAddMarker(Transform target, MinimapMarkerType markerType, Vector2 markerAreaSize)
-    {
-        Vector2 delta = target.position - _player.transform.position;
 
         float halfView = _viewWorldSize * 0.5f;
 
@@ -274,8 +237,41 @@ public sealed class MinimapPresenter : MonoBehaviour
         }
 
         Vector2 anchoredPosition = new(delta.x / _viewWorldSize * markerAreaSize.x, delta.y / _viewWorldSize * markerAreaSize.y);
+ 
+        _markerBuffer.Add(new MinimapMarkerViewData(marker.Id, anchoredPosition, marker.Icon, marker.Color, marker.Size, marker.RenderPriority));
+    }
 
-        _markerBuffer.Add(new MinimapMarkerViewData(target.gameObject.GetInstanceID(), markerType, anchoredPosition));
+    private bool IsPlayerMarker(MinimapMarker marker)
+    {
+        Transform markerTransform = marker.transform;
+        Transform playerTransform = _player.transform;
+
+        return markerTransform == playerTransform || markerTransform.IsChildOf(playerTransform);
+    }
+
+    private bool IsCurrentStageMarker(MinimapMarker marker)
+    {
+        return _stage?.Root != null && marker.transform.IsChildOf( _stage.Root.transform);
+    }
+
+    private void RenderNoMarkers()
+    {
+        _sourceBuffer.Clear();
+        _markerBuffer.Clear();
+
+        _view.RenderMarkers(_markerBuffer);
+    }
+
+    private static int CompareMarkers(MinimapMarkerViewData left, MinimapMarkerViewData right)
+    {
+        int priorityComparison = left.RenderPriority.CompareTo(right.RenderPriority);
+
+        if (priorityComparison != 0)
+        {
+            return priorityComparison;
+        }
+
+        return left.Id.CompareTo(right.Id);
     }
 
     private void DisposeTerrainData()

@@ -2,42 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class MinimapView : MonoBehaviour
+public class MinimapView : MonoBehaviour
 {
-    private sealed class MarkerEntry
-    {
-        public Image Image { get; }
-        public MinimapMarkerType Type { get; set; }
-
-        public MarkerEntry(Image image, MinimapMarkerType type)
-        {
-            Image = image;
-            Type = type;
-        }
-    }
-
     [Header("UI")]
     [SerializeField] private RawImage _terrainImage;
     [SerializeField] private RectTransform _markerLayer;
-    [SerializeField] private Image _playerMarker;
 
-    [Header("Icons")]
-    [SerializeField] private Sprite _boxIcon;
-    [SerializeField] private Sprite _portalIcon;
-
-    [Header("Colors")]
-    [SerializeField] private Color _playerColor = new Color32(255, 220, 0, 255);
-
-    [SerializeField] private Color _enemyColor = new Color32(220, 48, 48, 255);
-
-    [Header("Marker Sizes")]
-    [SerializeField, Min(1f)] private float _playerMarkerSize = 10f;
-
-    [SerializeField, Min(1f)] private float _enemyMarkerSize = 8f;
-
-    [SerializeField, Min(1f)] private float _objectMarkerSize = 16f;
-
-    private readonly Dictionary<int, MarkerEntry> _activeMarkers = new Dictionary<int, MarkerEntry>();
+    private readonly Dictionary<int, Image> _activeMarkers = new Dictionary<int, Image>();
 
     private readonly Stack<Image> _markerPool = new Stack<Image>();
     private readonly HashSet<int> _seenMarkerIds = new HashSet<int>();
@@ -47,7 +18,10 @@ public sealed class MinimapView : MonoBehaviour
 
     private void Awake()
     {
-        ConfigureStaticUI();
+        if (_terrainImage != null)
+        {
+            _terrainImage.raycastTarget = false;
+        }
     }
 
     private void OnDisable()
@@ -74,38 +48,22 @@ public sealed class MinimapView : MonoBehaviour
         }
     }
 
-    public void SetPlayerVisible(bool visible)
-    {
-        if (_playerMarker != null)
-        {
-            _playerMarker.gameObject.SetActive(visible);
-        }
-    }
-
     public void RenderMarkers(IReadOnlyList<MinimapMarkerViewData> markers)
     {
         _seenMarkerIds.Clear();
 
         if (markers != null)
         {
-            for (int i = 0; i < markers.Count; i++)
+            foreach (MinimapMarkerViewData markerData in markers)
             {
-                MinimapMarkerViewData markerData = markers[i];
-
                 _seenMarkerIds.Add(markerData.Id);
 
-                MarkerEntry marker = GetOrCreateMarker(markerData);
-
+                Image marker = GetOrCreateMarker(markerData.Id);
                 ApplyMarkerData(marker, markerData);
             }
         }
 
         ReleaseMissingMarkers();
-
-        if (_playerMarker != null)
-        {
-            _playerMarker.transform.SetAsLastSibling();
-        }
     }
 
     public void Clear()
@@ -115,30 +73,18 @@ public sealed class MinimapView : MonoBehaviour
             _terrainImage.texture = null;
         }
 
-        SetPlayerVisible(false);
         ReleaseAllMarkers();
     }
 
-    private MarkerEntry GetOrCreateMarker(MinimapMarkerViewData markerData)
+    private Image GetOrCreateMarker(int markerId)
     {
-        if (_activeMarkers.TryGetValue(markerData.Id, out MarkerEntry marker))
+        if (_activeMarkers.TryGetValue(markerId, out Image marker))
         {
-            if (marker.Type != markerData.Type)
-            {
-                marker.Type = markerData.Type;
-                ApplyMarkerStyle(marker);
-            }
-
             return marker;
         }
 
-        Image image = AcquireMarkerImage();
-
-        marker = new MarkerEntry(image, markerData.Type);
-
-        ApplyMarkerStyle(marker);
-
-        _activeMarkers.Add(markerData.Id, marker);
+        marker = AcquireMarkerImage();
+        _activeMarkers.Add(markerId, marker);
 
         return marker;
     }
@@ -163,6 +109,7 @@ public sealed class MinimapView : MonoBehaviour
 
             markerTransform.anchorMin = new Vector2(0.5f, 0.5f);
             markerTransform.anchorMax = new Vector2(0.5f, 0.5f);
+
             markerTransform.pivot = new Vector2(0.5f, 0.5f);
 
             image = markerObject.GetComponent<Image>();
@@ -170,60 +117,39 @@ public sealed class MinimapView : MonoBehaviour
         }
 
         image.gameObject.SetActive(true);
+        
         return image;
     }
 
-    private void ApplyMarkerData(MarkerEntry marker, MinimapMarkerViewData markerData)
+    private static void ApplyMarkerData(Image marker, MinimapMarkerViewData markerData)
     {
-        marker.Image.gameObject.SetActive(true);
-        marker.Image.rectTransform.anchoredPosition = markerData.AnchoredPosition;
-        marker.Image.rectTransform.localRotation = Quaternion.identity;
-        marker.Image.transform.SetAsLastSibling();
-    }
+        Image image = marker;
+        bool hasIcon = markerData.Icon != null;
 
-    private void ApplyMarkerStyle(MarkerEntry marker)
-    {
-        Image image = marker.Image;
+        image.gameObject.SetActive(true);
+        image.sprite = markerData.Icon;
 
-        switch (marker.Type)
-        {
-            case MinimapMarkerType.Enemy:
-            {
-                image.gameObject.name = "Enemy Marker";
-                image.sprite = null;
-                image.color = _enemyColor;
-                image.preserveAspect = false;
-                image.rectTransform.sizeDelta = Vector2.one * _enemyMarkerSize;
-                break;
-            }
+        image.color = hasIcon ? Color.white : markerData.Color; // 아이콘이 있으면 원본 색상을 사용. 아이콘이 없으면 지정된 색상의 네모가 됨.
+        
+        image.preserveAspect = hasIcon;
+        image.type = Image.Type.Simple;
+        image.raycastTarget = false;
 
-            case MinimapMarkerType.RewardBox:
-            {
-                image.gameObject.name = "Reward Box Marker";
-                image.sprite = _boxIcon;
-                image.color = Color.white;
-                image.preserveAspect = true;
-                image.rectTransform.sizeDelta = Vector2.one * _objectMarkerSize;
-                break;
-            }
+        RectTransform markerTransform = image.rectTransform;
 
-            case MinimapMarkerType.Portal:
-            {
-                image.gameObject.name = "Portal Marker";
-                image.sprite = _portalIcon;
-                image.color = Color.white;
-                image.preserveAspect = true;
-                image.rectTransform.sizeDelta = Vector2.one * _objectMarkerSize;
-                break;
-            }
-        }
+        markerTransform.anchoredPosition = markerData.AnchoredPosition;
+        markerTransform.localRotation = Quaternion.identity;
+
+        markerTransform.sizeDelta = Vector2.one * markerData.Size;
+
+        image.transform.SetAsLastSibling();
     }
 
     private void ReleaseMissingMarkers()
     {
         _removeBuffer.Clear();
 
-        foreach (KeyValuePair<int, MarkerEntry> pair in _activeMarkers)
+        foreach (KeyValuePair<int, Image> pair in _activeMarkers)
         {
             if (!_seenMarkerIds.Contains(pair.Key))
             {
@@ -233,21 +159,21 @@ public sealed class MinimapView : MonoBehaviour
 
         foreach (int markerId in _removeBuffer)
         {
-            if (!_activeMarkers.TryGetValue(markerId, out MarkerEntry marker))
+            if (!_activeMarkers.TryGetValue(markerId, out Image marker))
             {
                 continue;
             }
 
             _activeMarkers.Remove(markerId);
-            ReleaseMarkerImage(marker.Image);
+            ReleaseMarkerImage(marker);
         }
     }
 
     private void ReleaseAllMarkers()
     {
-        foreach (MarkerEntry marker in _activeMarkers.Values)
+        foreach (Image marker in _activeMarkers.Values)
         {
-            ReleaseMarkerImage(marker.Image);
+            ReleaseMarkerImage(marker);
         }
 
         _activeMarkers.Clear();
@@ -264,35 +190,5 @@ public sealed class MinimapView : MonoBehaviour
 
         image.gameObject.SetActive(false);
         _markerPool.Push(image);
-    }
-
-    private void ConfigureStaticUI()
-    {
-        if (_terrainImage != null)
-        {
-            _terrainImage.raycastTarget = false;
-        }
-
-        if (_playerMarker == null)
-        {
-            return;
-        }
-
-        _playerMarker.sprite = null;
-        _playerMarker.color = _playerColor;
-        _playerMarker.preserveAspect = false;
-        _playerMarker.raycastTarget = false;
-
-        _playerMarker.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-
-        _playerMarker.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-
-        _playerMarker.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-
-        _playerMarker.rectTransform.anchoredPosition = Vector2.zero;
-
-        _playerMarker.rectTransform.sizeDelta = Vector2.one * _playerMarkerSize;
-
-        _playerMarker.rectTransform.localRotation = Quaternion.identity;
     }
 }

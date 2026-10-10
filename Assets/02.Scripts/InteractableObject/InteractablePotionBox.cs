@@ -17,6 +17,9 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
     [SerializeField, Min(0.01f)] private float _dropFlightDuration = 0.45f;
     [SerializeField, Min(0f)] private float _dropArcHeight = 0.5f;
 
+    [Header("MinimapMarker")]
+    [SerializeField] private MinimapMarker _minimapMarker;
+
     public Transform DropPoint => _dropPoint;
     private bool _isOpened;
     public bool IsOpened => _isOpened;
@@ -27,6 +30,11 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
         if (_animator == null)
         {
             _animator = GetComponent<Animator>();
+        }
+
+        if(_minimapMarker == null)
+        {
+            _minimapMarker = GetComponentInChildren<MinimapMarker>();
         }
 
         SoundManager.Preload(GameSoundId.PotionBoxOpen);
@@ -60,6 +68,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
 
         //중복 개봉 방지
         _isOpened = true;
+        _minimapMarker.SetVisible(false);
 
         if (_animator != null)
         {

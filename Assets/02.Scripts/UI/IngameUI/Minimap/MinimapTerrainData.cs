@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public sealed class MinimapTerrainData : IDisposable
+public class MinimapTerrainData : IDisposable
 {
     public Texture2D Texture { get; }
     public Vector2Int MinCell { get; }

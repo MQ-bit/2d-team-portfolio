@@ -49,7 +49,6 @@ public static class MinimapTerrainRasterizer
         }
 
         Vector2Int minCell = new(int.MaxValue, int.MaxValue);
-
         Vector2Int maxCell = new(int.MinValue, int.MinValue);
 
         foreach (Vector2Int cell in cells.Keys)
@@ -58,8 +57,6 @@ public static class MinimapTerrainRasterizer
             maxCell = Vector2Int.Max(maxCell, cell);
         }
 
-        // 맵 가장자리에서도 플레이어를 중앙에 유지할 수 있도록
-        // 표시 범위 절반만큼 투명 여백을 추가한다.
         int padding = Mathf.CeilToInt(viewWorldSize * 0.5f) + 2;
 
         minCell -= Vector2Int.one * padding;
@@ -87,7 +84,7 @@ public static class MinimapTerrainRasterizer
             pixels[y * width + x] = pair.Value == TerrainCell.Wall ? wallColor : groundColor;
         }
 
-        Texture2D texture = new(width, height, TextureFormat.RGBA32, false, false)
+        Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false, false)
         {
             name = "Runtime Minimap Terrain",
             filterMode = FilterMode.Point,
@@ -119,10 +116,8 @@ public static class MinimapTerrainRasterizer
             }
 
             bool isGround = tilemap.name == Ground_Tile_mapName;
-
             bool isWall = tilemap.name == Wall_Tile_mapName;
 
-            // Tilemap_GroundDeco 등은 제외한다.
             if (!isGround && !isWall)
             {
                 continue;
@@ -136,13 +131,10 @@ public static class MinimapTerrainRasterizer
                 }
 
                 Vector3 worldCenter = tilemap.GetCellCenterWorld(cellPosition);
-
-                // 현재 프로젝트의 Grid는 회전되지 않은 1x1 셀이다.
                 Vector2Int worldCell = new(Mathf.FloorToInt(worldCenter.x), Mathf.FloorToInt(worldCenter.y));
 
                 if (isWall)
                 {
-                    // Ground와 Wall이 겹칠 경우 Wall이 우선한다.
                     cells[worldCell] = TerrainCell.Wall;
                 }
                 else if (!cells.ContainsKey(worldCell))
