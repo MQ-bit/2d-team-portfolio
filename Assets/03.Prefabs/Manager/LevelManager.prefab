@@ -62,6 +62,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionController
   _playerStatus: {fileID: 0}
   _visualEffectManager: {fileID: 0}
-  _gameOverSceneName: GameOverScene
+  _gameOverSceneName: GameOverScene_new
   _deathDelay: 1.5
   _fadeOutDuration: 0.25

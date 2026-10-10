@@ -247,6 +247,7 @@ public class IngameUIController : MonoBehaviour
 
         ClosePotionInformation();
         _pausePresenter.ResetPause();
+        SoundManager.Play(GameSoundId.ReturnToTitle);
         SceneManager.LoadScene(_titleSceneName);
     }
 

@@ -73,7 +73,8 @@ public class LevelManager : MonoBehaviour
         if (_bgmDelay > 0f)
             yield return new WaitForSecondsRealtime(_bgmDelay);
 
-        if (isActiveAndEnabled)
+        PlayerStatus status = _player != null ? _player.GetComponent<PlayerStatus>() : null;
+        if (isActiveAndEnabled && status != null && !status.IsDead)
             SoundManager.PlayBgm(_bgmId);
     }
 

@@ -14,7 +14,13 @@ public enum GameSoundId
     FireArea, PoisonArea, FrostArea, LifeArea, LightningArea, VaporizationArea,
     VaporizationReaction,
     PotionBoxOpen = 26,
-    PotionCombination = 27
+    PotionCombination = 27,
+    PlayerDeath = 28,
+    Tomb = 29,
+    ScoreCount = 30,
+    ReturnToTitle = 31,
+    GameExit = 32,
+    PlayerFootstepB = 33
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]
@@ -62,6 +68,11 @@ public sealed class GameSoundData : ScriptableObject
         [Tooltip("비워두면 루프 곡부터 재생합니다.")]
         [SerializeField] private AudioClip _introClip;
         [SerializeField] private AudioClip _loopClip;
+        [SerializeField] private bool _loop = true;
+        [Tooltip("클립 재생 종료 지점(초). 0이면 끝까지 재생합니다.")]
+        [SerializeField, Min(0f)] private float _endTime;
+        [Tooltip("종료 지점 직전 볼륨을 줄이는 시간(초).")]
+        [SerializeField, Min(0f)] private float _fadeOutTime;
         [SerializeField, Range(0f, 1f)] private float _volume = 1f;
         [Tooltip("BGM 시작 페이드인과 인게임 곡 종료 전 크로스페이드 시간(초).")]
         [SerializeField, Min(0f)] private float _fadeTime = 1f;
@@ -69,6 +80,9 @@ public sealed class GameSoundData : ScriptableObject
         public GameBgmId Id => _id;
         public AudioClip IntroClip => _introClip;
         public AudioClip LoopClip => _loopClip;
+        public bool Loop => _loop;
+        public float EndTime => Mathf.Max(0f, _endTime);
+        public float FadeOutTime => Mathf.Max(0f, _fadeOutTime);
         public float Volume => _volume;
         public float FadeTime => Mathf.Max(0f, _fadeTime);
     }

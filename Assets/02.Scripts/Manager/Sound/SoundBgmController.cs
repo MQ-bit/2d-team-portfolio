@@ -63,7 +63,7 @@ internal sealed class SoundBgmController
         _pendingLoop = entry.IntroClip != null ? entry.LoopClip : null;
         _bgmClip = entry.IntroClip != null ? entry.IntroClip : entry.LoopClip;
         _bgmHandle = _playback.Play(_bgmClip, SoundChannel.Bgm, entry.Volume,
-            0f, 0f, 0f, entry.IntroClip == null, entry.FadeTime);
+            0f, entry.EndTime, entry.FadeOutTime, entry.IntroClip == null && entry.Loop, entry.FadeTime);
         return _bgmHandle;
     }
 
@@ -84,7 +84,7 @@ internal sealed class SoundBgmController
         _bgmClip = _pendingLoop;
         _pendingLoop = null;
         _bgmHandle = _playback.Play(_bgmClip, SoundChannel.Bgm, _bgmEntry.Volume,
-            0f, 0f, 0f, true, 0f);
+            0f, _bgmEntry.EndTime, _bgmEntry.FadeOutTime, _bgmEntry.Loop, 0f);
     }
 
     public SoundHandle PlayShuffled(GameSoundData.BgmEntry[] tracks)

@@ -13,6 +13,7 @@ public class TitleOptionsController : MonoBehaviour
     [SerializeField] private Button _escButton;
 
     private bool _isOpen;
+    private float _nextVolumeFeedbackTime;
     private Image _escButtonImage;
     private Sprite _escButtonNormalSprite;
 
@@ -132,15 +133,30 @@ public class TitleOptionsController : MonoBehaviour
     private void HandleMasterVolumeChanged(float value)
     {
         SoundManager.SetMasterVolume(value);
+        PlayVolumeFeedbackSound();
     }
 
     private void HandleBgmVolumeChanged(float value)
     {
         SoundManager.SetBgmVolume(value);
+        PlayVolumeFeedbackSound();
     }
 
     private void HandleSfxVolumeChanged(float value)
     {
         SoundManager.SetSfxVolume(value);
+        PlayVolumeFeedbackSound();
+    }
+
+    private void PlayVolumeFeedbackSound()
+    {
+        if (!isActiveAndEnabled || !_isOpen || Time.unscaledTime < _nextVolumeFeedbackTime)
+            return;
+
+        GameSoundData.Entry sound = SoundManager.GetSound(GameSoundId.VolumeFeedback);
+        if (sound?.Clip == null) return;
+
+        _nextVolumeFeedbackTime = Time.unscaledTime + sound.Interval;
+        sound.Play();
     }
 }
