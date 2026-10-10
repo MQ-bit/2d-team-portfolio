@@ -192,4 +192,21 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         _rigid.linearVelocity = Vector2.zero;
         return false;
     }
+
+    public void ResetState()
+    {
+        _isKnockedBack = false;
+        _knockbackEndTime = 0f;
+
+        _waypoint = Vector2.zero;
+        _hasWaypoint = false;
+        _isDirectChase = false;
+        _nextRepathTime = 0f;
+
+        if (_rigid != null)
+        {
+            _rigid.linearVelocity = Vector2.zero;
+            _rigid.angularVelocity = 0f;
+        }
+    }
 }
