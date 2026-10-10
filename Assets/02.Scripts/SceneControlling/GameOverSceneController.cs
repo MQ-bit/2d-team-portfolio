@@ -80,6 +80,9 @@ public sealed class GameOverSceneController : MonoBehaviour
 
     private float _tombTargetY;
     private bool _isLeaving;
+    private PauseButtonSound _exitButtonSound;
+    private float _nextExitHoverSoundTime;
+    private bool _suppressExitHoverSound;
 
     private void Awake()
     {
@@ -94,6 +97,13 @@ public sealed class GameOverSceneController : MonoBehaviour
             SoundManager.PlayBgm(GameBgmId.GameEnd);
         }
         SoundManager.Preload(GameSoundId.Tomb);
+        SoundManager.Preload(GameSoundId.ScoreCount);
+        SoundManager.Preload(GameSoundId.TitleHover);
+        SoundManager.Preload(GameSoundId.TitleClick);
+
+        _exitButtonSound = _exitButton.GetComponent<PauseButtonSound>();
+        if (_exitButtonSound == null)
+            _exitButtonSound = _exitButton.gameObject.AddComponent<PauseButtonSound>();
 
         if (_gameOverFirst)
         {
@@ -109,10 +119,14 @@ public sealed class GameOverSceneController : MonoBehaviour
     private void OnEnable()
     {
         _exitButton.onClick.AddListener(HandleExitRequested);
+        _exitButtonSound.OnFocused += HandleExitButtonFocused;
     }
 
     private void OnDisable()
     {
+        if (_exitButtonSound != null)
+            _exitButtonSound.OnFocused -= HandleExitButtonFocused;
+
         if (_exitButton != null)
         {
             _exitButton.onClick.RemoveListener(HandleExitRequested);
@@ -221,18 +235,32 @@ public sealed class GameOverSceneController : MonoBehaviour
     private Sequence CreateScoreRowSequence(CanvasGroup row, TMP_Text scoreText, int targetScore, string unit = "")
     {
         int displayedScore = 0;
+        SoundHandle countSound = default;
+        float countDuration = targetScore > 0
+            ? Mathf.Min(_scoreCountDuration, 0.2f + (targetScore - 1) * 0.05f)
+            : 0f;
 
-        scoreText.text = "0";
+        scoreText.text = countDuration > 0f ? $"0 {unit}" : $"{targetScore} {unit}";
 
         Sequence rowSequence = DOTween.Sequence();
+        rowSequence.OnKill(() => countSound.Stop());
+        if (countDuration > 0f)
+            rowSequence.AppendCallback(() => countSound = SoundManager.Play(GameSoundId.ScoreCount));
 
         rowSequence.Append(row.DOFade(1f, _rowFadeDuration).SetEase(Ease.OutSine)); // Row 페이드 인
-        rowSequence.Join(DOTween.To(
+        if (countDuration > 0f)
+        {
+            rowSequence.Join(DOTween.To(
                                 () => displayedScore,
                                 value => { displayedScore = value; scoreText.text = $"{displayedScore} {unit}"; },
                                 targetScore,
-                                _scoreCountDuration).SetEase(Ease.Linear)
+                                countDuration).SetEase(Ease.Linear)
+                            .OnComplete(() => countSound.Stop())
                         ); // 점수 카운트 애니메이션
+            // 카운팅 종료 직전에 소리를 줄여, 짧은 점수에서도 갑자기 끊기지 않도록 한다.
+            float fadeDuration = Mathf.Min(0.08f, countDuration);
+            rowSequence.InsertCallback(countDuration - fadeDuration, () => countSound.FadeOut(fadeDuration));
+        }
 
         rowSequence.AppendCallback(() =>
         {
@@ -284,7 +312,9 @@ public sealed class GameOverSceneController : MonoBehaviour
             .OnComplete(() =>
             {
                 _exitButton.interactable = true;
+                _suppressExitHoverSound = true;
                 EventSystem.current?.SetSelectedGameObject(_exitButton.gameObject);
+                _suppressExitHoverSound = false;
             });
     }
 
@@ -385,6 +415,22 @@ public sealed class GameOverSceneController : MonoBehaviour
         group.blocksRaycasts = false;
     }
 
+    private void HandleExitButtonFocused()
+    {
+        if (!isActiveAndEnabled || _isLeaving || _suppressExitHoverSound
+            || !_exitButton.IsActive() || !_exitButton.IsInteractable()
+            || Time.unscaledTime < _nextExitHoverSoundTime)
+        {
+            return;
+        }
+
+        GameSoundData.Entry sound = SoundManager.GetSound(GameSoundId.TitleHover);
+        if (sound?.Clip == null) return;
+
+        _nextExitHoverSoundTime = Time.unscaledTime + sound.Interval;
+        sound.Play();
+    }
+
     private void HandleExitRequested()
     {
         if (_isLeaving)
@@ -393,6 +439,8 @@ public sealed class GameOverSceneController : MonoBehaviour
         }
 
         _isLeaving = true;
+        SoundManager.Play(GameSoundId.TitleClick);
+        SoundManager.Play(GameSoundId.ReturnToTitle);
         _exitButton.interactable = false;
 
         _sequence?.Kill();

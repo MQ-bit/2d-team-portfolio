@@ -139,7 +139,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 90, y: 190}
+  m_AnchoredPosition: {x: 90, y: 200}
   m_SizeDelta: {x: 44, y: 46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4580535966084263042
@@ -846,22 +846,6 @@ PrefabInstance:
       propertyPath: m_PixelsPerUnitMultiplier
       value: 0.33333334
       objectReference: {fileID: 0}
-    - target: {fileID: 88003003, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_PreserveAspect
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 88003003, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_PixelsPerUnitMultiplier
-      value: 0.33333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 88004003, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_PreserveAspect
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 88004003, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_PixelsPerUnitMultiplier
-      value: 0.33333334
-      objectReference: {fileID: 0}
     - target: {fileID: 88005100, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
       propertyPath: m_Name
       value: LeftSkullEmblem
@@ -872,7 +856,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 88005101, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 190
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 88006101, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 5667869665826457680, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
       propertyPath: m_Pivot.x
@@ -960,31 +948,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5667869665826458284, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 190
-      objectReference: {fileID: 0}
-    - target: {fileID: 5667869665826458378, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 5332485618678617081, guid: 4e8ced11153a4644f979bb41fb7330e4, type: 3}
-    - target: {fileID: 5667869665826458592, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_fontColor.b
-      value: 0.34901962
-      objectReference: {fileID: 0}
-    - target: {fileID: 5667869665826458592, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_fontColor.g
-      value: 0.34901962
-      objectReference: {fileID: 0}
-    - target: {fileID: 5667869665826458592, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_fontColor.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5667869665826458592, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4284045823
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 7926123403819680271, guid: 9d83fe3fb39ecba41b564a9ccf2b5027, type: 3}
       propertyPath: _clickSoundId
-      value: 15
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

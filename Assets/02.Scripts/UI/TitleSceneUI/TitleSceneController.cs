@@ -11,6 +11,7 @@ public class TitleSceneController : MonoBehaviour
     [SerializeField] private float _fadeDuration = 0.8f;
 
     private bool _isTransitioning;
+    private SoundHandle _exitSoundHandle;
 
     private void Awake()
     {
@@ -24,6 +25,7 @@ public class TitleSceneController : MonoBehaviour
 
     private void Start()
     {
+        SoundManager.Preload(GameSoundId.GameExit);
         SoundManager.PlayBgm(GameBgmId.Title);
     }
 
@@ -57,12 +59,18 @@ public class TitleSceneController : MonoBehaviour
             return;
 
         _isTransitioning = true;
+        _exitSoundHandle = SoundManager.Play(GameSoundId.GameExit);
+        SoundManager.FadeOutBgm(_fadeDuration);
         StartCoroutine(FadeOutAndExitGame());
     }
 
     private IEnumerator FadeOutAndExitGame()
     {
         yield return FadeOut();
+
+        // 앱 종료로 종료음이 잘리지 않도록 남은 재생을 기다린다.
+        while (_exitSoundHandle.IsPlaying)
+            yield return null;
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;

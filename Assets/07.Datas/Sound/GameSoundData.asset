@@ -122,6 +122,30 @@ MonoBehaviour:
     _repeatCount: 1
     _fadeInTime: 0
     _interval: 0
+  - _id: 31
+    _clip: {fileID: 8300000, guid: 44de93f509e68444dbd53defde169767, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 6
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 32
+    _clip: {fileID: 8300000, guid: 359bef60a0c4b4c40a8a308c442a03f4, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
   _player:
   - _id: 4
     _clip: {fileID: 8300000, guid: e933cfe7a6def1d429c4c2deef134afc, type: 3}
@@ -209,10 +233,10 @@ MonoBehaviour:
     _interval: 0
   _ui:
   - _id: 10
-    _clip: {fileID: 8300000, guid: 648f0fdd7f5687041a9e0b233b74cbb5, type: 3}
+    _clip: {fileID: 8300000, guid: 48574b6e4a07bea46997d388ed0a7852, type: 3}
     _channel: 2
     _volume: 1
-    _gain: 3
+    _gain: 5
     _startOffset: 0
     _endTime: 0
     _fadeOutTime: 0
@@ -233,10 +257,10 @@ MonoBehaviour:
     _fadeInTime: 0
     _interval: 0.08
   - _id: 12
-    _clip: {fileID: 8300000, guid: 648f0fdd7f5687041a9e0b233b74cbb5, type: 3}
+    _clip: {fileID: 8300000, guid: 48574b6e4a07bea46997d388ed0a7852, type: 3}
     _channel: 2
     _volume: 1
-    _gain: 3
+    _gain: 5
     _startOffset: 0
     _endTime: 0
     _fadeOutTime: 0
@@ -268,6 +292,18 @@ MonoBehaviour:
     _repeatCount: 1
     _fadeInTime: 0
     _interval: 0.1
+  - _id: 30
+    _clip: {fileID: 8300000, guid: 5490d061a30ff694ea180cac03beb1b0, type: 3}
+    _channel: 2
+    _volume: 1
+    _gain: 5
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
   _enemy:
   - _id: 16
     _clip: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}

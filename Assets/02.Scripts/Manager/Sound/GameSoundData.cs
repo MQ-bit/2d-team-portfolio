@@ -16,7 +16,10 @@ public enum GameSoundId
     PotionBoxOpen = 26,
     PotionCombination = 27,
     PlayerDeath = 28,
-    Tomb = 29
+    Tomb = 29,
+    ScoreCount = 30,
+    ReturnToTitle = 31,
+    GameExit = 32
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]
