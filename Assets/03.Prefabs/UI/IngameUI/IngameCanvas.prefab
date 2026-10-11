@@ -674,6 +674,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3458749254831881592}
     - target: {fileID: 949985844649506718, guid: 237ec9e695e4e3944af4fb2e3b27b78d, type: 3}
+      propertyPath: _pauseTimeScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 949985844649506718, guid: 237ec9e695e4e3944af4fb2e3b27b78d, type: 3}
       propertyPath: _potionInformationHUD
       value: 
       objectReference: {fileID: 4995693168315357774}

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
 /// 인게임 씬의 Post Process 및 화면 전환 효과를 관리합니다.
@@ -26,6 +27,7 @@ public class SceneVisualEffectManager : MonoBehaviour
 
     [Header("Screen Fade")]
     [SerializeField] private ScreenFadeController _fadeController;
+    [SerializeField, Min(0f)] private float _sceneFadeInDuration = 0.8f;
 
     [Header("Input Target")]
     [SerializeField] private PlayerController _player;
@@ -36,7 +38,12 @@ public class SceneVisualEffectManager : MonoBehaviour
     public bool IsFading => _fadeController != null && _fadeController.IsFading;
 
     public bool IsScreenCovered => _fadeController != null && _fadeController.IsCovered;
+    
+    // 첫 입장과 포탈 이동 모두 화면 페이드 인이 끝나면 알립니다.
+    public event Action FadeInCompleted;
 
+    
+    
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -53,6 +60,32 @@ public class SceneVisualEffectManager : MonoBehaviour
         ResetAllEffects();
     }
 
+    private IEnumerator Start()
+    {
+        if (!EnsureFadeController())
+        {
+            yield break;
+        }
+
+        // Awake의 ResetAllEffects가 화면을 투명하게 초기화하므로,
+        // 모든 Awake가 끝난 Start에서 진입용 검은 화면을 설정합니다.
+        _fadeController.ResetImmediately(1f);
+
+        // 검은 화면에서 기다리는 동안에도 플레이어 입력을 차단합니다.
+        AcquireFadeInputLock();
+
+        yield return null;
+
+        // 기존 매니저의 TryFadeIn을 사용하면 완료 시 입력 잠금도 해제됩니다.
+        if (!TryFadeIn(_sceneFadeInDuration))
+        {
+            Debug.LogError("인게임 진입 페이드인을 시작하지 못했습니다.", this);
+
+            _fadeController.ResetImmediately(0f);
+            ReleaseFadeInputLock();
+        }
+    }
+    
     private void ControllerInitialize()
     {
         if (_wobbleController != null)
@@ -135,7 +168,12 @@ public class SceneVisualEffectManager : MonoBehaviour
         return () =>
         {
             ReleaseFadeInputLock();
+
+            // 포탈 이동 완료 등 기존 처리를 먼저 끝냅니다.
             onCompleted?.Invoke();
+
+            // 화면이 완전히 밝아지고 기존 완료 처리까지 끝난 뒤 UI에 알립니다.
+            FadeInCompleted?.Invoke();
         };
     }
 

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class TitleSceneController : MonoBehaviour
 {
     [SerializeField] private Button _startButton;
-    [SerializeField] private CanvasGroup _fadeGroup;
+    [SerializeField] private ScreenFadeController _fadeController;
     [SerializeField] private string _ingameSceneName = "IngameScene";
     [SerializeField] private float _fadeDuration = 0.8f;
 
@@ -15,18 +15,35 @@ public class TitleSceneController : MonoBehaviour
 
     private void Awake()
     {
-        if (_fadeGroup != null)
+        // 페이드인이 끝날 때까지 Start/Exit 버튼의 전환 요청을 막습니다.
+        _isTransitioning = true;
+
+        if (_fadeController != null && _fadeController.Initialize())
         {
-            _fadeGroup.alpha = 0f;
-            _fadeGroup.blocksRaycasts = false;
-            _fadeGroup.interactable = false;
+            // 첫 화면이 잠깐 노출되지 않도록 렌더링 전에 검은 화면으로 설정합니다.
+            _fadeController.ResetImmediately(1f);
         }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         SoundManager.Preload(GameSoundId.GameExit);
         SoundManager.PlayBgm(GameBgmId.Title);
+
+        // 씬의 초기화가 끝난 다음 프레임부터 화면을 밝힙니다.
+        yield return null;
+
+        if (_fadeController == null ||
+            !_fadeController.TryFadeIn(
+                _fadeDuration,
+                onCompleted: () => _isTransitioning = false))
+        {
+            Debug.LogError("타이틀 페이드인을 시작하지 못했습니다.", this);
+
+            // 설정 오류가 있어도 검은 화면이나 전환 잠금이 남지 않도록 복구합니다.
+            _fadeController?.ResetImmediately(0f);
+            _isTransitioning = false;
+        }
     }
 
     // 게임 시작 버튼의 On Click()에 연결
@@ -81,21 +98,34 @@ public class TitleSceneController : MonoBehaviour
 
     private IEnumerator FadeOut()
     {
-        if (_fadeGroup == null)
-            yield break;
-
-        _fadeGroup.blocksRaycasts = true;
-        _fadeGroup.interactable = false;
-
-        float elapsed = 0f;
-
-        while (elapsed < _fadeDuration)
+        if (_fadeController == null)
         {
-            elapsed += Time.deltaTime;
-            _fadeGroup.alpha = Mathf.Clamp01(elapsed / _fadeDuration);
+            Debug.LogError("TitleSceneController의 Fade Controller를 연결하세요.", this);
+            yield break;
+        }
+
+        // 이미 진행 중인 페이드가 있다면 끝난 뒤 요청합니다.
+        while (_fadeController.IsFading)
+        {
             yield return null;
         }
 
-        _fadeGroup.alpha = 1f;
+        bool completed = false;
+
+        bool accepted = _fadeController.TryFadeOut(
+            _fadeDuration,
+            onCompleted: () => completed = true);
+
+        if (!accepted)
+        {
+            Debug.LogError("타이틀 페이드아웃을 시작하지 못했습니다.", this);
+            yield break;
+        }
+
+        // 화면이 완전히 검게 된 다음 기존 코드가 씬을 로드합니다.
+        while (!completed)
+        {
+            yield return null;
+        }
     }
 }
