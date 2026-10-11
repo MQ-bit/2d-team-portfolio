@@ -3,5 +3,6 @@ public enum EnemyKind
     Bomber,
     Ranged,
     EliteBomber,
-    EliteRanged
+    EliteRanged,
+    Reaper
 }

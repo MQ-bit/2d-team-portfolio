@@ -15,6 +15,9 @@ public class WaveDefinition //TODO: 구조체 고려
     [SerializeField] private int _eliteBonusMax = 2;
 
 
+    [Header("Reaper")]
+    [SerializeField, Min(0)] private int _reaperCount;
+
     [Header("Spawn Timing")]
     [SerializeField, Min(1)] private int _batchSize = 5;
     [SerializeField, Min(0f)] private float _spawnInterval = 0.15f;
@@ -24,6 +27,7 @@ public class WaveDefinition //TODO: 구조체 고려
     public float BombRatio => _bombRatio;
     public Vector2Int EliteBonusRange => new Vector2Int(_eliteBonusMin, _eliteBonusMax);
     public int BatchSize => _batchSize;
+    public int ReaperCount => Mathf.Max(0, _reaperCount);
     public float SpawnInterval => _spawnInterval;
     public float BatchInterval => _batchInterval;
 }

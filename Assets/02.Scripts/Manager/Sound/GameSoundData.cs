@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum GameBgmId { Title, InGame, GameEnd }
@@ -9,7 +8,7 @@ public enum GameSoundId
     GameStart, StageClear, RoomPortal, FloorMove,
     PlayerSwing, PlayerMeleeHit, PlayerDash, PlayerPickup, PlayerDrink, PlayerFootstep,
     TitleClick, TitleHover, PauseClick, PauseHover, VolumeFeedback,
-    // 삭제한 항목의 번호는 재사용하지 않아 기존 SO의 연결을 유지합니다.
+
     EnemyExplosion = 16, EnemyAttack,
     FireArea, PoisonArea, FrostArea, LifeArea, LightningArea, VaporizationArea,
     VaporizationReaction,
@@ -21,8 +20,12 @@ public enum GameSoundId
     ReturnToTitle = 31,
     GameExit = 32,
     PlayerFootstepB = 33,
-    PlayerHurtA = 34
-    // 35는 제거한 PlayerHurtB의 번호이므로 재사용하지 않는다.
+    PlayerHurtA = 34,
+
+    ReaperPotionSummon = 35,
+    ReaperAttack = 36,
+    ReaperDash = 37,
+    ReaperDashCharge = 38
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]
@@ -90,54 +93,38 @@ public sealed class GameSoundData : ScriptableObject
     }
 
     [Header("BGM")]
-    [SerializeField] private BgmEntry[] _bgm = Array.Empty<BgmEntry>();
-    [Header("씬 · 진행")]
-    [SerializeField] private Entry[] _scene = Array.Empty<Entry>();
+    [SerializeField] private GameBgmData _bgm;
+    [Header("씬 · 진행 · 상호작용")]
+    [SerializeField] private SoundCategoryData _scene;
     [Header("플레이어")]
-    [SerializeField] private Entry[] _player = Array.Empty<Entry>();
+    [SerializeField] private SoundCategoryData _player;
     [Header("UI")]
-    [SerializeField] private Entry[] _ui = Array.Empty<Entry>();
-    [Header("적")]
-    [SerializeField] private Entry[] _enemy = Array.Empty<Entry>();
+    [SerializeField] private SoundCategoryData _ui;
+    [Header("적 종류별 사운드")]
+    [SerializeField] private SoundCategoryData[] _enemies = Array.Empty<SoundCategoryData>();
     [Header("포션 · 기화")]
-    [SerializeField] private Entry[] _potion = Array.Empty<Entry>();
-    [Header("상호작용")]
-    [SerializeField] private Entry[] _interaction = Array.Empty<Entry>();
+    [SerializeField] private SoundCategoryData _potion;
 
     public Entry Get(GameSoundId id) => Find(_scene, id) ?? Find(_player, id) ?? Find(_ui, id)
-        ?? Find(_enemy, id) ?? Find(_potion, id) ?? Find(_interaction, id);
+        ?? FindEnemySound(id) ?? Find(_potion, id);
 
-    private static Entry Find(Entry[] entries, GameSoundId id)
+    private Entry FindEnemySound(GameSoundId id)
     {
-        if (entries == null) return null;
-        foreach (Entry entry in entries)
-            if (entry != null && entry.Id == id) return entry;
+        if (_enemies == null) return null;
+        foreach (SoundCategoryData category in _enemies)
+        {
+            Entry entry = Find(category, id);
+            if (entry != null) return entry;
+        }
         return null;
     }
 
-    public BgmEntry GetBgm(GameBgmId id)
-    {
-        if (_bgm == null) return null;
-        foreach (BgmEntry entry in _bgm)
-            if (entry != null && entry.Id == id) return entry;
-        return null;
-    }
+    private static Entry Find(SoundCategoryData category, GameSoundId id) => category != null ? category.Get(id) : null;
+
+    public BgmEntry GetBgm(GameBgmId id) => _bgm != null ? _bgm.Get(id) : null;
 
     // 같은 ID로 등록된 곡들은 하나의 재생 목록입니다.
-    public BgmEntry[] GetBgmTracks(GameBgmId id)
-    {
-        var tracks = new List<BgmEntry>();
-        if (_bgm != null)
-        {
-            foreach (BgmEntry entry in _bgm)
-            {
-                if (entry != null && entry.Id == id)
-                    tracks.Add(entry);
-            }
-        }
-
-        return tracks.ToArray();
-    }
+    public BgmEntry[] GetBgmTracks(GameBgmId id) => _bgm != null ? _bgm.GetTracks(id) : Array.Empty<BgmEntry>();
 
     public static GameSoundId GetAreaSoundId(PotionElement element) => element switch
     {

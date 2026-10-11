@@ -83,12 +83,13 @@ public sealed class WavePlanSO : ScriptableObject
             }
         }
 
-        List<EnemySpawnRequest> requests = new List<EnemySpawnRequest>(baseCount + eliteCount);
+        List<EnemySpawnRequest> requests = new List<EnemySpawnRequest>(baseCount + eliteCount + definition.ReaperCount);
 
         if (!TryAddRequests(requests, EnemyKind.Bomber, meleeCount, out error) ||
             !TryAddRequests(requests, EnemyKind.Ranged, rangedCount, out error) ||
             !TryAddRequests(requests, EnemyKind.EliteBomber, eliteMeleeCount, out error) ||
-            !TryAddRequests(requests, EnemyKind.EliteRanged, eliteRangedCount, out error))
+            !TryAddRequests(requests, EnemyKind.EliteRanged, eliteRangedCount, out error) ||
+            !TryAddRequests(requests, EnemyKind.Reaper, definition.ReaperCount, out error))
         {
             return false;
         }

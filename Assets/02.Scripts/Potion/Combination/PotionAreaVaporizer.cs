@@ -66,11 +66,13 @@ internal sealed class PotionAreaVaporizer
         var effects = PotionAreaEffectTracker.GetRemainingEffects(profile,
             primary.RemainingDuration, VaporizationMultiplier);
         PotionEffectSource source = primary.AreaEffect.ActiveSource;
+        // 기화도 마지막으로 착지해서 반응에 참여한 포션의 소유자가 가져간다.
+        primary.Ownership.TakeLatest(_areaController.Ownership);
         // A newly landed floor may react before its single profile is activated.
         if (source.SourceId == 0)
         {
             source = new PotionEffectSource(primary.AreaEffect.GetInstanceID(), primary.Data,
-                owner: primary.Owner, lifeStealRatio: profile.LifeStealRatio);
+                owner: primary.Owner, lifeStealRatio: profile.LifeStealRatio, areaOwnership: primary.Ownership);
         }
 
         Physics2D.SyncTransforms();

@@ -11,11 +11,12 @@ public class ScoreData
     [SerializeField] private int _eliteBomberKillCount;
     [SerializeField] private int _normalRangedKillCount;
     [SerializeField] private int _eliteRangedKillCount;
+    [SerializeField] private int _reaperKillCount;
 
     public int ClearedFloorCount => _clearedFloorCount;
     public int ConsumedPotionCount => _consumedPotionCount;
 
-    public int NormalKillCount => _normalBomberKillCount + _normalRangedKillCount;
+    public int NormalKillCount => _normalBomberKillCount + _normalRangedKillCount + _reaperKillCount;
     public int EliteKillCount => _eliteBomberKillCount + _eliteRangedKillCount;
     public int TotalKillCount => NormalKillCount + EliteKillCount;
 
@@ -27,6 +28,7 @@ public class ScoreData
             EnemyKind.EliteBomber => _eliteBomberKillCount,
             EnemyKind.Ranged => _normalRangedKillCount,
             EnemyKind.EliteRanged => _eliteRangedKillCount,
+            EnemyKind.Reaper => _reaperKillCount,
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
     }
@@ -40,7 +42,8 @@ public class ScoreData
             _normalBomberKillCount = _normalBomberKillCount,
             _eliteBomberKillCount = _eliteBomberKillCount,
             _normalRangedKillCount = _normalRangedKillCount,
-            _eliteRangedKillCount = _eliteRangedKillCount
+            _eliteRangedKillCount = _eliteRangedKillCount,
+            _reaperKillCount = _reaperKillCount
         };
     }
 
@@ -89,6 +92,10 @@ public class ScoreData
 
             case EnemyKind.EliteRanged:
                 _eliteRangedKillCount += amount;
+                break;
+
+            case EnemyKind.Reaper:
+                _reaperKillCount += amount;
                 break;
 
             default:

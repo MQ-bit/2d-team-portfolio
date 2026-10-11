@@ -154,7 +154,8 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             return false;
         }
         float expiresAt = Time.time + duration;
-        IDamageable owner = IsAlive(_areaController.Owner) ? _areaController.Owner : other.Owner;
+        TransferLatestOwnership(other);
+        IDamageable owner = _areaController.Owner;
         _areaController.AreaEffect.ReplaceWithCombinationProfile(data, effectProfile, owner,
             templateProfile.LifeStealRatio, expiresAt, _combinedAreaShape.CombinationCollider);
         _areaController.SetExpiration(expiresAt);
@@ -176,10 +177,10 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         PotionAreaController impactAreaController = _areaController.Data.Element == PotionElement.Vaporization
             ? _areaController : other;
-        IDamageable owner = IsAlive(impactAreaController.Owner) ? impactAreaController.Owner :
-            IsAlive(_areaController.Owner) ? _areaController.Owner : other.Owner;
+        TransferLatestOwnership(other);
+        IDamageable owner = _areaController.Owner;
         var source = new PotionEffectSource(_areaController.GetInstanceID(), combination: data,
-            owner: owner, lifeStealRatio: profile.LifeStealRatio);
+            owner: owner, lifeStealRatio: profile.LifeStealRatio, areaOwnership: _areaController.Ownership);
 
         Physics2D.SyncTransforms();
         Vector3 scale = impactAreaController.transform.lossyScale;
@@ -205,10 +206,9 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         return true;
     }
 
-    private static bool IsAlive(IDamageable target)
+    private void TransferLatestOwnership(PotionAreaController other)
     {
-        return target != null &&
-               !(target is Object unityObject && unityObject == null) &&
-               !target.IsDead;
+        _areaController.Ownership.TakeLatest(other.Ownership);
+        other.Ownership.TakeLatest(_areaController.Ownership);
     }
 }

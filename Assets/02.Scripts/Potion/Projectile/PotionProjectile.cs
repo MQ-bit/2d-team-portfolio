@@ -31,6 +31,7 @@ public class PotionProjectile : MonoBehaviour
     private PotionItem _itemData;
     private PotionRunCatalog _catalog;
     private IDamageable _owner;
+    private long _throwOrder;
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
@@ -100,6 +101,7 @@ public class PotionProjectile : MonoBehaviour
 
     public void Launch(Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
     {
+        _throwOrder = PotionAreaOwnership.NextThrowOrder();
         _startPosition = transform.position;
         _targetPosition = targetPosition;
         _flightDuration = Mathf.Max(0.01f, flightDuration);
@@ -138,6 +140,7 @@ public class PotionProjectile : MonoBehaviour
             PotionAreaController areaController = Instantiate(_areaControllerPrefab, areaPosition, Quaternion.identity);
             areaController.Initialize(_potionData, _wallCollisionLayers);
             areaController.SetOwner(_owner);
+            areaController.SetThrowOrder(_throwOrder);
             areaController.Activate();
         }
 

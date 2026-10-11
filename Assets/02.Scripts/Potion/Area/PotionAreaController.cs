@@ -24,11 +24,12 @@ public class PotionAreaController : MonoBehaviour
     private VFXBurstField _vfxField;
     private SoundHandle _loopSound;
 
-    // 장판이 깔린 순서. 값이 클수록 나중에 던져진 포션이다.
+    // 장판이 깔린 순서. 실제 투척 순서(Ownership.ThrowOrder)와 별개다.
     internal int ActivationOrder { get; private set; }
 
     public PotionData Data { get; private set; }
-    public IDamageable Owner { get; private set; }
+    public PotionAreaOwnership Ownership { get; } = new PotionAreaOwnership();
+    public IDamageable Owner => Ownership.Owner;
     public Collider2D AreaCollider => _collider;
     public PotionAreaEffect AreaEffect => _areaEffect;
     public SpriteRenderer AreaRenderer => _renderer;
@@ -41,7 +42,8 @@ public class PotionAreaController : MonoBehaviour
     internal PotionAreaFootprint Footprint { get; private set; }
     private bool _hasValidFootprint = true;
 
-    public void SetOwner(IDamageable owner) => Owner = owner;
+    public void SetOwner(IDamageable owner) => Ownership.SetOwner(owner);
+    public void SetThrowOrder(long order) => Ownership.SetThrowOrder(order);
 
     internal void SetCombinedFootprint(PotionAreaFootprint footprint) => Footprint = footprint;
 
@@ -206,7 +208,9 @@ public class PotionAreaController : MonoBehaviour
             return;
         }
         _activated = true;
+        if (Ownership.ThrowOrder == 0) Ownership.SetThrowOrder(PotionAreaOwnership.NextThrowOrder());
         ActivationOrder = ++_activationCount;
+        Ownership.MarkReaction();
         SetExpiration(Time.time + _duration);
         // 조합에서 먼저 던져진 쪽의 소리를 끌 수 있도록 조합 탐색보다 먼저 재생한다.
         // 기화는 장판을 만들지 않지만 반응을 기다리는 동안 소리를 낸다.

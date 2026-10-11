@@ -17,6 +17,7 @@ MonoBehaviour:
     _ranged: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
     _eliteBomber: {fileID: 829986578479390835, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
     _eliteRanged: {fileID: 6855117681603736741, guid: 84428c3767fbcf54393a5b590c0c7a8a, type: 3}
+    _reaper: {fileID: 114999, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
   _normalRoom:
     _waves:
     - _baseCountMin: 10

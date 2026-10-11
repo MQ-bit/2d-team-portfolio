@@ -6,16 +6,21 @@ public readonly struct PotionEffectSource
     public int SourceId { get; }
     public PotionData Potion { get; }
     public PotionCombinationData Combination { get; }
-    public IDamageable Owner { get; }
+    private readonly IDamageable _owner;
+    private readonly PotionAreaOwnership _areaOwnership;
+    public IDamageable Owner => _areaOwnership != null ? _areaOwnership.Owner : _owner;
+    public bool IsAreaDamage => _areaOwnership != null;
     public float LifeStealRatio { get; }
 
     public PotionEffectSource(int sourceId, PotionData potion = null,
-        PotionCombinationData combination = null, IDamageable owner = null, float lifeStealRatio = 0f)
+        PotionCombinationData combination = null, IDamageable owner = null, float lifeStealRatio = 0f,
+        PotionAreaOwnership areaOwnership = null)
     {
         SourceId = sourceId;
         Potion = potion;
         Combination = combination;
-        Owner = owner;
+        _owner = owner;
+        _areaOwnership = areaOwnership;
         LifeStealRatio = Mathf.Clamp01(PotionDataValidation.Finite(lifeStealRatio));
     }
 }

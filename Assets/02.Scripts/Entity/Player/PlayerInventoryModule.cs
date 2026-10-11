@@ -104,6 +104,11 @@ public class PlayerInventoryModule : MonoBehaviour, IItemReceiver
         return _inventory.TryConsumeItem(_selectedSlotIndex, 1, out consumedItem);
     }
 
+    public bool TryConsumeItemAt(int index, out PotionItem consumedItem)
+    {
+        return _inventory.TryConsumeItem(index, 1, out consumedItem);
+    }
+
     public PotionItem GetItemAt(int index)
     {
         return _inventory.GetPotionItem(index);
