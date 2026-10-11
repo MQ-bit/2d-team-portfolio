@@ -117,7 +117,7 @@ public class MinimapView : MonoBehaviour
         }
 
         image.gameObject.SetActive(true);
-        
+
         return image;
     }
 
@@ -130,7 +130,7 @@ public class MinimapView : MonoBehaviour
         image.sprite = markerData.Icon;
 
         image.color = hasIcon ? Color.white : markerData.Color; // 아이콘이 있으면 원본 색상을 사용. 아이콘이 없으면 지정된 색상의 네모가 됨.
-        
+
         image.preserveAspect = hasIcon;
         image.type = Image.Type.Simple;
         image.raycastTarget = false;

@@ -177,16 +177,29 @@ public class SpawnManager : MonoBehaviour
                 return new ParticleSystem.MinMaxGradient(ShiftHue(source.colorMin, hue), ShiftHue(source.colorMax, hue));
             case ParticleSystemGradientMode.Gradient:
             case ParticleSystemGradientMode.RandomColor:
-                return new ParticleSystem.MinMaxGradient(ShiftGradient(source.gradient, hue));
+                {
+                    Gradient shifted = ShiftGradient(source.gradient, hue);
+                    return shifted != null ? new ParticleSystem.MinMaxGradient(shifted) : source;
+                }
             case ParticleSystemGradientMode.TwoGradients:
-                return new ParticleSystem.MinMaxGradient(ShiftGradient(source.gradientMin, hue), ShiftGradient(source.gradientMax, hue));
+                {
+                    Gradient shiftedMin = ShiftGradient(source.gradientMin, hue);
+                    Gradient shiftedMax = ShiftGradient(source.gradientMax, hue);
+                    return shiftedMin != null && shiftedMax != null ? new ParticleSystem.MinMaxGradient(shiftedMin, shiftedMax) : source;
+                }
             default:
                 return source;
         }
     }
 
+    // 그래디언트가 비어 있으면 null을 돌려준다. 호출하는 쪽에서 원본을 그대로 쓴다.
     private static Gradient ShiftGradient(Gradient source, float hue)
     {
+        if (source == null || source.colorKeys == null)
+        {
+            return null;
+        }
+
         GradientColorKey[] colorKeys = source.colorKeys;
         for (int i = 0; i < colorKeys.Length; i++)
         {

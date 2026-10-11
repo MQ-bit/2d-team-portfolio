@@ -176,7 +176,7 @@ public class MinimapPresenter : MonoBehaviour
         float uvX = textureX / texture.width;
         float uvY = textureY / texture.height;
         float uvWidth = _viewWorldSize / texture.width;
-        float uvHeight = _viewWorldSize / texture.height;   
+        float uvHeight = _viewWorldSize / texture.height;
 
         Rect uvRect = new(uvX, uvY, uvWidth, uvHeight);
 
@@ -237,7 +237,7 @@ public class MinimapPresenter : MonoBehaviour
         }
 
         Vector2 anchoredPosition = new(delta.x / _viewWorldSize * markerAreaSize.x, delta.y / _viewWorldSize * markerAreaSize.y);
- 
+
         _markerBuffer.Add(new MinimapMarkerViewData(marker.Id, anchoredPosition, marker.Icon, marker.Color, marker.Size, marker.RenderPriority));
     }
 
@@ -251,7 +251,7 @@ public class MinimapPresenter : MonoBehaviour
 
     private bool IsCurrentStageMarker(MinimapMarker marker)
     {
-        return _stage?.Root != null && marker.transform.IsChildOf( _stage.Root.transform);
+        return _stage?.Root != null && marker.transform.IsChildOf(_stage.Root.transform);
     }
 
     private void RenderNoMarkers()

@@ -32,7 +32,7 @@ public class InteractablePotionBox : MonoBehaviour, IInteractable
             _animator = GetComponent<Animator>();
         }
 
-        if(_minimapMarker == null)
+        if (_minimapMarker == null)
         {
             _minimapMarker = GetComponentInChildren<MinimapMarker>();
         }
