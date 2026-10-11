@@ -4214,6 +4214,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1880209817}
   - component: {fileID: 1880209816}
+  - component: {fileID: 1880209818}
   m_Layer: 0
   m_Name: GameOverIntrolController
   m_TagString: Untagged
@@ -4264,6 +4265,7 @@ MonoBehaviour:
   _tombFadeDuration: 1.5
   _exitPopDuration: 0.4
   _tombStartOffsetY: 80
+  _soundController: {fileID: 1880209818}
 --- !u!4 &1880209817
 Transform:
   m_ObjectHideFlags: 0
@@ -4279,6 +4281,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1880209818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1880209815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd687fa69e0f5b5499245314f12fc7b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverSoundController
+  _buttonClickSoundId: 10
+  _buttonHoverSoundId: 11
 --- !u!1 &2076789502
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,9 @@ public abstract class EnemyData : ScriptableObject
     [Header("Movement")]
     [SerializeField, Min(0f)] private float _moveSpeed = 2.5f;
 
+    [Header("Contact Damage")]
+    [SerializeField, Min(0f)] private float _contactDamage = 10f;
+
     [Header("Detection")]
     [SerializeField, Min(0f)] private float _detectRange = 6f;
 
@@ -20,6 +23,7 @@ public abstract class EnemyData : ScriptableObject
 
     public float MaxHealth => _maxHealth;
     public float MoveSpeed => _moveSpeed;
+    public float ContactDamage => _contactDamage;
     public float DetectRange => _detectRange;
 
     // 엘리트처럼 데이터마다 다른 외형을 렌더러에 입힌다. 컨트롤러의 Awake에서 한 번 호출한다.

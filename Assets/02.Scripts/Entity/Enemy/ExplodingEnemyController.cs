@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplodingEnemyController : MonoBehaviour
+public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 {
     private enum State
     {
@@ -45,7 +45,8 @@ public class ExplodingEnemyController : MonoBehaviour
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
+        if (_data != null) _status.Initialize(_data);
+        else _status.Initialize(100f, 2.5f);
 
         if (_spriteRenderer != null)
         {
@@ -90,6 +91,34 @@ public class ExplodingEnemyController : MonoBehaviour
         }
     }
 
+    private void ResetState()
+    {
+        _state = State.Idle;
+        _target = null;
+        _fuseElapsed = 0f;
+        _isWindingUp = false;
+        _windupElapsed = 0f;
+        _isRushing = false;
+
+        _overlapResults.Clear();
+        _damagedTargets.Clear();
+
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = _originalColor;
+        }
+
+        if (_status != null && _data != null)
+        {
+            _status.Initialize(_data);
+        }
+
+        if (_movementModule != null)
+        {
+            _movementModule.ResetState();
+        }
+    }
+
     private void OnEnable()
     {
         _status.OnDeath += HandleDeath;
@@ -109,7 +138,7 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         _state = State.Exploded;
-        Destroy(gameObject);
+        Release();
     }
 
     private void FixedUpdate()
@@ -277,7 +306,7 @@ public class ExplodingEnemyController : MonoBehaviour
             }
         }
 
-        Destroy(gameObject);
+        Release();
     }
 
     // 엘리트 폭발형: 직접 터지지 않고 SplitPrefab 적 여러 마리로 바뀌어 대신 터진다.
@@ -291,14 +320,22 @@ public class ExplodingEnemyController : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Vector2 offset = Quaternion.Euler(0f, 0f, startAngle + 360f / count * i) * Vector2.right * _data.SplitSpawnDistance;
-            GameObject split = Instantiate(_data.SplitPrefab, (Vector2)transform.position + offset, transform.rotation, transform.parent);
+            // 몬스터는 SpawnManager의 풀에서 빌려 쓴다.
+            Vector3 position = (Vector2)transform.position + offset;
+            GameObject split = SpawnManager.Instance.Spawn(_data.SplitPrefab, position, transform.rotation);
+            if (split == null)
+            {
+                continue;
+            }
+
+            split.transform.SetParent(transform.parent, true);
             if (split.TryGetComponent(out ExplodingEnemyController controller))
             {
                 controller.BeginFuse();
             }
         }
 
-        Destroy(gameObject);
+        Release();
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
@@ -315,6 +352,30 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void OnSpawned()
+    {
+        ResetState();
+    }
+
+    public void OnDespawned()
+    {
+        ResetState();
+    }
+
+    /// <summary>
+    /// 풀에서 반환되거나, 풀에 속하지 않은 경우에는 그냥 파괴한다.
+    /// </summary>
+    private void Release()
+    {
+        if (TryGetComponent(out PoolMember member) && member.IsRented)
+        {
+            member.ReturnToPool();
+            return;
+        }
+
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

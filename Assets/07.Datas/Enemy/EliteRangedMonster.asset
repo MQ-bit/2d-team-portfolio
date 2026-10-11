@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
   _maxHealth: 100
   _moveSpeed: 5
+  _contactDamage: 10
   _detectRange: 9999
   _attackRange: 4
   _chaseResumeBuffer: 0.5
   _attackCooldown: 1.5
-  _projectileSpeed: 8
+  _attackFireDelay: 0.3
+  _projectileSpeed: 4
   _projectileDamage: 20
   _projectileLifetime: 3
   _visualScale: 1.2

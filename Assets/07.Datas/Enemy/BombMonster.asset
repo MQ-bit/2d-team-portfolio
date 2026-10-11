@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
   _maxHealth: 100
   _moveSpeed: 2.5
+  _contactDamage: 10
   _detectRange: 9999
   _fuseTriggerRange: 2.2
   _fuseDuration: 0.333

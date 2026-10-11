@@ -32,7 +32,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 4.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7382544260935859006}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2629185830579395252
@@ -81,7 +82,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1831432877
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -67303063, guid: 90757ac0e4371d74d9d6e80de5fa08aa, type: 3}
@@ -174,7 +175,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65ad9d686fbcf6046b36913980971f05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomGateController
-  _renderers:
-  - {fileID: 2629185830579395252}
-  _blockingColliders:
-  - {fileID: 3679389883927381045}
+  _blockingColliders: {fileID: 0}
+  _animator: {fileID: 0}
+--- !u!1 &9000736001334759038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7382544260935859006}
+  - component: {fileID: 2827755162916347377}
+  m_Layer: 0
+  m_Name: MinimapMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7382544260935859006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9000736001334759038}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8536144388354054642}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2827755162916347377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9000736001334759038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ce3920f027f724ca7559542677812d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  _icon: {fileID: -825298088, guid: 066e4a8e63e18354794f51f386a86955, type: 3}
+  _color: {r: 1, g: 1, b: 1, a: 1}
+  _markerSize: 16
+  _renderPriority: 100
+  _visible: 1

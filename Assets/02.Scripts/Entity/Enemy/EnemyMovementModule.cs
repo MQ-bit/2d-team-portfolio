@@ -23,6 +23,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
     [SerializeField, Min(0.1f)] private float _separationSearchRadius = 2.5f;
 
     private readonly List<Collider2D> _neighborResults = new List<Collider2D>();
+    private EntityBodyCollision _bodyCollision;
 
     private float _knockbackEndTime;
     private bool _isKnockedBack;
@@ -43,6 +44,13 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         }
 
         BodyRadius = CalculateBodyRadius();
+        _bodyCollision = new EntityBodyCollision(_rigid, false);
+    }
+
+    private void OnEnable() => _bodyCollision.Register();
+    private void OnDisable()
+    {
+        _bodyCollision.Unregister();
     }
 
     private float CalculateBodyRadius()
@@ -72,7 +80,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         }
 
         Vector2 nextPosition = Vector2.MoveTowards(_rigid.position, targetPosition, speed * Time.fixedDeltaTime);
-        _rigid.MovePosition(nextPosition);
+        _bodyCollision.MoveTo(nextPosition);
     }
 
     // FixedUpdate에서 호출한다. 벽/소품을 돌아서 targetPosition까지 쫓아간다(EnemyPathfinder).
@@ -90,7 +98,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
 
         // 같은 길로 몰려와도 겹치지 않게 주변 몬스터 반대쪽으로 조금씩 비켜난다. 한 프레임 이동량을 넘지 않는다.
         nextPosition += Vector2.ClampMagnitude(GetSeparation() * _separationStrength, 1f) * step;
-        _rigid.MovePosition(nextPosition);
+        _bodyCollision.MoveTo(nextPosition);
     }
 
     // 몸끼리 간격(_separationGap)보다 가까운 몬스터에게서, 가까울수록 강하게 밀어내는 방향의 합.
@@ -192,4 +200,22 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         _rigid.linearVelocity = Vector2.zero;
         return false;
     }
+
+    public void ResetState()
+    {
+        _isKnockedBack = false;
+        _knockbackEndTime = 0f;
+
+        _waypoint = Vector2.zero;
+        _hasWaypoint = false;
+        _isDirectChase = false;
+        _nextRepathTime = 0f;
+
+        if (_rigid != null)
+        {
+            _rigid.linearVelocity = Vector2.zero;
+            _rigid.angularVelocity = 0f;
+        }
+    }
+
 }

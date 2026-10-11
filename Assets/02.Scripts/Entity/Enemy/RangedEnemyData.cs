@@ -14,7 +14,7 @@ public class RangedEnemyData : EnemyData
     [SerializeField, Min(0f)] private float _attackFireDelay = 0.3f;
 
     [Header("Projectile")]
-    [SerializeField, Min(0f)] private float _projectileSpeed = 8f;
+    [SerializeField, Min(0f)] private float _projectileSpeed = 5f;
     [SerializeField, Min(0f)] private float _projectileDamage = 10f;
     [SerializeField, Min(0f)] private float _projectileLifetime = 3f;
 
