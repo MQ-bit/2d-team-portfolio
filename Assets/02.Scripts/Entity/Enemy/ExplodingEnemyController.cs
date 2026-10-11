@@ -32,6 +32,9 @@ public class ExplodingEnemyController : MonoBehaviour
     private Transform _target;
     private float _fuseElapsed;
     private Color _originalColor;
+    private bool _isWindingUp; // 돌진 전에 멈춰 있는 중
+    private float _windupElapsed;
+    private bool _isRushing;
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
@@ -46,6 +49,11 @@ public class ExplodingEnemyController : MonoBehaviour
 
         if (_spriteRenderer != null)
         {
+            if (_data != null)
+            {
+                _data.ApplyVisual(_spriteRenderer);
+            }
+
             _originalColor = _spriteRenderer.color;
         }
     }
@@ -156,13 +164,54 @@ public class ExplodingEnemyController : MonoBehaviour
             return;
         }
 
-        _movementModule.ChaseTarget(targetPosition, _status.Speed);
+        // 처음 범위 안에 들어오면 RushWindupDuration 동안 멈춰서 붉어진 뒤, 평소 속도의 RushSpeedMultiplier배로 돌진한다.
+        // 한 번 돌진을 시작하면 범위를 벗어나도 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
+        if (!_isRushing && _data.RushSpeedMultiplier > 1f && distance <= _data.RushTriggerRange)
+        {
+            if (!_isWindingUp)
+            {
+                _isWindingUp = true;
+                _windupElapsed = 0f;
+                SetBodyColor(_data.RushWindupColor);
+            }
+
+            _windupElapsed += Time.fixedDeltaTime;
+            if (_windupElapsed >= _data.RushWindupDuration)
+            {
+                _isWindingUp = false;
+                _isRushing = true;
+                SetBodyColor(_originalColor);
+            }
+            else
+            {
+                _movementModule.Stop();
+                return;
+            }
+        }
+
+        float speed = _isRushing ? _status.Speed * _data.RushSpeedMultiplier : _status.Speed;
+        _movementModule.ChaseTarget(targetPosition, speed);
+    }
+
+    private void SetBodyColor(Color color)
+    {
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = color;
+        }
+    }
+
+    // 분열해서 생긴 적이 쫓아오지 않고 바로 예열부터 시작하게 한다.
+    public void BeginFuse()
+    {
+        StartFuse();
     }
 
     private void StartFuse()
     {
         _state = State.Fuse;
         _fuseElapsed = 0f;
+        _isWindingUp = false;
         _movementModule.Stop();
     }
 
@@ -196,6 +245,12 @@ public class ExplodingEnemyController : MonoBehaviour
 
     private void Explode()
     {
+        if (_data.SplitPrefab != null)
+        {
+            Split();
+            return;
+        }
+
         _state = State.Exploded;
         OnExploded?.Invoke();
         _damagedTargets.Clear();
@@ -219,6 +274,27 @@ public class ExplodingEnemyController : MonoBehaviour
             else
             {
                 hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+            }
+        }
+
+        Destroy(gameObject);
+    }
+
+    // 엘리트 폭발형: 직접 터지지 않고 SplitPrefab 적 여러 마리로 바뀌어 대신 터진다.
+    // 직접 터지지 않으므로 OnExploded(폭발 이펙트/사운드)와 피해는 분열한 적이 낸다.
+    private void Split()
+    {
+        _state = State.Exploded;
+
+        int count = _data.SplitCount;
+        float startAngle = UnityEngine.Random.value * 360f;
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 offset = Quaternion.Euler(0f, 0f, startAngle + 360f / count * i) * Vector2.right * _data.SplitSpawnDistance;
+            GameObject split = Instantiate(_data.SplitPrefab, (Vector2)transform.position + offset, transform.rotation, transform.parent);
+            if (split.TryGetComponent(out ExplodingEnemyController controller))
+            {
+                controller.BeginFuse();
             }
         }
 

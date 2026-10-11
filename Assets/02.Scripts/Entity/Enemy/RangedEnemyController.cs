@@ -19,6 +19,7 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private EnemyMovementModule _movementModule;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
     [SerializeField] private EnemyStatus _status;
+    [SerializeField] private SpriteRenderer _spriteRenderer;
 
     [Header("Attack")]
     [Tooltip("투사체가 나가는 위치. 이 오브젝트의 직계 자식으로, 오른쪽을 바라보는 기준으로 배치한다. " +
@@ -49,6 +50,11 @@ public class RangedEnemyController : MonoBehaviour
         GetModules();
 
         _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
+
+        if (_data != null)
+        {
+            _data.ApplyVisual(_spriteRenderer);
+        }
     }
 
     private void GetModules()
@@ -68,6 +74,10 @@ public class RangedEnemyController : MonoBehaviour
         if (_potionEffectReceiver == null)
         {
             _potionEffectReceiver = GetComponent<PotionEffectReceiver>();
+        }
+        if (_spriteRenderer == null)
+        {
+            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
         if (_firePoint == null)
         {
@@ -228,8 +238,18 @@ public class RangedEnemyController : MonoBehaviour
         Vector2 origin = GetFireOrigin();
         Vector2 direction = ((Vector2)_target.position - origin).normalized;
 
-        EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
-        projectile.Launch(direction, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+        // 투사체가 여러 개면 플레이어 방향을 가운데로 두고 부채꼴로 고르게 퍼뜨린다.
+        int count = _data.ProjectileCount;
+        float angleStep = count > 1 ? _data.SpreadAngle / (count - 1) : 0f;
+        float startAngle = count > 1 ? -_data.SpreadAngle * 0.5f : 0f;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 shotDirection = Quaternion.Euler(0f, 0f, startAngle + angleStep * i) * direction;
+            EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
+            projectile.Launch(shotDirection, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+        }
+
         SoundManager.Play(GameSoundId.EnemyAttack);
     }
 

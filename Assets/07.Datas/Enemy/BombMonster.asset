@@ -19,3 +19,9 @@ MonoBehaviour:
   _fuseDuration: 0.333
   _explosionRadius: 2
   _explosionDamage: 30
+  _visualScale: 1
+  _tintColor: {r: 1, g: 1, b: 1, a: 1}
+  _rushTriggerRange: 4
+  _rushSpeedMultiplier: 3
+  _rushWindupDuration: 0.5
+  _rushWindupColor: {r: 1, g: 0.2, b: 0.2, a: 1}

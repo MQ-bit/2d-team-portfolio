@@ -18,6 +18,13 @@ public class RangedEnemyData : EnemyData
     [SerializeField, Min(0f)] private float _projectileDamage = 10f;
     [SerializeField, Min(0f)] private float _projectileLifetime = 3f;
 
+    [Tooltip("한 번 공격에 나가는 투사체 수. 2개 이상이면 플레이어 방향을 중심으로 부채꼴로 퍼진다.")]
+    [SerializeField, Min(1)] private int _projectileCount = 1;
+    [Tooltip("부채꼴 전체 각도(도). 첫 투사체와 마지막 투사체 사이의 각도다.")]
+    [SerializeField, Range(0f, 180f)] private float _spreadAngle = 60f;
+
+    public int ProjectileCount => _projectileCount;
+    public float SpreadAngle => _spreadAngle;
     public float AttackRange => _attackRange;
     public float ChaseResumeRange => _attackRange + _chaseResumeBuffer;
     public float AttackCooldown => _attackCooldown;
