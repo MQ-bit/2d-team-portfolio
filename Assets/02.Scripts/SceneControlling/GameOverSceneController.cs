@@ -72,7 +72,7 @@ public sealed class GameOverSceneController : MonoBehaviour
     [SerializeField, Min(0f)] private float _tombImpactDuration = 0.1f;
     [SerializeField, Min(0f)] private float _exitPopDuration = 0.4f;
     [SerializeField] private float _tombStartOffsetY = 700f;
-    
+
     // 사운드 컨트롤러 연결
     [SerializeField] private GameOverSoundController _soundController;
 

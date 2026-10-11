@@ -155,8 +155,8 @@ public class StageManager : MonoBehaviour
         CurrentStage = stage;
         PlayerSpawnPoint = spawnPoint;
 
-        if (!_encounterCoordinator.TryBind(stage, out error)||
-            !rewardGenerator.TrySpawnInitialRewards(stage, out error)) 
+        if (!_encounterCoordinator.TryBind(stage, out error) ||
+            !rewardGenerator.TrySpawnInitialRewards(stage, out error))
         {
             return false;
         }
