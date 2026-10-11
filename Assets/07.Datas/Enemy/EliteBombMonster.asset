@@ -20,3 +20,10 @@ MonoBehaviour:
   _fuseDuration: 0.333
   _explosionRadius: 4
   _explosionDamage: 60
+  _visualScale: 1.2
+  _tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  _rushTriggerRange: 1
+  _rushSpeedMultiplier: 1
+  _splitPrefab: {fileID: 1377157155696017660, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
+  _splitCount: 2
+  _splitSpawnDistance: 0.6

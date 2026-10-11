@@ -23,3 +23,7 @@ MonoBehaviour:
   _projectileSpeed: 4
   _projectileDamage: 20
   _projectileLifetime: 3
+  _visualScale: 1.2
+  _tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  _projectileCount: 5
+  _spreadAngle: 60

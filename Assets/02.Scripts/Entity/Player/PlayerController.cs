@@ -120,14 +120,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMoveInput()
     {
-        if (!CanReadInput || _meleeModule.IsSwinging) return;
+        if (!CanReadInput || _meleeModule.IsSwinging || _drinkingModule.IsDrinking) return;
 
         _movementModule.MovePosition(ReadableMoveInput);
     }
 
     private void HandleDashInput()
     {
-        if (!CanReadInput) return;
+        if (!CanReadInput || _drinkingModule.IsDrinking) return;
 
         Vector2 moveInput = ReadableMoveInput;
 
