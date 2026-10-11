@@ -32,6 +32,9 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
     private Transform _target;
     private float _fuseElapsed;
     private Color _originalColor;
+    private bool _isWindingUp; // 돌진 전에 멈춰 있는 중
+    private float _windupElapsed;
+    private bool _isRushing;
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
@@ -47,6 +50,11 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 
         if (_spriteRenderer != null)
         {
+            if (_data != null)
+            {
+                _data.ApplyVisual(_spriteRenderer);
+            }
+
             _originalColor = _spriteRenderer.color;
         }
     }
@@ -88,6 +96,9 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         _state = State.Idle;
         _target = null;
         _fuseElapsed = 0f;
+        _isWindingUp = false;
+        _windupElapsed = 0f;
+        _isRushing = false;
 
         _overlapResults.Clear();
         _damagedTargets.Clear();
@@ -166,6 +177,13 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         _target = FindPlayerInRange(_data.DetectRange);
         if (_target == null)
         {
+            // 멈춰서 붉어지던 중에 대상을 놓치면 취소하고 색을 되돌린다.
+            if (_isWindingUp)
+            {
+                _isWindingUp = false;
+                SetBodyColor(_originalColor);
+            }
+
             _state = State.Idle;
             _movementModule.Stop();
             return;
@@ -182,13 +200,56 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             return;
         }
 
-        _movementModule.ChaseTarget(targetPosition, _status.Speed);
+        // 처음 범위 안에 들어오면 RushWindupDuration 동안 멈춰서 붉어진 뒤, 평소 속도의 RushSpeedMultiplier배로 돌진한다.
+        // 한 번 멈추기 시작하면 플레이어가 범위를 벗어나도 끝까지 멈췄다가 돌진하고,
+        // 돌진을 시작하면 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
+        bool canStartWindup = _data.RushSpeedMultiplier > 1f && distance <= _data.RushTriggerRange;
+        if (!_isRushing && (_isWindingUp || canStartWindup))
+        {
+            if (!_isWindingUp)
+            {
+                _isWindingUp = true;
+                _windupElapsed = 0f;
+                SetBodyColor(_data.RushWindupColor);
+            }
+
+            _windupElapsed += Time.fixedDeltaTime;
+            if (_windupElapsed >= _data.RushWindupDuration)
+            {
+                _isWindingUp = false;
+                _isRushing = true;
+                SetBodyColor(_originalColor);
+            }
+            else
+            {
+                _movementModule.Stop();
+                return;
+            }
+        }
+
+        float speed = _isRushing ? _status.Speed * _data.RushSpeedMultiplier : _status.Speed;
+        _movementModule.ChaseTarget(targetPosition, speed);
+    }
+
+    private void SetBodyColor(Color color)
+    {
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = color;
+        }
+    }
+
+    // 분열해서 생긴 적이 쫓아오지 않고 바로 예열부터 시작하게 한다.
+    public void BeginFuse()
+    {
+        StartFuse();
     }
 
     private void StartFuse()
     {
         _state = State.Fuse;
         _fuseElapsed = 0f;
+        _isWindingUp = false;
         _movementModule.Stop();
     }
 
@@ -222,6 +283,12 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 
     private void Explode()
     {
+        if (_data.SplitPrefab != null)
+        {
+            Split();
+            return;
+        }
+
         _state = State.Exploded;
         OnExploded?.Invoke();
         _damagedTargets.Clear();
@@ -245,6 +312,35 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             else
             {
                 hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+            }
+        }
+
+        Release();
+    }
+
+    // 엘리트 폭발형: 직접 터지지 않고 SplitPrefab 적 여러 마리로 바뀌어 대신 터진다.
+    // 직접 터지지 않으므로 OnExploded(폭발 이펙트/사운드)와 피해는 분열한 적이 낸다.
+    private void Split()
+    {
+        _state = State.Exploded;
+
+        int count = _data.SplitCount;
+        float startAngle = UnityEngine.Random.value * 360f;
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 offset = Quaternion.Euler(0f, 0f, startAngle + 360f / count * i) * Vector2.right * _data.SplitSpawnDistance;
+            // 몬스터는 SpawnManager의 풀에서 빌려 쓴다.
+            Vector3 position = (Vector2)transform.position + offset;
+            GameObject split = SpawnManager.Instance.Spawn(_data.SplitPrefab, position, transform.rotation);
+            if (split == null)
+            {
+                continue;
+            }
+
+            split.transform.SetParent(transform.parent, true);
+            if (split.TryGetComponent(out ExplodingEnemyController controller))
+            {
+                controller.BeginFuse();
             }
         }
 

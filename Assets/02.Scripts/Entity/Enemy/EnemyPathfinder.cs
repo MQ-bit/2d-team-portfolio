@@ -42,7 +42,7 @@ public class EnemyPathfinder : MonoBehaviour
     [SerializeField, Min(0.1f)] private float _cellSize = 0.5f;
     [Tooltip("몸 크기 단계(반지름). 몬스터는 자기 몸보다 크거나 같은 가장 작은 단계의 길을 쓴다. 단계마다 벽에서 그만큼 떨어진 칸만 지나간다.")]
     [SerializeField] private float[] _clearanceRadii = { 0.5f, 1f };
-    [Tooltip("몸 반지름에 더하는 여유. 경로가 벽에 스치지 않게 한다.")]
+    [Tooltip("몸 반지름에 더하는 여유. 경로가 벽에 스치지 않게 한다. 칸 중심만 검사하므로 칸 반쪽 대각선(칸 크기 x 0.71)보다 작으면 그 값으로 올려 쓴다.")]
     [SerializeField, Min(0f)] private float _clearanceMargin = 0.15f;
 
     [Header("Path Settings")]
@@ -73,6 +73,9 @@ public class EnemyPathfinder : MonoBehaviour
     private readonly List<RaycastHit2D> _castResults = new List<RaycastHit2D>();
     private readonly List<ClearanceLayer> _layers = new List<ClearanceLayer>();
     private readonly CellHeap _open = new CellHeap();
+
+    // 칸 중심으로만 막힘을 검사하므로, 칸 안 어디에 있어도 몸이 벽에 닿지 않으려면 여유가 칸 반쪽 대각선 이상이어야 한다.
+    private float ClearanceMargin => Mathf.Max(_clearanceMargin, _cellSize * 0.71f);
 
     private bool _hasGrid;
     private bool _isGridBuilt;
@@ -140,7 +143,7 @@ public class EnemyPathfinder : MonoBehaviour
                 {
                     if (!isBlocked)
                     {
-                        isBlocked = OverlapsObstacle(center, layer.Radius + _clearanceMargin, filter);
+                        isBlocked = OverlapsObstacle(center, layer.Radius + ClearanceMargin, filter);
                     }
 
                     layer.Blocked[index] = isBlocked;
@@ -271,7 +274,7 @@ public class EnemyPathfinder : MonoBehaviour
         float length = delta.magnitude;
         float stepLength = _cellSize * 0.5f;
         int steps = Mathf.CeilToInt(length / stepLength);
-        float targetArea = ignoreTargetArea ? layer.Radius + _clearanceMargin + _cellSize : 0f;
+        float targetArea = ignoreTargetArea ? layer.Radius + ClearanceMargin + _cellSize : 0f;
 
         for (int i = 1; i <= steps; i++)
         {
@@ -357,7 +360,7 @@ public class EnemyPathfinder : MonoBehaviour
             return;
         }
 
-        int range = Mathf.CeilToInt((layer.Radius + _clearanceMargin) * 2f / _cellSize) + 1;
+        int range = Mathf.CeilToInt((layer.Radius + ClearanceMargin) * 2f / _cellSize) + 1;
         for (int dy = -range; dy <= range; dy++)
         {
             for (int dx = -range; dx <= range; dx++)
@@ -427,7 +430,7 @@ public class EnemyPathfinder : MonoBehaviour
 
     private int FindNearestReachable(ClearanceLayer layer, Vector2Int cell)
     {
-        int maxRing = Mathf.CeilToInt((layer.Radius + _clearanceMargin) * 2f / _cellSize) + 1;
+        int maxRing = Mathf.CeilToInt((layer.Radius + ClearanceMargin) * 2f / _cellSize) + 1;
         for (int ring = 1; ring <= maxRing; ring++)
         {
             int best = -1;

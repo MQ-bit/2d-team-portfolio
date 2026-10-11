@@ -1,5 +1,54 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2054825234719106649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 888196258656476069}
+  - component: {fileID: 2670798895296769444}
+  m_Layer: 8
+  m_Name: MinimapMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &888196258656476069
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054825234719106649}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2353216599458671429}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2670798895296769444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054825234719106649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ce3920f027f724ca7559542677812d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  _icon: {fileID: 0}
+  _color: {r: 1, g: 0, b: 0, a: 1}
+  _markerSize: 8
+  _renderPriority: 200
+  _visible: 1
 --- !u!1001 &3796408803251224558
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -98,7 +147,10 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 3d3d186f1039f614199efccda87f4a90, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1443337395163174059, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 888196258656476069}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2860674803404275474, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       insertIndex: -1
@@ -121,3 +173,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f185abedc27390645a89a01a0d2d8301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveEnemyHandle
+  _status: {fileID: 0}
+--- !u!4 &2353216599458671429 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1443337395163174059, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+  m_PrefabInstance: {fileID: 3796408803251224558}
+  m_PrefabAsset: {fileID: 0}
