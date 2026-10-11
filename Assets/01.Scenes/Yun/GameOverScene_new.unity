@@ -780,8 +780,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScreenFadeController
   _canvasGroup: {fileID: 1723704555}
-  _defaultFadeOutDuration: 1
-  _defaultFadeInDuration: 1
+  _defaultFadeOutDuration: 0.8
+  _defaultFadeInDuration: 0.8
   _startCovered: 1
 --- !u!1 &129360440
 GameObject:
