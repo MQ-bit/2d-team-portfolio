@@ -5954,7 +5954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleSceneController
   _startButton: {fileID: 624044265}
-  _fadeGroup: {fileID: 1686313465}
+  _fadeController: {fileID: 1686313466}
   _ingameSceneName: IngameScene
   _fadeDuration: 0.8
 --- !u!4 &1005989717
@@ -11137,6 +11137,7 @@ GameObject:
   - component: {fileID: 1686313464}
   - component: {fileID: 1686313463}
   - component: {fileID: 1686313465}
+  - component: {fileID: 1686313466}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -11213,6 +11214,22 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &1686313466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686313461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5714ce5efa219bd47b50dce77d3a5a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenFadeController
+  _canvasGroup: {fileID: 1686313465}
+  _defaultFadeOutDuration: 0.8
+  _defaultFadeInDuration: 0.8
+  _startCovered: 1
 --- !u!1 &1692559221
 GameObject:
   m_ObjectHideFlags: 0

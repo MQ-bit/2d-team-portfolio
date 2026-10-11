@@ -859,6 +859,10 @@ PrefabInstance:
       propertyPath: _fadeController
       value: 
       objectReference: {fileID: 1670615287}
+    - target: {fileID: 4034653583514344298, guid: dfdb29bd0bb63a7448f4a50502a80ff7, type: 3}
+      propertyPath: _sceneFadeInDuration
+      value: 0.8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1463,8 +1467,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.99999994
-    height: 0.9994508
+    width: 1
+    height: 1
   near clip plane: 0.1
   far clip plane: 5014
   field of view: 40
