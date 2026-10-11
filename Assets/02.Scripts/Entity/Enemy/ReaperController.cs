@@ -85,7 +85,8 @@ public sealed class ReaperController : EnemyControllerBase
                 Movement.Stop();
                 bool finished = Tick();
                 if (_stealEffect != null) _stealEffect.SetProgress(1f - _remaining / Settings.StealWindup);
-                if (finished) FinishSteal();
+                if ((_remaining <= Settings.StealActiveDuration && CanHitStealTarget()) || finished)
+                    FinishSteal();
                 return;
             case ActionState.Cast:
                 Movement.Stop();
@@ -168,17 +169,24 @@ public sealed class ReaperController : EnemyControllerBase
     }
 
     private bool Tick() { _remaining -= Time.fixedDeltaTime; return _remaining <= 0f; }
+    private bool CanHitStealTarget()
+    {
+        PlayerStatus player = _stealTarget != null ? _stealTarget.GetComponent<PlayerStatus>() : null;
+        return player != null && !player.IsDead && _stealEffect != null
+            && ReaperPotionTheft.IsInsideWarning(_stealPosition, _stealTarget.position, Settings.StealAreaRadius)
+            && EnemyPathfinder.Instance.HasLineOfSight(Body.position, _stealTarget.position);
+    }
+
     private void FinishSteal()
     {
         PlayerStatus player = _stealTarget != null ? _stealTarget.GetComponent<PlayerStatus>() : null;
-        bool hit = player != null && !player.IsDead && _stealEffect != null
-            && Vector2.Distance(Body.position, _stealTarget.position) <= Settings.StealRange
-            && ReaperPotionTheft.IsInsideWarning(_stealPosition, _stealTarget.position, Settings.StealAreaRadius)
-            && EnemyPathfinder.Instance.HasLineOfSight(Body.position, _stealTarget.position);
+        bool hit = CanHitStealTarget();
         if (hit && ReaperPotionTheft.TrySteal(_stealInventory, out PotionItem stolen))
         {
             _stolenPotion = stolen;
             _stealEffect.PlayCapture(stolen, _stealTarget.position, transform);
+            if (Settings.StealDamage > 0f)
+                player.DecreaseHealth(Settings.StealDamage, ((Vector2)_stealTarget.position - Body.position).normalized);
         }
         else
         {

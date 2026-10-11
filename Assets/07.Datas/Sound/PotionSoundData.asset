@@ -13,6 +13,18 @@ MonoBehaviour:
   m_Name: PotionSoundData
   m_EditorClassIdentifier: Assembly-CSharp::SoundCategoryData
   _entries:
+  - _id: 40
+    _clip: {fileID: 8300000, guid: a2885618edb5f3340aef42c3fc410896, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 2
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
   - _id: 18
     _clip: {fileID: 8300000, guid: e1ff3e9de6746134691657751af0f5c1, type: 3}
     _channel: 4

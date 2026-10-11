@@ -43,7 +43,11 @@ public sealed class ReaperPotionSteal : MonoBehaviour
 
     public void SetProgress(float progress)
     {
-        if (_warning != null) _warning.SetProgress(progress);
+        bool active = (1f - Mathf.Clamp01(progress)) * _data.StealWindup <= _data.StealActiveDuration;
+        if (_warning != null) _warning.SetProgress(active ? 1f : progress);
+        _magicCircle.color = active ? _data.StealChargedColor
+            : Color.Lerp(_data.StealRuneColor, _data.StealAccentColor, 0.3f);
+        _magicCircleAnimator.speed = active ? 1.35f : 1f;
     }
 
     public void PlayCapture(PotionItem item, Vector3 playerPosition, Transform destination)

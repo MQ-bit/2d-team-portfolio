@@ -53,6 +53,9 @@ MonoBehaviour:
   _magicCircle: {fileID: 212002}
   _magicCircleAnimator: {fileID: 95002}
   _magicCircleAnchorPixels: {x: 68, y: 49}
+  _warningColor: {r: 0.38, g: 0.11, b: 0.13, a: 0.95}
+  _magicCircleColor: {r: 0.62, g: 0.19, b: 0.18, a: 1}
+  _magicCircleChargedColor: {r: 0.86, g: 0.36, b: 0.3, a: 1}
 --- !u!1 &1001
 GameObject:
   m_ObjectHideFlags: 0

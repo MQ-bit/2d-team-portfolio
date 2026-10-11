@@ -64,13 +64,17 @@ public sealed class ReaperData : EnemyData
     [SerializeField] private Color _stealChargedColor = new Color(0.85f, 0.7f, 1f, 1f);
     [SerializeField, Min(0f)] private float _stealMinRange = 3f;
     [SerializeField, Min(0f)] private float _stealRange = 6f;
-    [Tooltip("강탈 준비 시작 시 고정되는 바닥 경고 범위. 벗어나면 강탈을 피한다.")]
+    [Tooltip("강탈 준비 시작 시 고정되는 범위. 시전 마지막 판정 구간 전에 벗어나면 피한다.")]
     [SerializeField, Min(0.1f)] private float _stealAreaRadius = 2.6f;
-    [SerializeField, Min(0.01f)] private float _stealWindup = 0.9f;
+    [SerializeField, Min(0.01f)] private float _stealWindup = 1.1f;
+    [Tooltip("시전 끝에 범위를 계속 검사하는 시간. 한 번 적중하면 종료한다.")]
+    [SerializeField, Min(0.01f)] private float _stealActiveDuration = 0.35f;
     [SerializeField, Min(0f)] private float _stealRecovery = 0.6f;
     [SerializeField, Min(0.01f)] private float _stealCooldown = 12f;
     [Tooltip("강탈 성공 후 포션이 플레이어에서 리퍼에게 이동하는 연출 시간.")]
     [SerializeField, Min(0.01f)] private float _stealCaptureDuration = 2.2f;
+    [Tooltip("포션 강탈 성공 시 한 번 주는 피해. 포션이 없으면 Steal Empty Damage만 적용합니다.")]
+    [SerializeField, Min(0f)] private float _stealDamage = 3f;
     [Tooltip("강탈 판정 순간에 플레이어가 가진 포션이 없으면 주는 피해.")]
     [SerializeField, Min(0f)] private float _stealEmptyDamage = 15f;
     [Header("Death")]
@@ -120,9 +124,11 @@ public sealed class ReaperData : EnemyData
     public float StealRange => _stealRange;
     public float StealAreaRadius => _stealAreaRadius;
     public float StealWindup => _stealWindup;
+    public float StealActiveDuration => Mathf.Min(_stealWindup, Mathf.Max(0.01f, _stealActiveDuration));
     public float StealRecovery => _stealRecovery;
     public float StealCooldown => _stealCooldown;
     public float StealCaptureDuration => _stealCaptureDuration;
+    public float StealDamage => _stealDamage;
     public float StealEmptyDamage => _stealEmptyDamage;
 
     public PotionData PickSummonPotion()

@@ -50,11 +50,13 @@ MonoBehaviour:
   _stealMinRange: 3
   _stealRange: 6
   _stealAreaRadius: 2.6
-  _stealWindup: 0.9
+  _stealWindup: 1.1
+  _stealActiveDuration: 0.35
   _stealRecovery: 0.6
   _stealCooldown: 12
   _stealCaptureDuration: 2.2
   _stealEmptyDamage: 15
+  _stealDamage: 3
   _stealIndicatorColor: {r: 0.18, g: 0.05, b: 0.28, a: 1}
   _stealRuneColor: {r: 0.6, g: 0.25, b: 0.85, a: 1}
   _stealAccentColor: {r: 0.25, g: 0.85, b: 0.8, a: 1}

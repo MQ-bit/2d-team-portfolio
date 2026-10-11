@@ -10,6 +10,11 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float _backgroundAlpha = 0.12f;
     [SerializeField, Range(0f, 1f)] private float _fillAlpha = 0.32f;
     [SerializeField, Min(0.01f)] private float _outlineWidth = 0.045f;
+    [Header("Dash danger warning")]
+    [SerializeField] private Color _dashColor = new Color(0.76f, 0.04f, 0.06f, 1f);
+    [SerializeField] private Color _dashArrowColor = new Color(1f, 0.08f, 0.07f, 1f);
+    [SerializeField] private Color _dashChargedColor = new Color(1f, 0.18f, 0.14f, 1f);
+    [SerializeField, Range(0f, 1f)] private float _dashFillAlpha = 0.52f;
     [Header("Potion landing warning")]
     [SerializeField] private Sprite _landingAreaSprite;
     [SerializeField] private Sprite _landingMarkerSprite;
@@ -17,6 +22,8 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
     private MeshRenderer _fillRenderer, _ornamentRenderer;
     private bool _isPotionLanding;
     private Color _potionAreaColor;
+    private LineRenderer _expandingRing;
+    private readonly Vector3[] _expandingBoundary = new Vector3[48];
     private const int Segments = 48;
     private readonly Vector3[] _boundary = new Vector3[Segments];
     private readonly Vector3[] _raggedBoundary = new Vector3[Segments];
@@ -38,6 +45,8 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
     private readonly Vector3[] _moteVertices = new Vector3[48];
     private readonly Color[] _moteColors = new Color[48];
     private float _length, _radius;
+    private float _dashChargeProgress;
+    private int _dashTipVertexStart = int.MaxValue;
 
     private void Awake()
     {
@@ -119,6 +128,9 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
 
     public void SetDash(Vector2 origin, Vector2 direction, float length, float radius)
     {
+        _color = _dashColor;
+        _runeColor = _dashArrowColor;
+        _chargedColor = _dashChargedColor;
         _isPotionLanding = false;
         _isSteal = false;
         transform.position = origin;
@@ -129,7 +141,6 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
         _radius = radius;
         for (int i = 0; i < Segments; i++)
         {
-            // 직선 부분에도 꼭짓점을 둬서 찢어진 가장자리를 만든다.
             int section = i / 12;
             float t = (i % 12) / 12f;
             if (section == 0)
@@ -147,7 +158,10 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
                     Mathf.Sin(angle) * radius, 0f);
             }
             Vector3 center = Vector3.right * (length * 0.5f);
-            float inset = 0.83f + ((i * 17 + 3) % 11) * 0.017f;
+            float edgeDistance = Mathf.Min(_boundary[i].x, length - _boundary[i].x);
+            float roughnessWeight = Mathf.SmoothStep(0f, 1f,
+                Mathf.Clamp01(edgeDistance / Mathf.Max(0.01f, radius)));
+            float inset = 1f - (0.06f + ((i * 17 + 3) % 11) * 0.008f) * roughnessWeight;
             _raggedBoundary[i] = center + (_boundary[i] - center) * inset;
         }
         RefreshShape();
@@ -175,12 +189,25 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
         if (_landingAreaSprite == null) return;
         _isPotionLanding = true;
         _potionAreaColor = areaColor;
-        _backgroundRenderer.enabled = _fillRenderer.enabled = false;
-        _ornamentRenderer.enabled = _outline.enabled = _outlineShadow.enabled = true;
-        _outlineShadow.startColor = _outlineShadow.endColor = new Color(0.12f, 0.015f, 0.01f, 0.85f);
+        _backgroundRenderer.enabled = false;
+        _fillRenderer.enabled = true;
+        _ornamentRenderer.enabled = false;
+        _outline.enabled = _outlineShadow.enabled = true;
+        _outlineShadow.startColor = _outlineShadow.endColor = new Color(0.08f, 0.045f, 0.05f, 0.75f);
         _outlineShadow.widthMultiplier = _outlineWidth * 3.2f;
-        BuildOrnaments();
         if (_landingArea == null) _landingArea = CreateLandingSprite("Potion danger area", _landingAreaSprite, 1);
+        if (_expandingRing == null)
+        {
+            GameObject ring = new GameObject("Expanding impact countdown");
+            ring.transform.SetParent(transform, false);
+            _expandingRing = ring.AddComponent<LineRenderer>();
+            _expandingRing.sharedMaterial = _material;
+            _expandingRing.useWorldSpace = false;
+            _expandingRing.loop = true;
+            _expandingRing.positionCount = Segments;
+            _expandingRing.sortingLayerName = "FieldUI";
+            _expandingRing.sortingOrder = 4;
+        }
         // 투척 미리보기와 같은 월드 지름 및 2:1 타원 비율.
         ScaleLandingSprite(_landingArea, radius * 2f, radius);
         SetProgress(0f);
@@ -238,10 +265,12 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
 
     private void RefreshShape()
     {
-        _outline.enabled = _fillRenderer.enabled = _ornamentRenderer.enabled = true;
+        if (_expandingRing != null) _expandingRing.enabled = false;
+        _outline.enabled = !_isDash;
+        _fillRenderer.enabled = _ornamentRenderer.enabled = true;
         if (_landingArea != null) _landingArea.enabled = false;
         if (_landingMarker != null) _landingMarker.enabled = false;
-        // 돌진에는 둥근 바탕을 깔지 않고 거친 충전 표시와 칼자국만 남긴다.
+        // 돌진은 외곽선 없이 충전 표시와 내부 칼자국으로 방향을 보여준다.
         _backgroundRenderer.enabled = !_isDash;
         _outlineShadow.enabled = !_isDash;
         _fillVertices[0] = _isDash ? Vector3.right * (_length * 0.5f) : Vector3.zero;
@@ -259,6 +288,7 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
 
     private void BuildOrnaments()
     {
+        _dashTipVertexStart = int.MaxValue;
         var vertices = new List<Vector3>();
         var triangles = new List<int>();
         var thresholds = new List<float>();
@@ -304,24 +334,34 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
         }
         else if (_isDash)
         {
-            // 일정한 화살표 대신 길이가 다른 사선 흉터와 끊어진 균열을 넣는다.
-            int count = Mathf.Clamp(Mathf.FloorToInt(_length / 0.45f), 1, 15);
+            // 기존의 사선 흉터와 끊어진 균열을 유지한다.
+            int count = Mathf.Clamp(Mathf.FloorToInt(_length / 0.85f), 1, 8);
             for (int i = 0; i < count; i++)
             {
                 float t = (i + 0.5f) / count;
                 float x = _length * t;
                 float size = Mathf.Min(_length / count * 0.38f, _radius * 0.35f);
                 float side = i % 2 == 0 ? 1f : -1f;
-                float reach = _radius * (0.38f + ((i * 7) % 5) * 0.07f);
+                float reach = _radius * (0.3f + ((i * 7) % 5) * 0.05f);
                 Vector2 bend = new Vector2(x + size * 0.3f, side * _radius * 0.1f);
                 Line(new Vector2(x - size, -side * reach * 0.55f), bend, t);
                 Line(bend, new Vector2(x + size, side * reach), t);
-                if (i % 3 != 0)
+                if (i % 3 == 0)
                     Line(bend, new Vector2(x - size * 0.6f, side * reach * 0.58f), t);
             }
-            float head = Mathf.Min(_radius * 0.45f, _length * 0.3f);
-            Line(new Vector2(_length - head, -_radius * 0.42f), new Vector2(_length + _radius * 0.38f, 0f), 0.9f);
-            Line(new Vector2(_length + _radius * 0.38f, 0f), new Vector2(_length - head * 0.6f, _radius * 0.28f), 0.9f);
+            // 끝에만 작은 화살촉을 얹어 방향을 강조한다.
+            _dashTipVertexStart = vertices.Count;
+            Vector2 arrowTip = new Vector2(_length + _radius * 0.8f, 0f);
+            Vector2 lowerWing = new Vector2(_length - _radius * 0.35f, -_radius * 0.72f);
+            Vector2 upperWing = new Vector2(_length - _radius * 0.28f, _radius * 0.65f);
+            Vector2 notch = new Vector2(_length + _radius * 0.05f, -_radius * 0.04f);
+            int arrowStart = vertices.Count;
+            vertices.Add(lowerWing); vertices.Add(arrowTip); vertices.Add(upperWing); vertices.Add(notch);
+            triangles.Add(arrowStart); triangles.Add(arrowStart + 1); triangles.Add(arrowStart + 3);
+            triangles.Add(arrowStart + 1); triangles.Add(arrowStart + 2); triangles.Add(arrowStart + 3);
+            for (int i = 0; i < 4; i++) thresholds.Add(0.85f);
+            Line(lowerWing, arrowTip, 0.85f);
+            Line(arrowTip, upperWing, 0.85f);
         }
         else
         {
@@ -362,26 +402,37 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
     public void SetProgress(float progress)
     {
         progress = Mathf.Clamp01(progress);
+        if (_isDash) _dashChargeProgress = progress;
         if (_isPotionLanding)
         {
             float landingPulse = 0.5f + 0.5f * Mathf.Sin(progress * Mathf.PI * (4f + progress * 8f));
             float urgency = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.7f, 1f, progress));
             Color area = _potionAreaColor;
-            area.a = Mathf.Lerp(0.28f, 0.5f, progress) + urgency * landingPulse * 0.14f;
+            area.a = Mathf.Lerp(0.18f, 0.3f, progress) + urgency * landingPulse * 0.05f;
             _landingArea.enabled = true;
             _landingArea.color = area;
-            Color edge = Color.Lerp(new Color(0.75f, 0.075f, 0.035f, 0.75f),
-                new Color(1f, 0.24f, 0.08f, 1f), progress);
+            Color edge = Color.Lerp(new Color(0.56f, 0.2f, 0.17f, 0.8f),
+                new Color(0.7f, 0.28f, 0.23f, 0.95f), urgency * (0.6f + landingPulse * 0.4f));
             _outline.startColor = _outline.endColor = edge;
-            _outline.widthMultiplier = _outlineWidth * (1.25f + urgency * landingPulse * 0.5f);
-            for (int i = 0; i < _ornamentColors.Length; i++)
+            _outline.widthMultiplier = _outlineWidth * (1.15f + urgency * landingPulse * 0.2f);
+            // 외곽은 고정하고 내부 원만 시간에 비례해 커져, 착탄 시 경계에 닿는다.
+            _fillVertices[0] = Vector3.zero;
+            for (int i = 0; i < Segments; i++)
             {
-                bool charged = progress >= _ornamentProgress[i];
-                Color mark = charged ? edge : new Color(0.6f, 0.06f, 0.025f, 1f);
-                mark.a = charged ? 0.8f + urgency * landingPulse * 0.2f : 0.4f;
-                _ornamentColors[i] = mark;
+                _expandingBoundary[i] = _boundary[i] * progress;
+                _fillVertices[i + 1] = _expandingBoundary[i];
             }
-            _ornaments.colors = _ornamentColors;
+            _expandingRing.enabled = progress > 0.01f;
+            _expandingRing.SetPositions(_expandingBoundary);
+            Color expandingColor = Color.Lerp(new Color(0.76f, 0.3f, 0.24f, 0.85f),
+                new Color(0.88f, 0.42f, 0.33f, 1f), urgency * landingPulse);
+            _expandingRing.startColor = _expandingRing.endColor = expandingColor;
+            _expandingRing.widthMultiplier = _outlineWidth * (1f + urgency * landingPulse * 0.2f);
+            _fill.vertices = _fillVertices;
+            Color fillColor = new Color(0.5f, 0.16f, 0.15f, 0.1f + urgency * 0.03f);
+            for (int i = 0; i < _colors.Length; i++) _colors[i] = fillColor;
+            _fill.colors = _colors;
+            _fill.RecalculateBounds();
             return;
         }
         if (_isSteal) { SetStealProgress(progress); return; }
@@ -395,8 +446,10 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
             _fillVertices[i + 1] = vertex;
         }
         _fill.vertices = _fillVertices;
-        float pulse = Mathf.Sin(Time.time * 12f) * 0.5f + 0.5f;
-        SetColors(_fill, _fillAlpha + (progress > 0.8f ? pulse * 0.08f : 0f));
+        float pulse = _isDash
+            ? Mathf.Sin(Mathf.InverseLerp(0.85f, 1f, progress) * Mathf.PI)
+            : Mathf.Sin(Time.time * 12f) * 0.5f + 0.5f;
+        SetColors(_fill, (_isDash ? _dashFillAlpha : _fillAlpha) + (progress > 0.8f ? pulse * 0.08f : 0f));
         _fill.RecalculateBounds();
         Color chargedColor = _isDash ? Color.Lerp(_chargedColor, _color, 0.35f) : _chargedColor;
         Color outline = Color.Lerp(_runeColor, chargedColor, progress * progress);
@@ -407,6 +460,17 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
             bool charged = progress >= _ornamentProgress[i];
             Color rune = charged ? Color.Lerp(_runeColor, chargedColor, progress) : _runeColor;
             rune.a = charged ? 0.75f + (progress > 0.8f ? pulse * 0.2f : 0f) : 0.3f;
+            if (_isDash)
+            {
+                bool tip = i >= _dashTipVertexStart;
+                float arrival = Mathf.SmoothStep(0f, 1f,
+                    Mathf.InverseLerp(_ornamentProgress[i] - 0.15f, _ornamentProgress[i] + 0.1f, progress));
+                rune = Color.Lerp(_color, _runeColor, 0.35f + arrival * 0.45f);
+                if (tip) rune = Color.Lerp(rune, _chargedColor, 0.45f + progress * 0.25f);
+                else rune = Color.Lerp(rune, chargedColor, pulse * 0.25f);
+                rune.a = tip ? 0.55f + arrival * 0.35f + pulse * 0.1f
+                    : 0.18f + arrival * 0.38f + pulse * 0.12f;
+            }
             _ornamentColors[i] = rune;
         }
         _ornaments.colors = _ornamentColors;
@@ -475,7 +539,25 @@ public sealed class ReaperAttackIndicator : MonoBehaviour
     {
         Color color = _color;
         color.a *= alpha;
-        for (int i = 0; i < _colors.Length; i++) _colors[i] = color;
+        for (int i = 0; i < _colors.Length; i++)
+        {
+            Color vertexColor = color;
+            if (_isDash && mesh == _fill)
+            {
+                float x = _fillVertices[i].x;
+                float along = Mathf.Clamp01((x + _radius) / Mathf.Max(0.01f, _length + _radius * 2f));
+                float frontGlow = 1f - Mathf.SmoothStep(0f, 0.25f, Mathf.Abs(along - _dashChargeProgress));
+                vertexColor = Color.Lerp(_color, _runeColor, 0.2f + frontGlow * 0.45f);
+                vertexColor.a = color.a * (0.65f + frontGlow * 0.35f);
+                float capDistance = Mathf.Max(0f, Mathf.Max(-x, x - _length));
+                if (i > 0)
+                {
+                    vertexColor.a *= 1f - Mathf.SmoothStep(0f, 1f,
+                        Mathf.Clamp01(capDistance / Mathf.Max(0.01f, _radius)));
+                }
+            }
+            _colors[i] = vertexColor;
+        }
         mesh.colors = _colors;
     }
 

@@ -11,7 +11,10 @@ public sealed class ReaperPotionDrop : MonoBehaviour
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
     [SerializeField] private ReaperAttackIndicator _attackIndicatorPrefab;
     [Tooltip("포션 종류와 관계없이 사용하는 낙하 위험 표시 색상.")]
-    [SerializeField] private Color _warningColor = new Color(0.58f, 0.055f, 0.025f, 0.95f);
+    [SerializeField] private Color _warningColor = new Color(0.38f, 0.11f, 0.13f, 0.95f);
+    [Header("Summon magic circle")]
+    [SerializeField] private Color _magicCircleColor = new Color(0.62f, 0.19f, 0.18f, 1f);
+    [SerializeField] private Color _magicCircleChargedColor = new Color(0.86f, 0.36f, 0.3f, 1f);
     private ReaperData _data;
     private PotionData _potion;
     private PotionItem _overridePotion;
@@ -50,7 +53,7 @@ public sealed class ReaperPotionDrop : MonoBehaviour
             _warning = Instantiate(_attackIndicatorPrefab, transform);
             _warning.SetPotionArea(transform.position, _potion.EffectRadius, _warningColor);
         }
-        _magicCircle.color = data.MagicCircleTint;
+        _magicCircle.color = _magicCircleColor;
         _magicCircle.gameObject.SetActive(true);
         _magicCircleAnimator.Play("MagicCircle", 0, 0f);
         PositionMagicCircle();
@@ -62,14 +65,18 @@ public sealed class ReaperPotionDrop : MonoBehaviour
     {
         if (_data == null || _impacted) return;
         _elapsed += Time.deltaTime;
+        float warningProgress = Mathf.Clamp01(_elapsed / Mathf.Max(0.01f, _data.WarningDuration + _data.FallDuration));
         if (_warning != null)
-            _warning.SetProgress(_elapsed / Mathf.Max(0.01f, _data.WarningDuration + _data.FallDuration));
+            _warning.SetProgress(warningProgress);
+        _magicCircle.color = Color.Lerp(_magicCircleColor, _magicCircleChargedColor,
+            Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.6f, 0.9f, warningProgress)));
         if (_elapsed < _data.WarningDuration) return;
         _potionVisual.enabled = true;
         float fall = Mathf.Clamp01((_elapsed - _data.WarningDuration) / _data.FallDuration);
         _potionVisual.transform.localPosition = Vector3.up * (_data.SummonHeight * (1f - fall * fall));
         if (fall < 1f) return;
         _impacted = true;
+        SoundManager.Play(GameSoundId.PotionBreak);
         PotionAreaController area = Instantiate(_areaPrefab, transform.position, Quaternion.identity);
         area.Initialize(_potion);
         area.SetOwner(_owner);
