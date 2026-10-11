@@ -32,6 +32,18 @@ public sealed class ReaperController : EnemyControllerBase
         if (Settings == null) { Debug.LogError($"{name}: ReaperData를 연결하세요.", this); enabled = false; }
         else
         {
+            SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
+            Settings.ApplyVisual(sprite);
+            if (sprite != null)
+            {
+                PotionStatusVisual statusVisual = GetComponent<PotionStatusVisual>();
+                if (statusVisual == null) statusVisual = gameObject.AddComponent<PotionStatusVisual>();
+                Vector3 scale = sprite.transform.localScale;
+                // 원본 몸 영역(약 30x48px), 기준점(105,18px)에 맞춘 몸 중심(105,24px).
+                // 낫과 베기 이펙트까지 포함되는 Renderer.bounds를 사용하지 않는다.
+                statusVisual.ConfigureBodyBounds(new Vector3(0f, 0.06f * Mathf.Abs(scale.y), 0f),
+                    new Vector2(0.3f * Mathf.Abs(scale.x), 0.48f * Mathf.Abs(scale.y)));
+            }
             ResetBehaviour();
         }
     }
@@ -108,12 +120,12 @@ public sealed class ReaperController : EnemyControllerBase
         float distance = offset.magnitude;
         bool visible = EnemyPathfinder.Instance.HasLineOfSight(Body.position, target.position);
         // 근접 우선. 중거리 강탈, 먼 거리 소환, 돌진을 각 쿨타임에 따라 선택한다.
-        if (visible && distance <= Settings.MeleeRange && Time.fixedTime >= _meleeReady)
+        if (Settings.UseMeleeAttack && visible && distance <= Settings.MeleeRange && Time.fixedTime >= _meleeReady)
         {
             _meleeReady = Time.fixedTime + Settings.MeleeCooldown;
             Begin(ActionState.Melee, Settings.MeleeWindup + Settings.MeleeActiveDuration);
         }
-        else if (visible && _potionStealPrefab != null && _stolenPotion.IsEmpty
+        else if (Settings.UsePotionSteal && visible && _potionStealPrefab != null && _stolenPotion.IsEmpty
             && distance >= Settings.StealMinRange && distance <= Settings.StealRange && Time.fixedTime >= _stealReady)
         {
             _stealReady = Time.fixedTime + Settings.StealCooldown;
@@ -125,18 +137,32 @@ public sealed class ReaperController : EnemyControllerBase
             _stealEffect = Instantiate(_potionStealPrefab, _stealPosition, Quaternion.identity);
             _stealEffect.Initialize(Settings);
         }
-        else if (visible && _potionDropPrefab != null && distance >= Settings.SummonMinRange && distance <= Settings.SummonRange
+        else if (Settings.UsePotionSummon && visible && _potionDropPrefab != null && distance >= Settings.SummonMinRange && distance <= Settings.SummonRange
             && Time.fixedTime >= _summonReady)
         {
             _summonReady = Time.fixedTime + Settings.SummonCooldown;
             _summonPosition = target.position; // 시전 시작 순간에 고정, 이후 플레이어를 따라가지 않는다.
             Begin(ActionState.Cast, Settings.SummonWindup);
         }
-        else if (visible && distance >= Settings.DashMinRange && distance <= Settings.DashMaxRange
+        else if (Settings.UseDashAttack && visible && distance >= Settings.DashMinRange && distance <= Settings.DashMaxRange
             && Time.fixedTime >= _dashReady)
         {
             _dashReady = Time.fixedTime + Settings.DashCooldown;
             Begin(ActionState.Charge, Settings.DashWindup);
+        }
+        else if (visible && Settings.PreferredDistance > 0f)
+        {
+            if (Mathf.Abs(distance - Settings.PreferredDistance) <= Settings.DistanceTolerance)
+            {
+                Action = ActionState.Idle;
+                Movement.Stop();
+            }
+            else
+            {
+                Action = ActionState.Walk;
+                Vector2 away = distance > 0.001f ? -offset / distance : Vector2.left;
+                Movement.ChaseTarget((Vector2)target.position + away * Settings.PreferredDistance, Status.Speed);
+            }
         }
         else { Action = ActionState.Walk; Movement.ChaseTarget(target.position, Status.Speed); }
     }
@@ -225,9 +251,11 @@ public sealed class ReaperController : EnemyControllerBase
         if (state == ActionState.Charge && _attackIndicatorPrefab != null)
         {
             _dashIndicator = Instantiate(_attackIndicatorPrefab);
+            _dashIndicator.ApplyPalette(Settings);
             _dashIndicator.SetDash(Body.position, Facing, Settings.DashDistance, Movement.BodyRadius + 0.1f);
         }
-        if (state == ActionState.Cast || state == ActionState.Steal) SoundManager.Play(GameSoundId.ReaperPotionSummon);
+        if (state == ActionState.Cast) SoundManager.Play(GameSoundId.ReaperPotionSummon);
+        else if (state == ActionState.Steal) SoundManager.Play(GameSoundId.ReaperPotionSteal);
         else if (state == ActionState.Melee) SoundManager.Play(GameSoundId.ReaperAttack);
         else if (state == ActionState.Charge) SoundManager.Play(GameSoundId.ReaperDashCharge);
     }

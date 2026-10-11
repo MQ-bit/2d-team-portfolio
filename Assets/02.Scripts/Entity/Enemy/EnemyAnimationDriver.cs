@@ -24,6 +24,11 @@ public class EnemyAnimationDriver : MonoBehaviour
     [SerializeField, Min(0f)] private float _moveThreshold = 0.1f; // 초당 이동량이 이 값보다 커야 걷는 것으로 본다.
 
     private Vector2 _lastPosition;
+    private EnemyMovementModule _movement;
+    private bool _wasKnockedBack;
+    private bool _attackCanceledWhileFrozen;
+    private float _playbackSpeed = 1f;
+    private bool IsFrozen => _status != null && !_status.IsDead && !_status.CanMove;
 
     private void Awake()
     {
@@ -59,10 +64,22 @@ public class EnemyAnimationDriver : MonoBehaviour
         {
             _rangedController = GetComponent<RangedEnemyController>();
         }
+        _movement = GetComponent<EnemyMovementModule>();
+        if (_animator != null) _playbackSpeed = _animator.speed;
     }
 
     private void OnEnable()
     {
+        _wasKnockedBack = false;
+        _attackCanceledWhileFrozen = false;
+        if (_animator != null)
+        {
+            _animator.speed = _playbackSpeed;
+            _animator.SetBool(IsMovingHash, false);
+            _animator.ResetTrigger(HurtHash);
+            _animator.ResetTrigger(AttackHash);
+            _animator.Play(IdleStateHash, 0, 0f);
+        }
         // 재활성화(풀링, 순간이동 등) 직후 첫 프레임에 이전 위치와의 차이를 이동으로 오인하지 않도록 기준점을 다시 잡는다.
         if (_rigid != null)
         {
@@ -82,6 +99,7 @@ public class EnemyAnimationDriver : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_animator != null) _animator.speed = _playbackSpeed;
         if (_status != null)
         {
             _status.OnDamaged -= HandleDamaged;
@@ -90,6 +108,18 @@ public class EnemyAnimationDriver : MonoBehaviour
         {
             _rangedController.OnAttackStarted -= HandleAttackStarted;
             _rangedController.OnAttackCanceled -= HandleAttackCanceled;
+        }
+    }
+
+    private void Update()
+    {
+        if (_animator == null) return;
+        bool frozen = IsFrozen;
+        _animator.speed = frozen ? 0f : _playbackSpeed;
+        if (!frozen && _attackCanceledWhileFrozen)
+        {
+            _attackCanceledWhileFrozen = false;
+            _animator.Play(IdleStateHash, 0, 0f);
         }
     }
 
@@ -103,12 +133,18 @@ public class EnemyAnimationDriver : MonoBehaviour
         Vector2 position = _rigid.position;
         Vector2 delta = position - _lastPosition;
         _lastPosition = position;
+        bool knockedBack = _movement != null && _movement.IsKnockedBack;
+        bool excludeKnockback = knockedBack || _wasKnockedBack;
+        _wasKnockedBack = knockedBack;
+        // 정지된 프레임의 상태/방향도 그대로 둔다. 위치 샘플은 계속 갱신한다.
+        if (IsFrozen) return;
 
         float speed = delta.magnitude / Time.fixedDeltaTime;
-        _animator.SetBool(IsMovingHash, speed > _moveThreshold);
+        bool moving = (_status == null || !_status.IsDead) && !excludeKnockback && speed > _moveThreshold;
+        _animator.SetBool(IsMovingHash, moving);
 
         // 공격 중 넉백으로 밀려도 공격하던 방향을 유지한다.
-        if (_spriteRenderer != null && Mathf.Abs(delta.x) > 0.0001f && !IsPlayingAttack())
+        if (_spriteRenderer != null && moving && Mathf.Abs(delta.x) > 0.0001f && !IsPlayingAttack())
         {
             _spriteRenderer.flipX = delta.x < 0f;
         }
@@ -116,7 +152,7 @@ public class EnemyAnimationDriver : MonoBehaviour
 
     private void HandleDamaged()
     {
-        if (_animator == null || IsPlayingAttack())
+        if (_animator == null || IsFrozen || IsPlayingAttack())
         {
             return;
         }
@@ -126,7 +162,7 @@ public class EnemyAnimationDriver : MonoBehaviour
 
     private void HandleAttackStarted(bool isFacingLeft)
     {
-        if (_animator == null)
+        if (_animator == null || IsFrozen)
         {
             return;
         }
@@ -174,6 +210,12 @@ public class EnemyAnimationDriver : MonoBehaviour
         }
 
         _animator.ResetTrigger(AttackHash);
+        if (IsFrozen)
+        {
+            _attackCanceledWhileFrozen = true;
+            return;
+        }
+        _attackCanceledWhileFrozen = false;
         _animator.Play(IdleStateHash, 0, 0f);
     }
 }

@@ -24,6 +24,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
 
     private readonly List<Collider2D> _neighborResults = new List<Collider2D>();
     private EntityBodyCollision _bodyCollision;
+    private EnemyStatus _status;
 
     private float _knockbackEndTime;
     private bool _isKnockedBack;
@@ -35,9 +36,11 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
 
     // 몸 반지름(콜라이더 크기 x 스케일). 길찾기에서 몸이 지나갈 수 있는 길을 고르고, 몬스터끼리 간격을 잴 때 쓴다.
     public float BodyRadius { get; private set; } = 0.5f;
+    public bool IsKnockedBack => _isKnockedBack && Time.fixedTime < _knockbackEndTime;
 
     private void Awake()
     {
+        _status = GetComponent<EnemyStatus>();
         if (_rigid == null)
         {
             _rigid = GetComponent<Rigidbody2D>();
@@ -177,6 +180,11 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
     // direction * force 만큼 밀려난다. 위치를 직접 옮기지 않고 속도로 밀어서 벽/다른 적과의 충돌이 적용된다.
     public void ApplyKnockback(Vector2 direction, float force)
     {
+        if (_status != null && _status.IsDead)
+        {
+            ResetState();
+            return;
+        }
         _rigid.linearVelocity = direction * force / _knockbackDuration;
         _knockbackEndTime = Time.fixedTime + _knockbackDuration; // Update에서 호출돼도 물리 시간 기준으로 맞춘다.
         _isKnockedBack = true;

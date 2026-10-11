@@ -10,6 +10,8 @@ public sealed class ReaperPotionDrop : MonoBehaviour
     [SerializeField] private PotionAreaController _areaPrefab;
     [SerializeField] private PotionBreakEffect _breakEffectPrefab;
     [SerializeField] private ReaperAttackIndicator _attackIndicatorPrefab;
+    [Tooltip("포션 종류와 관계없이 사용하는 낙하 위험 표시 색상.")]
+    [SerializeField] private Color _warningColor = new Color(0.58f, 0.055f, 0.025f, 0.95f);
     private ReaperData _data;
     private PotionData _potion;
     private PotionItem _overridePotion;
@@ -46,8 +48,9 @@ public sealed class ReaperPotionDrop : MonoBehaviour
         if (_attackIndicatorPrefab != null)
         {
             _warning = Instantiate(_attackIndicatorPrefab, transform);
-            _warning.SetArea(transform.position, _potion.EffectRadius);
+            _warning.SetPotionArea(transform.position, _potion.EffectRadius, _warningColor);
         }
+        _magicCircle.color = data.MagicCircleTint;
         _magicCircle.gameObject.SetActive(true);
         _magicCircleAnimator.Play("MagicCircle", 0, 0f);
         PositionMagicCircle();

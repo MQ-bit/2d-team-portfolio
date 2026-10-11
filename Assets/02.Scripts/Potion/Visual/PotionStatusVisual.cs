@@ -36,6 +36,10 @@ public sealed class PotionStatusVisual : MonoBehaviour
     [SerializeField, Range(0.5f, 1.5f)] private float _auraSizeScale = 0.65f;
     [SerializeField, Range(1f, 2f)] private float _auraHeightScale = 1.1f;
     [SerializeField, Min(1)] private int _sortingOrderOffset = 1;
+    [Tooltip("무기/공격 이펙트가 포함된 스프라이트는 현재 프레임 대신 고정된 몸 영역을 사용한다.")]
+    [SerializeField] private bool _useFixedBodyBounds;
+    [SerializeField] private Vector3 _bodyBoundsCenter;
+    [SerializeField] private Vector2 _bodyBoundsSize = Vector2.one;
 
     [Header("Color")]
     [SerializeField, Range(1f, 1.5f)] private float _colorSaturation = 1.3f;
@@ -83,7 +87,7 @@ public sealed class PotionStatusVisual : MonoBehaviour
 
         if (_ownsAnchor)
         {
-            Vector3 center = _targetRenderer != null ? _targetRenderer.bounds.center : transform.position;
+            Vector3 center = GetTargetBounds().center;
             _anchor.position = center + transform.TransformVector(_offset);
         }
 
@@ -245,8 +249,7 @@ public sealed class PotionStatusVisual : MonoBehaviour
         float opacity, float sizeMultiplier, float coreSpread, float softness, Vector3 offset,
         Vector4 elements = default)
     {
-        Vector2 size = _targetRenderer != null ? (Vector2)_targetRenderer.bounds.size
-            : Vector2.one * _fallbackSize;
+        Vector2 size = GetTargetBounds().size;
         Vector3 parentScale = _anchor.lossyScale;
         Transform effect = aura.Renderer.transform;
         effect.localPosition = offset;
@@ -273,6 +276,29 @@ public sealed class PotionStatusVisual : MonoBehaviour
         properties.SetVector(AuraId, new Vector4(1f, coreSpread, softness, aura.Appearance));
         properties.SetVector(AuraElementsId, elements);
         aura.Renderer.SetPropertyBlock(properties);
+    }
+
+    public void ConfigureBodyBounds(Vector3 localCenter, Vector2 localSize)
+    {
+        _useFixedBodyBounds = true;
+        _bodyBoundsCenter = localCenter;
+        _bodyBoundsSize = new Vector2(Mathf.Max(0.1f, localSize.x), Mathf.Max(0.1f, localSize.y));
+    }
+
+    private Bounds GetTargetBounds()
+    {
+        if (!_useFixedBodyBounds)
+        {
+            return _targetRenderer != null ? _targetRenderer.bounds
+                : new Bounds(transform.position, Vector3.one * _fallbackSize);
+        }
+
+        // 루트의 위치/크기는 따라가되, 공격 스프라이트의 교체/좌우 반전에는 흔들리지 않는다.
+        Vector3 horizontal = transform.TransformVector(new Vector3(_bodyBoundsSize.x, 0f, 0f));
+        Vector3 vertical = transform.TransformVector(new Vector3(0f, _bodyBoundsSize.y, 0f));
+        Vector3 worldSize = new Vector3(Mathf.Abs(horizontal.x) + Mathf.Abs(vertical.x),
+            Mathf.Abs(horizontal.y) + Mathf.Abs(vertical.y), Mathf.Abs(horizontal.z) + Mathf.Abs(vertical.z));
+        return new Bounds(transform.TransformPoint(_bodyBoundsCenter), worldSize);
     }
 
     private Color StrengthenColor(Color color)

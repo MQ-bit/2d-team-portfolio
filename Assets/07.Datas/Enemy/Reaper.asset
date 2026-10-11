@@ -21,8 +21,8 @@ MonoBehaviour:
   _meleeDamage: 15
   _meleeWindup: 0.5
   _meleeActiveDuration: 0.3
-  _meleeHitboxSize: {x: 3.3, y: 2.8}
-  _meleeHitboxOffset: {x: 1.5, y: 0.85}
+  _meleeHitboxSize: {x: 4.730, y: 4.013}
+  _meleeHitboxOffset: {x: 2.150, y: 1.218}
   _meleeRecovery: 0.2
   _meleeCooldown: 1.8
   _dashMinRange: 2
@@ -49,9 +49,13 @@ MonoBehaviour:
   _deathDuration: 1
   _stealMinRange: 3
   _stealRange: 6
-  _stealAreaRadius: 1.4
-  _stealWindup: 1.2
+  _stealAreaRadius: 2.6
+  _stealWindup: 0.9
   _stealRecovery: 0.6
   _stealCooldown: 12
-  _stealCaptureDuration: 0.55
+  _stealCaptureDuration: 2.2
   _stealEmptyDamage: 15
+  _stealIndicatorColor: {r: 0.18, g: 0.05, b: 0.28, a: 1}
+  _stealRuneColor: {r: 0.6, g: 0.25, b: 0.85, a: 1}
+  _stealAccentColor: {r: 0.25, g: 0.85, b: 0.8, a: 1}
+  _stealChargedColor: {r: 0.85, g: 0.7, b: 1, a: 1}

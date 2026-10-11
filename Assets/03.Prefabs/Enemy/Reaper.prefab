@@ -37,7 +37,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5068007619371979021}
@@ -105,7 +105,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.22
+  m_Radius: 0.5
 --- !u!114 &3123679725305364599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,12 +176,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPotionDropper
   _status: {fileID: 0}
   _dropPrefabs:
-  - {fileID: 4738305527283598493, guid: ccc297a9fdfc81443830072ce01a556e, type: 3}
-  - {fileID: 4738305527283598493, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
-  - {fileID: 4738305527283598493, guid: 99302c7fa3697994da75d3389b0f1574, type: 3}
-  - {fileID: 4738305527283598493, guid: d383bf58296081842ab70d4c17bc02de, type: 3}
-  - {fileID: 4738305527283598493, guid: 958a5e70eef5e244b839e18f92f6bb54, type: 3}
-  - {fileID: 4738305527283598493, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
+  - {fileID: 6584277545338249819, guid: 8b971e2ac6f60814595522307c802e97, type: 3}
+  - {fileID: 2869107914706517375, guid: 130cf6b2e6ef6a74fb6580b824647e76, type: 3}
+  - {fileID: 2108828434667398278, guid: 7ca361b32f5428047bdf21461cb2892d, type: 3}
+  - {fileID: 7704266975846989972, guid: 044466a87c6d5264cb7b83e8627c76ac, type: 3}
+  - {fileID: 4127365585450369007, guid: 0c4b43cabc2b0be48a48e325ac31e457, type: 3}
+  - {fileID: 7595375845299001957, guid: 7e64c5d1c05e87044ab21e5737f68095, type: 3}
   _dropChance: 0.3
 --- !u!114 &6361040209207916099
 MonoBehaviour:
@@ -259,7 +259,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 4.3, y: 4.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6128226830160555071}

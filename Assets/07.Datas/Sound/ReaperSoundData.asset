@@ -13,6 +13,18 @@ MonoBehaviour:
   m_Name: ReaperSoundData
   m_EditorClassIdentifier: Assembly-CSharp::SoundCategoryData
   _entries:
+  - _id: 39
+    _clip: {fileID: 8300000, guid: 91196e97478a6bc47931d164e957e150, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 3
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
   - _id: 35
     _clip: {fileID: 8300000, guid: 995f2ac9f6e4c2043b5b3554e08e1ec1, type: 3}
     _channel: 1

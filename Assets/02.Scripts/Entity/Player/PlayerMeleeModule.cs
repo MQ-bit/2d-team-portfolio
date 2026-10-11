@@ -206,7 +206,8 @@ public class PlayerMeleeModule : MonoBehaviour
             damageable.DecreaseHealth(_attackDamage);
             hasKilled |= damageable.IsDead;
 
-            if (!hit.TryGetComponent(out IKnockbackable knockbackable))
+            // 치명타의 사망 처리에서 정지시킨 속도를 넉백으로 다시 만들지 않는다.
+            if (damageable.IsDead || !hit.TryGetComponent(out IKnockbackable knockbackable))
             {
                 continue;
             }

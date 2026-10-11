@@ -51,6 +51,10 @@ MonoBehaviour:
   _magicCircle: {fileID: 212002}
   _magicCircleAnimator: {fileID: 95002}
   _magicCircleAnchorPixels: {x: 68, y: 49}
+  _pickupEffectPrefab: {fileID: 3828230117633328340, guid: 73f01984997872c48ac054cb3427a217, type: 3}
+  _reverseEffectSampleTime: 0.35
+  _reverseEffectDuration: 0.4
+  _captureTrailPrefab: {fileID: 7681075152636389171, guid: 57d7262dbe3e1cc4990d3ef444874e37, type: 3}
 --- !u!1 &1001
 GameObject:
   m_ObjectHideFlags: 0
