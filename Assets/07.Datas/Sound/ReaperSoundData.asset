@@ -26,7 +26,7 @@ MonoBehaviour:
     _fadeInTime: 0
     _interval: 0
   - _id: 36
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 7820a2afe3cb5f94b8ebad016ad73fab, type: 3}
     _channel: 1
     _volume: 1
     _gain: 3
@@ -50,10 +50,10 @@ MonoBehaviour:
     _fadeInTime: 0
     _interval: 0
   - _id: 38
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: c076f8cd4c319144d9d977344f057f53, type: 3}
     _channel: 1
     _volume: 1
-    _gain: 1
+    _gain: 3
     _startOffset: 0
     _endTime: 0
     _fadeOutTime: 0
