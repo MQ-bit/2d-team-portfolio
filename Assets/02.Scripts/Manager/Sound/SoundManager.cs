@@ -61,6 +61,27 @@ public class SoundManager : MonoBehaviour
     public static SoundHandle Play(GameSoundId id) => GetSound(id)?.Play() ?? default;
     public static void Preload(GameSoundId id) => GetSound(id)?.Preload();
 
+    private static readonly GameSoundId[] PotionBreakSounds =
+    {
+        GameSoundId.PotionBreak, GameSoundId.PotionBreakB, GameSoundId.PotionBreakC
+    };
+
+    // 모든 포션의 파괴 소리는 A → B → C 순서를 공유한다. 미할당된 소리는 건너뛴다.
+    public static SoundHandle PlayPotionBreak()
+    {
+        SoundManager manager = Instance;
+        if (manager == null) return default;
+
+        for (int i = 0; i < PotionBreakSounds.Length; i++)
+        {
+            GameSoundId id = PotionBreakSounds[manager._nextPotionBreakIndex];
+            manager._nextPotionBreakIndex = (manager._nextPotionBreakIndex + 1) % PotionBreakSounds.Length;
+            GameSoundData.Entry entry = GetSound(id);
+            if (entry != null && entry.Clip != null) return entry.Play();
+        }
+        return default;
+    }
+
     public static SoundHandle PlayBgm(GameBgmId id)
     {
         SoundManager manager = Instance;
@@ -95,6 +116,7 @@ public class SoundManager : MonoBehaviour
     private SoundVolumeController _volumeController;
     private SoundBgmController _bgmController;
     private SoundClipCache _clipCache;
+    private int _nextPotionBreakIndex;
     private GameBgmId? _pendingBgmId;
     private SoundHandle _pendingBgmSound;
 

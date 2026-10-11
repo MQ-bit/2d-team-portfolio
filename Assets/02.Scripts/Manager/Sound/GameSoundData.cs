@@ -27,7 +27,9 @@ public enum GameSoundId
     ReaperDash = 37,
     ReaperDashCharge = 38,
     ReaperPotionSteal = 39,
-    PotionBreak = 40
+    PotionBreak = 40,
+    PotionBreakB = 41,
+    PotionBreakC = 42
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]

@@ -38,12 +38,12 @@ public class SceneVisualEffectManager : MonoBehaviour
     public bool IsFading => _fadeController != null && _fadeController.IsFading;
 
     public bool IsScreenCovered => _fadeController != null && _fadeController.IsCovered;
-    
+
     // 첫 입장과 포탈 이동 모두 화면 페이드 인이 끝나면 알립니다.
     public event Action FadeInCompleted;
 
-    
-    
+
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -85,7 +85,7 @@ public class SceneVisualEffectManager : MonoBehaviour
             ReleaseFadeInputLock();
         }
     }
-    
+
     private void ControllerInitialize()
     {
         if (_wobbleController != null)

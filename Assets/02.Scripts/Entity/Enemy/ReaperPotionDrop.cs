@@ -76,7 +76,7 @@ public sealed class ReaperPotionDrop : MonoBehaviour
         _potionVisual.transform.localPosition = Vector3.up * (_data.SummonHeight * (1f - fall * fall));
         if (fall < 1f) return;
         _impacted = true;
-        SoundManager.Play(GameSoundId.PotionBreak);
+        SoundManager.PlayPotionBreak();
         PotionAreaController area = Instantiate(_areaPrefab, transform.position, Quaternion.identity);
         area.Initialize(_potion);
         area.SetOwner(_owner);

@@ -124,7 +124,7 @@ public class PotionProjectile : MonoBehaviour
     private void Land(Vector3 impactPosition, Vector3 areaPosition, bool canCreateArea)
     {
         enabled = false;
-        SoundManager.Play(GameSoundId.PotionBreak);
+        SoundManager.PlayPotionBreak();
         transform.position = impactPosition;
         // Root movement alone retains the previous frame's arc offset on the child.
         // Set the visible bottle explicitly so it ends at the predicted collision.
