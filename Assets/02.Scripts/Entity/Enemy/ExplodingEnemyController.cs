@@ -177,6 +177,13 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         _target = FindPlayerInRange(_data.DetectRange);
         if (_target == null)
         {
+            // 멈춰서 붉어지던 중에 대상을 놓치면 취소하고 색을 되돌린다.
+            if (_isWindingUp)
+            {
+                _isWindingUp = false;
+                SetBodyColor(_originalColor);
+            }
+
             _state = State.Idle;
             _movementModule.Stop();
             return;
@@ -194,8 +201,10 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         }
 
         // 처음 범위 안에 들어오면 RushWindupDuration 동안 멈춰서 붉어진 뒤, 평소 속도의 RushSpeedMultiplier배로 돌진한다.
-        // 한 번 돌진을 시작하면 범위를 벗어나도 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
-        if (!_isRushing && _data.RushSpeedMultiplier > 1f && distance <= _data.RushTriggerRange)
+        // 한 번 멈추기 시작하면 플레이어가 범위를 벗어나도 끝까지 멈췄다가 돌진하고,
+        // 돌진을 시작하면 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
+        bool canStartWindup = _data.RushSpeedMultiplier > 1f && distance <= _data.RushTriggerRange;
+        if (!_isRushing && (_isWindingUp || canStartWindup))
         {
             if (!_isWindingUp)
             {
