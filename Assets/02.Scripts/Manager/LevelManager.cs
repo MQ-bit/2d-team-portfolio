@@ -101,20 +101,25 @@ public class LevelManager : MonoBehaviour
     {
         if (!TryMovePlayerToStart())
         {
-            Debug.LogError($"{nameof(LevelManager)}: 플레이어를 StartMap으로 이동하지 못했습니다.");
+            Debug.LogError(
+                $"{nameof(LevelManager)}: 플레이어를 StartMap으로 이동하지 못했습니다.",
+                this);
             return;
         }
 
         if (!_stageManager.TryRegenerateStage())
         {
-            Debug.LogError($"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.");
-        }
-        else
-        {
-            SoundManager.Play(GameSoundId.FloorMove);
+            Debug.LogError(
+                $"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.",
+                this);
+            return;
         }
 
+        // 다음 층 생성에 성공한 경우에만 클리어 기록을 증가시킵니다.
+        // 이 처리는 검은 화면에서 실행되므로 페이드 인 완료 시 새 층 번호를 읽습니다.
         ScoreManager.Instance?.TryRecordFloorCleared();
+
+        SoundManager.Play(GameSoundId.FloorMove);
     }
 
     private void HandleTransitionCompleted()

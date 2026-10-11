@@ -38,6 +38,9 @@ public class SceneVisualEffectManager : MonoBehaviour
     public bool IsFading => _fadeController != null && _fadeController.IsFading;
 
     public bool IsScreenCovered => _fadeController != null && _fadeController.IsCovered;
+    
+    // 첫 입장과 포탈 이동 모두 화면 페이드 인이 끝나면 알립니다.
+    public event Action FadeInCompleted;
 
     
     
@@ -165,7 +168,12 @@ public class SceneVisualEffectManager : MonoBehaviour
         return () =>
         {
             ReleaseFadeInputLock();
+
+            // 포탈 이동 완료 등 기존 처리를 먼저 끝냅니다.
             onCompleted?.Invoke();
+
+            // 화면이 완전히 밝아지고 기존 완료 처리까지 끝난 뒤 UI에 알립니다.
+            FadeInCompleted?.Invoke();
         };
     }
 
