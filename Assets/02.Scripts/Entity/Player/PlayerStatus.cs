@@ -6,47 +6,26 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
 
-    [Header("Player Health Settings")]
-    [SerializeField, Min(1f)] private float _maxHealth = 100f;
-    [SerializeField, Min(0f)] private float _initHealth = 100f;
-    [SerializeField] private EntityHealth _healthInstance;
-
-    [Header("Contact Damage")]
-    [Tooltip("여러 적과 겹쳐도 이 간격으로만 접촉 피해를 받는다.")]
-    [SerializeField, Min(0.01f)] private float _contactDamageInterval = 0.5f;
+    [Header("Player Data")]
+    [SerializeField] private PlayerData _data;
+    public PlayerData Data => _data;
+    private EntityHealth _healthInstance;
     private float _nextContactDamageTime = float.NegativeInfinity;
-
-    [Header("Player Thirst Settings")] //TODO: 하나의 ScriptableObject로 두는게..?
-    [SerializeField, Min(1f)] private float _initMaxThirst = 100f;
-    [SerializeField, Min(0f)] private float _initCurrentThirst = 100f;
-    [SerializeField, Min(0f)] private float _initThirstIncreaseAmount = 1f; //초당 감소 정도
-    [SerializeField] private float _initThirstIncreaseInterval = 10f; //감소 간격
-    [SerializeField] float _thirstWarningThreshold = 0.7f;
-    [SerializeField] float _thirstCriticalThreshold = 1f;
-    [SerializeField] private EntityThirst _thirstInstance;
-
-    [Header("Movement Settings")]
-    [SerializeField] private float _speed = 5f;
-
-    [Header("Dash Settings")]
-    [SerializeField] private float _dashSpeed = 15f;
-
-    [Header("Throw Settings")]
-    [SerializeField] private float _maxThrowDistance = 6f;
+    private EntityThirst _thirstInstance;
 
     // Receiver는 상태값을 제공하고, 플레이어의 최종 이동 속도는 여기서 결정한다.
     private bool HasPotionMovementEffect => _potionEffectReceiver != null && _potionEffectReceiver.isActiveAndEnabled;
     public bool CanMove => !IsDead && (!HasPotionMovementEffect || _potionEffectReceiver.CanMove);
-    public float Speed => !CanMove ? 0f : _speed * (HasPotionMovementEffect ? _potionEffectReceiver.MoveSpeedMultiplier : 1f);
+    public float Speed => !CanMove ? 0f : Data.Movement.Speed * (HasPotionMovementEffect ? _potionEffectReceiver.MoveSpeedMultiplier : 1f);
     // 둔화는 대시에 적용하지 않고, 빙결/마비에 의한 정지만 반영
-    public float DashSpeed => CanMove ? _dashSpeed : 0f;
-    public float MaxThrowDistance => _maxThrowDistance;
+    public float DashSpeed => CanMove ? Data.Dash.Speed : 0f;
+    public float MaxThrowDistance => Data.Throw.MaxDistance;
 
     public float CurrentHealth => _healthInstance.Current;
     public float MaxHealth => _healthInstance.Max;
     public float CurrentThirst => _thirstInstance.CurrentThirst;
     public float MaxThirst => _thirstInstance.MaxThirst;
-    public bool IsDead => _healthInstance.IsDead;
+    public bool IsDead => _healthInstance == null || _healthInstance.IsDead;
     public ThirstWarningLevel CurrentThirstLevel { get; private set; } = ThirstWarningLevel.Normal;
 
     public event Action<float, float> OnThirstChanged; //current, max
@@ -57,6 +36,12 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     private void Awake()
     {
+        if (_data == null)
+        {
+            Debug.LogError($"{name}: PlayerData SO가 필요합니다.", this);
+            enabled = false;
+            return;
+        }
         InitiateStatus();
 
         if (_potionEffectReceiver == null)
@@ -67,8 +52,10 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     private void InitiateStatus()
     {
-        _thirstInstance = new EntityThirst(_initCurrentThirst, _initMaxThirst, _initThirstIncreaseAmount, _initThirstIncreaseInterval);
-        _healthInstance = new EntityHealth(_initHealth, _maxHealth);
+        PlayerData.ThirstSettings thirst = Data.Thirst;
+        _thirstInstance = new EntityThirst(thirst.InitialValue, thirst.MaxValue,
+            thirst.IncreaseAmount, thirst.IncreaseInterval);
+        _healthInstance = new EntityHealth(Data.Health.InitialHealth, Data.Health.MaxHealth);
         _nextContactDamageTime = float.NegativeInfinity;
 
         CurrentThirstLevel = EvaluateThirstLevel(_thirstInstance.CurrentThirst, _thirstInstance.MaxThirst);
@@ -97,7 +84,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     {
         if (amount <= 0f || IsDead || Time.time < _nextContactDamageTime) return false;
         // 적별 타이머가 아닌 플레이어 공통 타이머로 다중 접촉 피해를 제한한다.
-        _nextContactDamageTime = Time.time + Mathf.Max(0.01f, _contactDamageInterval);
+        _nextContactDamageTime = Time.time + Data.Health.ContactDamageInterval;
         DecreaseHealth(amount, hitDirection);
         return true;
     }
@@ -161,12 +148,12 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
         float normalizedThirst = Mathf.Clamp01(current / maximum);
 
-        if (normalizedThirst >= _thirstCriticalThreshold)
+        if (normalizedThirst >= Data.Thirst.CriticalRatio)
         {
             return ThirstWarningLevel.Critical;
         }
 
-        if (normalizedThirst >= _thirstWarningThreshold)
+        if (normalizedThirst >= Data.Thirst.WarningRatio)
         {
             return ThirstWarningLevel.Warning;
         }
