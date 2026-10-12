@@ -52,7 +52,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
 
     public void RestoreHealth(float amount)
     {
+        float previousHealth = _health.Current;
         _health.RestoreHealth(amount);
+        DamageFeedback.ReportHealing(transform.position, _health.Current - previousHealth);
         OnHealthChanged?.Invoke(_health.Current, _health.Max);
     }
 
@@ -63,7 +65,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
             return;
         }
 
+        float previousHealth = _health.Current;
         _health.DecreaseHealth(amount);
+        DamageFeedback.Report(transform.position, previousHealth - _health.Current, false);
         OnHealthChanged?.Invoke(_health.Current, _health.Max);
 
         if (_health.IsDead)
