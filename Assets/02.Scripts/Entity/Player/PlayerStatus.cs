@@ -5,6 +5,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 {
     [Header("Component References")]
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
+    [SerializeField] private PlayerMovementModule _movementModule;
 
     [Header("Player Health Settings")]
     [SerializeField, Min(1f)] private float _maxHealth = 100f;
@@ -47,6 +48,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     public float CurrentThirst => _thirstInstance.CurrentThirst;
     public float MaxThirst => _thirstInstance.MaxThirst;
     public bool IsDead => _healthInstance.IsDead;
+    public bool CanDamanage => !_movementModule.IsDashing;
     public ThirstWarningLevel CurrentThirstLevel { get; private set; } = ThirstWarningLevel.Normal;
 
     public event Action<float, float> OnThirstChanged; //current, max
@@ -62,6 +64,10 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
         if (_potionEffectReceiver == null)
         {
             _potionEffectReceiver = GetComponent<PotionEffectReceiver>();
+        }
+        if (_movementModule == null)
+        {
+            _movementModule = GetComponent<PlayerMovementModule>();
         }
     }
 
@@ -95,7 +101,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     public bool TryTakeContactDamage(float amount, Vector2 hitDirection)
     {
-        if (amount <= 0f || IsDead || Time.time < _nextContactDamageTime) return false;
+        if (amount <= 0f || IsDead || !CanDamanage || Time.time < _nextContactDamageTime) return false;
         // 적별 타이머가 아닌 플레이어 공통 타이머로 다중 접촉 피해를 제한한다.
         _nextContactDamageTime = Time.time + Mathf.Max(0.01f, _contactDamageInterval);
         DecreaseHealth(amount, hitDirection);
@@ -104,7 +110,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     public void DecreaseHealth(float amount, Vector2 hitDirection)
     {
-        if (IsDead) return;
+        if (IsDead || !CanDamanage) return;
 
         _healthInstance.DecreaseHealth(amount);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
