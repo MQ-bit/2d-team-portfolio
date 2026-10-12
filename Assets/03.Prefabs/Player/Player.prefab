@@ -238,27 +238,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cdcdbc780a21e47be872cf369e65ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
+  _data: {fileID: 11400000, guid: b12dc6fbeb5f46d2b0eb884cb741f64a, type: 2}
   _potionEffectReceiver: {fileID: 910000000000000003}
-  _maxHealth: 250
-  _initHealth: 250
-  _healthInstance:
-    _maxHealth: 100
-    _currentHealth: 0
-  _contactDamageInterval: 0.5
-  _initMaxThirst: 100
-  _initCurrentThirst: 0
-  _initThirstIncreaseAmount: 1
-  _initThirstIncreaseInterval: 5
-  _thirstWarningThreshold: 0.7
-  _thirstCriticalThreshold: 1
-  _thirstInstance:
-    _maxThirst: 100
-    _currentThirst: 0
-    _increaseAmountPerTick: 0
-    _increaseInterval: 0
-  _speed: 5
-  _dashSpeed: 30
-  _maxThrowDistance: 6
 --- !u!114 &1377203738665982733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273,8 +254,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveModule
   _playerStatus: {fileID: 409094873972115548}
   _rigid: {fileID: 8955322128090660171}
-  _dashDuration: 0.2
-  _dashCooltime: 1
 --- !u!114 &353974945982132991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,9 +294,6 @@ MonoBehaviour:
   _defaultAreaColor: {r: 1, g: 1, b: 1, a: 1}
   _defaultAreaWidth: 3
   _aimPreviewInstance: {fileID: 4624603934966910965}
-  _arcHeight: 1.5
-  _throwDuration: 1
-  _rotationSpeed: 360
   _potionPrefab: {fileID: 5114251214697153630, guid: c73c22f1a5e5ce04f923eeec473560d3, type: 3}
 --- !u!114 &7774034623503532432
 MonoBehaviour:
@@ -399,9 +375,6 @@ MonoBehaviour:
   _effectReceiver: {fileID: 910000000000000003}
   _inventoryModule: {fileID: 6544000177656053045}
   _status: {fileID: 0}
-  _drinkDuration: 0.8
-  _drinkTimer: 0
-  _thirstDecreaseAmount: 10
 --- !u!114 &4706277357270954568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -418,12 +391,6 @@ MonoBehaviour:
   _attackOrigin: {fileID: 8044642822848136252}
   _status: {fileID: 0}
   _attackIndicator: {fileID: 834154830232334378}
-  _attackDamage: 10
-  _attackRange: 3
-  _attackAngle: 90
-  _attackCooltime: 0.5
-  _swingDuration: 0.3
-  _knockbackForce: 1
   _targetLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -523,7 +490,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46fd292b3d046ff4381a3644d58b603c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionModule
-  _holdDuration: 1
 --- !u!114 &2064129735511734043
 MonoBehaviour:
   m_ObjectHideFlags: 0

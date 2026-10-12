@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombinationCatalogPresenter
   _potionDatabase: {fileID: 11400000, guid: 13a82fb1c7534d0aa31716c2263ee944, type: 2}
-  _combinationDatabase: {fileID: 11400000, guid: b8179579df2d8eb940c6859328160cac, type: 2}
+  _combinationDatabase: {fileID: 11400000, guid: 1d5af485a8dda49468ad0f9fd6517fc2, type: 2}
   _slots: []
   _missingIcon: {fileID: 4539385781790915910, guid: 0453d95a2d6ff4cc8864de3956a9fb81, type: 3}
 --- !u!1 &4449871239750358324
@@ -484,7 +484,7 @@ MonoBehaviour:
   m_CellSize: {x: 270, y: 130}
   m_Spacing: {x: 70, y: -30}
   m_Constraint: 2
-  m_ConstraintCount: 3
+  m_ConstraintCount: 2
 --- !u!1 &7527388078179813122
 GameObject:
   m_ObjectHideFlags: 0

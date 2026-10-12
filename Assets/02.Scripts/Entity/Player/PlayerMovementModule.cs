@@ -8,9 +8,7 @@ public class PlayerMovementModule : MonoBehaviour
     [SerializeField] private PlayerStatus _playerStatus;
     [SerializeField] private Rigidbody2D _rigid;
 
-    [Header("Dash Settings")]
-    [SerializeField] private float _dashDuration = 0.2f;
-    [SerializeField] private float _dashCooltime = 1f;
+    private PlayerData.DashSettings Settings => _playerStatus.Data.Dash;
 
     //Dash 관련 변수
     private Coroutine _dashCoroutine;
@@ -20,7 +18,7 @@ public class PlayerMovementModule : MonoBehaviour
     private EntityBodyCollision _bodyCollision;
 
     public bool IsDashing => _isDashing;
-    public float DashDuration => _dashDuration; // 구르기 애니메이션 길이를 대시 시간에 맞추는 용도
+    public float DashDuration => Settings.Duration; // 구르기 애니메이션 길이를 대시 시간에 맞추는 용도
     public Vector2 LastDashDirection { get; private set; } = Vector2.down; // 대시 이펙트 방향용
 
     public bool CanDash => !_isDashing && Time.time >= _nextDashAvailableTime;
@@ -40,6 +38,7 @@ public class PlayerMovementModule : MonoBehaviour
             _rigid = GetComponent<Rigidbody2D>();
         }
         _bodyCollision = new EntityBodyCollision(_rigid, true);
+        if (_playerStatus == null || _playerStatus.Data == null) enabled = false;
     }
 
     private void OnEnable()
@@ -82,18 +81,18 @@ public class PlayerMovementModule : MonoBehaviour
         }
 
         _isDashing = true;
-        _nextDashAvailableTime = Time.time + _dashCooltime;
+        _nextDashAvailableTime = Time.time + Settings.Cooldown;
 
         LastDashDirection = moveInput.normalized;
 
         _dashCoroutine = StartCoroutine(DashCoroutine(LastDashDirection));
-        OnDashStarted?.Invoke(_dashCooltime);
+        OnDashStarted?.Invoke(Settings.Cooldown);
         return true;
     }
 
     private IEnumerator DashCoroutine(Vector2 direction)
     {
-        float dashRemainingTime = _dashDuration;
+        float dashRemainingTime = Settings.Duration;
         while (dashRemainingTime > 0f)
         {
             yield return _waitForFixedUpdate;
