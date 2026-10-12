@@ -86,13 +86,6 @@ public class PlayerThrowingModule : MonoBehaviour
         IsAiming = true;
         _aimPreviewInstance.Show();
 
-        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
-        UpdateAim(screenPosition);
-
-        _aimPreviewInstance.UpdateAoeIndicator(
-            _inventoryModule.SelectedPotion.VisualData.AreaColor,
-            _inventoryModule.SelectedPotion.AreaWidth);
-
         UpdateAim(screenPosition);
     }
 
@@ -128,7 +121,7 @@ public class PlayerThrowingModule : MonoBehaviour
         // Identification changes the displayed color, never the actual effect range.
         float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
         _aimPreviewInstance.Draw(startPosition, targetPosition, Settings.ArcHeight, previewColor, previewWidth,
-            prediction);
+            prediction, identified ? selectedPotion : null);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)

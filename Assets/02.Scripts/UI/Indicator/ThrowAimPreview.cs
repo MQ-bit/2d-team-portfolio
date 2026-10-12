@@ -10,11 +10,14 @@ public class ThrowAimPreview : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField, Min(2)] private int _trajectoryPointCount = 24;
+    [SerializeField, Range(0f, 1f)] private float _areaPreviewOpacity = 0.45f;
 
     private SpriteRenderer _ownerRenderer;
     private SpriteRenderer _indicatorRenderer;
     private SpriteRenderer _aoeRenderer;
     private float _flightProgress = 1f;
+    private PotionAreaVisual _areaPreviewVisual;
+    private PotionData _previewPotion;
 
     private void Awake()
     {
@@ -79,7 +82,7 @@ public class ThrowAimPreview : MonoBehaviour
     }
 
     public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor,
-        float areaWidth, PotionThrowPrediction prediction)
+        float areaWidth, PotionThrowPrediction prediction, PotionData previewPotion = null)
     {
         if (_lineRenderer == null || _indicator == null)
         {
@@ -90,7 +93,7 @@ public class ThrowAimPreview : MonoBehaviour
         _indicator.position = prediction.ImpactPosition;
         _aoeIndicator.position = prediction.AreaPosition;
         _aoeIndicator.gameObject.SetActive(prediction.CanCreateArea);
-        UpdateAoeIndicator(areaColor, areaWidth);
+        UpdateAreaPreview(previewPotion, areaColor, areaWidth);
 
         _lineRenderer.transform.position = prediction.ImpactPosition;
         RedrawLine(startPosition, targetPosition, arcHeight);
@@ -98,6 +101,41 @@ public class ThrowAimPreview : MonoBehaviour
     }
 
     public void UpdateAoeIndicator(Color color, float areaWidth)
+    {
+        if (_areaPreviewVisual != null) _areaPreviewVisual.enabled = false;
+        _previewPotion = null;
+        ResizeAoeIndicator(color, areaWidth);
+    }
+
+    private void UpdateAreaPreview(PotionData potion, Color color, float areaWidth)
+    {
+        if (potion == null || _aoeRenderer == null)
+        {
+            UpdateAoeIndicator(color, areaWidth);
+            return;
+        }
+
+        if (_areaPreviewVisual == null)
+        {
+            _areaPreviewVisual = _aoeIndicator.gameObject.AddComponent<PotionAreaVisual>();
+            _areaPreviewVisual.ConfigurePreview(_areaPreviewOpacity);
+            _areaPreviewVisual.enabled = false;
+        }
+
+        if (_previewPotion != potion)
+        {
+            // Restore the source sprite before binding another potion's surface.
+            _areaPreviewVisual.enabled = false;
+            ResizeAoeIndicator(color, areaWidth);
+            _areaPreviewVisual.enabled = true;
+            _areaPreviewVisual.Bind(_aoeRenderer, potion.VisualData);
+            _previewPotion = potion;
+        }
+
+        ResizeAoeIndicator(Color.white, areaWidth);
+    }
+
+    private void ResizeAoeIndicator(Color color, float areaWidth)
     {
         if (_aoeRenderer == null || _aoeIndicator == null) return;
         _aoeRenderer.color = color;
