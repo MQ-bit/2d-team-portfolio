@@ -106,6 +106,15 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public void ApplyStatus(PotionStatusEffectInfo effectInfo)
     {
         if (!PrepareStatusApplication()) return;
+        if (effectInfo.Status == PotionStatusEffectTracker.Frozen
+            || effectInfo.Status == PotionStatusEffectTracker.Paralyzed)
+        {
+            float multiplier = SelfPotionMultiplier(effectInfo.Source);
+            effectInfo = new PotionStatusEffectInfo(effectInfo.Status, effectInfo.Duration * multiplier,
+                effectInfo.Source, effectInfo.Element, effectInfo.DamagePerTick, effectInfo.TickInterval,
+                effectInfo.ApplyImmediately, effectInfo.MoveSpeedMultiplier,
+                effectInfo.ImmobilizeDuration * multiplier);
+        }
         _statusEffects.Apply(effectInfo);
         TickStatuses();
     }
@@ -123,7 +132,8 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
         int amount = 1, float tickInterval = 1f)
     {
-        if (PrepareStatusApplication()) _statusEffects.AddFrostStacks(settings, source, amount, tickInterval);
+        if (PrepareStatusApplication())
+            _statusEffects.AddFrostStacks(settings, source, amount, tickInterval, SelfPotionMultiplier(source));
     }
 
     private bool PrepareStatusApplication()
@@ -169,11 +179,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
     {
         // Apply the player's own potion damage reduction after the reaction's raw cap.
-        if (source.IsAreaDamage && TargetKind == PotionTargetKind.Player
-            && ReferenceEquals(Damageable, source.Owner))
-        {
-            amount *= 0.25f;
-        }
+        amount *= SelfPotionMultiplier(source);
 
         PotionDamageResult result = PotionStatApplier.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
@@ -186,6 +192,10 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }
+
+    private float SelfPotionMultiplier(PotionEffectSource source) =>
+        source.IsAreaDamage && TargetKind == PotionTargetKind.Player
+        && ReferenceEquals(Damageable, source.Owner) ? 0.5f : 1f;
 
     public int GetStatusStackCount(PotionStatusEffectTracker status)
     {

@@ -142,7 +142,7 @@ public sealed class PotionStatusEffectState
     }
 
     public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
-        int amount = 1, float tickInterval = 1f)
+        int amount = 1, float tickInterval = 1f, float freezeDurationMultiplier = 1f)
     {
         if (settings == null || amount <= 0) return;
         EnterFrostArea(source.SourceId);
@@ -153,7 +153,8 @@ public sealed class PotionStatusEffectState
         _frostStacks = (int)Math.Min(threshold, (long)_frostStacks + amount);
         if (_frostStacks >= threshold)
         {
-            Apply(new PotionStatusEffectInfo(PotionStatusEffectTracker.Frozen, settings.FreezeDuration, source));
+            Apply(new PotionStatusEffectInfo(PotionStatusEffectTracker.Frozen,
+                settings.FreezeDuration * PotionDataValidation.Multiplier(freezeDurationMultiplier), source));
             ResetFrostStacks();
             return;
         }
