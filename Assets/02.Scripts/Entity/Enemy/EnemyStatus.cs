@@ -68,6 +68,8 @@ public class EnemyStatus : MonoBehaviour, IDamageable
 
         if (_health.IsDead)
         {
+            // 사망 이벤트에서 풀로 반환되기 전에 재생한다. 소리는 SoundManager가 끝까지 관리한다.
+            SoundManager.Play(GameSoundData.GetEnemyDeathSoundId(_type));
             OnDeath?.Invoke();
         }
         else if (amount > 0f)

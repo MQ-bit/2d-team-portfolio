@@ -29,7 +29,10 @@ public enum GameSoundId
     ReaperPotionSteal = 39,
     PotionBreak = 40,
     PotionBreakB = 41,
-    PotionBreakC = 42
+    PotionBreakC = 42,
+    ExplodingEnemyDeath = 43,
+    RangedEnemyDeath = 44,
+    ReaperDeath = 45
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]
@@ -129,6 +132,15 @@ public sealed class GameSoundData : ScriptableObject
 
     // 같은 ID로 등록된 곡들은 하나의 재생 목록입니다.
     public BgmEntry[] GetBgmTracks(GameBgmId id) => _bgm != null ? _bgm.GetTracks(id) : Array.Empty<BgmEntry>();
+
+    // 일반/엘리트는 해당 종류의 사운드 데이터를 함께 사용한다.
+    public static GameSoundId GetEnemyDeathSoundId(EnemyKind kind) => kind switch
+    {
+        EnemyKind.Bomber or EnemyKind.EliteBomber => GameSoundId.ExplodingEnemyDeath,
+        EnemyKind.Ranged or EnemyKind.EliteRanged => GameSoundId.RangedEnemyDeath,
+        EnemyKind.Reaper => GameSoundId.ReaperDeath,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+    };
 
     public static GameSoundId GetAreaSoundId(PotionElement element) => element switch
     {

@@ -49,6 +49,8 @@ internal sealed class SoundVolumeController
             return null;
         }
 
+        // 사망음은 별도 보이스 풀을 쓰되 기존 Sfx 믹서와 볼륨을 공유한다.
+        if (channel == SoundChannel.EnemyDeath) channel = SoundChannel.Sfx;
         string path = channel == SoundChannel.Bgm || channel == SoundChannel.Sfx
             ? $"Master/{channel}"
             : $"Master/Sfx/{channel}";

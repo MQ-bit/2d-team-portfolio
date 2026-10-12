@@ -15,7 +15,9 @@ MonoBehaviour:
   _maxHealth: 100
   _moveSpeed: 3.75
   _contactDamage: 10
-  _detectRange: 9999
+  _detectRange: 200
+  _visualScale: 1
+  _tintColor: {r: 1, g: 1, b: 1, a: 1}
   _attackRange: 4
   _chaseResumeBuffer: 0.5
   _attackCooldown: 1
@@ -23,3 +25,5 @@ MonoBehaviour:
   _projectileSpeed: 4
   _projectileDamage: 15
   _projectileLifetime: 3
+  _projectileCount: 1
+  _spreadAngle: 60

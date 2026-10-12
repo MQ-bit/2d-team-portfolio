@@ -15,7 +15,19 @@ MonoBehaviour:
   _maxHealth: 80
   _moveSpeed: 2.1
   _contactDamage: 0
-  _detectRange: 12
+  _detectRange: 200
+  _visualScale: 1
+  _tintColor: {r: 0.65, g: 0.9, b: 1, a: 1}
+  _useMeleeAttack: 1
+  _useDashAttack: 0
+  _usePotionSummon: 1
+  _usePotionSteal: 1
+  _preferredDistance: 6
+  _distanceTolerance: 0.75
+  _magicCircleTint: {r: 0.65, g: 0.9, b: 1, a: 1}
+  _indicatorColor: {r: 0.15, g: 0.3, b: 0.6, a: 1}
+  _indicatorRuneColor: {r: 0.45, g: 0.65, b: 1, a: 1}
+  _indicatorChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
   _meleeRange: 2.1
   _meleeAngle: 140
   _meleeDamage: 7
@@ -46,7 +58,10 @@ MonoBehaviour:
   _warningDuration: 1.1
   _fallDuration: 0.5
   _summonHeight: 2.5
-  _deathDuration: 1
+  _stealIndicatorColor: {r: 0.12, g: 0.06, b: 0.25, a: 1}
+  _stealRuneColor: {r: 0.58, g: 0.25, b: 0.9, a: 1}
+  _stealAccentColor: {r: 0.2, g: 0.85, b: 0.78, a: 1}
+  _stealChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
   _stealMinRange: 3
   _stealRange: 7
   _stealAreaRadius: 2.6
@@ -55,21 +70,6 @@ MonoBehaviour:
   _stealRecovery: 0.8
   _stealCooldown: 14
   _stealCaptureDuration: 2.2
-  _stealEmptyDamage: 10
   _stealDamage: 3
-  _stealIndicatorColor: {r: 0.12, g: 0.06, b: 0.25, a: 1}
-  _stealRuneColor: {r: 0.58, g: 0.25, b: 0.9, a: 1}
-  _stealAccentColor: {r: 0.2, g: 0.85, b: 0.78, a: 1}
-  _stealChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
-  _useMeleeAttack: 1
-  _useDashAttack: 0
-  _usePotionSummon: 1
-  _usePotionSteal: 1
-  _preferredDistance: 6
-  _distanceTolerance: 0.75
-  _visualScale: 1
-  _tintColor: {r: 0.65, g: 0.9, b: 1, a: 1}
-  _indicatorColor: {r: 0.15, g: 0.3, b: 0.6, a: 1}
-  _indicatorRuneColor: {r: 0.45, g: 0.65, b: 1, a: 1}
-  _indicatorChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
-  _magicCircleTint: {r: 0.65, g: 0.9, b: 1, a: 1}
+  _stealEmptyDamage: 10
+  _deathDuration: 1

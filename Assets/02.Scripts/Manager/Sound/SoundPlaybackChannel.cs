@@ -9,6 +9,7 @@ internal sealed class SoundPlaybackChannel
     private readonly AudioMixerGroup _group;
     private readonly bool _isBgm;
     private readonly int _maxVoices;
+    private readonly bool _keepPlayingVoices;
     private readonly SoundVolumeController _volumeController;
     private readonly List<SoundVoice> _voices = new List<SoundVoice>();
 
@@ -30,6 +31,7 @@ internal sealed class SoundPlaybackChannel
         _group = volumeController.FindGroup(channel);
         _isBgm = channel == SoundChannel.Bgm;
         _maxVoices = GetMaxVoices(channel);
+        _keepPlayingVoices = channel == SoundChannel.EnemyDeath;
     }
 
     public SoundHandle Play(AudioClip clip, float volume, float startOffset,
@@ -39,6 +41,7 @@ internal sealed class SoundPlaybackChannel
         if (_pauseRequested && !loop) return default;
 
         SoundVoice voice = AcquireVoice();
+        if (voice == null) return default;
         voice.Play(clip, volume, startOffset, endTime, fadeOutTime, loop, fadeInTime,
             ChannelVolume, _pauseRequested);
         return new SoundHandle(voice);
@@ -113,7 +116,7 @@ internal sealed class SoundPlaybackChannel
         _pauseVolume = Mathf.Lerp(_pauseFadeFrom, _pauseFadeTarget, t);
     }
 
-    // 비활성 보이스를 재사용하고, 풀이 꽉 찼으면 가장 오래된 소리를 교체한다.
+    // 사망음 풀이 꽉 찼으면 새 요청을 버린다. 다른 채널은 가장 오래된 소리를 교체한다.
     private SoundVoice AcquireVoice()
     {
         SoundVoice oldest = null;
@@ -137,6 +140,7 @@ internal sealed class SoundPlaybackChannel
             return created;
         }
 
+        if (_keepPlayingVoices) return null;
         oldest.Release();
         return oldest;
     }
@@ -149,6 +153,7 @@ internal sealed class SoundPlaybackChannel
             case SoundChannel.Ui: return 4;
             case SoundChannel.Player: return 8;
             case SoundChannel.Potion: return 8;
+            case SoundChannel.EnemyDeath: return 4;
             default: return 16;
         }
     }

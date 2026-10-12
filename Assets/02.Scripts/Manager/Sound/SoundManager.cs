@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,6 +10,7 @@ public enum SoundChannel
     Ui,
     Player,
     Potion,
+    EnemyDeath,
 }
 
 // 전역 사운드 진입점. 씬에 배치하고 GameSoundData를 연결하며, 씬 전환 시 유지한다.
@@ -58,7 +60,29 @@ public class SoundManager : MonoBehaviour
 
     public static GameSoundData Data => Instance != null ? Instance._soundData : null;
     public static GameSoundData.Entry GetSound(GameSoundId id) => Data != null ? Data.Get(id) : null;
-    public static SoundHandle Play(GameSoundId id) => GetSound(id)?.Play() ?? default;
+    // 종류별 간격은 모든 적이 공유한다. 재생을 건너뛰어도 이미 재생 중인 소리는 유지한다.
+    private readonly Dictionary<GameSoundId, float> _nextEnemyDeathSoundTimes = new();
+
+    public static SoundHandle Play(GameSoundId id)
+    {
+        GameSoundData.Entry entry = GetSound(id);
+        if (entry == null || entry.Clip == null) return default;
+        if (id != GameSoundId.ExplodingEnemyDeath && id != GameSoundId.RangedEnemyDeath
+            && id != GameSoundId.ReaperDeath)
+        {
+            return entry.Play();
+        }
+
+        SoundManager manager = Instance;
+        if (manager == null) return default;
+        float now = Time.unscaledTime;
+        if (manager._nextEnemyDeathSoundTimes.TryGetValue(id, out float nextTime) && now < nextTime)
+            return default;
+
+        SoundHandle handle = entry.Play();
+        if (handle.IsPlaying) manager._nextEnemyDeathSoundTimes[id] = now + entry.Interval;
+        return handle;
+    }
     public static void Preload(GameSoundId id) => GetSound(id)?.Preload();
 
     private static readonly GameSoundId[] PotionBreakSounds =

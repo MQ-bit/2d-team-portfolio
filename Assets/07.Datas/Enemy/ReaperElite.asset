@@ -15,14 +15,26 @@ MonoBehaviour:
   _maxHealth: 240
   _moveSpeed: 2.4
   _contactDamage: 8
-  _detectRange: 12
+  _detectRange: 200
+  _visualScale: 1
+  _tintColor: {r: 1, g: 0.68, b: 0.58, a: 1}
+  _useMeleeAttack: 1
+  _useDashAttack: 1
+  _usePotionSummon: 1
+  _usePotionSteal: 1
+  _preferredDistance: 0
+  _distanceTolerance: 0.75
+  _magicCircleTint: {r: 1, g: 0.68, b: 0.58, a: 1}
+  _indicatorColor: {r: 0.7, g: 0.13, b: 0.16, a: 1}
+  _indicatorRuneColor: {r: 0.95, g: 0.4, b: 0.3, a: 1}
+  _indicatorChargedColor: {r: 1, g: 0.65, b: 0.55, a: 1}
   _meleeRange: 3.3
   _meleeAngle: 140
   _meleeDamage: 20
   _meleeWindup: 0.5
   _meleeActiveDuration: 0.3
-  _meleeHitboxSize: {x: 6.600, y: 5.600}
-  _meleeHitboxOffset: {x: 3.000, y: 1.700}
+  _meleeHitboxSize: {x: 6.6, y: 5.6}
+  _meleeHitboxOffset: {x: 3, y: 1.7}
   _meleeRecovery: 0.2
   _meleeCooldown: 2.2
   _dashMinRange: 2.5
@@ -46,7 +58,10 @@ MonoBehaviour:
   _warningDuration: 0.9
   _fallDuration: 0.45
   _summonHeight: 2.5
-  _deathDuration: 1
+  _stealIndicatorColor: {r: 0.25, g: 0.04, b: 0.16, a: 1}
+  _stealRuneColor: {r: 0.65, g: 0.22, b: 0.85, a: 1}
+  _stealAccentColor: {r: 0.95, g: 0.15, b: 0.28, a: 1}
+  _stealChargedColor: {r: 1, g: 0.65, b: 0.8, a: 1}
   _stealMinRange: 3
   _stealRange: 6
   _stealAreaRadius: 2.6
@@ -55,21 +70,6 @@ MonoBehaviour:
   _stealRecovery: 0.7
   _stealCooldown: 14
   _stealCaptureDuration: 2.2
-  _stealEmptyDamage: 15
   _stealDamage: 5
-  _stealIndicatorColor: {r: 0.25, g: 0.04, b: 0.16, a: 1}
-  _stealRuneColor: {r: 0.65, g: 0.22, b: 0.85, a: 1}
-  _stealAccentColor: {r: 0.95, g: 0.15, b: 0.28, a: 1}
-  _stealChargedColor: {r: 1, g: 0.65, b: 0.8, a: 1}
-  _useMeleeAttack: 1
-  _useDashAttack: 1
-  _usePotionSummon: 1
-  _usePotionSteal: 1
-  _preferredDistance: 0
-  _distanceTolerance: 0.75
-  _visualScale: 1
-  _tintColor: {r: 1, g: 0.68, b: 0.58, a: 1}
-  _indicatorColor: {r: 0.7, g: 0.13, b: 0.16, a: 1}
-  _indicatorRuneColor: {r: 0.95, g: 0.4, b: 0.3, a: 1}
-  _indicatorChargedColor: {r: 1, g: 0.65, b: 0.55, a: 1}
-  _magicCircleTint: {r: 1, g: 0.68, b: 0.58, a: 1}
+  _stealEmptyDamage: 15
+  _deathDuration: 1
