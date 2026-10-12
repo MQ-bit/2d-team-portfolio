@@ -5,7 +5,7 @@ using UnityEngine;
 // 최대 체력 수치 자체는 EnemyData가 갖고 있고, 컨트롤러가 Awake에서 Initialize()로 넘겨준다.
 public class EnemyStatus : MonoBehaviour, IDamageable
 {
-    private EntityHealth _health;
+    [SerializeField] private EntityHealth _health;
     [SerializeField] private EnemyKind _type;
 
     [Header("Component References")]

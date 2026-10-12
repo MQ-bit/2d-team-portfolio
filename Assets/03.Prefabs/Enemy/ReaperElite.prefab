@@ -12,25 +12,29 @@ PrefabInstance:
       propertyPath: m_Name
       value: ReaperElite
       objectReference: {fileID: 0}
-    - target: {fileID: 8398785202606945658, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
-      propertyPath: _data
-      value: 
-      objectReference: {fileID: 11400000, guid: 3214ac9a773942f9a8878d14d16fc329, type: 2}
     - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
-      propertyPath: m_Color.r
+      propertyPath: m_Color.a
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
-      propertyPath: m_Color.g
-      value: 0.68
       objectReference: {fileID: 0}
     - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
       propertyPath: m_Color.b
       value: 0.58
       objectReference: {fileID: 0}
     - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
-      propertyPath: m_Color.a
+      propertyPath: m_Color.g
+      value: 0.68
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+      propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971321821474806601, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1831432877
       objectReference: {fileID: 0}
     - target: {fileID: 5068007619371979021, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
       propertyPath: m_LocalScale.x
@@ -40,10 +44,18 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 5672044015870493081, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+      propertyPath: _dropChance
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 6832661958139286944, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
       propertyPath: m_Radius
       value: 0.72
       objectReference: {fileID: 0}
+    - target: {fileID: 8398785202606945658, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+      propertyPath: _data
+      value: 
+      objectReference: {fileID: 11400000, guid: 3214ac9a773942f9a8878d14d16fc329, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

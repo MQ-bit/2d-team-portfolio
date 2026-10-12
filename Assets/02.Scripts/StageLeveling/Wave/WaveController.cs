@@ -102,6 +102,7 @@ public sealed class WaveController : MonoBehaviour
             for (int index = 0; index < wave.Requests.Count;)
             {
                 int batchEnd = Mathf.Min(index + wave.BatchSize, wave.Requests.Count);
+                _spawnPointCursor++;
 
                 while (index < batchEnd)
                 {
@@ -111,8 +112,6 @@ public sealed class WaveController : MonoBehaviour
                     }
 
                     Transform spawnPoint = _spawnPoints[_spawnPointCursor % _spawnPoints.Count];
-
-                    _spawnPointCursor++;
 
                     if (!_spawnManager.TrySpawn(wave.Requests[index], spawnPoint, _enemiesRoot, out WaveEnemyHandle enemy))
                     {
