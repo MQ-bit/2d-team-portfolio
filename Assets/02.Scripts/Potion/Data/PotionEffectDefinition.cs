@@ -73,6 +73,17 @@ public sealed class PotionEffectDefinition
             _amount = PotionDataValidation.NonNegative(amount)
         };
 
+    internal static PotionEffectDefinition CreateInstantStatus(PotionStatusEffectTracker status,
+        PotionElement element, float duration) => new()
+        {
+            _phase = PotionEffectPhase.Impact,
+            _operation = PotionEffectOperation.ApplyStatus,
+            _element = element,
+            _status = status,
+            _duration = PotionDataValidation.NonNegative(duration),
+            _immobilizeDuration = PotionDataValidation.NonNegative(duration)
+        };
+
     internal void Validate()
     {
         _amount = PotionDataValidation.NonNegative(_amount);

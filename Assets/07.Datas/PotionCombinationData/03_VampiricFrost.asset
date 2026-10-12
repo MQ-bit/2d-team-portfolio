@@ -13,27 +13,48 @@ MonoBehaviour:
   m_Name: 03_VampiricFrost
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 3
-  _displayName: "\uD761\uD608\uC758 \uC11C\uB9AC"
-  _description: "\uC11C\uB9AC \uC6D0\uBCF8 \uC7A5\uD310\xB7\uC2A4\uD0DD\xB7\uBE59\uACB0\uC744
-    \uC720\uC9C0\uD558\uACE0 \uC2E4\uC81C \uD53C\uD574\uC758 20%\uB97C \uC2DC\uC804\uC790\uC5D0\uAC8C
-    \uD68C\uBCF5\uD55C\uB2E4."
+  _displayName: "흡혈 서리"
+  _description: "6초 장판. 0.5초마다 서리 18 및 서리 1스택. 3스택이면 2초 빙결. 적의 실제 HP 감소량 15% 흡혈(기화 포함), 자기 피해 제외. 피해 잔류 없음."
   _elementA: 4
   _elementB: 3
-  _inheritThrownEffectsFrom: 3
+  _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 0
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
-  _lifeStealRatio: 0.2
-  _effects: []
+  _lifeStealRatio: 0.15
+  _effects:
+  - _phase: 1
+    _operation: 0
+    _element: 3
+    _amount: 18
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 3
+    _element: 3
+    _amount: 0
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: -450705542, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 1925785416, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}

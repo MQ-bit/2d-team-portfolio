@@ -79,7 +79,9 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
                 ApplyDamage(effect.Amount, source, effect.Element, false);
                 break;
             case PotionEffectOperation.Heal:
-                PotionStatApplier.Heal(Damageable, effect.Amount);
+                if (source.VaporizationBatch != null)
+                    source.VaporizationBatch.AddHealing(Damageable, effect.Amount);
+                else PotionStatApplier.Heal(Damageable, effect.Amount);
                 break;
             case PotionEffectOperation.ApplyStatus:
                 ApplyStatus(effect, source);
@@ -166,10 +168,21 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
     {
+        // Apply the player's own potion damage reduction after the reaction's raw cap.
+        if (source.IsAreaDamage && TargetKind == PotionTargetKind.Player
+            && ReferenceEquals(Damageable, source.Owner))
+        {
+            amount *= 0.25f;
+        }
+
         PotionDamageResult result = PotionStatApplier.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
 
-        PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
+        if (TargetKind != PotionTargetKind.Enemy || ReferenceEquals(Damageable, source.Owner))
+            result = new PotionDamageResult(source, element, result.ActualDamage, false);
+        if (source.VaporizationBatch != null)
+            source.VaporizationBatch.AddHealing(source.Owner, result.LifeStealAmount);
+        else PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }

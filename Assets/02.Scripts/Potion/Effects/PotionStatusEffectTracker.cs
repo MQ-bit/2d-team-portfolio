@@ -99,7 +99,9 @@ public sealed class PotionStatusEffectState
         _statuses[effectInfo.Status] = new ActiveStatus
         {
             EffectInfo = selected,
-            ExpiresAt = now + effectInfo.Duration,
+            ExpiresAt = refreshing && (effectInfo.Status == PotionStatusEffectTracker.Frozen
+                || effectInfo.Status == PotionStatusEffectTracker.Paralyzed)
+                ? Math.Max(previous.ExpiresAt, now + effectInfo.Duration) : now + effectInfo.Duration,
             NextTickAt = nextTick,
             PulseStartedAt = pulseStart
         };

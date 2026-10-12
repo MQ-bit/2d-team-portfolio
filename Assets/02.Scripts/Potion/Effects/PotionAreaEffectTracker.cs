@@ -34,6 +34,16 @@ public sealed class PotionAreaEffectTracker
     // damage has already happened; exit statuses are removed instead of applied.
     public static List<PotionEffectDefinition> GetRemainingEffects(IPotionEffectData profile,
         float remainingDuration, float multiplier)
+        => ConvertRemainingEffects(profile, remainingDuration, _ => multiplier);
+
+    public static List<PotionEffectDefinition> GetVaporizationEffects(IPotionEffectData profile,
+        float remainingDuration, PotionVaporizationSettings settings)
+        => ConvertRemainingEffects(profile, remainingDuration,
+            effect => settings != null ? settings.GetOutputMultiplier(effect)
+                : PotionVaporizationSettings.DefaultOutputMultiplier(effect));
+
+    private static List<PotionEffectDefinition> ConvertRemainingEffects(IPotionEffectData profile,
+        float remainingDuration, Func<PotionEffectDefinition, float> multiplier)
     {
         var result = new List<PotionEffectDefinition>();
         if (profile == null || profile.TickInterval <= 0f || remainingDuration <= 0f) return result;
@@ -56,14 +66,27 @@ public sealed class PotionAreaEffectTracker
         foreach (var effect in selected.Values)
         {
             result.Add(PotionEffectDefinition.CreateInstant(effect.Operation, effect.Element,
-                effect.Amount * ticks * Math.Max(0f, multiplier)));
+                effect.Amount * ticks * PotionDataValidation.NonNegative(multiplier(effect))));
         }
 
         return result;
     }
 
-    public void Enter(IPotionEffectData profile, PotionEffectSource source) =>
+    public void Enter(IPotionEffectData profile, PotionEffectSource source)
+    {
+        if (source.Combination != null)
+        {
+            // The reaction front can reach this target before the partner's old
+            // floor exits. Its base-potion cooldown must not delay the new entry pulse.
+            foreach (var effect in profile.GetEffects(PotionEffectPhase.FloorTick))
+            {
+                var key = new Key(effect);
+                if (TrySelect(key, out Entry previous, out _) && previous.Source.Combination == null)
+                    _nextTicks.Remove(key);
+            }
+        }
         _sources[source.SourceId] = new Entry(profile, source);
+    }
 
     public void CollectVisualCombinations(List<PotionCombinationData> result)
     {
