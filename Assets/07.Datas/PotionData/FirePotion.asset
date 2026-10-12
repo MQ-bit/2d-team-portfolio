@@ -19,17 +19,17 @@ MonoBehaviour:
     \uB370\uBBF8\uC9C0"
   _element: 1
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 4
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 1
-    _amount: 8
+    _amount: 18
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 1
-    _amount: 4
+    _amount: 6
     _status: 0
     _duration: 2
     _tickInterval: 1

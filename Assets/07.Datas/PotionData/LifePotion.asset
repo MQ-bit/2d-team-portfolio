@@ -19,9 +19,9 @@ MonoBehaviour:
     \uCCB4\uB825 \uD68C\uBCF5"
   _element: 4
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 4
+  _floorDuration: 6
   _tickInterval: 1
   _applyOnEnter: 1
   _lifeStealRatio: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
   - _phase: 1
     _operation: 1
     _element: 4
-    _amount: 6
+    _amount: 10
     _status: 0
     _duration: 0
     _tickInterval: 0
