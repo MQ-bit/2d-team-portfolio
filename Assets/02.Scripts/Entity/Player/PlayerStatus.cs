@@ -69,15 +69,18 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     private void Update()
     {
+        float previousThirst = _thirstInstance.CurrentThirst;
         if (_thirstInstance.IncreaseTick(Time.deltaTime))
         {
-            NotifyThirstChanged();
+            NotifyThirstChanged(previousThirst);
         }
     }
 
     public void RestoreHealth(float amount)
     {
+        float previousHealth = _healthInstance.Current;
         _healthInstance.RestoreHealth(amount);
+        DamageFeedback.ReportHealing(transform.position, _healthInstance.Current - previousHealth);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
     }
 
@@ -99,7 +102,9 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
     {
         if (IsDead || !CanDamage) return;
 
+        float previousHealth = _healthInstance.Current;
         _healthInstance.DecreaseHealth(amount);
+        DamageFeedback.Report(transform.position, previousHealth - _healthInstance.Current, true);
         OnHealthChanged?.Invoke(_healthInstance.Current, _healthInstance.Max);
 
         if (amount > 0f)
@@ -115,20 +120,22 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
 
     public void RestoreThirst(float amount)
     {
+        float previousThirst = _thirstInstance.CurrentThirst;
         _thirstInstance.RestoreThirst(amount);
-        NotifyThirstChanged();
+        NotifyThirstChanged(previousThirst);
     }
 
     public void DecreaseThirst(float amount)
     {
         if (IsDead) return;
 
+        float previousThirst = _thirstInstance.CurrentThirst;
         _thirstInstance.DecreaseThirst(amount);
 
-        NotifyThirstChanged();
+        NotifyThirstChanged(previousThirst);
     }
 
-    private void NotifyThirstChanged()
+    private void NotifyThirstChanged(float previousThirst)
     {
         float current = _thirstInstance.CurrentThirst;
         float maximum = _thirstInstance.MaxThirst;
@@ -137,6 +144,7 @@ public class PlayerStatus : MonoBehaviour, IThirstable, IDamageable, IDirectiona
         ThirstWarningLevel nextLevel = EvaluateThirstLevel(current, maximum);
 
         CurrentThirstLevel = nextLevel;
+        DamageFeedback.ReportThirstChange(transform.position, current - previousThirst);
         OnThirstChanged?.Invoke(current, maximum);
 
         if (nextLevel != prevLevel)
