@@ -101,6 +101,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 7029584741396167249, guid: 297a394075fccf640b622fea4726d08c, type: 3}
+    - target: {fileID: 2321117110662664653, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2321117110662664653, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1831432877
+      objectReference: {fileID: 0}
     - target: {fileID: 2610078227831761634, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       propertyPath: m_Controller
       value: 
@@ -116,6 +124,10 @@ PrefabInstance:
     - target: {fileID: 3910490072977745002, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5631531503168696767, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
+      propertyPath: _dropChance
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 5631531503168696767, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       propertyPath: '_dropPrefabs.Array.data[0]'
