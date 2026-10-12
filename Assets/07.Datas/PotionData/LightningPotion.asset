@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: LightningPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: lightning_potion
-  _displayName: "\uC804\uAE30\uC758 \uBB3C\uC57D"
-  _description: "\uC804\uAE30\uAC00 \uACA9\uB82C\uD788 \uC694\uB3D9\uCE58\uB294 \uC561\uCCB4.
-    \uC0DD\uBB3C\uC758 \uADFC\uC721\uC744 \uB9C8\uBE44\uC2DC\uCF1C \uC6C0\uC9C1\uC774\uC9C0
-    \uBABB\uD558\uAC8C \uD55C\uB2E4."
+  _displayName: "<color=#743BA6>\uC804\uAE30</color>\uC758 \uBB3C\uC57D"
+  _description: "\uC628\uBAB8\uC758 \uADFC\uC721\uC744 \uB9C8\uBE44\uC2DC\uCF1C \uC6C0\uC9C1\uC784\uC744
+    \uBC29\uD574\uD55C\uB2E4.\n\n<color=#743BA6>\uB9C8\uBE44</color> : \uC8FC\uAE30\uC801
+    \uC815\uC9C0"
   _element: 5
   _targetType: 2
   _effectRadius: 3

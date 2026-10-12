@@ -249,7 +249,7 @@ MonoBehaviour:
   _initCurrentThirst: 0
   _initThirstIncreaseAmount: 1
   _initThirstIncreaseInterval: 5
-  _thirstWarningThreshold: 0.7
+  _thirstWarningThreshold: 0.6
   _thirstCriticalThreshold: 1
   _thirstInstance:
     _maxThirst: 100
