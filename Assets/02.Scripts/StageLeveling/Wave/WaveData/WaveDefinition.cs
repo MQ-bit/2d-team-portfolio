@@ -1,33 +1,46 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class WaveDefinition //TODO: 구조체 고려
+public class WaveDefinition
 {
-    [Header("Base Enemies")]
-    [SerializeField] private int _baseCountMin = 10;
-    [SerializeField] private int _baseCountMax = 15;
+    [Header("Total Enemies")]
 
-    [SerializeField, Range(0f, 1f)] private float _bombRatio = 0.9f;
+    [Tooltip("엘리트를 포함한 웨이브 전체 최소 수량입니다.")]
+    [SerializeField, Min(0)] private int _totalCountMin = 10;
 
-    [Header("Elite Bonus")]
-    [SerializeField] private int _eliteBonusMin = 1;
-    [SerializeField] private int _eliteBonusMax = 2;
+    [Tooltip("엘리트를 포함한 웨이브 전체 최대 수량입니다.")]
+    [SerializeField, Min(0)] private int _totalCountMax = 15;
 
+    [Header("Normal Enemies")]
+    [SerializeField]
+    private List<WaveEnemyEntry> _normalEnemies = new List<WaveEnemyEntry>();
 
-    [Header("Reaper")]
-    [SerializeField, Min(0)] private int _reaperCount;
+    [Header("Elite Enemies")]
+
+    [Tooltip("이 웨이브에서 반드시 생성할 엘리트 수량입니다.")]
+    [SerializeField, Min(0)] private int _eliteCount;
+
+    [Tooltip("각 엘리트는 이 목록에서 동일 확률로 추첨됩니다.")]
+    [SerializeField]
+    private List<WaveEnemyHandle> _elitePrefabs = new List<WaveEnemyHandle>();
 
     [Header("Spawn Timing")]
+
     [SerializeField, Min(1)] private int _batchSize = 5;
     [SerializeField, Min(0f)] private float _spawnInterval = 0.15f;
     [SerializeField, Min(0f)] private float _batchInterval = 1f;
 
-    public Vector2Int BaseCountRange => new Vector2Int(_baseCountMin, _baseCountMax);
-    public float BombRatio => _bombRatio;
-    public Vector2Int EliteBonusRange => new Vector2Int(_eliteBonusMin, _eliteBonusMax);
+    public int TotalCountMin => _totalCountMin;
+    public int TotalCountMax => _totalCountMax;
+
+    public IReadOnlyList<WaveEnemyEntry> NormalEnemies => _normalEnemies;
+
+    public int EliteCount => _eliteCount;
+    public IReadOnlyList<WaveEnemyHandle> ElitePrefabs => _elitePrefabs;
+
     public int BatchSize => _batchSize;
-    public int ReaperCount => Mathf.Max(0, _reaperCount);
     public float SpawnInterval => _spawnInterval;
     public float BatchInterval => _batchInterval;
 }
