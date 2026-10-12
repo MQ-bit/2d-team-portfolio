@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcab6078b00664d4fbf70a4f083174dc, type: 3}
   m_Name: ReaperNormal
   m_EditorClassIdentifier: Assembly-CSharp::ReaperData
-  _maxHealth: 10
-  _moveSpeed: 2.6
-  _contactDamage: 5
+  _maxHealth: 120
+  _moveSpeed: 2.8
+  _contactDamage: 12
   _detectRange: 10
   _visualScale: 1
   _tintColor: {r: 1, g: 1, b: 1, a: 1}
@@ -42,7 +42,7 @@ MonoBehaviour:
   _dashWindup: 0.7
   _dashSpeed: 8
   _dashDistance: 4
-  _dashDamage: 15
+  _dashDamage: 20
   _dashRecovery: 0.8
   _dashCooldown: 4
   _summonPotions:
