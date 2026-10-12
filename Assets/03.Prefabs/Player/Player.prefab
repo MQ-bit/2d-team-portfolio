@@ -238,8 +238,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cdcdbc780a21e47be872cf369e65ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
-  _data: {fileID: 11400000, guid: b12dc6fbeb5f46d2b0eb884cb741f64a, type: 2}
   _potionEffectReceiver: {fileID: 910000000000000003}
+  _movementModule: {fileID: 0}
+  _data: {fileID: 11400000, guid: b12dc6fbeb5f46d2b0eb884cb741f64a, type: 2}
 --- !u!114 &1377203738665982733
 MonoBehaviour:
   m_ObjectHideFlags: 0

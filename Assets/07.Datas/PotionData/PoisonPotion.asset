@@ -18,17 +18,17 @@ MonoBehaviour:
     : \uAC15\uB825\uD55C \uC8FC\uAE30\uC801 \uB370\uBBF8\uC9C0"
   _element: 2
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 5
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.75
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 2
-    _amount: 5
+    _amount: 15
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -39,10 +39,10 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 2
-    _amount: 5
+    _amount: 20
     _status: 1
-    _duration: 3
-    _tickInterval: 1
+    _duration: 4.5
+    _tickInterval: 0.75
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0
