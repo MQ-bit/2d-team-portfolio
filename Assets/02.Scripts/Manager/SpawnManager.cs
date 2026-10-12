@@ -218,34 +218,59 @@ public class SpawnManager : MonoBehaviour
 
     private void InitializePools()
     {
+        if (_monsterPrefabs == null)
+        {
+            return;
+        }
+
         foreach (GameObject prefab in _monsterPrefabs)
         {
             if (prefab == null)
             {
-                Debug.LogWarning($"{name}: null 몬스터 Prefab({prefab.name})이 등록되어있습니다.");
+                Debug.LogWarning($"{name}: null 몬스터 Prefab이 등록되어 있습니다.");
                 continue;
             }
 
             if (_pools.ContainsKey(prefab))
             {
-                Debug.LogWarning($"{name}: 이미 등록된 몬스터 Prefab({prefab.name})이 있습니다.");
+                Debug.LogWarning(
+                    $"{name}: {prefab.name}이 중복 등록되어 있습니다.");
                 continue;
             }
 
-            GameObject poolObject = new GameObject($"{prefab.name} Pool");
-            poolObject.transform.SetParent(transform, false);
-
-            MonsterPool pool = poolObject.AddComponent<MonsterPool>();
-            pool.Initialize(prefab, _poolExpandSize, transform);
-            _pools.Add(prefab, pool);
+            GetOrCreatePool(prefab);
         }
+    }
+
+    private IPoolSource<GameObject> GetOrCreatePool(GameObject prefab)
+    {
+        if (prefab == null)
+        {
+            return null;
+        }
+
+        if (_pools.TryGetValue(prefab, out IPoolSource<GameObject> existing))
+        {
+            return existing;
+        }
+
+        GameObject poolObject = new GameObject($"{prefab.name} Pool");
+        poolObject.transform.SetParent(transform, false);
+
+        MonsterPool pool = poolObject.AddComponent<MonsterPool>();
+        pool.Initialize(prefab, Mathf.Max(0, _poolExpandSize), transform);
+
+        _pools.Add(prefab, pool);
+        return pool;
     }
 
     public GameObject Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        if (prefab == null || !_pools.TryGetValue(prefab, out IPoolSource<GameObject> pool))
+        IPoolSource<GameObject> pool = GetOrCreatePool(prefab);
+
+        if (pool == null)
         {
-            Debug.LogWarning($"{name}: {prefab?.name}에 대한 풀을 찾을 수 없습니다.");
+            Debug.LogWarning($"{name}: 생성할 몬스터 Prefab이 없습니다.");
             return null;
         }
 
