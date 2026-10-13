@@ -37,7 +37,7 @@ MonoBehaviour:
       _elitePrefabs: []
       _batchSize: 5
       _spawnInterval: 0.25
-      _batchInterval: 5
+      _batchInterval: 2
     - _totalCountMin: 10
       _totalCountMax: 15
       _normalEnemies:
@@ -53,7 +53,7 @@ MonoBehaviour:
       _elitePrefabs: []
       _batchSize: 5
       _spawnInterval: 0.25
-      _batchInterval: 5
+      _batchInterval: 2
   _eliteRoom:
     _waves:
     - _totalCountMin: 10
@@ -106,7 +106,7 @@ MonoBehaviour:
       _elitePrefabs: []
       _batchSize: 5
       _spawnInterval: 0.25
-      _batchInterval: 3
+      _batchInterval: 2
     - _totalCountMin: 35
       _totalCountMax: 40
       _normalEnemies:
@@ -126,4 +126,4 @@ MonoBehaviour:
       _batchSize: 5
       _spawnInterval: 0.25
       _batchInterval: 2
-  _interWaveDelay: 3
+  _interWaveDelay: 1
