@@ -39,7 +39,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
 
     public void Initialize(EnemyData data)
     {
-        Initialize(data.MaxHealth, data.MoveSpeed);
+        // 층이 올라갈수록 StageManager의 배율만큼 최대 체력이 늘어난다. (풀에서 꺼낼 때마다 다시 계산)
+        float healthMultiplier = StageManager.Instance != null ? StageManager.Instance.EnemyHealthMultiplier : 1f;
+        Initialize(data.MaxHealth * healthMultiplier, data.MoveSpeed);
         _contactDamage = data.ContactDamage;
     }
     public void Initialize(float maxHealth, float moveSpeed)
