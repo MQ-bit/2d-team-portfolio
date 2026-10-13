@@ -37,7 +37,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [SerializeField] private PotionFrostSettings _frost = new();
 
     [Header("Drink")]
-    [Tooltip("양수는 금단 증가, 음수는 금단 감소. 공통 음용 감소량은 별도로 적용합니다.")]
+    [Tooltip("양수는 갈증 감소, 음수는 갈증 증가")]
     [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]

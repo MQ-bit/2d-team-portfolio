@@ -9,13 +9,13 @@ public class PlayerDrinkingModule : MonoBehaviour
     [SerializeField] private PlayerInventoryModule _inventoryModule;
     [SerializeField] private PlayerStatus _status;
 
-    private PlayerData.DrinkSettings Settings => _status.Data.Drink;
-    private float _drinkTimer;
+    [Header("Drink Settings")]
+    [SerializeField] private float _drinkDuration = 0.8f; //TODO: Scriptable Object로 초기화하는 로직 반영
+    [SerializeField] private float _drinkTimer = 0f; //TODO: Progress를 확인하고자 SerializeField로 노출함. 디버그 끝나고 롤백시키기
+    [SerializeField] private float _thirstDecreaseAmount = 10f;
 
     public bool IsDrinking { get; private set; }
     public event Action<bool> OnDrinkStateChanged; //UI 연결용 이벤트
-    public event Action OnDrinkCompleted;
-    public event Action OnDrinkCancelled;
     public float DrinkProgress
     {
         get
@@ -25,7 +25,7 @@ public class PlayerDrinkingModule : MonoBehaviour
                 return 0f;
             }
 
-            return Mathf.Clamp01(_drinkTimer / Settings.Duration);
+            return Mathf.Clamp01(_drinkTimer / _drinkDuration);
         }
     }
 
@@ -43,7 +43,6 @@ public class PlayerDrinkingModule : MonoBehaviour
         {
             _status = GetComponent<PlayerStatus>();
         }
-        if (_status == null || _status.Data == null) { enabled = false; return; }
 
         if (_potionRunCatalog == null)
         {
@@ -56,7 +55,7 @@ public class PlayerDrinkingModule : MonoBehaviour
         if (!IsDrinking) return;
 
         _drinkTimer += Time.deltaTime;
-        if (_drinkTimer >= Settings.Duration)
+        if (_drinkTimer >= _drinkDuration)
         {
             CompleteDrink();
         }
@@ -93,33 +92,29 @@ public class PlayerDrinkingModule : MonoBehaviour
         if (!IsDrinking) return;
 
         ResetState();
-        OnDrinkCancelled?.Invoke();
     }
 
     private void CompleteDrink()
     {
         if (PotionEffectApplier.FindTarget(transform) == null)
         {
-            CancelDrink();
+            ResetState();
             return;
         }
 
         if (!_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
-            CancelDrink();
+            ResetState();
             return;
         }
-
-        // 소비가 성공하면 음용은 완료다. 즉시 피해의 사망 콜백이 취소로 처리하지 않게 한다.
-        ResetState();
-        OnDrinkCompleted?.Invoke();
 
         _potionRunCatalog.TryIdentify(consumedPotion);
 
         PotionEffectApplier.ApplyDrinkEffect(consumedPotion.PotionData, _effectReceiver);
-        _status.DecreaseThirst(Settings.BaseWithdrawalDecrease);
+        _status.DecreaseThirst(_thirstDecreaseAmount);
 
         ScoreManager.Instance?.TryRecordPotionConsumed();
+        ResetState();
     }
 
     private void ResetState()

@@ -19,17 +19,17 @@ MonoBehaviour:
     \uB370\uBBF8\uC9C0"
   _element: 1
   _targetType: 2
-  _effectRadius: 4
+  _effectRadius: 3
   _createsFloor: 1
-  _floorDuration: 6
-  _tickInterval: 0.5
+  _floorDuration: 4
+  _tickInterval: 1
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 1
-    _amount: 18
+    _amount: 8
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 1
-    _amount: 6
+    _amount: 4
     _status: 0
     _duration: 2
     _tickInterval: 1
@@ -51,9 +51,9 @@ MonoBehaviour:
   - _phase: 3
     _operation: 2
     _element: 1
-    _amount: 4
+    _amount: 6
     _status: 0
-    _duration: 3
+    _duration: 4
     _tickInterval: 1
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
@@ -65,7 +65,7 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
-  _thirstDelta: -20
+  _thirstDelta: -30
   _visualData:
     _iconSprite: {fileID: 640609057, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _cardBackgroundSprite: {fileID: -8195633402699738626, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}

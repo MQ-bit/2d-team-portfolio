@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e0e89defb125542bb892e0f984bca6, type: 3}
   m_Name: EliteExplodingEnemy
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
-  _maxHealth: 240
-  _moveSpeed: 3.2
-  _contactDamage: 12
+  _maxHealth: 100
+  _moveSpeed: 3.75
+  _contactDamage: 10
   _detectRange: 200
   _visualScale: 1
-  _tintColor: {r: 1, g: 0.3820755, b: 0.8755752, a: 1}
+  _tintColor: {r: 1, g: 1, b: 1, a: 1}
   _fuseTriggerRange: 1.45
-  _fuseDuration: 0.8
-  _explosionRadius: 2.2
+  _fuseDuration: 0.222
+  _explosionRadius: 2
   _explosionDamage: 45
   _rushTriggerRange: 4
   _rushSpeedMultiplier: 1

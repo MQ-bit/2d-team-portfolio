@@ -46,7 +46,7 @@ public sealed class PotionEffectDefinition
     [SerializeField] private bool _applyImmediately;
     [Tooltip("상태의 일반 이동 배율. 대시는 둔화를 무시하며 빙결/마비만 적용한다.")]
     [SerializeField, Range(0f, 1f)] private float _moveSpeedMultiplier = 1f;
-    [Tooltip("마비 1회 정지 시간. 예: 장판 0.1초, 섭취는 1초 동안 즉시 및 0.5초 뒤에 각 0.05초.")]
+    [Tooltip("마비 1회 정지 시간. 예: 장판 0.1초, 섭취는 2초 동안 0.4초마다 0.1초.")]
     [SerializeField, Min(0f)] private float _immobilizeDuration;
 
     [Header("Add Frost Stacks")]
@@ -71,17 +71,6 @@ public sealed class PotionEffectDefinition
             _operation = operation,
             _element = element,
             _amount = PotionDataValidation.NonNegative(amount)
-        };
-
-    internal static PotionEffectDefinition CreateInstantStatus(PotionStatusEffectTracker status,
-        PotionElement element, float duration) => new()
-        {
-            _phase = PotionEffectPhase.Impact,
-            _operation = PotionEffectOperation.ApplyStatus,
-            _element = element,
-            _status = status,
-            _duration = PotionDataValidation.NonNegative(duration),
-            _immobilizeDuration = PotionDataValidation.NonNegative(duration)
         };
 
     internal void Validate()

@@ -46,15 +46,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b727912214aab943a94c3d0a8e675a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReaperPotionSteal
+  _attackIndicatorPrefab: {fileID: 114000, guid: 955dff2c6e884be8af444a0a3cfd59be, type: 3}
   _potionVisual: {fileID: 212001}
   _magicCircle: {fileID: 212002}
   _magicCircleAnimator: {fileID: 95002}
   _magicCircleAnchorPixels: {x: 68, y: 49}
-  _attackIndicatorPrefab: {fileID: 114000, guid: 955dff2c6e884be8af444a0a3cfd59be, type: 3}
-  _captureTrailPrefab: {fileID: 7681075152636389171, guid: 57d7262dbe3e1cc4990d3ef444874e37, type: 3}
   _pickupEffectPrefab: {fileID: 3828230117633328340, guid: 73f01984997872c48ac054cb3427a217, type: 3}
   _reverseEffectSampleTime: 0.35
   _reverseEffectDuration: 0.4
+  _captureTrailPrefab: {fileID: 7681075152636389171, guid: 57d7262dbe3e1cc4990d3ef444874e37, type: 3}
 --- !u!1 &1001
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,8 +132,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1831432877
-  m_SortingLayer: 5
+  m_SortingLayerID: -507127363
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1296918660627881746, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
@@ -224,8 +224,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1831432877
-  m_SortingLayer: 5
+  m_SortingLayerID: -507127363
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: -4909067000698195473, guid: 7b181f3c31fe5294ba6b8038f9df657b, type: 3}
