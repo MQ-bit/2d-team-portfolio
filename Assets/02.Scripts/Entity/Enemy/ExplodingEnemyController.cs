@@ -35,6 +35,8 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
     private bool _isWindingUp; // 돌진 전에 멈춰 있는 중
     private float _windupElapsed;
     private bool _isRushing;
+    private float _rushElapsed;
+    private float _rushCooldownRemaining;
     private float _damageMultiplier = 1f; // 분열체는 엘리트 데이터의 SplitDamageMultiplier로 낮아진다
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
@@ -103,6 +105,8 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         _isWindingUp = false;
         _windupElapsed = 0f;
         _isRushing = false;
+        _rushElapsed = 0f;
+        _rushCooldownRemaining = 0f;
         _damageMultiplier = 1f;
 
         _overlapResults.Clear();
@@ -208,7 +212,22 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         // 처음 범위 안에 들어오면 RushWindupDuration 동안 멈춰서 붉어진 뒤, 평소 속도의 RushSpeedMultiplier배로 돌진한다.
         // 한 번 멈추기 시작하면 플레이어가 범위를 벗어나도 끝까지 멈췄다가 돌진하고,
         // 돌진을 시작하면 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
-        bool canStartWindup = _data.RushSpeedMultiplier > 1f && distance <= _data.RushTriggerRange;
+        // 돌진은 RushDuration 동안만 지속되고, 끝나면 RushCooldown 동안 평소 속도로 걷다가 다시 감지한다.
+        if (_isRushing)
+        {
+            _rushElapsed += Time.fixedDeltaTime;
+            if (_rushElapsed >= _data.RushDuration)
+            {
+                _isRushing = false;
+                _rushCooldownRemaining = _data.RushCooldown;
+            }
+        }
+        else if (_rushCooldownRemaining > 0f)
+        {
+            _rushCooldownRemaining -= Time.fixedDeltaTime;
+        }
+
+        bool canStartWindup = _data.RushSpeedMultiplier > 1f && _rushCooldownRemaining <= 0f && distance <= _data.RushTriggerRange;
         if (!_isRushing && (_isWindingUp || canStartWindup))
         {
             if (!_isWindingUp)
@@ -223,6 +242,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             {
                 _isWindingUp = false;
                 _isRushing = true;
+                _rushElapsed = 0f;
                 SetBodyColor(_originalColor);
             }
             else

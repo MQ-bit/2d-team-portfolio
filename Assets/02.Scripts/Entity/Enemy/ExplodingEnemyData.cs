@@ -16,6 +16,10 @@ public class ExplodingEnemyData : EnemyData
     [Tooltip("돌진 중 이동 속도 배율. 1이면 돌진하지 않는다.")]
     [SerializeField, Min(1f)] private float _rushSpeedMultiplier = 1f;
 
+    [Tooltip("한 번 돌진(광분)이 지속되는 시간(초). 이 시간이 지나면 돌진이 풀리고 평소 속도로 걷는다.")]
+    [SerializeField, Min(0f)] private float _rushDuration = 2f;
+    [Tooltip("돌진이 풀린 뒤 다시 돌진할 수 있게 되기까지의 시간(초). 이후 RushTriggerRange 안에서 감지되면 다시 돌진하고, 아니면 감지될 때까지 걸어온다.")]
+    [SerializeField, Min(0f)] private float _rushCooldown = 2f;
     [Tooltip("돌진을 시작하기 전에 멈춰 있는 시간(초).")]
     [SerializeField, Min(0f)] private float _rushWindupDuration = 0.5f;
     [Tooltip("멈춰 있는 동안 몸에 입히는 색.")]
@@ -36,6 +40,8 @@ public class ExplodingEnemyData : EnemyData
     public float ExplosionDamage => _explosionDamage;
     public float RushTriggerRange => _rushTriggerRange;
     public float RushSpeedMultiplier => _rushSpeedMultiplier;
+    public float RushDuration => _rushDuration;
+    public float RushCooldown => _rushCooldown;
     public float RushWindupDuration => _rushWindupDuration;
     public Color RushWindupColor => _rushWindupColor;
     public GameObject SplitPrefab => _splitPrefab;
