@@ -6,10 +6,19 @@ public class PlayerItemCollector : MonoBehaviour
     [SerializeField] private Transform _collectTarget;
 
     private CircleCollider2D _collectArea;
+    private PlayerStatus _status;
 
     private void Awake()
     {
         _collectArea = GetComponent<CircleCollider2D>();
+        _status = GetComponentInParent<PlayerStatus>();
+        if (_status == null || _status.Data == null || _collectArea == null)
+        {
+            Debug.LogError($"{name}: 수집 센서에 PlayerStatus/PlayerData/CircleCollider2D가 필요합니다.", this);
+            enabled = false;
+            return;
+        }
+        _collectArea.radius = _status.Data.Collection.LocalRadius;
 
         if (_inventoryModule == null)
         {

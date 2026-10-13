@@ -514,6 +514,7 @@ GameObject:
   - component: {fileID: 683366337290163522}
   - component: {fileID: 8755369226900175910}
   - component: {fileID: 5879776559550168852}
+  - component: {fileID: 881020121}
   m_Layer: 5
   m_Name: IngameCanvas
   m_TagString: Untagged
@@ -606,6 +607,35 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &881020121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7418160297848343055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8021e9e5d7f640b1909ec3e5fa8a6732, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageNumberPresenter
+  _font: {fileID: 11400000, guid: a67e946fa19c1f649bb75a4bcad6f55f, type: 2}
+  _worldCamera: {fileID: 0}
+  _fontSize: 42
+  _enemyColor: {r: 1, g: 0.94, b: 0.7, a: 1}
+  _playerColor: {r: 1, g: 0.35, b: 0.3, a: 1}
+  _healingColor: {r: 0.35, g: 1, b: 0.45, a: 1}
+  _thirstColor: {r: 0.78, g: 0.5, b: 1, a: 1}
+  _outlineColor: {r: 0.12, g: 0.08, b: 0.06, a: 1}
+  _outlineWidth: 1
+  _worldOffset: {x: 0, y: 0.7, z: 0}
+  _duration: 0.65
+  _launchSpeed: 320
+  _gravity: 1500
+  _horizontalSpread: 32
+  _popScale: 1.45
+  _prewarmCount: 64
+  _maxVisible: 256
 --- !u!1 &7454671308460023910
 GameObject:
   m_ObjectHideFlags: 0

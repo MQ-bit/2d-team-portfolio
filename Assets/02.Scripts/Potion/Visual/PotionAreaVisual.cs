@@ -42,6 +42,14 @@ public sealed class PotionAreaVisual : MonoBehaviour
     private float _flowTime;
     private uint _combinationSeed;
     private bool _hasCombinationSeed;
+    private bool _surfaceOnlyPreview;
+
+    internal void ConfigurePreview(float opacity)
+    {
+        _surfaceOnlyPreview = true;
+        _opacity = Mathf.Clamp01(opacity);
+        _appearDuration = 0f;
+    }
     private bool IsVampiric => _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire
         || _surfaceStyle == PotionAreaSurfaceStyle.VampiricPoison
         || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost
@@ -114,18 +122,18 @@ public sealed class PotionAreaVisual : MonoBehaviour
         _currentColor = _fromColor;
         _startedAt = Time.time;
         _colorChangedAt = _startedAt;
-        if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring || IsVampiric)
+        if (!_surfaceOnlyPreview && (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring || IsVampiric))
             _healingSpring.Bind(renderer, this);
-        if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex
+        if (!_surfaceOnlyPreview && (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex
             || _surfaceStyle == PotionAreaSurfaceStyle.BlazingCurrent
-            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire)
+            || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFire))
         {
             _fireVortex.Bind(renderer, this);
         }
 
-        if (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
+        if (!_surfaceOnlyPreview && (_surfaceStyle == PotionAreaSurfaceStyle.Frost || _surfaceStyle == PotionAreaSurfaceStyle.ThermalShock
             || _surfaceStyle == PotionAreaSurfaceStyle.VampiricFrost
-            || _surfaceStyle == PotionAreaSurfaceStyle.FrostPoison)
+            || _surfaceStyle == PotionAreaSurfaceStyle.FrostPoison))
         {
             _frostCrystals.Bind(renderer, this);
         }
@@ -212,6 +220,7 @@ public sealed class PotionAreaVisual : MonoBehaviour
             _puddle, _spread);
 
         // Flames read this frame's ground appearance and color to stay attached to it.
+        if (_surfaceOnlyPreview) return;
         if (_surfaceStyle == PotionAreaSurfaceStyle.HealingSpring)
             _healingSpring.Apply(_renderer, _currentColor, _accentColor, _flowTime, Visibility * _opacity);
         if (_surfaceStyle == PotionAreaSurfaceStyle.FireVortex)

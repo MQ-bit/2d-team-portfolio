@@ -15,7 +15,7 @@ public sealed class WaveController : MonoBehaviour
     private Transform _enemiesRoot;
 
     private int _encounterVersion;
-    private int _spawnPointCursor;
+    private int _prevSpawnPoint = -1;
     private bool _isCancelling;
 
     public bool IsRunning => _encounterCoroutine != null;
@@ -57,7 +57,7 @@ public sealed class WaveController : MonoBehaviour
 
         _spawnPoints = spawnPoints;
         _enemiesRoot = enemiesRoot;
-        _spawnPointCursor = 0;
+        _prevSpawnPoint = -1;
         CurrentWaveIndex = -1;
 
         int version = ++_encounterVersion;
@@ -110,9 +110,8 @@ public sealed class WaveController : MonoBehaviour
                         yield break;
                     }
 
-                    Transform spawnPoint = _spawnPoints[_spawnPointCursor % _spawnPoints.Count];
 
-                    _spawnPointCursor++;
+                    Transform spawnPoint = GetNextSpawnPoint();
 
                     if (!_spawnManager.TrySpawn(wave.Requests[index], spawnPoint, _enemiesRoot, out WaveEnemyHandle enemy))
                     {
@@ -218,5 +217,28 @@ public sealed class WaveController : MonoBehaviour
         _aliveEnemies.Clear();
         _releaseBuffer.Clear();
         _isCancelling = false;
+    }
+
+    private Transform GetNextSpawnPoint()
+    {
+        int count = _spawnPoints.Count;
+        int nextIndex;
+
+        if (_prevSpawnPoint < 0 || count == 1)
+        {
+            nextIndex = UnityEngine.Random.Range(0, count);
+        }
+        else
+        {
+            nextIndex = UnityEngine.Random.Range(0, count - 1);
+
+            if (nextIndex >= _prevSpawnPoint)
+            {
+                nextIndex++;
+            }
+        }
+
+        _prevSpawnPoint = nextIndex;
+        return _spawnPoints[nextIndex];
     }
 }

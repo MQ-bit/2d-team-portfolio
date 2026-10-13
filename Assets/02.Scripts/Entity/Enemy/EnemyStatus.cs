@@ -5,7 +5,7 @@ using UnityEngine;
 // 최대 체력 수치 자체는 EnemyData가 갖고 있고, 컨트롤러가 Awake에서 Initialize()로 넘겨준다.
 public class EnemyStatus : MonoBehaviour, IDamageable
 {
-    private EntityHealth _health;
+    [SerializeField] private EntityHealth _health;
     [SerializeField] private EnemyKind _type;
 
     [Header("Component References")]
@@ -39,7 +39,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
 
     public void Initialize(EnemyData data)
     {
-        Initialize(data.MaxHealth, data.MoveSpeed);
+        // 층이 올라갈수록 StageManager의 보너스만큼 최대 체력이 늘어난다. (풀에서 꺼낼 때마다 다시 계산)
+        float healthBonus = StageManager.Instance != null ? StageManager.Instance.EnemyHealthBonus : 0f;
+        Initialize(data.MaxHealth + healthBonus, data.MoveSpeed);
         _contactDamage = data.ContactDamage;
     }
     public void Initialize(float maxHealth, float moveSpeed)
@@ -52,7 +54,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
 
     public void RestoreHealth(float amount)
     {
+        float previousHealth = _health.Current;
         _health.RestoreHealth(amount);
+        DamageFeedback.ReportHealing(transform.position, _health.Current - previousHealth);
         OnHealthChanged?.Invoke(_health.Current, _health.Max);
     }
 
@@ -63,7 +67,9 @@ public class EnemyStatus : MonoBehaviour, IDamageable
             return;
         }
 
+        float previousHealth = _health.Current;
         _health.DecreaseHealth(amount);
+        DamageFeedback.Report(transform.position, previousHealth - _health.Current, false);
         OnHealthChanged?.Invoke(_health.Current, _health.Max);
 
         if (_health.IsDead)

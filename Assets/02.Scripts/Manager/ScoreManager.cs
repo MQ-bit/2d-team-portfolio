@@ -21,7 +21,9 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private ScoreData _bestScoreData;
     [SerializeField] private ScoreData _currentScoreData;
 
-    public bool IsRunActive = false; //{get; praivate set;} 
+    public int ClearedFloorCount => _currentScoreData != null ? _currentScoreData.ClearedFloorCount : 0;
+
+    public bool IsRunActive = false; //{get; praivate set;}
     public bool WasLastRunBest = false; //{get; private set;}
 
     private void Awake()

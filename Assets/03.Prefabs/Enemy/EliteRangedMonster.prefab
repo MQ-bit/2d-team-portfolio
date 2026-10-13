@@ -1,54 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6378567671343081193
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 576452690130090072}
-  - component: {fileID: 1206354201097436817}
-  m_Layer: 8
-  m_Name: MinimapMarker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &576452690130090072
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6378567671343081193}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1320022277877084674}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1206354201097436817
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6378567671343081193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55ce3920f027f724ca7559542677812d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
-  _icon: {fileID: 0}
-  _color: {r: 1, g: 0, b: 0, a: 1}
-  _markerSize: 8
-  _renderPriority: 200
-  _visible: 1
 --- !u!1001 &8177556209111716360
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61,6 +12,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: EliteRangedMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 2241308197873801084, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241308197873801084, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1831432877
+      objectReference: {fileID: 0}
     - target: {fileID: 2623299136486945534, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: _effectPrefab
       value: 
@@ -72,6 +31,18 @@ PrefabInstance:
     - target: {fileID: 5160474410883006025, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: _type
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0020325207
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.047
       objectReference: {fileID: 0}
     - target: {fileID: 7146418001948172298, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: m_LocalScale.x
@@ -123,14 +94,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7146418001948172298, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 576452690130090072}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
---- !u!4 &1320022277877084674 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7146418001948172298, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
-  m_PrefabInstance: {fileID: 8177556209111716360}
-  m_PrefabAsset: {fileID: 0}
