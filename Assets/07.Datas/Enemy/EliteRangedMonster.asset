@@ -14,16 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
   _maxHealth: 240
   _moveSpeed: 3
-  _contactDamage: 12
+  _contactDamage: 16
   _detectRange: 999
   _visualScale: 1.2
   _tintColor: {r: 1, g: 0.6367924, b: 0.6367924, a: 1}
-  _attackRange: 4
+  _attackRange: 8
   _chaseResumeBuffer: 0.5
-  _attackCooldown: 2.2
+  _attackCooldown: 4.5
   _attackFireDelay: 0.5
-  _projectileSpeed: 4
+  _projectileSpeed: 4.5
   _projectileDamage: 20
-  _projectileLifetime: 3
+  _projectileLifetime: 4
   _projectileCount: 5
   _spreadAngle: 60
+  _burstCount: 3
+  _burstInterval: 0.1

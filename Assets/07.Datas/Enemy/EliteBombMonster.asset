@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: EliteBombMonster
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
   _maxHealth: 120
-  _moveSpeed: 1.5
-  _contactDamage: 12
+  _moveSpeed: 3.25
+  _contactDamage: 16
   _detectRange: 200
   _visualScale: 1.2
   _tintColor: {r: 0.4636419, g: 1, b: 0.19999999, a: 1}
   _fuseTriggerRange: 2.2
   _fuseDuration: 0.8
   _explosionRadius: 3
-  _explosionDamage: 32
+  _explosionDamage: 42
   _rushTriggerRange: 4
-  _rushSpeedMultiplier: 2.133333
+  _rushSpeedMultiplier: 2.5
   _rushDuration: 1.5
   _rushCooldown: 1.5
   _rushWindupDuration: 0.5
