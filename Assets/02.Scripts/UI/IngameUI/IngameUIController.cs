@@ -80,11 +80,8 @@ public class IngameUIController : MonoBehaviour
             _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
         }
 
-        if (_isPauseOpen)
-        {
-            SoundManager.SetPaused(false, _pauseSoundFadeTime);
-        }
         _isPauseOpen = false;
+        RefreshSoundPause();
     }
 
 
@@ -195,6 +192,7 @@ public class IngameUIController : MonoBehaviour
         }
 
         _isPotionInformationOpen = true;
+        RefreshSoundPause();
 
         _player?.AcquireGamePlayInputLock(this);
         _potionInformationHUD.SetActive(true);
@@ -209,6 +207,7 @@ public class IngameUIController : MonoBehaviour
         }
 
         _isPotionInformationOpen = false;
+        RefreshSoundPause();
         _player?.ReleaseGamePlayInputLock(this);
         if (_potionInformationHUD != null)
         {
@@ -224,7 +223,7 @@ public class IngameUIController : MonoBehaviour
     private void HandlePauseStateChanged(bool isOpen)
     {
         _isPauseOpen = isOpen;
-        SoundManager.SetPaused(isOpen, _pauseSoundFadeTime);
+        RefreshSoundPause();
 
         if (isOpen)
         {
@@ -234,6 +233,12 @@ public class IngameUIController : MonoBehaviour
         {
             _gameTimeController.ReleaseTimeScale(_pauseTimeOwner);
         }
+    }
+
+    private void RefreshSoundPause()
+    {
+        // 도감과 Pause 중 하나라도 열려 있으면 플레이어·포션 소리를 계속 일시정지한다.
+        SoundManager.SetPaused(_isPauseOpen || _isPotionInformationOpen, _pauseSoundFadeTime);
     }
 
     private void HandleQuitConfirmed()
