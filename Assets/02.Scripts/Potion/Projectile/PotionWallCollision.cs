@@ -20,11 +20,55 @@ public readonly struct PotionThrowPrediction
     }
 }
 
-// Shared by the projectile and its aim preview. All casts follow the visible bottle.
+// Player throws use ground traces; dropped items retain their visual trajectory traces.
 internal sealed class PotionWallCollision
 {
     private readonly List<RaycastHit2D> _hits = new();
     private readonly List<Collider2D> _overlaps = new();
+
+    // Top-down collision follows the ground segment, independently of the visual arc.
+    public bool TryTraceGround(Vector3 start, Vector3 target, float fromProgress,
+        float toProgress, LayerMask wallLayers, float groundClearance, out PotionThrowPrediction prediction)
+    {
+        prediction = new PotionThrowPrediction(false, 1f, target, target);
+        ContactFilter2D filter = PotionWallQuery.Filter(wallLayers);
+        fromProgress = Mathf.Clamp01(fromProgress);
+        toProgress = Mathf.Clamp(toProgress, fromProgress, 1f);
+
+        Vector3 from = ThrowTrajectory.EvaluateGroundPoint(start, target, fromProgress);
+        Vector3 to = ThrowTrajectory.EvaluateGroundPoint(start, target, toProgress);
+        _overlaps.Clear();
+        Physics2D.OverlapPoint(from, filter, _overlaps);
+        foreach (Collider2D overlap in _overlaps)
+        {
+            if (!IsWall(overlap, wallLayers)) continue;
+            prediction = MakeImpact(overlap, from, Vector2.zero, fromProgress,
+                groundClearance, filter, wallLayers);
+            return true;
+        }
+
+        Vector2 movement = to - from;
+        float distance = movement.magnitude;
+        if (distance <= Mathf.Epsilon) return false;
+
+        _hits.Clear();
+        Physics2D.Raycast(from, movement / distance, filter, _hits, distance);
+        RaycastHit2D nearest = default;
+        float nearestDistance = float.PositiveInfinity;
+        foreach (RaycastHit2D hit in _hits)
+        {
+            if (!IsWall(hit.collider, wallLayers) || hit.distance >= nearestDistance) continue;
+            nearest = hit;
+            nearestDistance = hit.distance;
+        }
+        if (nearest.collider == null) return false;
+
+        float progress = Mathf.Lerp(fromProgress, toProgress, nearestDistance / distance);
+        Vector3 impact = new(nearest.point.x, nearest.point.y, Mathf.Lerp(start.z, target.z, progress));
+        prediction = MakeImpact(nearest.collider, impact, nearest.normal, progress,
+            groundClearance, filter, wallLayers);
+        return true;
+    }
 
     public bool TryTrace(Vector3 start, Vector3 target, float arcHeight, float fromProgress,
         float toProgress, LayerMask wallLayers, float groundClearance, out PotionThrowPrediction prediction)

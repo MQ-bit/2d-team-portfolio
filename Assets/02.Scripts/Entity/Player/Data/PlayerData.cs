@@ -21,9 +21,9 @@ public sealed class PlayerData : ScriptableObject
     public sealed class ThirstSettings
     {
         [SerializeField, Min(1f)] private float _maxValue = 100f;
-        [SerializeField, Min(0f)] private float _initialValue;
+        [SerializeField, Min(0f)] private float _initialValue = 15f;
         [SerializeField, Min(0f)] private float _increaseAmount = 1f;
-        [SerializeField, Min(0.01f)] private float _increaseInterval = 5f;
+        [SerializeField, Min(0.01f)] private float _increaseInterval = 1.25f;
         [SerializeField, Range(0f, 1f)] private float _warningRatio = 0.7f;
         [SerializeField, Range(0f, 1f)] private float _criticalRatio = 1f;
         public float MaxValue => Mathf.Max(1f, _maxValue);
@@ -88,7 +88,7 @@ public sealed class PlayerData : ScriptableObject
     [Serializable]
     public sealed class DrinkSettings
     {
-        [SerializeField, Min(0.01f)] private float _duration = 0.8f;
+        [SerializeField, Min(0.01f)] private float _duration = 0.5f;
         [Tooltip("기존 포션별 금단 변화에 추가되는 공통 감소량입니다.")]
         [SerializeField, Min(0f)] private float _baseWithdrawalDecrease = 10f;
         public float Duration => Mathf.Max(0.01f, _duration);

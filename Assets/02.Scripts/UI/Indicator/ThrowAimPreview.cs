@@ -15,7 +15,6 @@ public class ThrowAimPreview : MonoBehaviour
     private SpriteRenderer _ownerRenderer;
     private SpriteRenderer _indicatorRenderer;
     private SpriteRenderer _aoeRenderer;
-    private float _flightProgress = 1f;
     private PotionAreaVisual _areaPreviewVisual;
     private PotionData _previewPotion;
 
@@ -75,10 +74,8 @@ public class ThrowAimPreview : MonoBehaviour
     {
         float progress = Mathf.Clamp01(flightProgress);
         Vector3 ground = ThrowTrajectory.EvaluateGroundPoint(startPosition, targetPosition, progress);
-        Vector3 impact = progress < 1f
-            ? ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, progress) : ground;
         Draw(startPosition, targetPosition, arcHeight, areaColor, areaWidth,
-            new PotionThrowPrediction(progress < 1f, progress, impact, ground));
+            new PotionThrowPrediction(progress < 1f, progress, ground, ground));
     }
 
     public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor,
@@ -89,15 +86,14 @@ public class ThrowAimPreview : MonoBehaviour
             return;
         }
 
-        _flightProgress = Mathf.Clamp01(prediction.FlightProgress);
         _indicator.position = prediction.ImpactPosition;
         _aoeIndicator.position = prediction.AreaPosition;
         _aoeIndicator.gameObject.SetActive(prediction.CanCreateArea);
         UpdateAreaPreview(previewPotion, areaColor, areaWidth);
 
         _lineRenderer.transform.position = prediction.ImpactPosition;
-        RedrawLine(startPosition, targetPosition, arcHeight);
-        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, prediction.ImpactPosition);
+        // The display arc ends at the ground collision, but never participates in collision queries.
+        RedrawLine(startPosition, prediction.ImpactPosition, arcHeight);
     }
 
     public void UpdateAoeIndicator(Color color, float areaWidth)
@@ -158,7 +154,7 @@ public class ThrowAimPreview : MonoBehaviour
 
         for (int i = 0; i < pointCount; i++)
         {
-            float t = i / (float)(pointCount - 1) * _flightProgress;
+            float t = i / (float)(pointCount - 1);
             Vector3 point = ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, t);
 
             _lineRenderer.SetPosition(i, point);
