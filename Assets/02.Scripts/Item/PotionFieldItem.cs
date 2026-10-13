@@ -376,11 +376,10 @@ public sealed class PotionFieldItem : MonoBehaviour, IItemCollectable
     {
         // 바닥에서는 적(Enitty, 0) 뒤에, 비행 중에는 플레이어(FieldObject, 0) 앞에 표시한다.
         int layerID = SortingLayer.NameToID(isAirborne ? "FieldObject" : "Enitty");
-        int order = isAirborne ? 1 : -1;
+        int order = isAirborne ? 1 : 0;
         if (_renderer != null)
         {
             _renderer.sortingLayerID = layerID;
-            _renderer.sortingOrder = order;
         }
         if (_trailRenderer != null)
         {
