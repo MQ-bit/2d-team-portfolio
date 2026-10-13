@@ -16,9 +16,9 @@ MonoBehaviour:
     _maxHealth: 400
     _initialHealth: 400
     _contactDamageInterval: 0.5
-  thirst:
+  _thirst:
     _maxValue: 100
-    _initialValue: 15
+    _initialValue: 0
     _increaseAmount: 1
     _increaseInterval: 1.25
     _warningRatio: 0.7
@@ -39,7 +39,7 @@ MonoBehaviour:
     _knockbackForce: 1
   _throw:
     _maxDistance: 6
-    _flightDuration: 1
+    _flightDuration: 0.7
     _arcHeight: 1.5
     _rotationSpeed: 360
   _drink:
