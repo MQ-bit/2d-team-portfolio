@@ -24,6 +24,8 @@ MonoBehaviour:
   _explosionDamage: 32
   _rushTriggerRange: 4
   _rushSpeedMultiplier: 2.133333
+  _rushDuration: 1.5
+  _rushCooldown: 1.5
   _rushWindupDuration: 0.5
   _rushWindupColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   _splitPrefab: {fileID: 1377157155696017660, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
