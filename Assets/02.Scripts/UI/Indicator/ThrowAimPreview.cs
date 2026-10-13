@@ -10,11 +10,13 @@ public class ThrowAimPreview : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField, Min(2)] private int _trajectoryPointCount = 24;
+    [SerializeField, Range(0f, 1f)] private float _areaPreviewOpacity = 0.45f;
 
     private SpriteRenderer _ownerRenderer;
     private SpriteRenderer _indicatorRenderer;
     private SpriteRenderer _aoeRenderer;
-    private float _flightProgress = 1f;
+    private PotionAreaVisual _areaPreviewVisual;
+    private PotionData _previewPotion;
 
     private void Awake()
     {
@@ -72,32 +74,64 @@ public class ThrowAimPreview : MonoBehaviour
     {
         float progress = Mathf.Clamp01(flightProgress);
         Vector3 ground = ThrowTrajectory.EvaluateGroundPoint(startPosition, targetPosition, progress);
-        Vector3 impact = progress < 1f
-            ? ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, progress) : ground;
         Draw(startPosition, targetPosition, arcHeight, areaColor, areaWidth,
-            new PotionThrowPrediction(progress < 1f, progress, impact, ground));
+            new PotionThrowPrediction(progress < 1f, progress, ground, ground));
     }
 
     public void Draw(Vector3 startPosition, Vector3 targetPosition, float arcHeight, Color areaColor,
-        float areaWidth, PotionThrowPrediction prediction)
+        float areaWidth, PotionThrowPrediction prediction, PotionData previewPotion = null)
     {
         if (_lineRenderer == null || _indicator == null)
         {
             return;
         }
 
-        _flightProgress = Mathf.Clamp01(prediction.FlightProgress);
         _indicator.position = prediction.ImpactPosition;
         _aoeIndicator.position = prediction.AreaPosition;
         _aoeIndicator.gameObject.SetActive(prediction.CanCreateArea);
-        UpdateAoeIndicator(areaColor, areaWidth);
+        UpdateAreaPreview(previewPotion, areaColor, areaWidth);
 
         _lineRenderer.transform.position = prediction.ImpactPosition;
-        RedrawLine(startPosition, targetPosition, arcHeight);
-        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, prediction.ImpactPosition);
+        // The display arc ends at the ground collision, but never participates in collision queries.
+        RedrawLine(startPosition, prediction.ImpactPosition, arcHeight);
     }
 
     public void UpdateAoeIndicator(Color color, float areaWidth)
+    {
+        if (_areaPreviewVisual != null) _areaPreviewVisual.enabled = false;
+        _previewPotion = null;
+        ResizeAoeIndicator(color, areaWidth);
+    }
+
+    private void UpdateAreaPreview(PotionData potion, Color color, float areaWidth)
+    {
+        if (potion == null || _aoeRenderer == null)
+        {
+            UpdateAoeIndicator(color, areaWidth);
+            return;
+        }
+
+        if (_areaPreviewVisual == null)
+        {
+            _areaPreviewVisual = _aoeIndicator.gameObject.AddComponent<PotionAreaVisual>();
+            _areaPreviewVisual.ConfigurePreview(_areaPreviewOpacity);
+            _areaPreviewVisual.enabled = false;
+        }
+
+        if (_previewPotion != potion)
+        {
+            // Restore the source sprite before binding another potion's surface.
+            _areaPreviewVisual.enabled = false;
+            ResizeAoeIndicator(color, areaWidth);
+            _areaPreviewVisual.enabled = true;
+            _areaPreviewVisual.Bind(_aoeRenderer, potion.VisualData);
+            _previewPotion = potion;
+        }
+
+        ResizeAoeIndicator(Color.white, areaWidth);
+    }
+
+    private void ResizeAoeIndicator(Color color, float areaWidth)
     {
         if (_aoeRenderer == null || _aoeIndicator == null) return;
         _aoeRenderer.color = color;
@@ -120,7 +154,7 @@ public class ThrowAimPreview : MonoBehaviour
 
         for (int i = 0; i < pointCount; i++)
         {
-            float t = i / (float)(pointCount - 1) * _flightProgress;
+            float t = i / (float)(pointCount - 1);
             Vector3 point = ThrowTrajectory.EvaluateVisualPoint(startPosition, targetPosition, arcHeight, t);
 
             _lineRenderer.SetPosition(i, point);

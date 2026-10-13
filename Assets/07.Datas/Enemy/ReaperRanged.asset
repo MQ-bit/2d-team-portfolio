@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcab6078b00664d4fbf70a4f083174dc, type: 3}
   m_Name: ReaperRanged
   m_EditorClassIdentifier: Assembly-CSharp::ReaperData
-  _maxHealth: 80
-  _moveSpeed: 2.1
-  _contactDamage: 0
+  _maxHealth: 120
+  _moveSpeed: 2.5
+  _contactDamage: 12
   _detectRange: 200
   _visualScale: 1
   _tintColor: {r: 0.65, g: 0.9, b: 1, a: 1}
@@ -40,9 +40,9 @@ MonoBehaviour:
   _dashMinRange: 2
   _dashMaxRange: 6
   _dashWindup: 0.6
-  _dashSpeed: 10
+  _dashSpeed: 7
   _dashDistance: 4
-  _dashDamage: 0
+  _dashDamage: 20
   _dashRecovery: 0.6
   _dashCooldown: 5
   _summonPotions:
@@ -70,6 +70,6 @@ MonoBehaviour:
   _stealRecovery: 0.8
   _stealCooldown: 14
   _stealCaptureDuration: 2.2
-  _stealDamage: 3
-  _stealEmptyDamage: 10
+  _stealDamage: 4
+  _stealEmptyDamage: 16
   _deathDuration: 1

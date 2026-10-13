@@ -4,7 +4,7 @@ using UnityEngine;
 // 대시(구르기)를 시작하면(PlayerMovementModule.OnDashStarted) 구르는 소리를 한 번 낸다.
 // 걷는 동안에는(PlayerAnimationDriver.IsWalking) A/B 발소리를 일정 간격으로 번갈아 재생한다.
 // 포션을 획득하면(PlayerInventoryModule.OnItemTaken) 획득 소리를 한 번 낸다.
-// 포션을 마시기 시작하면(PlayerDrinkingModule.OnDrinkStateChanged) 마시는 소리를 내고, 도중에 취소하면 끊는다.
+// 음용 시작 시 소리를 재생하고, 정상 완료 시 끝까지 재생한다. OnDrinkCancelled에서만 중도 정지한다.
 // 실제 피해를 받으면(PlayerStatus.OnDamaged) 피격음 A를 재생한다.
 public class PlayerActionSound : MonoBehaviour
 {
@@ -80,11 +80,13 @@ public class PlayerActionSound : MonoBehaviour
         if (_drinkingModule != null)
         {
             _drinkingModule.OnDrinkStateChanged += HandleDrinkStateChanged;
+            _drinkingModule.OnDrinkCancelled += HandleDrinkCancelled;
         }
     }
 
     private void OnDisable()
     {
+        HandleDrinkCancelled();
         _hurtHandle.Stop();
         _hurtHandle = default;
         _nextHurtTime = 0f;
@@ -111,6 +113,7 @@ public class PlayerActionSound : MonoBehaviour
         if (_drinkingModule != null)
         {
             _drinkingModule.OnDrinkStateChanged -= HandleDrinkStateChanged;
+            _drinkingModule.OnDrinkCancelled -= HandleDrinkCancelled;
         }
     }
 
@@ -197,19 +200,13 @@ public class PlayerActionSound : MonoBehaviour
 
     private void HandleDrinkStateChanged(bool isDrinking)
     {
-        if (isDrinking)
-        {
-            if (_status != null && _status.IsDead) return;
-            _drinkHandle = SoundManager.Play(GameSoundId.PlayerDrink);
-            return;
-        }
+        if (!isDrinking || (_status != null && _status.IsDead)) return;
+        _drinkHandle = SoundManager.Play(GameSoundId.PlayerDrink);
+    }
 
-        // 다 마셨으면 남은 끝부분은 마저 재생하고, 도중에 취소했으면 바로 끊는다.
-        float endTime = SoundManager.GetSound(GameSoundId.PlayerDrink)?.EndTime ?? 0f;
-        bool isNearEnd = endTime > 0f && _drinkHandle.Time >= endTime - 0.1f;
-        if (!isNearEnd)
-        {
-            _drinkHandle.Stop();
-        }
+    private void HandleDrinkCancelled()
+    {
+        _drinkHandle.Stop();
+        _drinkHandle = default;
     }
 }

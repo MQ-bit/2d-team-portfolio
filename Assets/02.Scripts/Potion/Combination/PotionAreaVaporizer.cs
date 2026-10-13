@@ -4,7 +4,6 @@ using UnityEngine;
 // 기화에 닿은 장판 전체의 즉발 효과, 출처 해제, 제거와 반응 VFX를 처리한다.
 internal sealed class PotionAreaVaporizer
 {
-    private const float VaporizationMultiplier = 1.2f;
     private const float ElementSoundTailVolumeScale = 0.8f;
     private const float ElementSoundTailFadeTime = 0.8f;
     private readonly PotionAreaController _areaController;
@@ -43,15 +42,20 @@ internal sealed class PotionAreaVaporizer
         }
 
         bool reacted = false;
+        var batch = new PotionVaporizationBatch(_areaController.Data.VaporizationSettings);
         foreach (PotionAreaCombiner surface in surfaces)
-            reacted |= Vaporize(surface);
+            reacted |= Vaporize(surface, batch);
 
         // One vaporization potion consumes all touched surfaces in this batch.
-        if (reacted) FinishVaporization();
+        if (reacted)
+        {
+            batch.Apply();
+            FinishVaporization();
+        }
         return reacted;
     }
 
-    private bool Vaporize(PotionAreaCombiner surface)
+    private bool Vaporize(PotionAreaCombiner surface, PotionVaporizationBatch batch)
     {
         PotionAreaController primary = surface.PrimaryArea;
         if (primary == null || !primary.gameObject.activeInHierarchy) return false;
@@ -63,8 +67,8 @@ internal sealed class PotionAreaVaporizer
         if (effectCollider == null || !effectCollider.enabled) return false;
 
         IPotionEffectData profile = primary.AreaEffect.ActiveProfile;
-        var effects = PotionAreaEffectTracker.GetRemainingEffects(profile,
-            primary.RemainingDuration, VaporizationMultiplier);
+        var effects = PotionAreaEffectTracker.GetVaporizationEffects(profile,
+            primary.RemainingDuration, _areaController.Data.VaporizationSettings);
         PotionEffectSource source = primary.AreaEffect.ActiveSource;
         // 기화도 마지막으로 착지해서 반응에 참여한 포션의 소유자가 가져간다.
         primary.Ownership.TakeLatest(_areaController.Ownership);
@@ -74,6 +78,8 @@ internal sealed class PotionAreaVaporizer
             source = new PotionEffectSource(primary.AreaEffect.GetInstanceID(), primary.Data,
                 owner: primary.Owner, lifeStealRatio: profile.LifeStealRatio, areaOwnership: primary.Ownership);
         }
+        source = new PotionEffectSource(source.SourceId, source.Potion, source.Combination,
+            source.Owner, source.LifeStealRatio, primary.Ownership, batch);
 
         Physics2D.SyncTransforms();
         var hits = new List<Collider2D>();
@@ -126,14 +132,7 @@ internal sealed class PotionAreaVaporizer
         primary.FadeOutLoopSound(ElementSoundTailFadeTime, ElementSoundTailVolumeScale);
         primary.Remove();
 
-        foreach (IPotionEffectTarget target in targets)
-        {
-            foreach (PotionEffectDefinition effect in effects)
-            {
-                if (PotionEffectApplier.CanAffect(profile.TargetType, target))
-                    target.ApplyEffect(effect, profile, source);
-            }
-        }
+        foreach (IPotionEffectTarget target in targets) batch.Queue(target, profile, source, effects);
 
         return true;
     }

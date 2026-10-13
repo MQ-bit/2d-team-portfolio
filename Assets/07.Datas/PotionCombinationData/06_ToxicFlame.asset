@@ -13,25 +13,23 @@ MonoBehaviour:
   m_Name: 06_ToxicFlame
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 6
-  _displayName: "\uB9F9\uB3C5\uD654\uC5FC"
-  _description: "5\uCD08 \uC7A5\uD310. \uB9E4\uCD08 \uD654\uC5FC 6 + \uB3C5 4. \uC774\uD0C8
-    \uD6C4 \uD654\uC0C1 2\uCD08 \uBC0F \uC911\uB3C5 3\uCD08(\uC911\uB3C5 \uC2DC\uAC04\uC740
-    \uC784\uC2DC \uAE30\uC900)."
+  _displayName: "맹독화염"
+  _description: "6초 장판. 0.5초마다 화염 32 + 독 22(108 DPS). 이탈 후 화상 8/1초, 2초 및 중독 24/0.75초, 4.5초. 독 둔화 없음."
   _elementA: 1
   _elementB: 2
   _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 5
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 1
-    _amount: 6
+    _amount: 32
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -42,7 +40,7 @@ MonoBehaviour:
   - _phase: 1
     _operation: 0
     _element: 2
-    _amount: 4
+    _amount: 22
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -53,7 +51,7 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 1
-    _amount: 4
+    _amount: 8
     _status: 0
     _duration: 2
     _tickInterval: 1
@@ -64,10 +62,10 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 2
-    _amount: 5
+    _amount: 24
     _status: 1
-    _duration: 3
-    _tickInterval: 1
+    _duration: 4.5
+    _tickInterval: 0.75
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0
@@ -78,6 +76,7 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: 1506554749, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 275802821, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}

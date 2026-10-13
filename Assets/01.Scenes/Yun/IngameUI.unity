@@ -2717,10 +2717,6 @@ PrefabInstance:
       propertyPath: _itnitThirstIncreaseAmount
       value: 10
       objectReference: {fileID: 0}
-    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _initThirstIncreaseInterval
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 3045028924572124315, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: m_Name
       value: Player
@@ -2769,10 +2765,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 2061764063}
-    - target: {fileID: 6935868058329909207, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
-      propertyPath: _drinkTimer
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7774034623503532432, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: _maxSlotSize
       value: 6
@@ -2801,6 +2793,10 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 409094873972115548, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+      propertyPath: _data
+      value:
+      objectReference: {fileID: 11400000, guid: 1cbe5cf16ca34bf7829f6d3234d0cd49, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
