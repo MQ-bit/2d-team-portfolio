@@ -24,6 +24,7 @@ MonoBehaviour:
   _waitingDuration: 2.5
   _reactionVfxPrefab: {fileID: 133403889251271510, guid: 9a6c0be917ce42bcb420c03366fb345b, type: 3}
   _reactionVfxDuration: 1
+  _afterimageSettings: {fileID: 11400000, guid: 68f1cf2578adc714fa5c19d1c9017f7a, type: 2}
   _reactionShakeForce: 1
   _reactionShakePulseCount: 6
   _reactionShakeInterval: 0.08

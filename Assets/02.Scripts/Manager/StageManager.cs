@@ -173,6 +173,10 @@ public class StageManager : MonoBehaviour
         CurrentStage = stage;
         PlayerSpawnPoint = spawnPoint;
 
+        // 몬스터 길찾기 격자는 맵 기준이라, 새 스테이지의 벽으로 다시 만들어야 한다.
+        // 층 이동/시작 연출 중에 미리 만들어서, 첫 전투 중에 끊기지 않게 한다.
+        EnemyPathfinder.Instance.RebuildGrid();
+
         if (!_encounterCoordinator.TryBind(stage, out error) ||
             !rewardGenerator.TrySpawnInitialRewards(stage, out error))
         {
@@ -250,6 +254,7 @@ public class StageManager : MonoBehaviour
 
         CurrentStage = null;
         PlayerSpawnPoint = null;
+        EnemyPathfinder.Instance.InvalidateGrid();
 
         CurrentStageChanged?.Invoke(null);
     }
