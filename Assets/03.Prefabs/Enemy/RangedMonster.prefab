@@ -117,6 +117,10 @@ PrefabInstance:
       value: -0.6
       objectReference: {fileID: 0}
     - target: {fileID: 5672044015870493081, guid: 3c5ae160564aa424cb8e7941e018bc56, type: 3}
+      propertyPath: _dropChance
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5672044015870493081, guid: 3c5ae160564aa424cb8e7941e018bc56, type: 3}
       propertyPath: '_dropPrefabs.Array.data[0]'
       value: 
       objectReference: {fileID: 6584277545338249819, guid: 8b971e2ac6f60814595522307c802e97, type: 3}
