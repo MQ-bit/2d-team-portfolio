@@ -117,6 +117,7 @@ internal sealed class PotionAreaVaporizer
                     duration, effectCollider, primary.AreaRenderer);
             }
         }
+        SpawnAfterimages(settings, primary, primaryCombiner);
         _combiner.MarkVaporized();
         primaryCombiner.MarkVaporized();
         PotionAreaController partner = primaryCombiner.PartnerArea;
@@ -135,6 +136,25 @@ internal sealed class PotionAreaVaporizer
         foreach (IPotionEffectTarget target in targets) batch.Queue(target, profile, source, effects);
 
         return true;
+    }
+
+    // 반응한 원소의 잔상을 기화가 아닌 쪽 장판 범위 안 무작위 위치에 남긴다. (기화 포션의 범위가 아니다)
+    // 단일 원소면 그 장판의 범위, 두 원소가 합쳐진 장판이면 합쳐진 전체 범위이고, 이때는 각 원소가 절반씩 나눠 맡는다.
+    private void SpawnAfterimages(PotionVaporizationSettings settings, PotionAreaController primary,
+        PotionAreaCombiner primaryCombiner)
+    {
+        PotionAfterimageSettings afterimage = settings != null ? settings.AfterimageSettings : null;
+        // 합쳐진 장판은 두 컨트롤러 모두 합쳐진 범위(SetCombinedFootprint)를 갖는다.
+        PotionAreaFootprint area = primary.Footprint;
+        if (afterimage == null || area == null) return;
+
+        PotionAreaController partner = primaryCombiner.IsCombined ? primaryCombiner.PartnerArea : null;
+        float share = partner != null ? 0.5f : 1f;
+        PotionAfterimageVfx.Spawn(afterimage, primary.Data.Element, area, primary.AreaRenderer, share);
+        if (partner != null)
+        {
+            PotionAfterimageVfx.Spawn(afterimage, partner.Data.Element, area, primary.AreaRenderer, share);
+        }
     }
 
     // 기화 포션 하나가 여러 장판과 반응해도 소리는 한 번만 낸다.

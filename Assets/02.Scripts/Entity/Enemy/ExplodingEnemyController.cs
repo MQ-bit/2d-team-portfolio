@@ -329,7 +329,9 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         OnExploded?.Invoke();
         _damagedTargets.Clear();
 
-        Physics2D.OverlapCircle(transform.position, _data.ExplosionRadius, ContactFilter2D.noFilter, _overlapResults);
+        // 트리거는 제외한다. 플레이어의 아이템 획득 범위(ItemCollector, 반지름 3)가 피격 범위로 잡히면 안 된다.
+        ContactFilter2D bodyOnly = new ContactFilter2D { useTriggers = false };
+        Physics2D.OverlapCircle(transform.position, _data.ExplosionRadius, bodyOnly, _overlapResults);
         foreach (Collider2D hit in _overlapResults)
         {
             PotionEffectReceiver receiver = hit.GetComponentInParent<PotionEffectReceiver>();

@@ -91,10 +91,18 @@ public class EnemyPathfinder : MonoBehaviour
         }
     }
 
+    // 맵이 바뀌었으니(층 이동으로 스테이지 재생성 등) 다음에 길찾기를 쓸 때 격자를 다시 만들게 한다.
+    // 바로 만들지 않는 이유: 방이 막 생성된 프레임에는 새 벽 콜라이더가 아직 물리에 반영되지 않았을 수 있다.
+    public void InvalidateGrid()
+    {
+        _isGridBuilt = false;
+    }
+
     // 씬의 타일맵 범위로 격자를 다시 만들고, 몸 크기 단계마다 칸이 정적 콜라이더(벽, 소품)와 겹치는지 검사한다.
     public void RebuildGrid()
     {
         _isGridBuilt = true;
+        Physics2D.SyncTransforms();
         _obstacles.Clear();
         _layers.Clear();
         _hasGrid = TryGetMapBounds(out Bounds bounds);

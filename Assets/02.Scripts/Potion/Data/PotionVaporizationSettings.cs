@@ -53,6 +53,10 @@ public sealed class PotionVaporizationSettings : ScriptableObject
     [Tooltip("단일 원소 및 조합 장판의 기화 반응 VFX 오브젝트를 유지하는 시간(초). 즉발 피해·힐과 별개입니다.")]
     [SerializeField, Min(0f)] private float _reactionVfxDuration = 1f;
 
+    [Header("기화 반응 잔상")]
+    [Tooltip("반응 직후 바닥에 남는 잔상 설정. 비워두면 잔상을 만들지 않는다.")]
+    [SerializeField] private PotionAfterimageSettings _afterimageSettings;
+
     [Header("기화 반응 카메라 쉐이크")]
     [Tooltip("기화 반응의 첫 충격 강도. 여러 장판과 동시에 반응해도 연출은 한 번만 시작합니다. 0이면 흔들지 않습니다.")]
     [SerializeField, Min(0f)] private float _reactionShakeForce = 0.4f;
@@ -68,6 +72,7 @@ public sealed class PotionVaporizationSettings : ScriptableObject
     public float ReactionShakeInterval => Mathf.Max(0.01f, PotionDataValidation.NonNegative(_reactionShakeInterval));
     public float ReactionShakeDecay => PotionDataValidation.Multiplier(_reactionShakeDecay);
     public float WaitingDuration => Mathf.Max(0f, _waitingDuration);
+    public PotionAfterimageSettings AfterimageSettings => _afterimageSettings;
     public GameObject ReactionVfxPrefab => _reactionVfxPrefab;
     public float ReactionVfxDuration => Mathf.Max(0f, _reactionVfxDuration);
 }
