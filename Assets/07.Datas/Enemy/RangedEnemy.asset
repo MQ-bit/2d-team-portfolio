@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449dd970b02c9c64285fcac6c9404098, type: 3}
   m_Name: RangedEnemy
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
-  _maxHealth: 120
+  _maxHealth: 100
   _moveSpeed: 2.5
-  _contactDamage: 12
+  _contactDamage: 10
   _detectRange: 200
   _visualScale: 1
   _tintColor: {r: 1, g: 1, b: 1, a: 1}
-  _attackRange: 6
+  _attackRange: 4
   _chaseResumeBuffer: 0.5
-  _attackCooldown: 1.8
-  _attackFireDelay: 0.4
-  _projectileSpeed: 4.5
-  _projectileDamage: 16
-  _projectileLifetime: 4
+  _attackCooldown: 1.5
+  _attackFireDelay: 0.3
+  _projectileSpeed: 5
+  _projectileDamage: 10
+  _projectileLifetime: 3
   _projectileCount: 1
   _spreadAngle: 60

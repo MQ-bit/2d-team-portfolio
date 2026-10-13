@@ -5,7 +5,8 @@ using Interactable;
 
 public class PlayerInteractionModule : MonoBehaviour
 {
-    private PlayerStatus _status;
+    [Header("Interaction Settings")]
+    [SerializeField] private float _holdDuration = 1f;
     private readonly Dictionary<Collider2D, IInteractable> _candidates = new Dictionary<Collider2D, IInteractable>();
     private readonly List<Collider2D> _staleColliders = new List<Collider2D>(); // ClearInvalidCandidates()에서 제거할 Collider를 임시로 저장하는 용도.
 
@@ -15,7 +16,7 @@ public class PlayerInteractionModule : MonoBehaviour
 
     public IInteractable CurrentTarget => _currentTarget;
     public bool IsInteracting { get; private set; }
-    public float HoldDuration => _status.Data.Interaction.HoldDuration;
+    public float HoldDuration => _holdDuration;
 
     public float InteractionProgress
     {
@@ -25,23 +26,13 @@ public class PlayerInteractionModule : MonoBehaviour
             {
                 return 0f;
             }
-            return Mathf.Clamp01(_holdTime / HoldDuration);
+            return Mathf.Clamp01(_holdTime / _holdDuration);
         }
     }
 
     public event Action<IInteractable> OnInteractionStarted;
     public event Action<IInteractable> OnInteractionCompleted;
     public event Action<IInteractable> OnInteractionCancelled;
-
-    private void Awake()
-    {
-        _status = GetComponentInParent<PlayerStatus>();
-        if (_status == null || _status.Data == null)
-        {
-            Debug.LogError($"{name}: PlayerStatus와 PlayerData가 필요합니다.", this);
-            enabled = false;
-        }
-    }
 
     private void Update()
     {
@@ -55,7 +46,7 @@ public class PlayerInteractionModule : MonoBehaviour
         }
 
         _holdTime += Time.deltaTime;
-        if (_holdTime >= HoldDuration)
+        if (_holdTime >= _holdDuration)
         {
             CompleteInteraction();
         }

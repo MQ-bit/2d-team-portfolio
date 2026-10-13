@@ -5213,6 +5213,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4706277357270954568, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
+      propertyPath: _knockbackForce
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4706277357270954568, guid: 985800eb4c16c9346bd226f4c6c7dee1, type: 3}
       propertyPath: _targetLayer.m_Bits
       value: 256
       objectReference: {fileID: 0}

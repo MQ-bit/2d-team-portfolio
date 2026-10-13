@@ -11,11 +11,10 @@ public readonly struct PotionEffectSource
     public IDamageable Owner => _areaOwnership != null ? _areaOwnership.Owner : _owner;
     public bool IsAreaDamage => _areaOwnership != null;
     public float LifeStealRatio { get; }
-    internal PotionVaporizationBatch VaporizationBatch { get; }
 
     public PotionEffectSource(int sourceId, PotionData potion = null,
         PotionCombinationData combination = null, IDamageable owner = null, float lifeStealRatio = 0f,
-        PotionAreaOwnership areaOwnership = null, PotionVaporizationBatch vaporizationBatch = null)
+        PotionAreaOwnership areaOwnership = null)
     {
         SourceId = sourceId;
         Potion = potion;
@@ -23,7 +22,6 @@ public readonly struct PotionEffectSource
         _owner = owner;
         _areaOwnership = areaOwnership;
         LifeStealRatio = Mathf.Clamp01(PotionDataValidation.Finite(lifeStealRatio));
-        VaporizationBatch = vaporizationBatch;
     }
 }
 
@@ -75,15 +73,12 @@ public readonly struct PotionDamageResult
     public PotionEffectSource Source { get; }
     public PotionElement Element { get; }
     public float ActualDamage { get; }
-    private readonly bool _allowLifeSteal;
-    public float LifeStealAmount => _allowLifeSteal ? ActualDamage * Source.LifeStealRatio : 0f;
+    public float LifeStealAmount => ActualDamage * Source.LifeStealRatio;
 
-    public PotionDamageResult(PotionEffectSource source, PotionElement element, float actualDamage,
-        bool allowLifeSteal = true)
+    public PotionDamageResult(PotionEffectSource source, PotionElement element, float actualDamage)
     {
         Source = source;
         Element = element;
         ActualDamage = PotionDataValidation.NonNegative(actualDamage);
-        _allowLifeSteal = allowLifeSteal;
     }
 }

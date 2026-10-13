@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449dd970b02c9c64285fcac6c9404098, type: 3}
   m_Name: EliteRangedEnemy
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyData
-  _maxHealth: 240
-  _moveSpeed: 3
-  _contactDamage: 12
+  _maxHealth: 100
+  _moveSpeed: 3.75
+  _contactDamage: 10
   _detectRange: 200
   _visualScale: 1
-  _tintColor: {r: 1, g: 0.19339621, b: 0.19339621, a: 1}
+  _tintColor: {r: 1, g: 1, b: 1, a: 1}
   _attackRange: 4
   _chaseResumeBuffer: 0.5
-  _attackCooldown: 0.5
+  _attackCooldown: 1
   _attackFireDelay: 0.3
   _projectileSpeed: 4
   _projectileDamage: 15

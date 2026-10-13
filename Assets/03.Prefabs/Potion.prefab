@@ -54,7 +54,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   _wallGroundClearance: 0.15
-  _wallCollisionDeadZone: 0.3
   _impactShakeForce: 0.1
   _enemyHitShakeForce: 0.25
   _enemyHitStopDuration: 0.06

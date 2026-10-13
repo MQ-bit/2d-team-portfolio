@@ -12,22 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e0e89defb125542bb892e0f984bca6, type: 3}
   m_Name: EliteBombMonster
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
-  _maxHealth: 120
-  _moveSpeed: 3.25
-  _contactDamage: 16
+  _maxHealth: 100
+  _moveSpeed: 5
+  _contactDamage: 10
   _detectRange: 200
   _visualScale: 1.2
-  _tintColor: {r: 0.4636419, g: 1, b: 0.19999999, a: 1}
-  _fuseTriggerRange: 2.2
-  _fuseDuration: 0.8
-  _explosionRadius: 3
-  _explosionDamage: 42
-  _rushTriggerRange: 4
-  _rushSpeedMultiplier: 2.5
-  _rushDuration: 1.5
-  _rushCooldown: 1.5
+  _tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  _fuseTriggerRange: 2.9
+  _fuseDuration: 0.333
+  _explosionRadius: 4
+  _explosionDamage: 60
+  _rushTriggerRange: 1
+  _rushSpeedMultiplier: 1
   _rushWindupDuration: 0.5
   _rushWindupColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   _splitPrefab: {fileID: 1377157155696017660, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
   _splitCount: 2
-  _splitSpawnDistance: 1.5
+  _splitSpawnDistance: 0.6

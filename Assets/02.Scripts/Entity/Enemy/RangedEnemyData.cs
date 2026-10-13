@@ -23,14 +23,6 @@ public class RangedEnemyData : EnemyData
     [Tooltip("부채꼴 전체 각도(도). 첫 투사체와 마지막 투사체 사이의 각도다.")]
     [SerializeField, Range(0f, 180f)] private float _spreadAngle = 60f;
 
-    [Header("Burst (연속 발사)")]
-    [Tooltip("한 번 공격에 연속으로 발사하는 횟수. 1이면 한 번만 쏜다. 한 번 발사마다 ProjectileCount만큼 나간다.")]
-    [SerializeField, Min(1)] private int _burstCount = 1;
-    [Tooltip("연속 발사 사이에 AttackFireDelay에 더해지는 추가 대기 시간(초).")]
-    [SerializeField, Min(0f)] private float _burstInterval = 0.1f;
-
-    public int BurstCount => _burstCount;
-    public float BurstInterval => _burstInterval;
     public int ProjectileCount => _projectileCount;
     public float SpreadAngle => _spreadAngle;
     public float AttackRange => _attackRange;

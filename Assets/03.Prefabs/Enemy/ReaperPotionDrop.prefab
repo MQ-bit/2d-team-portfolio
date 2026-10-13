@@ -46,13 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42c07845dbceb344d91d6fd4ef683064, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReaperPotionDrop
+  _attackIndicatorPrefab: {fileID: 114000, guid: 955dff2c6e884be8af444a0a3cfd59be, type: 3}
+  _areaPrefab: {fileID: 8441354467153822698, guid: b8325d23a2a84112a3df46de784c972d, type: 3}
+  _breakEffectPrefab: {fileID: 6545532118163206398, guid: fc41fa5460279014a8833c3ebc611d30, type: 3}
   _potionVisual: {fileID: 212001}
   _magicCircle: {fileID: 212002}
   _magicCircleAnimator: {fileID: 95002}
   _magicCircleAnchorPixels: {x: 68, y: 49}
-  _areaPrefab: {fileID: 8441354467153822698, guid: b8325d23a2a84112a3df46de784c972d, type: 3}
-  _breakEffectPrefab: {fileID: 6545532118163206398, guid: fc41fa5460279014a8833c3ebc611d30, type: 3}
-  _attackIndicatorPrefab: {fileID: 114000, guid: 955dff2c6e884be8af444a0a3cfd59be, type: 3}
   _warningColor: {r: 0.38, g: 0.11, b: 0.13, a: 0.95}
   _magicCircleColor: {r: 0.62, g: 0.19, b: 0.18, a: 1}
   _magicCircleChargedColor: {r: 0.86, g: 0.36, b: 0.3, a: 1}
@@ -133,8 +133,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1831432877
-  m_SortingLayer: 5
+  m_SortingLayerID: -507127363
+  m_SortingLayer: 3
   m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1296918660627881746, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
@@ -225,8 +225,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1831432877
-  m_SortingLayer: 5
+  m_SortingLayerID: -507127363
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: -4909067000698195473, guid: 7b181f3c31fe5294ba6b8038f9df657b, type: 3}

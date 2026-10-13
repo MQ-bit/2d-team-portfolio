@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PotionProjectile : MonoBehaviour
 {
@@ -34,11 +35,11 @@ public class PotionProjectile : MonoBehaviour
 
     private Vector3 _startPosition;
     private Vector3 _targetPosition;
-    private Vector3 _visualTargetPosition;
-    private float _visualEndProgress;
     private float _flightDuration;
     private float _rotationSpeed;
     private float _elapsedTime;
+    private float _verticalVelocity;
+    private float _gravity;
     private PotionData _potionData => _itemData.PotionData;
 
     private void Awake()
@@ -51,31 +52,24 @@ public class PotionProjectile : MonoBehaviour
 
     private void Update()
     {
-        AdvanceFlight(Time.deltaTime);
-    }
-
-    private void AdvanceFlight(float deltaTime)
-    {
-        if (!enabled) return;
-
         float previousProgress = _elapsedTime / _flightDuration;
-        _elapsedTime = Mathf.Min(_elapsedTime + deltaTime, _flightDuration);
+        _elapsedTime = Mathf.Min(_elapsedTime + Time.deltaTime, _flightDuration);
         float progress = _elapsedTime / _flightDuration;
+        float virtualHeight = Mathf.Max(0f, _verticalVelocity * _elapsedTime - 0.5f * _gravity * _elapsedTime * _elapsedTime);
 
-        if (_wallCollision.TryTraceGround(_startPosition, _targetPosition, previousProgress,
+        Vector3 nextPosition = Vector3.Lerp(_startPosition, _targetPosition, progress);
+        if (_wallCollision.TryTrace(_startPosition, _targetPosition, _arcHeight, previousProgress,
             progress, _wallCollisionLayers, _wallGroundClearance, out PotionThrowPrediction wallImpact))
         {
             Land(wallImpact.ImpactPosition, wallImpact.AreaPosition, wallImpact.CanCreateArea);
             return;
         }
 
-        transform.position = ThrowTrajectory.EvaluateGroundPoint(_startPosition, _targetPosition, progress);
+        transform.position = nextPosition;
         if (_visual != null)
         {
-            float visualProgress = _visualEndProgress > 0f ? progress / _visualEndProgress : 1f;
-            _visual.position = ThrowTrajectory.EvaluateVisualPoint(_startPosition, _visualTargetPosition,
-                _arcHeight, visualProgress);
-            _visual.Rotate(0f, 0f, _rotationSpeed * deltaTime);
+            _visual.position = nextPosition + Vector3.up * virtualHeight;
+            _visual.Rotate(0f, 0f, _rotationSpeed * Time.deltaTime);
         }
 
         if (_elapsedTime >= _flightDuration)
@@ -87,20 +81,14 @@ public class PotionProjectile : MonoBehaviour
     // The aim preview uses this prefab's wall settings and the same query as flight.
     public float PredictFlightProgress(Vector2 start, Vector2 target)
     {
-        return PredictThrow(start, target).FlightProgress;
+        return PredictThrow(start, target, 0f).FlightProgress;
     }
 
-    public PotionThrowPrediction PredictThrow(Vector3 start, Vector3 target)
-    {
-        _wallCollision.TryTraceGround(start, target, 0f, 1f, _wallCollisionLayers,
-            _wallGroundClearance, out PotionThrowPrediction prediction);
-        return prediction;
-    }
-
-    // Compatibility overload: visual height no longer affects landing prediction.
     public PotionThrowPrediction PredictThrow(Vector3 start, Vector3 target, float arcHeight)
     {
-        return PredictThrow(start, target);
+        _wallCollision.TryTrace(start, target, arcHeight, 0f, 1f, _wallCollisionLayers,
+            _wallGroundClearance, out PotionThrowPrediction prediction);
+        return prediction;
     }
 
     public void Initiate(PotionItem potionItem, PotionRunCatalog catalog, IDamageable owner)
@@ -111,7 +99,6 @@ public class PotionProjectile : MonoBehaviour
         _renderer.sprite = potionItem.BottleSprite;
     }
 
-    // Duration controls normalized progress; arc height is a visual offset, not a physics input.
     public void Launch(Vector3 targetPosition, float flightDuration, float arcHeight, float rotationSpeed)
     {
         _throwOrder = PotionAreaOwnership.NextThrowOrder();
@@ -121,10 +108,10 @@ public class PotionProjectile : MonoBehaviour
         _rotationSpeed = rotationSpeed;
         _elapsedTime = 0f;
 
-        _arcHeight = Mathf.Max(0f, arcHeight);
-        PotionThrowPrediction prediction = PredictThrow(_startPosition, _targetPosition);
-        _visualTargetPosition = prediction.ImpactPosition;
-        _visualEndProgress = prediction.FlightProgress;
+        float height = Mathf.Max(0f, arcHeight);
+        _arcHeight = height;
+        _gravity = 8f * height / (_flightDuration * _flightDuration);
+        _verticalVelocity = 0.5f * _gravity * _flightDuration;
 
         enabled = true;
     }
@@ -136,7 +123,6 @@ public class PotionProjectile : MonoBehaviour
 
     private void Land(Vector3 impactPosition, Vector3 areaPosition, bool canCreateArea)
     {
-        if (!enabled) return;
         enabled = false;
         SoundManager.PlayPotionBreak();
         transform.position = impactPosition;
