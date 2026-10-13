@@ -21,7 +21,7 @@ MonoBehaviour:
   _fuseTriggerRange: 1.8
   _fuseDuration: 0.65
   _explosionRadius: 3
-  _explosionDamage: 32
+  _explosionDamage: 40
   _rushTriggerRange: 4
   _rushSpeedMultiplier: 2.5
   _rushDuration: 1.5
@@ -30,4 +30,5 @@ MonoBehaviour:
   _rushWindupColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   _splitPrefab: {fileID: 0}
   _splitCount: 2
+  _splitDamageMultiplier: 0.6
   _splitSpawnDistance: 0.6

@@ -30,7 +30,7 @@ MonoBehaviour:
   _indicatorChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
   _meleeRange: 2.1
   _meleeAngle: 140
-  _meleeDamage: 7
+  _meleeDamage: 20
   _meleeWindup: 0.4
   _meleeActiveDuration: 0.3
   _meleeHitboxSize: {x: 3.007, y: 1.913}

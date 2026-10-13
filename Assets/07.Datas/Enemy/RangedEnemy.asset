@@ -23,7 +23,9 @@ MonoBehaviour:
   _attackCooldown: 1.8
   _attackFireDelay: 0.4
   _projectileSpeed: 4.5
-  _projectileDamage: 16
+  _projectileDamage: 32
   _projectileLifetime: 4
   _projectileCount: 1
   _spreadAngle: 60
+  _burstCount: 1
+  _burstInterval: 0.1
