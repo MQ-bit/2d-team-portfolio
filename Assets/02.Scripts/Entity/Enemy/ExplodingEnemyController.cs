@@ -35,6 +35,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
     private bool _isWindingUp; // 돌진 전에 멈춰 있는 중
     private float _windupElapsed;
     private bool _isRushing;
+    private float _damageMultiplier = 1f; // 분열체는 엘리트 데이터의 SplitDamageMultiplier로 낮아진다
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
@@ -102,6 +103,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         _isWindingUp = false;
         _windupElapsed = 0f;
         _isRushing = false;
+        _damageMultiplier = 1f;
 
         _overlapResults.Clear();
         _damagedTargets.Clear();
@@ -243,8 +245,9 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
     }
 
     // 분열해서 생긴 적이 쫓아오지 않고 바로 예열부터 시작하게 한다.
-    public void BeginFuse()
+    public void BeginFuse(float damageMultiplier = 1f)
     {
+        _damageMultiplier = damageMultiplier;
         StartFuse();
     }
 
@@ -293,6 +296,13 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         }
 
         _state = State.Exploded;
+        DealExplosion();
+        Release();
+    }
+
+    // 폭발 이펙트/사운드를 내고 반경 안의 플레이어에게 피해를 준다.
+    private void DealExplosion()
+    {
         OnExploded?.Invoke();
         _damagedTargets.Clear();
 
@@ -310,28 +320,27 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             // 폭발 중심에서 바깥으로 맞은 방향을 넘겨 피격 연출이 폭발 반대쪽으로 튀게 한다.
             if (hit.GetComponentInParent<IDirectionalDamageable>() is IDirectionalDamageable directional)
             {
-                directional.DecreaseHealth(_data.ExplosionDamage, (Vector2)(hit.bounds.center - transform.position));
+                directional.DecreaseHealth(_data.ExplosionDamage * _damageMultiplier, (Vector2)(hit.bounds.center - transform.position));
             }
             else
             {
-                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage * _damageMultiplier);
             }
         }
-
-        Release();
     }
 
-    // 엘리트 폭발형: 직접 터지지 않고 SplitPrefab 적 여러 마리로 바뀌어 대신 터진다.
-    // 직접 터지지 않으므로 OnExploded(폭발 이펙트/사운드)와 피해는 분열한 적이 낸다.
+    // 엘리트 폭발형: 예열이 끝나면 먼저 한 번 터진 뒤(이펙트/피해), SplitPrefab 적 여러 마리로 갈라져 각자 다시 터진다.
     private void Split()
     {
         _state = State.Exploded;
+        DealExplosion();
 
+        // 분열체를 좌우로 균등하게 벌려 배치한다. (2마리면 정확히 왼쪽/오른쪽)
         int count = _data.SplitCount;
-        float startAngle = UnityEngine.Random.value * 360f;
         for (int i = 0; i < count; i++)
         {
-            Vector2 offset = Quaternion.Euler(0f, 0f, startAngle + 360f / count * i) * Vector2.right * _data.SplitSpawnDistance;
+            float t = count > 1 ? (float)i / (count - 1) * 2f - 1f : 1f; // -1 ~ 1
+            Vector2 offset = Vector2.right * (t * _data.SplitSpawnDistance);
             // 몬스터는 SpawnManager의 풀에서 빌려 쓴다.
             Vector3 position = (Vector2)transform.position + offset;
             GameObject split = SpawnManager.Instance.Spawn(_data.SplitPrefab, position, transform.rotation);
@@ -343,7 +352,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             split.transform.SetParent(transform.parent, true);
             if (split.TryGetComponent(out ExplodingEnemyController controller))
             {
-                controller.BeginFuse();
+                controller.BeginFuse(_data.SplitDamageMultiplier);
             }
         }
 

@@ -25,6 +25,8 @@ public class ExplodingEnemyData : EnemyData
     [Tooltip("비어 있으면 그냥 폭발한다. 지정하면 예열이 끝났을 때 폭발하는 대신 이 프리팹을 SplitCount개 만들어 대신 터뜨린다.")]
     [SerializeField] private GameObject _splitPrefab;
     [SerializeField, Min(1)] private int _splitCount = 2;
+    [Tooltip("분열체의 폭발 피해 배율. 0.6이면 분열체는 ExplosionDamage의 60%만 준다.")]
+    [SerializeField, Min(0f)] private float _splitDamageMultiplier = 0.6f;
     [Tooltip("분열한 적이 원래 자리에서 퍼져 나가는 거리.")]
     [SerializeField, Min(0f)] private float _splitSpawnDistance = 0.6f;
 
@@ -38,5 +40,6 @@ public class ExplodingEnemyData : EnemyData
     public Color RushWindupColor => _rushWindupColor;
     public GameObject SplitPrefab => _splitPrefab;
     public int SplitCount => _splitCount;
+    public float SplitDamageMultiplier => _splitDamageMultiplier;
     public float SplitSpawnDistance => _splitSpawnDistance;
 }
