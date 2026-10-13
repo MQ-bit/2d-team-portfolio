@@ -19,6 +19,7 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     [SerializeField] private RectTransform _content;
     [SerializeField] private PotionCombinationRowView _rowPrefab;
     [SerializeField] private GameObject _previewRow;
+    [SerializeField] private TMP_Text _combinationCountLabel;
     [SerializeField] private BookPageTurnController _pageTurnController;
 
     private readonly List<Row> _rows = new();
@@ -146,15 +147,22 @@ public sealed class PotionCombinationTableView : MonoBehaviour
 
     private void RefreshRows()
     {
+        int discoveredCount = 0;
         foreach (Row row in _rows)
         {
             bool known = IsKnown(row.Data);
+            if (known) discoveredCount++;
             row.View.Draw(known ? row.Data.Name : "미발견 조합",
                 GetIcon(row.Data.ElementA),
                 GetIcon(row.Data.ElementB),
                 known && row.Data.VisualData.IconSprite != null
                     ? row.Data.VisualData.IconSprite : _unknownIcon,
                 known, row.Data == _selected);
+        }
+
+        if (_combinationCountLabel != null)
+        {
+            _combinationCountLabel.text = $"발견한 조합 수 {discoveredCount} / {_rows.Count}";
         }
     }
 

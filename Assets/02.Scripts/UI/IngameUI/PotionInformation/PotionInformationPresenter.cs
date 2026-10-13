@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PotionInformationPresenter : MonoBehaviour
@@ -19,6 +20,7 @@ public class PotionInformationPresenter : MonoBehaviour
     [SerializeField] private PotionRunCatalog _runCatalog;
     [Header("Potion Cards")]
     [SerializeField] private DictionaryCardSlotView[] _cards;
+    [SerializeField] private TMP_Text _discoveryCountLabel;
     [Header("Bottle Images")]
     [SerializeField] private BottleSpriteBiding[] _bottleSprites;
 
@@ -42,6 +44,7 @@ public class PotionInformationPresenter : MonoBehaviour
     {
         Initialize();
 
+        int discoveredCount = 0;
         for (int appearanceIndex = 0; appearanceIndex < _runCatalog.Count; appearanceIndex++)
         {
             DictionaryCardSlotView view = _cards[appearanceIndex];
@@ -52,6 +55,7 @@ public class PotionInformationPresenter : MonoBehaviour
                 continue;
             }
 
+            discoveredCount++;
             PotionItem item = _runCatalog.GetPotionItemAt(appearanceIndex);
 
             PotionData data = item.PotionData;
@@ -69,6 +73,11 @@ public class PotionInformationPresenter : MonoBehaviour
                 view.PlayRevealEffect(data, uiPotionSprite, cardBackgroundSprite);
             }
         }
+
+        if (_discoveryCountLabel != null)
+        {
+            _discoveryCountLabel.text = $"발견한 포션 {discoveredCount} / {_runCatalog.Count}";
+        }
     }
 
     private void Initialize()
@@ -83,6 +92,11 @@ public class PotionInformationPresenter : MonoBehaviour
             _runCatalog = FindAnyObjectByType<PotionRunCatalog>();
         }
         _cards = GetComponentsInChildren<DictionaryCardSlotView>(true);
+        if (_discoveryCountLabel == null)
+        {
+            _discoveryCountLabel = Array.Find(GetComponentsInChildren<TMP_Text>(true),
+                label => label.name == "DiscoveryProgress");
+        }
 
         CheckReferences();
 

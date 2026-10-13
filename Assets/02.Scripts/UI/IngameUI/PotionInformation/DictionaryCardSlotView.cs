@@ -13,6 +13,7 @@ public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
 
     [Header("Flip Animation Setting")]
     [SerializeField] private RectTransform _flipRoot;
+    [SerializeField] private Image _cardBackImage;
     [SerializeField, Min(0f)] private float _revealDuration = 0.5f;
     [SerializeField] private AnimationCurve _revealCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
@@ -146,6 +147,10 @@ public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
     {
         Potion = data;
         SetImage(_cardBackgroundImage, cardBackgroundSprite);
+        if (_cardBackgroundImage != null)
+        {
+            _cardBackgroundImage.preserveAspect = false;
+        }
 
         SetImage(_potionImage, uiPotionSprite);
 
@@ -186,6 +191,30 @@ public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
 
         if (_flipRoot != null)
         {
+            if (_cardBackImage == null)
+            {
+                Transform back = _flipRoot.Find("CardBack");
+                if (back != null) _cardBackImage = back.GetComponent<Image>();
+            }
+
+            if (_cardBackImage != null && _cardBackgroundImage != null)
+            {
+                RectTransform front = _cardBackgroundImage.rectTransform;
+                RectTransform back = _cardBackImage.rectTransform;
+                back.anchorMin = front.anchorMin;
+                back.anchorMax = front.anchorMax;
+                back.pivot = front.pivot;
+                back.sizeDelta = front.sizeDelta;
+                back.anchoredPosition3D = front.anchoredPosition3D;
+                back.localRotation = front.localRotation;
+                back.localScale = front.localScale;
+
+                // Both faces use UI rendering; show the back only on its half of the flip.
+                _cardBackImage.material = _cardBackgroundImage.material;
+                _cardBackImage.preserveAspect = false;
+                _cardBackImage.enabled = Mathf.Cos(yAngle * Mathf.Deg2Rad) < 0f;
+            }
+
             _flipRoot.localRotation = Quaternion.Euler(0f, yAngle, 0f);
         }
     }
