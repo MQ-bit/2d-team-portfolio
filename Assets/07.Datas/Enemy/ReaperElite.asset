@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ReaperData
   _maxHealth: 240
   _moveSpeed: 3
-  _contactDamage: 12
+  _contactDamage: 16
   _detectRange: 200
   _visualScale: 1
   _tintColor: {r: 1, g: 0.68, b: 0.58, a: 1}

@@ -15,7 +15,7 @@ MonoBehaviour:
   _maxHealth: 120
   _moveSpeed: 2.8
   _contactDamage: 12
-  _detectRange: 10
+  _detectRange: 200
   _visualScale: 1
   _tintColor: {r: 1, g: 1, b: 1, a: 1}
   _useMeleeAttack: 1

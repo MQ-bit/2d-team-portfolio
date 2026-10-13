@@ -87,7 +87,8 @@ public class LevelManager : MonoBehaviour
 
         _isTransitioning = true;
 
-        bool accepted = _visualEffectManager.TryFadeTransition(HandleScreenCovered, -1, 0, -1, HandleTransitionCompleted);
+        bool accepted = _visualEffectManager.TryFadeTransition(HandleScreenCovered,
+            onCompleted: HandleTransitionCompleted, whileCovered: WaitForCameraAfterStageChange());
 
         if (!accepted)
         {
@@ -120,6 +121,19 @@ public class LevelManager : MonoBehaviour
         ScoreManager.Instance?.TryRecordFloorCleared();
 
         SoundManager.Play(GameSoundId.FloorMove);
+    }
+
+    private IEnumerator WaitForCameraAfterStageChange()
+    {
+        CameraController cameraController = CameraController.Instance;
+        if (cameraController == null)
+        {
+            Debug.LogWarning($"{nameof(LevelManager)}: 카메라를 찾지 못해 층 이동 카메라 대기를 생략합니다.", this);
+            yield return null;
+            yield break;
+        }
+
+        yield return cameraController.WaitForTrackingSettled();
     }
 
     private void HandleTransitionCompleted()
