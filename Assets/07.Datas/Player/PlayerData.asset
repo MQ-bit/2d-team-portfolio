@@ -18,7 +18,7 @@ MonoBehaviour:
     _contactDamageInterval: 0.5
   _thirst:
     _maxValue: 100
-    _initialValue: 15
+    _initialValue: 0
     _increaseAmount: 1
     _increaseInterval: 1.25
     _warningRatio: 0.7
