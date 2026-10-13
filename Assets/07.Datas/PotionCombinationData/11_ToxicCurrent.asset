@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 11
   _displayName: "신경독"
-  _description: "6초 장판. 0.5초마다 독 30 + 전류 12(84 DPS) 및 0.2초 마비. 이탈 후 중독 24/0.75초, 4.5초. 독 둔화 없음."
+  _description: "독과 전류로 적을 공격하고 잠시 마비시킵니다. 장판을 벗어나도 중독이 남습니다."
   _elementA: 2
   _elementB: 5
   _inheritThrownEffectsFrom: 0

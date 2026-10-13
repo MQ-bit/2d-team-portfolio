@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 3
   _displayName: "흡혈 서리"
-  _description: "6초 장판. 0.5초마다 서리 18 및 서리 1스택. 3스택이면 2초 빙결. 적의 실제 HP 감소량 15% 흡혈(기화 포함), 자기 피해 제외. 피해 잔류 없음."
+  _description: "서리 장판으로 적을 얼리며, 준 피해의 일부만큼 체력을 회복합니다."
   _elementA: 4
   _elementB: 3
   _inheritThrownEffectsFrom: 0

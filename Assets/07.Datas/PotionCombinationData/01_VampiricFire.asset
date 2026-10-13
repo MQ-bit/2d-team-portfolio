@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 1
   _displayName: "흡혈 화염"
-  _description: "6초 장판. 0.5초마다 화염 30. 이탈 후 화상 8/1초, 2초. 적의 실제 HP 감소량 15% 흡혈(잔류 및 기화 포함), 자기 피해 제외."
+  _description: "화염 장판으로 적을 태우고, 준 피해의 일부만큼 체력을 회복합니다."
   _elementA: 4
   _elementB: 1
   _inheritThrownEffectsFrom: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 4
   _displayName: "흡혈 전류"
-  _description: "6초 장판. 0.5초마다 전류 16 및 0.15초 마비. 적의 실제 HP 감소량 15% 흡혈(기화 포함), 자기 피해 제외. 피해 잔류 없음."
+  _description: "전류 장판으로 적을 잠시 마비시키고, 준 피해의 일부만큼 체력을 회복합니다."
   _elementA: 4
   _elementB: 5
   _inheritThrownEffectsFrom: 0

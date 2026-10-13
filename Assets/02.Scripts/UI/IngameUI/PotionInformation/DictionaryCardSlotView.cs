@@ -1,9 +1,11 @@
 using System.Collections;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class DictionaryCardSlotView : MonoBehaviour
+public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
 {
     private const float HiddenAngle = 180f;
     private const float RevealedAngle = 0f;
@@ -21,11 +23,25 @@ public class DictionaryCardSlotView : MonoBehaviour
     [SerializeField] private TMP_Text _descriptionText;
 
     private Coroutine _revealRoutine;
+    private bool _revealPending;
+    private Outline _selectionOutline;
+    public PotionData Potion { get; private set; }
+    public Sprite PotionIcon => _potionImage != null ? _potionImage.sprite : null;
+    public event Action<DictionaryCardSlotView> OnCardClicked;
     public bool HasRevealPlayed { get; private set; }
-    public bool IsRevealing => _revealRoutine != null;
+    public bool IsRevealing => _revealPending || _revealRoutine != null;
+
+    private void OnEnable()
+    {
+        if (!_revealPending) return;
+        _revealPending = false;
+        _revealRoutine = StartCoroutine(RevealCoroutine());
+    }
 
     public void SetHidden()
     {
+        Potion = null;
+        SetSelected(false);
         CancelReveal();
 
         HasRevealPlayed = false;
@@ -78,11 +94,19 @@ public class DictionaryCardSlotView : MonoBehaviour
             return;
         }
 
+        if (!isActiveAndEnabled)
+        {
+            // 조합표 탭 등으로 숨겨진 카드의 공개 연출은 활성화될 때 시작한다.
+            _revealPending = true;
+            return;
+        }
+
         _revealRoutine = StartCoroutine(RevealCoroutine());
     }
 
     public void CancelReveal()
     {
+        _revealPending = false;
         if (_revealRoutine == null)
         {
             return;
@@ -113,11 +137,14 @@ public class DictionaryCardSlotView : MonoBehaviour
     private void CompleteReveal()
     {
         _revealRoutine = null;
+        _revealPending = false;
         HasRevealPlayed = true;
+        SetAngle(RevealedAngle);
     }
 
     private void SetContent(PotionData data, Sprite uiPotionSprite, Sprite cardBackgroundSprite)
     {
+        Potion = data;
         SetImage(_cardBackgroundImage, cardBackgroundSprite);
 
         SetImage(_potionImage, uiPotionSprite);
@@ -131,6 +158,23 @@ public class DictionaryCardSlotView : MonoBehaviour
         {
             _descriptionText.text = data != null ? data.Description : string.Empty;
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || Potion == null || IsRevealing) return;
+        OnCardClicked?.Invoke(this);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (_selectionOutline == null && selected && _cardBackgroundImage != null)
+        {
+            _selectionOutline = _cardBackgroundImage.gameObject.AddComponent<Outline>();
+            _selectionOutline.effectColor = new Color(1f, 0.8f, 0.25f, 1f);
+            _selectionOutline.effectDistance = new Vector2(4f, -4f);
+        }
+        if (_selectionOutline != null) _selectionOutline.enabled = selected;
     }
 
     private void SetAngle(float yAngle)

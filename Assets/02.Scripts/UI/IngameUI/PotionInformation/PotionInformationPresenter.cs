@@ -82,7 +82,7 @@ public class PotionInformationPresenter : MonoBehaviour
         {
             _runCatalog = FindAnyObjectByType<PotionRunCatalog>();
         }
-        _cards = GetComponentsInChildren<DictionaryCardSlotView>();
+        _cards = GetComponentsInChildren<DictionaryCardSlotView>(true);
 
         CheckReferences();
 

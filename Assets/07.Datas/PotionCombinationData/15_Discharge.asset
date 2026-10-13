@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 15
   _displayName: "방전"
-  _description: "남은 장판 전류 피해량의 1.5배를 즉발로 적용하고 0.6초 마비 1회. 기화 한 병의 대상별 합계 피해 240 상한. 기본 전류 수명 6초면 90 피해."
+  _description: "전류 장판에 남은 피해를 모아 한 번에 방출하고 적을 마비시킵니다."
   _elementA: 5
   _elementB: 6
   _inheritThrownEffectsFrom: 0

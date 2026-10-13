@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 6
   _displayName: "맹독화염"
-  _description: "6초 장판. 0.5초마다 화염 32 + 독 22(108 DPS). 이탈 후 화상 8/1초, 2초 및 중독 24/0.75초, 4.5초. 독 둔화 없음."
+  _description: "화염과 독으로 적을 공격합니다. 장판을 벗어나도 화상과 중독이 남습니다."
   _elementA: 1
   _elementB: 2
   _inheritThrownEffectsFrom: 0

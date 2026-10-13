@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 10
   _displayName: "동상"
-  _description: "6초 장판. 0.75초마다 독 32 및 서리 1스택. 3스택이면 2초 빙결. 이탈 후 중독 24/0.75초, 4.5초. 독 둔화 없음."
+  _description: "독 장판으로 적을 중독시키며 얼립니다. 장판을 벗어나도 중독이 남습니다."
   _elementA: 2
   _elementB: 3
   _inheritThrownEffectsFrom: 0

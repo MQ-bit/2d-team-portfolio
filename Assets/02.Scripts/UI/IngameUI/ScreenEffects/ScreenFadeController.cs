@@ -94,6 +94,18 @@ public sealed class ScreenFadeController : MonoBehaviour
             return false;
         }
 
+        // 투명 상태는 CanvasGroup.alpha로 처리하고, 코루틴 실행 시 오브젝트는 활성화한다.
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+
+        // 부모가 비활성화됐거나 컨트롤러가 꺼져 있으면 요청을 거절한다.
+        if (!isActiveAndEnabled)
+        {
+            return false;
+        }
+
         _isFading = true;
         _fadeCoroutine = StartCoroutine(RunFadeCoroutine(fadeRoutine, onCompleted));
 
