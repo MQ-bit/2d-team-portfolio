@@ -111,7 +111,7 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
         PotionThrowPrediction prediction = _potionPrefab != null
-            ? _potionPrefab.PredictThrow(startPosition, targetPosition, Settings.ArcHeight)
+            ? _potionPrefab.PredictThrow(startPosition, targetPosition)
             : new PotionThrowPrediction(false, 1f, targetPosition, targetPosition);
 
         PotionData selectedPotion = selectedPotionItem.PotionData;
@@ -185,7 +185,6 @@ public class PlayerThrowingModule : MonoBehaviour
         if (_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
-            float distance = Vector2.Distance(startPosition, targetPosition);
 
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
