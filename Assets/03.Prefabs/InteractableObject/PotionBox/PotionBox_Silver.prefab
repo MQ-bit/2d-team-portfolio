@@ -169,8 +169,8 @@ MonoBehaviour:
   - {fileID: 4127365585450369007, guid: a150236a7efc8e445a41ce412306beea, type: 3}
   - {fileID: 7595375845299001957, guid: b60e83dd642cb4e4ebcc3087c47b1fd6, type: 3}
   _dropPoint: {fileID: 3104319216201948204}
-  _minDropCount: 1
-  _maxDropCount: 3
+  _minDropCount: 2
+  _maxDropCount: 4
   _dropRadius: 3
   _dropFlightDuration: 0.45
   _dropArcHeight: 0.5
