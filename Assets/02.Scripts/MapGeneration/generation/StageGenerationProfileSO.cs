@@ -20,10 +20,14 @@ public class StageGenerationProfileSO : ScriptableObject
     [Header("RewardBox")]
     [SerializeField] private InteractablePotionBox _goldRewardBoxPrefab;
     [SerializeField] private InteractablePotionBox _silverRewardBoxPrefab;
+
+    [Header("Reward Count")]
+    [SerializeField] private Vector2Int _normalRoomRewardMinMax = new Vector2Int(1, 3);
+    [SerializeField] private Vector2Int _eliteRoomRewardMinMax = new Vector2Int(2, 4);
+
     [SerializeField, Min(0f)] private float _rewardSpawnRadius = 2f;
     [SerializeField, Min(1f)] private int _rewardPlacementAttempts = 20;
     [SerializeField] private LayerMask _rewardBlockingLayers;
-
 
     [Header("Hallway Prefabs")]
     [SerializeField] private HallwayDefinition _horizontalHallway;
@@ -50,6 +54,8 @@ public class StageGenerationProfileSO : ScriptableObject
     public float RewardSpawnRadius => _rewardSpawnRadius;
     public int RewardPlacementAttempts => _rewardPlacementAttempts;
     public LayerMask RewardBlockingLayers => _rewardBlockingLayers;
+    public Vector2Int NormalRoomRewardMinMax => _normalRoomRewardMinMax;
+    public Vector2Int EliteRoomRewardMinMax => _eliteRoomRewardMinMax;
 
 
     public HallwayDefinition GetHallway(ConnectorDirection direction)

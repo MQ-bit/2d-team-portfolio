@@ -163,12 +163,12 @@ public sealed class RoomRewardGenerator : MonoBehaviour
                 }
             case RoomType.Normal:
                 {
-                    rewardCount = random.Next(0, 4);
+                    rewardCount = random.Next(_profile.NormalRoomRewardMinMax.x, _profile.NormalRoomRewardMinMax.y);
                     break;
                 }
             case RoomType.Elite:
                 {
-                    rewardCount = random.Next(2, 6);
+                    rewardCount = random.Next(_profile.EliteRoomRewardMinMax.x, _profile.EliteRoomRewardMinMax.y);
                     break;
                 }
             default:

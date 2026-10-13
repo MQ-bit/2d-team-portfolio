@@ -32,7 +32,7 @@ MonoBehaviour:
       - _prefab: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
         _spawnWeight: 10
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
-        _spawnWeight: 10
+        _spawnWeight: 5
       _eliteCount: 0
       _elitePrefabs: []
       _batchSize: 5
@@ -48,7 +48,7 @@ MonoBehaviour:
       - _prefab: {fileID: 100050582, guid: 99c25c9a6f3941dea0f5457513953f6f, type: 3}
         _spawnWeight: 70
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
-        _spawnWeight: 30
+        _spawnWeight: 10
       _eliteCount: 0
       _elitePrefabs: []
       _batchSize: 5
@@ -82,7 +82,7 @@ MonoBehaviour:
       - _prefab: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
         _spawnWeight: 30
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
-        _spawnWeight: 30
+        _spawnWeight: 10
       _eliteCount: 1
       _elitePrefabs:
       - {fileID: 829986578479390835, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
@@ -101,7 +101,7 @@ MonoBehaviour:
       - _prefab: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
         _spawnWeight: 50
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
-        _spawnWeight: 50
+        _spawnWeight: 10
       _eliteCount: 0
       _elitePrefabs: []
       _batchSize: 5
