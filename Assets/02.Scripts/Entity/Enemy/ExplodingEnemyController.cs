@@ -38,6 +38,9 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
+    // 실제 피해 판정 반경. 폭발 이펙트 크기를 여기에 맞춘다.
+    public float ExplosionRadius => _data != null ? _data.ExplosionRadius : 0f;
+
     // 예열이 끝나 자폭하는 순간. 체력으로 죽는 EnemyStatus.OnDeath와는 별개다.
     public event Action OnExploded;
 
