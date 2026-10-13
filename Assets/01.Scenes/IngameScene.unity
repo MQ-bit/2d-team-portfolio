@@ -2160,6 +2160,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5156675301869438822, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+      propertyPath: _defaultFadeInDuration
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5156675301869438822, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
+      propertyPath: _defaultFadeOutDuration
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 5294309241769733612, guid: 13a2165e05b9827468947da70b735d1c, type: 3}
       propertyPath: _runCatalog
       value: 
@@ -2782,9 +2790,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 0.9993627
-    height: 1
+    y: 0.11070111
+    width: 0.66390043
+    height: 0.6642066
   near clip plane: 0.1
   far clip plane: 5014
   field of view: 40

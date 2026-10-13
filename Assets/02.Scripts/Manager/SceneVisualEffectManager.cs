@@ -145,7 +145,8 @@ public class SceneVisualEffectManager : MonoBehaviour
         return accepted;
     }
 
-    public bool TryFadeTransition(Action onCovered, float fadeOutDuration = -1f, float coveredDuration = 0f, float fadeInDuration = -1f, Action onCompleted = null)
+    public bool TryFadeTransition(Action onCovered, float fadeOutDuration = -1f, float coveredDuration = 0f,
+        float fadeInDuration = -1f, Action onCompleted = null, IEnumerator whileCovered = null)
     {
         if (!EnsureFadeController())
         {
@@ -153,7 +154,8 @@ public class SceneVisualEffectManager : MonoBehaviour
         }
 
         bool acquiredInputLock = AcquireFadeInputLock();
-        bool accepted = _fadeController.TryTransition(onCovered, fadeOutDuration, coveredDuration, fadeInDuration, CreateFadeInCompletedHandler(onCompleted));
+        bool accepted = _fadeController.TryTransition(onCovered, fadeOutDuration, coveredDuration,
+            fadeInDuration, CreateFadeInCompletedHandler(onCompleted), whileCovered);
 
         if (!accepted && acquiredInputLock)
         {
