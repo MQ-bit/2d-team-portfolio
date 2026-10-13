@@ -14,6 +14,8 @@ public class PlayerDrinkingModule : MonoBehaviour
 
     public bool IsDrinking { get; private set; }
     public event Action<bool> OnDrinkStateChanged; //UI 연결용 이벤트
+    public event Action OnDrinkCompleted;
+    public event Action OnDrinkCancelled;
     public float DrinkProgress
     {
         get
@@ -91,21 +93,26 @@ public class PlayerDrinkingModule : MonoBehaviour
         if (!IsDrinking) return;
 
         ResetState();
+        OnDrinkCancelled?.Invoke();
     }
 
     private void CompleteDrink()
     {
         if (PotionEffectApplier.FindTarget(transform) == null)
         {
-            ResetState();
+            CancelDrink();
             return;
         }
 
         if (!_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
-            ResetState();
+            CancelDrink();
             return;
         }
+
+        // 소비가 성공하면 음용은 완료다. 즉시 피해의 사망 콜백이 취소로 처리하지 않게 한다.
+        ResetState();
+        OnDrinkCompleted?.Invoke();
 
         _potionRunCatalog.TryIdentify(consumedPotion);
 
@@ -113,7 +120,6 @@ public class PlayerDrinkingModule : MonoBehaviour
         _status.DecreaseThirst(Settings.BaseWithdrawalDecrease);
 
         ScoreManager.Instance?.TryRecordPotionConsumed();
-        ResetState();
     }
 
     private void ResetState()

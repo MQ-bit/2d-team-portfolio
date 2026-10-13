@@ -18,9 +18,9 @@ MonoBehaviour:
     _contactDamageInterval: 0.5
   thirst:
     _maxValue: 100
-    _initialValue: 0
+    _initialValue: 15
     _increaseAmount: 1
-    _increaseInterval: 5
+    _increaseInterval: 1.25
     _warningRatio: 0.7
     _criticalRatio: 1
   _movement:
@@ -43,7 +43,7 @@ MonoBehaviour:
     _arcHeight: 1.5
     _rotationSpeed: 360
   _drink:
-    _duration: 0.8
+    _duration: 0.5
     _baseWithdrawalDecrease: 10
   _collection:
     _localRadius: 3
