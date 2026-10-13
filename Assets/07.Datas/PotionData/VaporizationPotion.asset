@@ -53,7 +53,7 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
-  _thirstDelta: -10
+  _thirstDelta: 30
   _visualData:
     _iconSprite: {fileID: 21300000, guid: 2dec2bc0f14ce884aa836a00c3454569, type: 3}
     _cardBackgroundSprite: {fileID: 517893246982642034, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
