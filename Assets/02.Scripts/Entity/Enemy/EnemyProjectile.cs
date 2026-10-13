@@ -92,6 +92,7 @@ public class EnemyProjectile : MonoBehaviour
         float progress = Mathf.Clamp01(_travelledDistance / Mathf.Max(0.01f, _growthDistance));
         _growthMultiplier = Mathf.SmoothStep(1f, Mathf.Max(1f, _maxGrowthMultiplier), progress);
         ApplySize();
+
         _rigid.MovePosition(_rigid.position + _direction * _speed * Time.fixedDeltaTime);
     }
 

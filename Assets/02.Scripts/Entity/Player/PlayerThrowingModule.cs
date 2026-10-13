@@ -16,9 +16,7 @@ public class PlayerThrowingModule : MonoBehaviour
 
     [Header("Throw Settings")]
     [SerializeField] private ThrowAimPreview _aimPreviewInstance;
-    [SerializeField] private float _arcHeight = 1.5f;
-    [SerializeField] private float _throwDuration = 8f;
-    [SerializeField] private float _rotationSpeed = 360f;
+    private PlayerData.ThrowSettings Settings => _status.Data.Throw;
 
     [Header("Potion Prefab")]
     [SerializeField] private PotionProjectile _potionPrefab;
@@ -33,6 +31,7 @@ public class PlayerThrowingModule : MonoBehaviour
     private void Awake()
     {
         InitiateComponent();
+        if (_status == null || _status.Data == null) { enabled = false; return; }
         InitiateAimPreview();
     }
 
@@ -87,13 +86,6 @@ public class PlayerThrowingModule : MonoBehaviour
         IsAiming = true;
         _aimPreviewInstance.Show();
 
-        _aimPreviewInstance.UpdateAoeIndicator(_inventoryModule.SelectedPotion.VisualData.AreaColor, _inventoryModule.SelectedPotion.AreaWidth);
-        UpdateAim(screenPosition);
-
-        _aimPreviewInstance.UpdateAoeIndicator(
-            _inventoryModule.SelectedPotion.VisualData.AreaColor,
-            _inventoryModule.SelectedPotion.AreaWidth);
-
         UpdateAim(screenPosition);
     }
 
@@ -119,7 +111,7 @@ public class PlayerThrowingModule : MonoBehaviour
         Vector3 startPosition = _throwPoint.position;
         Vector3 targetPosition = new Vector3(_aimWorldPosition.x, _aimWorldPosition.y, startPosition.z);
         PotionThrowPrediction prediction = _potionPrefab != null
-            ? _potionPrefab.PredictThrow(startPosition, targetPosition, _arcHeight)
+            ? _potionPrefab.PredictThrow(startPosition, targetPosition)
             : new PotionThrowPrediction(false, 1f, targetPosition, targetPosition);
 
         PotionData selectedPotion = selectedPotionItem.PotionData;
@@ -128,8 +120,8 @@ public class PlayerThrowingModule : MonoBehaviour
         Color previewColor = identified ? selectedPotion.VisualData.AreaColor : _defaultAreaColor;
         // Identification changes the displayed color, never the actual effect range.
         float previewWidth = identified ? selectedPotion.AreaWidth : _defaultAreaWidth;
-        _aimPreviewInstance.Draw(startPosition, targetPosition, _arcHeight, previewColor, previewWidth,
-            prediction);
+        _aimPreviewInstance.Draw(startPosition, targetPosition, Settings.ArcHeight, previewColor, previewWidth,
+            prediction, identified ? selectedPotion : null);
     }
 
     public void ReleaseThrow(Vector2 screenPosition)
@@ -193,11 +185,10 @@ public class PlayerThrowingModule : MonoBehaviour
         if (_inventoryModule.TryConsumeSelectedItem(out PotionItem consumedPotion))
         {
             Vector3 startPosition = _throwPoint.position;
-            float distance = Vector2.Distance(startPosition, targetPosition);
 
             PotionProjectile proj = Instantiate(_potionPrefab, startPosition, Quaternion.identity);
             proj.Initiate(consumedPotion, _potionRunCatalog, _potionEffectOwner);
-            proj.Launch(targetPosition, _throwDuration, _arcHeight, _rotationSpeed);
+            proj.Launch(targetPosition, Settings.FlightDuration, Settings.ArcHeight, Settings.RotationSpeed);
             OnPotionThrown?.Invoke(targetPosition);
         }
     }

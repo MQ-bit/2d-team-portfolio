@@ -34,6 +34,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
     private float _attackTimer;
     private float _fireTimer;
     private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
+    private int _burstRemaining; // 이번 공격에서 아직 쏘지 않은 연속 발사 횟수
     private bool _isAttackFacingLeft; // 공격을 시작할 때 플레이어가 왼쪽에 있었는지
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
@@ -197,6 +198,16 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
             {
                 _isFiring = false;
                 FireProjectile();
+
+                // 연속 발사: 남은 횟수가 있으면 공격 모션을 다시 시작하고 다음 투사체를 기다린다.
+                if (_burstRemaining > 0)
+                {
+                    _burstRemaining--;
+                    _isFiring = true;
+                    _fireTimer = _data.AttackFireDelay + _data.BurstInterval;
+                    _isAttackFacingLeft = _target != null && _target.position.x < transform.position.x;
+                    OnAttackStarted?.Invoke(_isAttackFacingLeft);
+                }
             }
             return;
         }
@@ -212,6 +223,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
     private void StartAttack()
     {
         _isFiring = true;
+        _burstRemaining = _data.BurstCount - 1;
         _fireTimer = _data.AttackFireDelay;
         _attackTimer = _data.AttackCooldown;
         _isAttackFacingLeft = _target.position.x < transform.position.x;
@@ -226,6 +238,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
         }
 
         _isFiring = false;
+        _burstRemaining = 0;
         OnAttackCanceled?.Invoke();
     }
 
@@ -325,6 +338,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
         _attackTimer = 0f;
         _fireTimer = 0f;
         _isFiring = false;
+        _burstRemaining = 0;
         _isAttackFacingLeft = false;
 
         if (_status != null && _data != null)

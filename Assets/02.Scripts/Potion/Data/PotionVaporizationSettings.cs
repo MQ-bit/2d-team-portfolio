@@ -3,6 +3,46 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PotionVaporizationSettings", menuName = "Potion/Vaporization Settings")]
 public sealed class PotionVaporizationSettings : ScriptableObject
 {
+    [Header("남은 장판 출력 환산")]
+    [SerializeField, Min(0f)] private float _fireDamageMultiplier = 0.8f;
+    [SerializeField, Min(0f)] private float _poisonDamageMultiplier = 1f;
+    [SerializeField, Min(0f)] private float _frostDamageMultiplier = 2f;
+    [SerializeField, Min(0f)] private float _lightningDamageMultiplier = 1.5f;
+    [SerializeField, Min(0f)] private float _healingMultiplier = 1.5f;
+    [SerializeField, Min(0f)] private float _damageCapPerTarget = 240f;
+    [SerializeField, Min(0f)] private float _healingCapPerTarget = 120f;
+    [SerializeField, Min(0f)] private float _freezeDuration = 2.5f;
+    [SerializeField, Min(0f)] private float _paralysisDuration = 0.6f;
+
+    public float DamageCapPerTarget => PotionDataValidation.NonNegative(_damageCapPerTarget);
+    public float HealingCapPerTarget => PotionDataValidation.NonNegative(_healingCapPerTarget);
+    public float FreezeDuration => PotionDataValidation.NonNegative(_freezeDuration);
+    public float ParalysisDuration => PotionDataValidation.NonNegative(_paralysisDuration);
+
+    public float GetOutputMultiplier(PotionEffectDefinition effect)
+    {
+        if (effect.Operation == PotionEffectOperation.Heal)
+            return PotionDataValidation.NonNegative(_healingMultiplier);
+        return PotionDataValidation.NonNegative(effect.Element switch
+        {
+            PotionElement.Fire => _fireDamageMultiplier,
+            PotionElement.Poison => _poisonDamageMultiplier,
+            PotionElement.Ice => _frostDamageMultiplier,
+            PotionElement.Lightning => _lightningDamageMultiplier,
+            _ => 1f
+        });
+    }
+
+    internal static float DefaultOutputMultiplier(PotionEffectDefinition effect) =>
+        effect.Operation == PotionEffectOperation.Heal ? 1.5f : effect.Element switch
+        {
+            PotionElement.Fire => 0.8f,
+            PotionElement.Poison => 1f,
+            PotionElement.Ice => 2f,
+            PotionElement.Lightning => 1.5f,
+            _ => 1f
+        };
+
     [Header("기화 단독 표시")]
     [Tooltip("반응하지 않은 기화 장판이 표시되며 다른 장판과의 반응을 기다리는 시간(초).")]
     [SerializeField, Min(0f)] private float _waitingDuration = 2f;

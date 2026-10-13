@@ -182,18 +182,20 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePrimaryActionStart(Vector2 mousePosition)
     {
-        if (!CanReadInput || _drinkingModule.IsDrinking) return;
+        if (!CanReadInput) return;
 
         if (_meleeModule.IsMeleeModeActivated)
         {
-            if (_movementModule.IsDashing) return;
+            if (_movementModule.IsDashing || !_meleeModule.CanAttack()) return;
 
+            // 수락 가능한 근접 공격만 음용을 취소한다. 쿨다운 중 입력은 음용을 유지한다.
+            _drinkingModule.CancelDrink();
             _meleeModule.TryAttack(mousePosition);
             return;
         }
         else //potionThrow
         {
-            if (_meleeModule.IsSwinging) return;
+            if (_meleeModule.IsSwinging || _drinkingModule.IsDrinking) return;
             _throwingModule.BeginAim(mousePosition);
         }
     }
