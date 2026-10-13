@@ -93,7 +93,7 @@ public sealed class RoomRewardGenerator : MonoBehaviour
 
             RoomType type = node.Room.Type;
 
-            if (type != RoomType.Start && type != RoomType.End)
+            if (type != RoomType.Start)
             {
                 continue;
             }
