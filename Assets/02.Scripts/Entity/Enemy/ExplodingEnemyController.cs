@@ -41,6 +41,10 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
 
+    // 예열(충전) 중인지와 그 진행도(0~1). 폭발 범위 표시가 읽는다.
+    public bool IsFusing => _state == State.Fuse;
+    public float FuseProgress => _data != null && _data.FuseDuration > 0f ? Mathf.Clamp01(_fuseElapsed / _data.FuseDuration) : 1f;
+
     // 실제 피해 판정 반경. 폭발 이펙트 크기를 여기에 맞춘다.
     public float ExplosionRadius => _data != null ? _data.ExplosionRadius : 0f;
 
@@ -264,11 +268,10 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         }
     }
 
-    // 분열해서 생긴 적이 쫓아오지 않고 바로 예열부터 시작하게 한다.
-    public void BeginFuse(float damageMultiplier = 1f)
+    // 분열해서 생긴 적에 쓴다. 바로 터지지 않고 일반 폭발형처럼 탐지, 추적, 예열 순으로 행동하며 폭발 피해만 낮아진다.
+    public void SetDamageMultiplier(float damageMultiplier)
     {
         _damageMultiplier = damageMultiplier;
-        StartFuse();
     }
 
     private void StartFuse()
@@ -349,7 +352,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
         }
     }
 
-    // 엘리트 폭발형: 예열이 끝나면 먼저 한 번 터진 뒤(이펙트/피해), SplitPrefab 적 여러 마리로 갈라져 각자 다시 터진다.
+    // 엘리트 폭발형: 예열이 끝나면 먼저 한 번 터진 뒤(이펙트/피해), SplitPrefab 적 여러 마리로 갈라진다. 분열체는 일반 폭발형처럼 플레이어를 탐지해 쫓아가 터진다.
     private void Split()
     {
         _state = State.Exploded;
@@ -372,7 +375,7 @@ public class ExplodingEnemyController : MonoBehaviour, IPoolMember
             split.transform.SetParent(transform.parent, true);
             if (split.TryGetComponent(out ExplodingEnemyController controller))
             {
-                controller.BeginFuse(_data.SplitDamageMultiplier);
+                controller.SetDamageMultiplier(_data.SplitDamageMultiplier);
             }
         }
 
