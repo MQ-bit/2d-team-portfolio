@@ -1,7 +1,7 @@
 #if UNITY_INCLUDE_TESTS
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Reflection;
-using NUnit.Framework;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -30,7 +30,7 @@ public sealed class PotionCombinationDiscoveryTests
             _sprites[i] = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
         Set(_catalog, "_database", _potions);
         Set(_catalog, "_potionSprites", _sprites);
-        _catalog.Initialize(17);
+        _catalog.Initialize();
     }
 
     [TearDown]
@@ -62,7 +62,7 @@ public sealed class PotionCombinationDiscoveryTests
         Assert.That(_catalog.TryDiscoverCombination(reverse), Is.False);
         Assert.That(discoveries, Is.EqualTo(new[] { combination }));
         Assert.That(_catalog.IsCombinationDiscovered(combination), Is.True);
-        _catalog.Initialize(18);
+        _catalog.Initialize();
         Assert.That(_catalog.IsCombinationDiscovered(combination), Is.False);
     }
 
@@ -105,7 +105,7 @@ public sealed class PotionCombinationDiscoveryTests
             Assert.That(Get<Image>(slot, "_resultIcon").sprite, Is.Null, "Discovery enables record access without opening it automatically.");
             button.onClick.Invoke();
             Assert.That(Get<TMP_Text>(slot, "_descriptionText").text, Is.EqualTo(combination.Description));
-            _catalog.Initialize(18);
+            _catalog.Initialize();
             presenter.Refresh();
             Assert.That(button.interactable, Is.False);
             Assert.That(Get<Image>(slot, "_resultIcon").sprite, Is.Null);
