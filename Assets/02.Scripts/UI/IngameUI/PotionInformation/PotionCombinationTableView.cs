@@ -11,9 +11,6 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     [SerializeField] private RectTransform _dictionarySector;
     [SerializeField] private Button _buttonTemplate;
     [SerializeField] private Sprite _unknownIcon;
-    [Header("Prefab Views")]
-    [SerializeField] private Button _dictionaryTab;
-    [SerializeField] private Button _combinationTab;
     [SerializeField] private RectTransform _table;
     [SerializeField] private ScrollRect _scroll;
     [SerializeField] private RectTransform _content;
@@ -21,10 +18,13 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     [SerializeField] private GameObject _previewRow;
     [SerializeField] private TMP_Text _combinationCountLabel;
     [SerializeField] private BookPageTurnController _pageTurnController;
+    [Header("Right page")]
+    [SerializeField] private GameObject _combinationSector;
+    [SerializeField] private GameObject _combinationGuide;
+    [SerializeField] private TMP_Text _guideCountLabel;
 
     private readonly List<Row> _rows = new();
     private PotionRunCatalog _runCatalog;
-    private PotionCombinationData _selected;
     private bool _showTable;
 
     private sealed class Row
@@ -43,17 +43,16 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     private void OnEnable()
     {
         if (_runCatalog != null) _runCatalog.OnIdentified += HandleIdentified;
-        _dictionaryTab.onClick.AddListener(ShowDictionary);
-        _combinationTab.onClick.AddListener(ShowCombinations);
+        if (_runCatalog != null) _runCatalog.OnCombinationDiscovered += HandleCombinationDiscovered;
+        if (_pageTurnController != null) _pageTurnController.PageRequested += RequestTab;
         SetTab(false);
     }
 
     private void OnDisable()
     {
         if (_runCatalog != null) _runCatalog.OnIdentified -= HandleIdentified;
-        _dictionaryTab.onClick.RemoveListener(ShowDictionary);
-        _combinationTab.onClick.RemoveListener(ShowCombinations);
-        _selected = null;
+        if (_runCatalog != null) _runCatalog.OnCombinationDiscovered -= HandleCombinationDiscovered;
+        if (_pageTurnController != null) _pageTurnController.PageRequested -= RequestTab;
     }
 
     private void BuildRows()
@@ -64,23 +63,13 @@ public sealed class PotionCombinationTableView : MonoBehaviour
             PotionCombinationRowView view = Instantiate(_rowPrefab, _content);
             view.name = "Combination_" + data.name;
             Row row = new Row { Data = data, View = view };
-            view.Button.onClick.AddListener(() => Select(row));
             _rows.Add(row);
         }
     }
 
-    private void ShowDictionary()
-    {
-        if (_showTable) RequestTab(false);
-    }
-
-    private void ShowCombinations()
-    {
-        if (!_showTable) RequestTab(true);
-    }
-
     private void RequestTab(bool showTable)
     {
+        if (_showTable == showTable) return;
         if (_pageTurnController != null)
         {
             if (_pageTurnController.IsTurning) return;
@@ -95,9 +84,9 @@ public sealed class PotionCombinationTableView : MonoBehaviour
         _dictionarySector.gameObject.SetActive(!showTable);
         _table.gameObject.SetActive(showTable);
         _buttonTemplate.gameObject.SetActive(!showTable);
-        SetTabAppearance(_dictionaryTab, !showTable);
-        SetTabAppearance(_combinationTab, showTable);
-        _selected = null;
+        if (_combinationSector != null) _combinationSector.SetActive(!showTable);
+        if (_combinationGuide != null) _combinationGuide.SetActive(showTable);
+        if (_pageTurnController != null) _pageTurnController.SetNavigation(showTable, !showTable);
         _details.ShowTableCombination(null);
         RefreshRows();
         if (showTable)
@@ -107,31 +96,6 @@ public sealed class PotionCombinationTableView : MonoBehaviour
         }
     }
 
-    private void Select(Row row)
-    {
-        if (!IsKnown(row.Data)) return;
-        _selected = row.Data;
-        _details.ShowTableCombination(row.Data);
-        RefreshRows();
-    }
-
-    private static void SetTabAppearance(Button tab, bool selected)
-    {
-        tab.interactable = true;
-        tab.targetGraphic.color = selected
-            ? new Color(1f, 0.84f, 0.52f, 1f) : new Color(0.90f, 0.88f, 0.82f, 1f);
-        tab.GetComponentInChildren<TMP_Text>(true).color = selected
-            ? new Color(0.12f, 0.07f, 0.03f, 1f) : new Color(0.24f, 0.18f, 0.11f, 1f);
-        tab.transform.localScale = selected ? Vector3.one * 0.97f : Vector3.one;
-        ColorBlock colors = tab.colors;
-        colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
-        colors.pressedColor = new Color(0.82f, 0.82f, 0.82f, 1f);
-        colors.selectedColor = Color.white;
-        colors.fadeDuration = 0.12f;
-        tab.colors = colors;
-    }
-
     private void HandleIdentified(int appearanceIndex, PotionItem item)
     {
         if (_showTable) RefreshRows();
@@ -139,11 +103,10 @@ public sealed class PotionCombinationTableView : MonoBehaviour
 
     private bool IsKnown(PotionCombinationData data)
     {
-        return _runCatalog != null &&
-            _potionDatabase.TryGetByElement(data.ElementA, out PotionData first) &&
-            _potionDatabase.TryGetByElement(data.ElementB, out PotionData second) &&
-            _runCatalog.IsIdentified(first) && _runCatalog.IsIdentified(second);
+        return _runCatalog != null && _runCatalog.IsCombinationDiscovered(data);
     }
+
+    private void HandleCombinationDiscovered(PotionCombinationData combination) => RefreshRows();
 
     private void RefreshRows()
     {
@@ -157,13 +120,15 @@ public sealed class PotionCombinationTableView : MonoBehaviour
                 GetIcon(row.Data.ElementB),
                 known && row.Data.VisualData.IconSprite != null
                     ? row.Data.VisualData.IconSprite : _unknownIcon,
-                known, row.Data == _selected);
+                known, false);
         }
 
         if (_combinationCountLabel != null)
         {
             _combinationCountLabel.text = $"발견한 조합 수 {discoveredCount} / {_rows.Count}";
         }
+        if (_guideCountLabel != null)
+            _guideCountLabel.text = $"<size=70%>발견한 조합</size>\n{discoveredCount} / {_rows.Count}";
     }
 
     private Sprite GetIcon(PotionElement element)

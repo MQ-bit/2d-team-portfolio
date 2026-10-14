@@ -165,6 +165,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         PotionAreaController later = earlier == _areaController ? other : _areaController;
         earlier.FadeLoopSoundTo(EarlierSoundVolumeRatio, CombinationSoundFadeTime);
         later.FadeLoopSoundTo(LaterSoundVolumeRatio, CombinationSoundFadeTime);
+        RecordCombination(other, data);
         return true;
     }
 
@@ -197,6 +198,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact, target, source);
         }
 
+        RecordCombination(other, data);
         // 기화는 원본 장판의 FloorExit 잔류 효과까지 제거한다.
         _areaController.AreaEffect.DisableForCombination();
         other.AreaEffect.DisableForCombination();
@@ -210,5 +212,11 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
     {
         _areaController.Ownership.TakeLatest(other.Ownership);
         other.Ownership.TakeLatest(_areaController.Ownership);
+    }
+
+    private void RecordCombination(PotionAreaController other, PotionCombinationData data)
+    {
+        PotionRunCatalog catalog = _areaController.Catalog != null ? _areaController.Catalog : other.Catalog;
+        if (catalog != null) catalog.TryDiscoverCombination(data);
     }
 }

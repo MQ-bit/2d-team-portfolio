@@ -118,6 +118,18 @@ internal sealed class PotionAreaVaporizer
             }
         }
         SpawnAfterimages(settings, primary, primaryCombiner);
+        // Record both damaging and healing reactions, but not untested pairs from a three-element surface.
+        if (!primaryCombiner.IsCombined)
+        {
+            PotionCombinationDatabase database = _combiner.Database != null
+                ? _combiner.Database : primaryCombiner.Database;
+            PotionRunCatalog catalog = _areaController.Catalog != null ? _areaController.Catalog : primary.Catalog;
+            if (catalog != null && database != null && database.TryGetCombination(PotionElement.Vaporization,
+                    primary.Data.Element, out PotionCombinationData reaction))
+            {
+                catalog.TryDiscoverCombination(reaction);
+            }
+        }
         _combiner.MarkVaporized();
         primaryCombiner.MarkVaporized();
         PotionAreaController partner = primaryCombiner.PartnerArea;

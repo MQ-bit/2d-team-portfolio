@@ -13,15 +13,19 @@ public sealed class PotionCombinationRowView : MonoBehaviour
 
     public Button Button => _button;
 
+    private void Awake()
+    {
+        _button.enabled = false;
+        foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+    }
+
     public void Draw(string title, Sprite first, Sprite second, Sprite result, bool known, bool selected)
     {
-        _button.interactable = known;
+        _button.interactable = false;
         _label.text = title;
         SetIcon(_firstIcon, first);
         SetIcon(_secondIcon, second);
         SetIcon(_resultIcon, result);
-        _button.targetGraphic.color = selected
-            ? new Color(1f, 0.88f, 0.55f) : new Color(1f, 0.80f, 0.54f);
         _selectionOutline.enabled = selected;
     }
 
