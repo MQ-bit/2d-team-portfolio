@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
   _health:
-    _maxHealth: 400
-    _initialHealth: 400
+    _maxHealth: 300
+    _initialHealth: 300
     _contactDamageInterval: 0.5
   _thirst:
     _maxValue: 100
@@ -46,6 +46,6 @@ MonoBehaviour:
     _duration: 0.5
     _baseWithdrawalDecrease: 10
   _collection:
-    _localRadius: 3
+    _localRadius: 5
   _interaction:
     _holdDuration: 1

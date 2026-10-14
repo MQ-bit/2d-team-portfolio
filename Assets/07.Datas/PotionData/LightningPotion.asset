@@ -46,7 +46,7 @@ MonoBehaviour:
     _tickInterval: 0
     _applyImmediately: 1
     _moveSpeedMultiplier: 1
-    _immobilizeDuration: 0.1
+    _immobilizeDuration: 0.3
     _frostStackAmount: 1
   - _phase: 3
     _operation: 0
@@ -69,6 +69,17 @@ MonoBehaviour:
     _applyImmediately: 1
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0.05
+    _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 5
+    _amount: 5
+    _status: 3
+    _duration: 3
+    _tickInterval: 0.5
+    _applyImmediately: 1
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.3
     _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3

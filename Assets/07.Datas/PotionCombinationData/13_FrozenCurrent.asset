@@ -70,6 +70,17 @@ MonoBehaviour:
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0.15
     _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 3
+    _tickInterval: 0.5
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.3
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:

@@ -26,8 +26,8 @@ MonoBehaviour:
   _portalPrefab: {fileID: 6754475698265709867, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
   _goldRewardBoxPrefab: {fileID: 5201999197382066211, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
   _silverRewardBoxPrefab: {fileID: 5201999197382066211, guid: 2a6fb803a6d28554b9d3e96ae0b0ee78, type: 3}
-  _normalRoomRewardMinMax: {x: 1, y: 4}
-  _eliteRoomRewardMinMax: {x: 2, y: 4}
+  _normalRoomRewardMinMax: {x: 1, y: 3}
+  _eliteRoomRewardMinMax: {x: 2, y: 3}
   _rewardSpawnRadius: 3
   _rewardPlacementAttempts: 10
   _rewardBlockingLayers:
