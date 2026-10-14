@@ -10,10 +10,6 @@ public class PotionRunCatalog : MonoBehaviour
     [SerializeField] private PotionDatabase _database;
     [SerializeField] private Sprite[] _potionSprites = new Sprite[Required_Potion_Count];
 
-    [Header("Random")]
-    [SerializeField] private bool _useRandomSeed = true;
-    [SerializeField] private int _fixedSeed;
-
     private readonly List<PotionItem> _items = new List<PotionItem>();
     private readonly Dictionary<PotionData, int> _apperanceIndexes = new Dictionary<PotionData, int>();
     private bool[] _identified = Array.Empty<bool>();
@@ -21,20 +17,16 @@ public class PotionRunCatalog : MonoBehaviour
     public event Action<int, PotionItem> OnIdentified; //UI 연결용
 
     public int Count => _items.Count;
-    public int CurrentSeed { get; private set; }
     public bool IsInitialized { get; private set; }
 
     private void Awake()
     {
-        int seed = _useRandomSeed ? Guid.NewGuid().GetHashCode() : _fixedSeed;
-
-        Initialize(seed);
+        Initialize();
     }
 
-    public void Initialize(int seed)
+    public void Initialize()
     {
         CheckDataBase();
-        CurrentSeed = seed;
         IsInitialized = false;
 
         _items.Clear();
@@ -42,7 +34,8 @@ public class PotionRunCatalog : MonoBehaviour
         _identified = new bool[_potionSprites.Length];
 
         List<PotionData> shuffledPotions = new List<PotionData>(_database.Potions);
-        Shuffle(shuffledPotions, new System.Random(seed));
+
+        Shuffle(shuffledPotions);
 
         for (int i = 0; i < _potionSprites.Length; i++)
         {
@@ -170,11 +163,11 @@ public class PotionRunCatalog : MonoBehaviour
         }
     }
 
-    private static void Shuffle<T>(IList<T> values, System.Random random)
+    private static void Shuffle<T>(IList<T> values)
     {
         for (int i = values.Count - 1; i > 0; i--)
         {
-            int swapIndex = random.Next(i + 1);
+            int swapIndex = UnityEngine.Random.Range(0, i + 1);
 
             (values[i], values[swapIndex]) = (values[swapIndex], values[i]);
         }

@@ -8,7 +8,6 @@ using UnityEngine.Tilemaps;
 // 몬스터 길찾기 테스트용 미로 씬(EnemyAIScene)을 만든다. 메뉴: Tools > Enemy AI > Create EnemyAIScene
 // Level_1 맵 프리팹의 타일맵 구성(정렬, 벽 콜라이더)과 타일을 그대로 가져와 미로를 칠하고,
 // 맵 소품(기둥, 무덤 등)을 통로 곳곳에 깔고, 플레이어와 몬스터 4종을 미로 반대편에 배치한다.
-// 미로는 고정 시드로 만들어서 다시 생성해도 같은 모양이 나온다.
 public static class EnemyAITestSceneBuilder
 {
     private const string ScenePath = "Assets/01.Scenes/EnemyAIScene.unity";
@@ -37,7 +36,6 @@ public static class EnemyAITestSceneBuilder
     private const int RoomsX = 9;
     private const int RoomsY = 6;
     private const int CorridorWidth = 3;
-    private const int Seed = 20261002;
     // 막다른 길만 있으면 경로가 하나뿐이라, 벽 일부를 더 뚫어 우회로를 만든다.
     private const float ExtraOpeningChance = 0.12f;
     private const float PropChance = 0.45f;
@@ -58,9 +56,7 @@ public static class EnemyAITestSceneBuilder
         }
 
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        System.Random random = new System.Random(Seed);
-
-        bool[,] isWall = GenerateMaze(random);
+        bool[,] isWall = GenerateMaze();
         int width = isWall.GetLength(0);
         int height = isWall.GetLength(1);
 
@@ -71,9 +67,9 @@ public static class EnemyAITestSceneBuilder
         }
 
         Vector2Int playerRoom = new Vector2Int(0, 0);
-        PlaceProps(wallTilemap, random, playerRoom);
+        PlaceProps(wallTilemap, playerRoom);
         PlacePlayer(wallTilemap, playerRoom);
-        PlaceEnemies(wallTilemap, random);
+        PlaceEnemies(wallTilemap);
         CreateCamera(wallTilemap, width, height);
         new GameObject(nameof(EnemyPathfinder)).AddComponent<EnemyPathfinder>();
 
@@ -82,7 +78,7 @@ public static class EnemyAITestSceneBuilder
     }
 
     // 방 격자에서 무작위 깊이 우선 탐색으로 미로를 판 뒤, 벽 일부를 더 뚫는다. true가 벽 타일.
-    private static bool[,] GenerateMaze(System.Random random)
+    private static bool[,] GenerateMaze()
     {
         int width = RoomsX * (CorridorWidth + 1) + 1;
         int height = RoomsY * (CorridorWidth + 1) + 1;
@@ -122,7 +118,7 @@ public static class EnemyAITestSceneBuilder
                 continue;
             }
 
-            Vector2Int chosen = candidates[random.Next(candidates.Count)];
+            Vector2Int chosen = candidates[UnityEngine.Random.Range(0, candidates.Count)];
             visited[chosen.x, chosen.y] = true;
             CarveRoom(isWall, chosen);
             CarvePassage(isWall, current, chosen);
@@ -134,11 +130,11 @@ public static class EnemyAITestSceneBuilder
             for (int y = 0; y < RoomsY; y++)
             {
                 Vector2Int room = new Vector2Int(x, y);
-                if (x + 1 < RoomsX && random.NextDouble() < ExtraOpeningChance)
+                if (x + 1 < RoomsX && UnityEngine.Random.value < ExtraOpeningChance)
                 {
                     CarvePassage(isWall, room, room + Vector2Int.right);
                 }
-                if (y + 1 < RoomsY && random.NextDouble() < ExtraOpeningChance)
+                if (y + 1 < RoomsY && UnityEngine.Random.value < ExtraOpeningChance)
                 {
                     CarvePassage(isWall, room, room + Vector2Int.up);
                 }
@@ -289,7 +285,7 @@ public static class EnemyAITestSceneBuilder
     }
 
     // 방의 네 귀퉁이 중 한 곳에만 소품을 둬서 방 가운데 줄(통로가 이어지는 곳)은 항상 비어 있게 한다.
-    private static void PlaceProps(Tilemap wallTilemap, System.Random random, Vector2Int playerRoom)
+    private static void PlaceProps(Tilemap wallTilemap, Vector2Int playerRoom)
     {
         GameObject propsRoot = new GameObject("Props");
 
@@ -298,20 +294,20 @@ public static class EnemyAITestSceneBuilder
             for (int y = 0; y < RoomsY; y++)
             {
                 Vector2Int room = new Vector2Int(x, y);
-                if (room == playerRoom || random.NextDouble() >= PropChance)
+                if (room == playerRoom || UnityEngine.Random.value >= PropChance)
                 {
                     continue;
                 }
 
-                GameObject propPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PropPrefabPaths[random.Next(PropPrefabPaths.Length)]);
+                GameObject propPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PropPrefabPaths[UnityEngine.Random.Range(0, PropPrefabPaths.Length)]);
                 if (propPrefab == null)
                 {
                     continue;
                 }
 
                 Vector2Int origin = GetRoomOrigin(room);
-                int cornerX = random.Next(2) == 0 ? 0 : CorridorWidth - 1;
-                int cornerY = random.Next(2) == 0 ? 0 : CorridorWidth - 1;
+                int cornerX = UnityEngine.Random.Range(0, 2) == 0 ? 0 : CorridorWidth - 1;
+                int cornerY = UnityEngine.Random.Range(0, 2) == 0 ? 0 : CorridorWidth - 1;
                 Vector3 position = wallTilemap.GetCellCenterWorld(new Vector3Int(origin.x + cornerX, origin.y + cornerY, 0));
 
                 GameObject prop = (GameObject)PrefabUtility.InstantiatePrefab(propPrefab, propsRoot.transform);
@@ -334,7 +330,7 @@ public static class EnemyAITestSceneBuilder
     }
 
     // 플레이어 반대편 구역부터 몬스터를 종류별로 나눠 배치한다.
-    private static void PlaceEnemies(Tilemap wallTilemap, System.Random random)
+    private static void PlaceEnemies(Tilemap wallTilemap)
     {
         GameObject enemiesRoot = new GameObject("Enemies");
         Vector2Int[] spawnRooms =
@@ -364,7 +360,7 @@ public static class EnemyAITestSceneBuilder
                 Vector2Int room = spawnRooms[spawnIndex % spawnRooms.Length];
                 spawnIndex++;
 
-                Vector3 offset = new Vector3((float)random.NextDouble() - 0.5f, (float)random.NextDouble() - 0.5f, 0f);
+                Vector3 offset = new Vector3(UnityEngine.Random.value - 0.5f, UnityEngine.Random.value - 0.5f, 0f);
                 GameObject enemy = (GameObject)PrefabUtility.InstantiatePrefab(enemyPrefab, enemiesRoot.transform);
                 enemy.transform.position = GetRoomCenter(wallTilemap, room) + offset;
             }

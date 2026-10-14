@@ -127,7 +127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5631531503168696767, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       propertyPath: _dropChance
-      value: 0.7
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5631531503168696767, guid: feb045cc6379fc94993376e0d9fe443f, type: 3}
       propertyPath: '_dropPrefabs.Array.data[0]'

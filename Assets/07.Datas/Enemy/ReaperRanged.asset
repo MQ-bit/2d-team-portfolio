@@ -30,7 +30,7 @@ MonoBehaviour:
   _indicatorChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
   _meleeRange: 2.1
   _meleeAngle: 140
-  _meleeDamage: 7
+  _meleeDamage: 20
   _meleeWindup: 0.4
   _meleeActiveDuration: 0.3
   _meleeHitboxSize: {x: 3.007, y: 1.913}
@@ -54,7 +54,7 @@ MonoBehaviour:
   _summonRange: 10
   _summonWindup: 0.9
   _summonRecovery: 0.8
-  _summonCooldown: 6.5
+  _summonCooldown: 15
   _warningDuration: 1.1
   _fallDuration: 0.5
   _summonHeight: 2.5

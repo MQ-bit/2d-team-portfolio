@@ -39,7 +39,7 @@ internal class StageBuildContext
     {
         StartWallSnapshot = new ConnectorWallSnapshot(StartRoom);
 
-        Root = new GameObject($"Stage_{Plan.Seed}_{Plan.GenerationAttemptCount}");
+        Root = new GameObject($"Stage_{Plan.GenerationAttemptCount}");
 
         Root.transform.SetParent(RootParent, false);
         Root.SetActive(false);

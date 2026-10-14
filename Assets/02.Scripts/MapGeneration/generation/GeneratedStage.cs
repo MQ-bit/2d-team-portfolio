@@ -17,9 +17,8 @@ public class GeneratedStage
     public Transform PortalRoot { get; }
 
     public Bounds WorldBounds { get; }
-    public int Seed { get; }
 
-    public GeneratedStage( //TODO : 매개변수 9개 제거 방법 고려
+    public GeneratedStage(
         GameObject root,
         IReadOnlyList<RoomDefinition> rooms,
         IReadOnlyList<GeneratedRoomNode> roomNodes,
@@ -27,8 +26,7 @@ public class GeneratedStage
         Transform enemiesRoot,
         Transform transientsRoot,
         Transform portalRoot,
-        Bounds worldBounds,
-        int seed)
+        Bounds worldBounds)
     {
         Root = root;
         Rooms = rooms;
@@ -38,7 +36,6 @@ public class GeneratedStage
         TransientsRoot = transientsRoot;
         PortalRoot = portalRoot;
         WorldBounds = worldBounds;
-        Seed = seed;
     }
 
     public bool TryGetRoomContaining(Vector3 worldPosition, out GeneratedRoomNode node)

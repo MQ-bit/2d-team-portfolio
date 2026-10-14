@@ -25,23 +25,22 @@ public class StageManager : MonoBehaviour
     [SerializeField] private StageEncounterCoordinator _encounterCoordinator;
 
     [Header("Difficulty")]
-    [Tooltip("X: 클리어한 층 수 (첫 층 = 0), Y: 몬스터 최대 체력에 더해줄 고정값. 기본값은 층마다 +20 (1층 +0, 2층 +20, 3층 +40...). 마지막 키 이후에는 마지막 값으로 고정됩니다.")]
-    [SerializeField] private AnimationCurve _enemyHealthBonusCurve = AnimationCurve.Linear(0f, 0f, 50f, 1000f);
+    [Tooltip("X: 클리어한 층 수 (첫 층 = 0), Y: 몬스터 최대 체력에 곱해줄 증감치.")]
+    [SerializeField] private AnimationCurve _enemyHealthMultiplierCurve = AnimationCurve.Linear(0f, 1f, 50f, 1000f);
 
     public GeneratedStage CurrentStage { get; private set; }
 
-    // 현재 층(ScoreManager의 클리어 층 수 기준)에 따라 몬스터 최대 체력에 더해줄 값.
-    public float EnemyHealthBonus
+    public float EnemyHealthMultiplier
     {
         get
         {
-            if (_enemyHealthBonusCurve == null || _enemyHealthBonusCurve.length == 0)
+            if (_enemyHealthMultiplierCurve == null || _enemyHealthMultiplierCurve.length == 0)
             {
-                return 0f;
+                return 1f;
             }
 
             int floor = ScoreManager.Instance != null ? ScoreManager.Instance.ClearedFloorCount : 0;
-            return Mathf.Max(0f, _enemyHealthBonusCurve.Evaluate(floor));
+            return Mathf.Max(0.1f, _enemyHealthMultiplierCurve.Evaluate(floor));
         }
     }
 
@@ -152,7 +151,7 @@ public class StageManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log($"Stage 재생성 완료: Seed={stage.Seed}, CombatRooms={_encounterCoordinator.CombatRoomCount}");
+        Debug.Log($"Stage 재생성 완료: CombatRooms={_encounterCoordinator.CombatRoomCount}");
         return true;
     }
 

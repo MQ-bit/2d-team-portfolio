@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = System.Random;
 
 [CreateAssetMenu(fileName = "WavePlan", menuName = "Stage/Wave Plan")]
 public sealed class WavePlanSO : ScriptableObject
@@ -17,7 +16,7 @@ public sealed class WavePlanSO : ScriptableObject
 
     public IReadOnlyList<WaveEnemyHandle> Prefabs => _enemyPrefabs;
 
-    public bool TryResolve(RoomType roomType, int seed, out ResolvedWavePlan plan, out string error)
+    public bool TryResolve(RoomType roomType, out ResolvedWavePlan plan, out string error)
     {
         plan = null;
 
@@ -39,12 +38,11 @@ public sealed class WavePlanSO : ScriptableObject
             return false;
         }
 
-        Random random = new Random(seed);
         List<ResolvedWave> waves = new List<ResolvedWave>(set.Waves.Count);
 
         for (int i = 0; i < set.Waves.Count; i++)
         {
-            if (!TryResolveWave(set.Waves[i], registeredPrefabs, random, out ResolvedWave wave, out error))
+            if (!TryResolveWave(set.Waves[i], registeredPrefabs, out ResolvedWave wave, out error))
             {
                 error = $"{roomType}, Wave {i + 1}: {error}";
                 return false;
@@ -192,7 +190,7 @@ public sealed class WavePlanSO : ScriptableObject
         return true;
     }
 
-    private static bool TryResolveWave(WaveDefinition definition, HashSet<WaveEnemyHandle> registeredPrefabs, Random random, out ResolvedWave wave, out string error)
+    private static bool TryResolveWave(WaveDefinition definition, HashSet<WaveEnemyHandle> registeredPrefabs, out ResolvedWave wave, out string error)
     {
         wave = null;
 
@@ -201,11 +199,11 @@ public sealed class WavePlanSO : ScriptableObject
             return false;
         }
 
-        int totalCount = NextInclusive(random, definition.TotalCountMin, definition.TotalCountMax);
+        int totalCount = NextInclusive(definition.TotalCountMin, definition.TotalCountMax);
 
         int normalCount = totalCount - definition.EliteCount;
 
-        if (!TryAllocateNormalCounts(definition.NormalEnemies, normalCount, random, out int[] normalCounts, out error))
+        if (!TryAllocateNormalCounts(definition.NormalEnemies, normalCount, out int[] normalCounts, out error))
         {
             return false;
         }
@@ -224,12 +222,12 @@ public sealed class WavePlanSO : ScriptableObject
 
         for (int i = 0; i < definition.EliteCount; i++)
         {
-            int selected = random.Next(definition.ElitePrefabs.Count);
+            int selected = UnityEngine.Random.Range(0, definition.ElitePrefabs.Count);
 
             requests.Add(new EnemySpawnRequest(definition.ElitePrefabs[selected]));
         }
 
-        Shuffle(requests, random);
+        Shuffle(requests);
 
         wave = new ResolvedWave(requests, definition.BatchSize, definition.SpawnInterval, definition.BatchInterval);
 
@@ -237,7 +235,7 @@ public sealed class WavePlanSO : ScriptableObject
         return true;
     }
 
-    private static bool TryAllocateNormalCounts(IReadOnlyList<WaveEnemyEntry> entries, int normalCount, Random random, out int[] counts, out string error)
+    private static bool TryAllocateNormalCounts(IReadOnlyList<WaveEnemyEntry> entries, int normalCount, out int[] counts, out string error)
     {
         counts = new int[entries.Count];
 
@@ -294,7 +292,7 @@ public sealed class WavePlanSO : ScriptableObject
             return true;
         }
 
-        Shuffle(candidates, random);
+        Shuffle(candidates);
 
         int[] tieRanks = new int[entries.Count];
 
@@ -318,17 +316,20 @@ public sealed class WavePlanSO : ScriptableObject
         return true;
     }
 
-    private static int NextInclusive(Random random, int min, int max)
+    private static int NextInclusive(int min, int max)
     {
-        long width = (long)max - min + 1;
-        return (int)(min + (long)(random.NextDouble() * width));
+        // 호출 전 검증된 0 <= min <= max 범위에서 최댓값도 포함한다.
+        // int.MaxValue에 1을 더할 때 발생하는 오버플로를 피한다.
+        return max == int.MaxValue
+            ? UnityEngine.Random.Range(min - 1, max) + 1
+            : UnityEngine.Random.Range(min, max + 1);
     }
 
-    private static void Shuffle<T>(IList<T> values, Random random)
+    private static void Shuffle<T>(IList<T> values)
     {
         for (int i = values.Count - 1; i > 0; i--)
         {
-            int target = random.Next(i + 1);
+            int target = UnityEngine.Random.Range(0, i + 1);
             (values[i], values[target]) = (values[target], values[i]);
         }
     }

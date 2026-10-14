@@ -12,10 +12,9 @@ public static class PotionStatApplier
         amount = PotionDataValidation.NonNegative(amount);
         if (amount <= 0f || !IsAlive(target)) return new PotionDamageResult(source, element, 0f);
         // 같은 종류의 다른 Reaper가 만든 장판과 플레이어 장판은 정상 피해를 준다.
-        if (source.IsAreaDamage && ReferenceEquals(source.Owner, target)
-            && target is EnemyStatus enemy && enemy.EnemyType == EnemyKind.Reaper)
+        if (source.IsAreaDamage && target is EnemyStatus && source.Owner is EnemyStatus)
         {
-            amount *= 0.5f;
+            amount *= 0.25f;
         }
 
         float before = target.CurrentHealth;
