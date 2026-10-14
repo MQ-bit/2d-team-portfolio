@@ -56,24 +56,8 @@ MonoBehaviour:
       _batchInterval: 2
   _eliteRoom:
     _waves:
-    - _totalCountMin: 10
-      _totalCountMax: 15
-      _normalEnemies:
-      - _prefab: {fileID: -8661543858205422219, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
-        _spawnWeight: 90
-      - _prefab: {fileID: 100050582, guid: 99c25c9a6f3941dea0f5457513953f6f, type: 3}
-        _spawnWeight: 90
-      - _prefab: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
-        _spawnWeight: 10
-      - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
-        _spawnWeight: 10
-      _eliteCount: 0
-      _elitePrefabs: []
-      _batchSize: 5
-      _spawnInterval: 0.25
-      _batchInterval: 2
-    - _totalCountMin: 15
-      _totalCountMax: 20
+    - _totalCountMin: 25
+      _totalCountMax: 30
       _normalEnemies:
       - _prefab: {fileID: -8661543858205422219, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
         _spawnWeight: 70
@@ -83,7 +67,7 @@ MonoBehaviour:
         _spawnWeight: 30
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
         _spawnWeight: 10
-      _eliteCount: 1
+      _eliteCount: 0
       _elitePrefabs:
       - {fileID: 829986578479390835, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
       - {fileID: 6855117681603736741, guid: 84428c3767fbcf54393a5b590c0c7a8a, type: 3}
@@ -102,8 +86,11 @@ MonoBehaviour:
         _spawnWeight: 50
       - _prefab: {fileID: 100050582, guid: 22e5b058a66c4c8887f4b1d3a6c53e76, type: 3}
         _spawnWeight: 10
-      _eliteCount: 0
-      _elitePrefabs: []
+      _eliteCount: 1
+      _elitePrefabs:
+      - {fileID: 829986578479390835, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
+      - {fileID: 6855117681603736741, guid: 84428c3767fbcf54393a5b590c0c7a8a, type: 3}
+      - {fileID: 100050582, guid: b1d18aa5e2764d45bbfdc883bff6e7a4, type: 3}
       _batchSize: 5
       _spawnInterval: 0.25
       _batchInterval: 2
