@@ -22,10 +22,13 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     [SerializeField] private GameObject _combinationSector;
     [SerializeField] private GameObject _combinationGuide;
     [SerializeField] private TMP_Text _guideCountLabel;
+    [SerializeField] private CombinationInfoSlot _guideDetails;
 
     private readonly List<Row> _rows = new();
     private PotionRunCatalog _runCatalog;
     private bool _showTable;
+    private PotionCombinationData _selectedCombination;
+    private float _nextHoverSoundTime;
 
     private sealed class Row
     {
@@ -64,6 +67,8 @@ public sealed class PotionCombinationTableView : MonoBehaviour
             view.name = "Combination_" + data.name;
             Row row = new Row { Data = data, View = view };
             _rows.Add(row);
+            view.Button.onClick.AddListener(() => SelectCombination(row.Data));
+            view.Hovered += PlayRowHoverSound;
         }
     }
 
@@ -81,6 +86,7 @@ public sealed class PotionCombinationTableView : MonoBehaviour
     private void SetTab(bool showTable)
     {
         _showTable = showTable;
+        _selectedCombination = null;
         _dictionarySector.gameObject.SetActive(!showTable);
         _table.gameObject.SetActive(showTable);
         _buttonTemplate.gameObject.SetActive(!showTable);
@@ -108,8 +114,27 @@ public sealed class PotionCombinationTableView : MonoBehaviour
 
     private void HandleCombinationDiscovered(PotionCombinationData combination) => RefreshRows();
 
+    private void SelectCombination(PotionCombinationData combination)
+    {
+        if (!_showTable || !IsKnown(combination)) return;
+        SoundManager.Play(GameSoundId.PotionCatalogConfirm);
+        _selectedCombination = combination;
+        RefreshRows();
+        if (_guideDetails != null) _guideDetails.PlayResultReveal();
+    }
+
+    private void PlayRowHoverSound()
+    {
+        if (!isActiveAndEnabled || !_showTable || Time.unscaledTime < _nextHoverSoundTime) return;
+        GameSoundData.Entry sound = SoundManager.GetSound(GameSoundId.PotionCatalogHover);
+        if (sound?.Clip == null) return;
+        _nextHoverSoundTime = Time.unscaledTime + sound.Interval;
+        SoundManager.Play(GameSoundId.PotionCatalogHover);
+    }
+
     private void RefreshRows()
     {
+        if (!IsKnown(_selectedCombination)) _selectedCombination = null;
         int discoveredCount = 0;
         foreach (Row row in _rows)
         {
@@ -120,7 +145,7 @@ public sealed class PotionCombinationTableView : MonoBehaviour
                 GetIcon(row.Data.ElementB),
                 known && row.Data.VisualData.IconSprite != null
                     ? row.Data.VisualData.IconSprite : _unknownIcon,
-                known, false);
+                known, known && row.Data == _selectedCombination);
         }
 
         if (_combinationCountLabel != null)
@@ -128,7 +153,17 @@ public sealed class PotionCombinationTableView : MonoBehaviour
             _combinationCountLabel.text = $"발견한 조합 수 {discoveredCount} / {_rows.Count}";
         }
         if (_guideCountLabel != null)
-            _guideCountLabel.text = $"<size=70%>발견한 조합</size>\n{discoveredCount} / {_rows.Count}";
+            _guideCountLabel.text = $"발견한 조합 {discoveredCount} / {_rows.Count}";
+        if (_guideDetails != null)
+        {
+            PotionData first = null, second = null;
+            if (_selectedCombination != null)
+            {
+                _potionDatabase.TryGetByElement(_selectedCombination.ElementA, out first);
+                _potionDatabase.TryGetByElement(_selectedCombination.ElementB, out second);
+            }
+            _guideDetails.DrawTableRecord(first, second, _selectedCombination);
+        }
     }
 
     private Sprite GetIcon(PotionElement element)

@@ -196,6 +196,7 @@ public class IngameUIController : MonoBehaviour
 
         _player?.AcquireGamePlayInputLock(this);
         _potionInformationHUD.SetActive(true);
+        SoundManager.Play(GameSoundId.PotionCatalogOpen);
         _gameTimeController.RequestTimeScale(_potionInformationTimeOwner, _pauseTimeScale);
     }
 
@@ -207,6 +208,7 @@ public class IngameUIController : MonoBehaviour
         }
 
         _isPotionInformationOpen = false;
+        if (isActiveAndEnabled) SoundManager.Play(GameSoundId.PotionCatalogClose);
         RefreshSoundPause();
         _player?.ReleaseGamePlayInputLock(this);
         if (_potionInformationHUD != null)

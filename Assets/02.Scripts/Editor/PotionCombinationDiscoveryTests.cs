@@ -30,7 +30,7 @@ public sealed class PotionCombinationDiscoveryTests
             _sprites[i] = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.zero);
         Set(_catalog, "_database", _potions);
         Set(_catalog, "_potionSprites", _sprites);
-        _catalog.Initialize(17);
+        _catalog.Initialize();
     }
 
     [TearDown]
@@ -62,7 +62,7 @@ public sealed class PotionCombinationDiscoveryTests
         Assert.That(_catalog.TryDiscoverCombination(reverse), Is.False);
         Assert.That(discoveries, Is.EqualTo(new[] { combination }));
         Assert.That(_catalog.IsCombinationDiscovered(combination), Is.True);
-        _catalog.Initialize(18);
+        _catalog.Initialize();
         Assert.That(_catalog.IsCombinationDiscovered(combination), Is.False);
     }
 
@@ -105,7 +105,7 @@ public sealed class PotionCombinationDiscoveryTests
             Assert.That(Get<Image>(slot, "_resultIcon").sprite, Is.Null, "Discovery enables record access without opening it automatically.");
             button.onClick.Invoke();
             Assert.That(Get<TMP_Text>(slot, "_descriptionText").text, Is.EqualTo(combination.Description));
-            _catalog.Initialize(18);
+            _catalog.Initialize();
             presenter.Refresh();
             Assert.That(button.interactable, Is.False);
             Assert.That(Get<Image>(slot, "_resultIcon").sprite, Is.Null);
@@ -113,6 +113,67 @@ public sealed class PotionCombinationDiscoveryTests
         finally
         {
             if (subscribed) Invoke(presenter, "OnDisable");
+            PrefabUtility.UnloadPrefabContents(hud);
+        }
+    }
+
+    [Test]
+    public void TableClickOpensDiscoveredRecordAndNewRunClearsIt()
+    {
+        GameObject hud = PrefabUtility.LoadPrefabContents(
+            "Assets/03.Prefabs/UI/IngameUI/PotionInformationHUD.prefab");
+        try
+        {
+            PotionCombinationTableView table = hud.GetComponent<PotionCombinationTableView>();
+            Invoke(table, "Awake");
+            Set(table, "_runCatalog", _catalog);
+            Set(table, "_showTable", true);
+            Get<RectTransform>(table, "_table").gameObject.SetActive(true);
+            CombinationInfoSlot detail = Get<CombinationInfoSlot>(table, "_guideDetails");
+            PotionCombinationData combination = _combinations.Combinations[0];
+            PotionCombinationRowView row = null;
+            foreach (PotionCombinationRowView candidate in
+                Get<RectTransform>(table, "_content").GetComponentsInChildren<PotionCombinationRowView>(true))
+            {
+                if (candidate.name == "Combination_" + combination.name) row = candidate;
+            }
+
+            Assert.That(row, Is.Not.Null);
+            Invoke(table, "RefreshRows");
+            Assert.That(row.Button.enabled, Is.True);
+            Assert.That(row.Button.targetGraphic.raycastTarget, Is.True);
+            Assert.That(row.Button.interactable, Is.False);
+            row.OnPointerEnter(null);
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.False);
+            Assert.That(row.Button.targetGraphic.color.a, Is.Zero);
+            row.Button.onClick.Invoke();
+            Assert.That(Get<Image>(detail, "_resultIcon").sprite, Is.Null);
+
+            _catalog.TryDiscoverCombination(combination);
+            Invoke(table, "RefreshRows");
+            Assert.That(row.Button.interactable, Is.True);
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.True);
+            Assert.That(row.Button.targetGraphic.color.a, Is.GreaterThan(0f));
+            row.OnPointerExit(null);
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.False);
+            row.Button.onClick.Invoke();
+            Assert.That(Get<TMP_Text>(detail, "_nameText").text, Is.EqualTo(combination.Name));
+            Assert.That(Get<TMP_Text>(detail, "_descriptionText").text, Is.EqualTo(combination.Description));
+            Assert.That(Get<Image>(detail, "_resultIcon").sprite, Is.EqualTo(combination.VisualData.IconSprite));
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.True);
+            row.OnPointerEnter(null);
+            row.OnPointerExit(null);
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.True,
+                "Leaving a selected row must preserve its selection highlight.");
+
+            _catalog.Initialize();
+            Invoke(table, "RefreshRows");
+            Assert.That(row.Button.interactable, Is.False);
+            Assert.That(Get<Image>(detail, "_resultIcon").sprite, Is.Null);
+            Assert.That(Get<Outline>(row, "_selectionOutline").enabled, Is.False);
+        }
+        finally
+        {
             PrefabUtility.UnloadPrefabContents(hud);
         }
     }

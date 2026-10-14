@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 12
   _displayName: "독성 증기"
-  _description: "독 장판에 남은 피해를 모아 즉시 방출합니다. 추가 중독은 남기지 않습니다."
+  _description: "기화로 독 장판에 남은 피해를 모아 즉시 방출합니다. 반응한 장판은 사라지고 추가 중독은 남기지 않습니다."
   _elementA: 2
   _elementB: 6
   _inheritThrownEffectsFrom: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
     _freezeDuration: 2
   _spreadDuration: 0.4
   _visualData:
-    _iconSprite: {fileID: 0}
+    _iconSprite: {fileID: -3517448842460113812, guid: 8b129b6c5b5f6fd4c967134ee7003724, type: 3}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}
     _areaVfxPrefab: {fileID: 133403889251271510, guid: b0727f8be63f4ea7a0a1110d1dd658ff, type: 3}

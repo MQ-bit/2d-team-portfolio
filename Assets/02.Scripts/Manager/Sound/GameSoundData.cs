@@ -32,7 +32,12 @@ public enum GameSoundId
     PotionBreakC = 42,
     ExplodingEnemyDeath = 43,
     RangedEnemyDeath = 44,
-    ReaperDeath = 45
+    ReaperDeath = 45,
+    PotionCatalogOpen = 46,
+    PotionCatalogClose = 47,
+    PotionCatalogCardClick = 48,
+    PotionCatalogHover = 49,
+    PotionCatalogConfirm = 50
 }
 
 [CreateAssetMenu(fileName = "GameSoundData", menuName = "Sound/Game Sound Data")]

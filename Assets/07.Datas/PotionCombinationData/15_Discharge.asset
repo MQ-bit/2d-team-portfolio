@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 15
   _displayName: "방전"
-  _description: "전류 장판에 남은 피해를 모아 한 번에 방출하고 적을 마비시킵니다."
+  _description: "기화로 전류 장판에 남은 피해를 모아 한 번에 방출하고 적을 잠시 마비시킵니다. 반응한 장판은 사라집니다."
   _elementA: 5
   _elementB: 6
   _inheritThrownEffectsFrom: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
     _freezeDuration: 2
   _spreadDuration: 0.4
   _visualData:
-    _iconSprite: {fileID: 0}
+    _iconSprite: {fileID: 5091924661628868452, guid: 8b129b6c5b5f6fd4c967134ee7003724, type: 3}
     _cardBackgroundSprite: {fileID: 0}
     _areaSprite: {fileID: -464560539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 1, g: 1, b: 1, a: 1}

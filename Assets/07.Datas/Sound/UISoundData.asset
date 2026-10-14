@@ -13,6 +13,66 @@ MonoBehaviour:
   m_Name: UISoundData
   m_EditorClassIdentifier: Assembly-CSharp::SoundCategoryData
   _entries:
+  - _id: 46
+    _clip: {fileID: 8300000, guid: 9d2f87674f03fe347b1b149766a546dc, type: 3}
+    _channel: 2
+    _volume: 1
+    _gain: 3
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 47
+    _clip: {fileID: 8300000, guid: 9d2f87674f03fe347b1b149766a546dc, type: 3}
+    _channel: 2
+    _volume: 0.5
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 48
+    _clip: {fileID: 8300000, guid: 48574b6e4a07bea46997d388ed0a7852, type: 3}
+    _channel: 2
+    _volume: 1
+    _gain: 5
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 49
+    _clip: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
+    _channel: 2
+    _volume: 0.35
+    _gain: 3
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0.08
+  - _id: 50
+    _clip: {fileID: 8300000, guid: 48574b6e4a07bea46997d388ed0a7852, type: 3}
+    _channel: 2
+    _volume: 1
+    _gain: 5
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
   - _id: 10
     _clip: {fileID: 8300000, guid: 48574b6e4a07bea46997d388ed0a7852, type: 3}
     _channel: 2

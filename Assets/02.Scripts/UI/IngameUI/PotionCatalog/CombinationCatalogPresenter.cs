@@ -10,6 +10,7 @@ public class CombinationCatalogPresenter : MonoBehaviour
 
     [Header("Views")]
     [SerializeField] private CombinationInfoSlot[] _slots;
+    [SerializeField] private Transform _slotRoot;
     [SerializeField] private DictionaryCardSlotView[] _cards;
     [SerializeField] private Button _confirmButton;
     [Header("Fallback Sprite")]
@@ -67,6 +68,7 @@ public class CombinationCatalogPresenter : MonoBehaviour
     private void HandleCardClicked(DictionaryCardSlotView card)
     {
         if (card.Potion == null || card.IsRevealing) return;
+        SoundManager.Play(GameSoundId.PotionCatalogCardClick);
         _tableSelection = null;
         if (card == _firstCard)
         {
@@ -101,9 +103,11 @@ public class CombinationCatalogPresenter : MonoBehaviour
 
         PotionCombinationData recorded = GetSelectedRecord();
         if (recorded == null) return;
+        SoundManager.Play(GameSoundId.PotionCatalogConfirm);
         _confirmedCombination = recorded;
         _hasConfirmed = true;
         Refresh();
+        _slots[0].PlayResultReveal();
     }
 
     public void ShowTableCombination(PotionCombinationData combination)
@@ -138,6 +142,14 @@ public class CombinationCatalogPresenter : MonoBehaviour
             secondIcon = GetPotionIcon(_tableSelection.ElementB);
         }
         _slots[0].SetVisible(true);
+        PotionData firstPotion = _firstCard != null ? _firstCard.Potion : null;
+        PotionData secondPotion = _secondCard != null ? _secondCard.Potion : null;
+        if (_tableSelection != null)
+        {
+            _potionDatabase.TryGetByElement(_tableSelection.ElementA, out firstPotion);
+            _potionDatabase.TryGetByElement(_tableSelection.ElementB, out secondPotion);
+        }
+        _slots[0].DrawCaptions(firstPotion, secondPotion, _hasConfirmed ? _confirmedCombination : null);
         if (!_hasConfirmed)
         {
             if (recorded != null) _slots[0].DrawRecordedSelectionPending(firstIcon, secondIcon);
@@ -180,7 +192,9 @@ public class CombinationCatalogPresenter : MonoBehaviour
     {
         if (_slots == null || _slots.Length == 0)
         {
-            _slots = GetComponentsInChildren<CombinationInfoSlot>(true);
+            _slots = _slotRoot != null
+                ? _slotRoot.GetComponentsInChildren<CombinationInfoSlot>(true)
+                : GetComponentsInChildren<CombinationInfoSlot>(true);
         }
         if (_cards == null || _cards.Length == 0)
             _cards = GetComponentsInChildren<DictionaryCardSlotView>(true);
