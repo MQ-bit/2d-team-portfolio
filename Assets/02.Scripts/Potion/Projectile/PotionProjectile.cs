@@ -155,6 +155,7 @@ public class PotionProjectile : MonoBehaviour
             PotionAreaController areaController = Instantiate(_areaControllerPrefab, areaPosition, Quaternion.identity);
             areaController.Initialize(_potionData, _wallCollisionLayers);
             areaController.SetOwner(_owner);
+            areaController.SetCatalog(_catalog);
             areaController.SetThrowOrder(_throwOrder);
             areaController.Activate();
         }

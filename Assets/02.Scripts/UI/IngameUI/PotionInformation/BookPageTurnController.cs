@@ -11,6 +11,9 @@ public sealed class BookPageTurnController : MonoBehaviour
     [SerializeField] private RectTransform _rightPage;
     [SerializeField] private CanvasGroup _inputGroup;
     [SerializeField] private CanvasGroup[] _contentGroups;
+    [Header("Page click areas (edit each button's RectTransform)")]
+    [SerializeField] private Button _previousPageClickArea;
+    [SerializeField] private Button _nextPageClickArea;
     [Header("Editable animation layer")]
     [SerializeField] private RectTransform _turnLayer;
     [SerializeField] private RawImage _leftSnapshot;
@@ -35,6 +38,36 @@ public sealed class BookPageTurnController : MonoBehaviour
     private bool _hidden;
 
     public bool IsTurning { get; private set; }
+    public event Action<bool> PageRequested;
+
+    private void OnEnable()
+    {
+        if (_previousPageClickArea != null) _previousPageClickArea.onClick.AddListener(RequestPreviousPage);
+        if (_nextPageClickArea != null) _nextPageClickArea.onClick.AddListener(RequestNextPage);
+    }
+
+    private void RequestPreviousPage()
+    {
+        if (!IsTurning) PageRequested?.Invoke(false);
+    }
+
+    private void RequestNextPage()
+    {
+        if (!IsTurning) PageRequested?.Invoke(true);
+    }
+
+    public void SetNavigation(bool canGoPrevious, bool canGoNext)
+    {
+        SetClickArea(_previousPageClickArea, canGoPrevious);
+        SetClickArea(_nextPageClickArea, canGoNext);
+    }
+
+    private static void SetClickArea(Button button, bool available)
+    {
+        if (button == null) return;
+        button.interactable = available;
+        if (button.targetGraphic != null) button.targetGraphic.raycastTarget = available;
+    }
 
     private void Awake()
     {
@@ -215,6 +248,8 @@ public sealed class BookPageTurnController : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_previousPageClickArea != null) _previousPageClickArea.onClick.RemoveListener(RequestPreviousPage);
+        if (_nextPageClickArea != null) _nextPageClickArea.onClick.RemoveListener(RequestNextPage);
         if (_routine != null) StopCoroutine(_routine);
         Cleanup();
     }

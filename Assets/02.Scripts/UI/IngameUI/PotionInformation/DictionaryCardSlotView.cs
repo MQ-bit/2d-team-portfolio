@@ -22,6 +22,10 @@ public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Image _potionImage;
     [SerializeField] private TMP_Text _nameText;
     [SerializeField] private TMP_Text _descriptionText;
+    [Header("Selection highlight")]
+    [SerializeField] private GameObject _selectionBadge;
+    [SerializeField] private Color _selectionColor = new Color(1f, 0.76f, 0.2f, 1f);
+    [SerializeField, Min(0f)] private float _selectionWidth = 7f;
 
     private Coroutine _revealRoutine;
     private bool _revealPending;
@@ -176,10 +180,20 @@ public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
         if (_selectionOutline == null && selected && _cardBackgroundImage != null)
         {
             _selectionOutline = _cardBackgroundImage.gameObject.AddComponent<Outline>();
-            _selectionOutline.effectColor = new Color(1f, 0.8f, 0.25f, 1f);
-            _selectionOutline.effectDistance = new Vector2(4f, -4f);
         }
-        if (_selectionOutline != null) _selectionOutline.enabled = selected;
+        if (_selectionOutline != null)
+        {
+            _selectionOutline.effectColor = _selectionColor;
+            _selectionOutline.effectDistance = new Vector2(_selectionWidth, -_selectionWidth);
+            _selectionOutline.enabled = selected;
+        }
+        if (_cardBackgroundImage != null)
+        {
+            _cardBackgroundImage.color = _cardBackgroundImage.sprite == null ? Color.clear
+                : selected ? new Color(1f, 0.94f, 0.78f, 1f) : Color.white;
+        }
+
+        if (_selectionBadge != null) _selectionBadge.SetActive(selected);
     }
 
     private void SetAngle(float yAngle)

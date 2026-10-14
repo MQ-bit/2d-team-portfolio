@@ -21,10 +21,12 @@ public class CombinationCatalogPresenter : MonoBehaviour
     private bool _hasConfirmed;
     private PotionCombinationData _confirmedCombination;
     private PotionCombinationData _tableSelection;
+    private PotionRunCatalog _runCatalog;
 
     private void Awake()
     {
         CacheViews();
+        _runCatalog = FindAnyObjectByType<PotionRunCatalog>();
         CheckReferences();
         _isInitialized = true;
     }
@@ -35,6 +37,7 @@ public class CombinationCatalogPresenter : MonoBehaviour
         {
             foreach (DictionaryCardSlotView card in _cards) card.OnCardClicked += HandleCardClicked;
             _confirmButton.onClick.AddListener(ConfirmCombination);
+            if (_runCatalog != null) _runCatalog.OnCombinationDiscovered += HandleCombinationDiscovered;
             Refresh();
         }
     }
@@ -48,6 +51,7 @@ public class CombinationCatalogPresenter : MonoBehaviour
     {
         if (!_isInitialized) return;
         _confirmButton.onClick.RemoveListener(ConfirmCombination);
+        if (_runCatalog != null) _runCatalog.OnCombinationDiscovered -= HandleCombinationDiscovered;
         _confirmButton.interactable = false;
         foreach (DictionaryCardSlotView card in _cards)
         {
@@ -95,8 +99,9 @@ public class CombinationCatalogPresenter : MonoBehaviour
             return;
         }
 
-        _combinationDatabase.TryGetCombination(
-            _firstCard.Potion.Element, _secondCard.Potion.Element, out _confirmedCombination);
+        PotionCombinationData recorded = GetSelectedRecord();
+        if (recorded == null) return;
+        _confirmedCombination = recorded;
         _hasConfirmed = true;
         Refresh();
     }
@@ -104,6 +109,7 @@ public class CombinationCatalogPresenter : MonoBehaviour
     public void ShowTableCombination(PotionCombinationData combination)
     {
         if (!_isInitialized) CacheViews();
+        if (_runCatalog == null || !_runCatalog.IsCombinationDiscovered(combination)) combination = null;
         _firstCard = _secondCard = null;
         _tableSelection = combination;
         _confirmedCombination = combination;
@@ -114,10 +120,16 @@ public class CombinationCatalogPresenter : MonoBehaviour
     public void Refresh()
     {
         CheckReferences();
+        if (_hasConfirmed && (_runCatalog == null || !_runCatalog.IsCombinationDiscovered(_confirmedCombination)))
+        {
+            _hasConfirmed = false;
+            _confirmedCombination = _tableSelection = null;
+        }
 
         foreach (DictionaryCardSlotView card in _cards)
             card.SetSelected(card == _firstCard || card == _secondCard);
-        _confirmButton.interactable = _firstCard != null && _secondCard != null;
+        PotionCombinationData recorded = GetSelectedRecord();
+        _confirmButton.interactable = recorded != null;
         Sprite firstIcon = _firstCard != null ? GetPotionIcon(_firstCard.Potion.Element) : null;
         Sprite secondIcon = _secondCard != null ? GetPotionIcon(_secondCard.Potion.Element) : null;
         if (_tableSelection != null)
@@ -128,7 +140,8 @@ public class CombinationCatalogPresenter : MonoBehaviour
         _slots[0].SetVisible(true);
         if (!_hasConfirmed)
         {
-            _slots[0].DrawPendingSelection(firstIcon, secondIcon);
+            if (recorded != null) _slots[0].DrawRecordedSelectionPending(firstIcon, secondIcon);
+            else _slots[0].DrawPendingSelection(firstIcon, secondIcon);
             return;
         }
 
@@ -147,6 +160,21 @@ public class CombinationCatalogPresenter : MonoBehaviour
         Sprite icon = data.VisualData.IconSprite;
         return icon != null ? icon : _missingIcon;
     }
+
+    private PotionCombinationData GetSelectedRecord()
+    {
+        if (_firstCard == null || _secondCard == null || _firstCard.Potion == null ||
+            _secondCard.Potion == null || _runCatalog == null)
+        {
+            return null;
+        }
+
+        return _combinationDatabase.TryGetCombination(_firstCard.Potion.Element, _secondCard.Potion.Element,
+                   out PotionCombinationData combination) && _runCatalog.IsCombinationDiscovered(combination)
+            ? combination : null;
+    }
+
+    private void HandleCombinationDiscovered(PotionCombinationData combination) => Refresh();
 
     private void CacheViews()
     {
