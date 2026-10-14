@@ -986,8 +986,6 @@ MonoBehaviour:
   - {fileID: 6752121833756281046, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
   - {fileID: 3661867196374309545, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
   - {fileID: 671359321210450165, guid: e10d4d401dfd3084c8649be1732e6dbb, type: 3}
-  _useRandomSeed: 1
-  _fixedSeed: 0
 --- !u!4 &1428146388
 Transform:
   m_ObjectHideFlags: 0
@@ -1870,7 +1868,7 @@ Camera:
     x: 0
     y: 0
     width: 1
-    height: 0.9995045
+    height: 1
   near clip plane: 0.1
   far clip plane: 5014
   field of view: 40

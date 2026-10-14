@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: 04_VampiricLightning
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 4
-  _displayName: "흡혈 전류"
-  _description: "전류 장판으로 적을 잠시 마비시키고, 준 피해의 일부만큼 체력을 회복합니다."
+  _displayName: "\uD761\uD608 \uC804\uB958"
+  _description: "\uC804\uB958 \uC7A5\uD310\uC73C\uB85C \uC801\uC744 \uC7A0\uC2DC
+    \uB9C8\uBE44\uC2DC\uD0A4\uACE0, \uC900 \uD53C\uD574\uC758 \uC77C\uBD80\uB9CC\uD07C
+    \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   _elementA: 4
   _elementB: 5
   _inheritThrownEffectsFrom: 0
@@ -48,6 +50,17 @@ MonoBehaviour:
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0.15
     _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 5
+    _amount: 5
+    _status: 3
+    _duration: 3
+    _tickInterval: 0.5
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.3
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
@@ -57,8 +70,10 @@ MonoBehaviour:
   _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: 2059618730, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _cardBackgroundSprite: {fileID: 0}
     _areaSprite: {fileID: -2003827210, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 0.48, g: 0.3, b: 0.64, a: 0.72}
     _areaAccentColor: {r: 0.8, g: 1, b: 0.88, a: 1}
     _areaSurfaceStyle: 16
     _areaVfxPrefab: {fileID: 0}
+    _impactVisualDuration: 0
