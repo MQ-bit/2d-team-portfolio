@@ -151,7 +151,7 @@ public class StageManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log($"Stage 재생성 완료: Seed={stage.Seed}, CombatRooms={_encounterCoordinator.CombatRoomCount}");
+        Debug.Log($"Stage 재생성 완료: CombatRooms={_encounterCoordinator.CombatRoomCount}");
         return true;
     }
 

@@ -135,7 +135,7 @@ public class StageEncounterCoordinator : MonoBehaviour
             return;
         }
 
-        if (!_wavePlan.TryResolve(node.Room.Type, CreateEncounterSeed(node), out ResolvedWavePlan plan, out string resolveError))
+        if (!_wavePlan.TryResolve(node.Room.Type, out ResolvedWavePlan plan, out string resolveError))
         {
             Debug.LogError($"{node.Room.name}: Wave 데이터 확정 실패: {resolveError}");
 
@@ -246,15 +246,6 @@ public class StageEncounterCoordinator : MonoBehaviour
 
         _waveStartTrigger.Bind(node, socket, TryEnterCombatRoom);
         _waveStartTrigger.Arm();
-    }
-
-    private int CreateEncounterSeed(GeneratedRoomNode node)
-    {
-        unchecked //Overflow를 무시하고 계산하여 동일한 시드값을 생성
-        {
-            int seed = _currentStage.Seed;
-            return seed * 397 ^ node.Index;
-        }
     }
 
     private void SetState(StageState nextState)

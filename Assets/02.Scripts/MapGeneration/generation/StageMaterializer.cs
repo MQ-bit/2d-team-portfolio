@@ -45,8 +45,7 @@ internal static class StageMaterializer
                         context.EnemiesRoot,
                         context.TransientsRoot,
                         context.PortalRoot,
-                        CalculateWorldBounds(context.Plan),
-                        context.Plan.Seed);
+                        CalculateWorldBounds(context.Plan));
 
             failure = StageFailure.None;
             return true;

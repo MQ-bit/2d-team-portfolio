@@ -9,15 +9,9 @@ internal class StagePlan
     private readonly List<PlannedRoom> _rooms = new List<PlannedRoom>();
     private readonly List<PlannedHallway> _hallways = new List<PlannedHallway>();
 
-    public int Seed { get; }
     public int GenerationAttemptCount { get; set; }
     public IReadOnlyList<PlannedRoom> Rooms => _rooms;
     public IReadOnlyList<PlannedHallway> Hallways => _hallways;
-
-    public StagePlan(int seed)
-    {
-        Seed = seed;
-    }
 
     public void AddRoom(PlannedRoom room)
     {

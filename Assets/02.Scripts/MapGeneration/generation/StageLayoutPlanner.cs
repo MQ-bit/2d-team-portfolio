@@ -1,6 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
-using Random = System.Random;
+using UnityEngine;
 
 /// <summary>
 /// StageLayoutRequest를 기반으로 StagePlan을 생성하는 정적 클래스. StageLayoutPlanner는 StageLayoutRequest의 유효성을 검증하고, StagePlan을 생성하며, 방과 복도의 배치를 계획함. 
@@ -19,13 +18,11 @@ internal static class StageLayoutPlanner
             return false;
         }
 
-        Random random = new Random(request.Seed);
-
         for (int attempt = 1; attempt <= request.Profile.MaxLayoutRetryCount; attempt++)
         {
             StagePlan candidate = CreateInitialPlan(request, attempt);
 
-            if (!TryPopulatePlan(request, candidate, random))
+            if (!TryPopulatePlan(request, candidate))
             {
                 continue;
             }
@@ -44,7 +41,7 @@ internal static class StageLayoutPlanner
     {
         RoomDefinition startRoom = request.StartRoom;
 
-        StagePlan plan = new StagePlan(request.Seed)
+        StagePlan plan = new StagePlan()
         {
             GenerationAttemptCount = attempt
         };
@@ -54,45 +51,43 @@ internal static class StageLayoutPlanner
         return plan;
     }
 
-    private static bool TryPopulatePlan(StageLayoutRequest request, StagePlan plan, Random random)
+    private static bool TryPopulatePlan(StageLayoutRequest request, StagePlan plan)
     {
-        // 기존 구현과 동일한 난수 호출 순서를 유지한다.
-        int additionalRoomCount = (random.NextDouble() < request.Profile.AdditionalRoomChance) ? Extended_Additional_RoomCount : Standard_Additional_RoomCount;
+        int additionalRoomCount = (Random.value < request.Profile.AdditionalRoomChance || request.Profile.AdditionalRoomChance >= 1f) ? Extended_Additional_RoomCount : Standard_Additional_RoomCount;
 
-        RoomType firstAdditionalRoom = SelectCombatRoomType(request.Profile, random);
-
+        RoomType firstAdditionalRoom = SelectCombatRoomType(request.Profile);
         RoomType secondAdditionalRoom = default;
 
         if (additionalRoomCount == Extended_Additional_RoomCount)
         {
-            secondAdditionalRoom = SelectCombatRoomType(request.Profile, random);
+            secondAdditionalRoom = SelectCombatRoomType(request.Profile);
         }
 
-        if (!TryAppendRoom(request, plan, RoomType.Normal, random))
+        if (!TryAppendRoom(request, plan, RoomType.Normal))
         {
             return false;
         }
 
-        if (!TryAppendRoom(request, plan, firstAdditionalRoom, random))
+        if (!TryAppendRoom(request, plan, firstAdditionalRoom))
         {
             return false;
         }
 
         if (additionalRoomCount == Extended_Additional_RoomCount &&
-            !TryAppendRoom(request, plan, secondAdditionalRoom, random))
+            !TryAppendRoom(request, plan, secondAdditionalRoom))
         {
             return false;
         }
 
-        return TryAppendRoom(request, plan, RoomType.End, random);
+        return TryAppendRoom(request, plan, RoomType.End);
     }
 
-    private static RoomType SelectCombatRoomType(StageGenerationProfileSO profile, Random random)
+    private static RoomType SelectCombatRoomType(StageGenerationProfileSO profile)
     {
-        return (random.NextDouble() < profile.EliteRoomProbability) ? RoomType.Elite : RoomType.Normal;
+        return (Random.value < profile.EliteRoomProbability || profile.EliteRoomProbability >= 1f) ? RoomType.Elite : RoomType.Normal;
     }
 
-    private static bool TryAppendRoom(StageLayoutRequest request, StagePlan plan, RoomType nextRoomType, Random random)
+    private static bool TryAppendRoom(StageLayoutRequest request, StagePlan plan, RoomType nextRoomType)
     {
         int currentRoomIndex = plan.Rooms.Count - 1;
         PlannedRoom currentRoom = plan.Rooms[currentRoomIndex];
@@ -100,12 +95,12 @@ internal static class StageLayoutPlanner
         List<ConnectorDirection> exitDirections = new List<ConnectorDirection>();
 
         CollectExitDirections(currentRoom, exitDirections);
-        Shuffle(exitDirections, random);
+        Shuffle(exitDirections);
 
         List<RoomDefinition> roomCandidates = new List<RoomDefinition>();
         request.Profile.CollectRoomPrefabs(nextRoomType, roomCandidates);
 
-        Shuffle(roomCandidates, random);
+        Shuffle(roomCandidates);
 
         foreach (ConnectorDirection exitDirection in exitDirections)
         {
@@ -162,15 +157,12 @@ internal static class StageLayoutPlanner
         Bounds hallwayBounds = TranslateBounds(hallway.LocalBounds, hallwayPosition);
 
         Vector3 hallwayExitPosition = hallwayPosition + GetConnectorLocalPosition(hallway, hallwayExit);
-
         Vector3 roomEntryOffset = GetConnectorLocalPosition(nextRoom, roomEntry);
 
         Vector3 roomPosition = hallwayExitPosition - roomEntryOffset;
-
         Bounds roomBounds = TranslateBounds(nextRoom.LocalBounds, roomPosition);
 
         PlannedHallway plannedHallway = new PlannedHallway(hallway, hallwayPosition, hallwayBounds, exitDirection);
-
         PlannedRoom plannedRoom = new PlannedRoom(nextRoom, roomPosition, roomBounds, entryDirection);
 
         return new ConnectionCandidate(plannedHallway, plannedRoom);
@@ -273,11 +265,11 @@ internal static class StageLayoutPlanner
         return true;
     }
 
-    private static void Shuffle<T>(IList<T> values, Random random)
+    private static void Shuffle<T>(IList<T> values)
     {
         for (int i = values.Count - 1; i > 0; i--)
         {
-            int targetIndex = random.Next(i + 1);
+            int targetIndex = UnityEngine.Random.Range(0, i + 1);
 
             (values[i], values[targetIndex]) = (values[targetIndex], values[i]);
         }

@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class RoomRewardGenerator : MonoBehaviour
 {
-    private const int Reward_Random_Salt = 1597463007;
-
     [Header("References")]
     [SerializeField] private StageManager _stageManager;
     [SerializeField] private StageGenerationProfileSO _profile;
@@ -147,7 +144,6 @@ public sealed class RoomRewardGenerator : MonoBehaviour
         if (_rewardedRoomChecker.Contains(node.Index)) return true;
 
         RoomDefinition room = node.Room;
-        System.Random random = CreateRoomRandom(stage, node);
 
         bool isInitialReward = room.Type == RoomType.Start || room.Type == RoomType.End;
 
@@ -163,12 +159,12 @@ public sealed class RoomRewardGenerator : MonoBehaviour
                 }
             case RoomType.Normal:
                 {
-                    rewardCount = random.Next(_profile.NormalRoomRewardMinMax.x, _profile.NormalRoomRewardMinMax.y);
+                    rewardCount = UnityEngine.Random.Range(_profile.NormalRoomRewardMinMax.x, _profile.NormalRoomRewardMinMax.y + 1);
                     break;
                 }
             case RoomType.Elite:
                 {
-                    rewardCount = random.Next(_profile.EliteRoomRewardMinMax.x, _profile.EliteRoomRewardMinMax.y);
+                    rewardCount = UnityEngine.Random.Range(_profile.EliteRoomRewardMinMax.x, _profile.EliteRoomRewardMinMax.y + 1);
                     break;
                 }
             default:
@@ -232,26 +228,14 @@ public sealed class RoomRewardGenerator : MonoBehaviour
             else
             {
                 // 전투 보상: 지점 주변에서 충돌 없는 위치 탐색
-                if (!TryFindRewardPose(
-                        room,
-                        prefabCollider,
-                        random,
-                        out position,
-                        out rotation))
+                if (!TryFindRewardPose(room, prefabCollider, out position, out rotation))
                 {
-                    Debug.LogWarning(
-                        $"{room.name}: 보상 상자 {index + 1}/{rewardCount}의 " +
-                        $"위치를 {_profile.RewardPlacementAttempts}회 안에 찾지 못했습니다.",
-                        room);
+                    Debug.LogWarning("{room.name}: 보상 상자 {index + 1}/{rewardCount}의 위치를 {_profile.RewardPlacementAttempts}회 안에 찾지 못했습니다.");
                     continue;
                 }
             }
 
-            InteractablePotionBox box = Instantiate(
-                prefab,
-                position,
-                rotation,
-                stage.TransientsRoot);
+            InteractablePotionBox box = Instantiate(prefab, position, rotation, stage.TransientsRoot);
 
             if (box == null)
             {
@@ -261,9 +245,7 @@ public sealed class RoomRewardGenerator : MonoBehaviour
                     return false;
                 }
 
-                Debug.LogWarning(
-                    $"{room.name}: 보상 상자 생성에 실패했습니다.",
-                    room);
+                Debug.LogWarning($"{room.name}: 보상 상자 생성에 실패했습니다.");
                 continue;
             }
 
@@ -275,7 +257,7 @@ public sealed class RoomRewardGenerator : MonoBehaviour
         return true;
     }
 
-    private bool TryFindRewardPose(RoomDefinition room, BoxCollider2D prefabCollider, System.Random random, out Vector3 position, out Quaternion rotation)
+    private bool TryFindRewardPose(RoomDefinition room, BoxCollider2D prefabCollider, out Vector3 position, out Quaternion rotation)
     {
         position = default;
         rotation = Quaternion.identity;
@@ -284,14 +266,14 @@ public sealed class RoomRewardGenerator : MonoBehaviour
 
         for (int attempt = 0; attempt < _profile.RewardPlacementAttempts; attempt++)
         {
-            Transform spawnPoint = spawnPoints[random.Next(spawnPoints.Count)];
+            Transform spawnPoint = spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Count)];
 
             if (spawnPoint == null)
             {
                 continue;
             }
 
-            Vector2 offset = GetRandomPointInsideCircle(random, _profile.RewardSpawnRadius);
+            Vector2 offset = GetRandomPointInsideCircle(_profile.RewardSpawnRadius);
 
             Vector3 candidatePosition = spawnPoint.position + new Vector3(offset.x, offset.y, 0f);
             Quaternion candidateRotation = spawnPoint.rotation;
@@ -323,24 +305,12 @@ public sealed class RoomRewardGenerator : MonoBehaviour
         return overlap != null;
     }
 
-    private static Vector2 GetRandomPointInsideCircle(System.Random random, float radius)
+    private static Vector2 GetRandomPointInsideCircle(float radius)
     {
-        float angle = (float)(random.NextDouble() * Math.PI * 2d);
+        float angle = UnityEngine.Random.value * Mathf.PI * 2f;
 
-        float distance = Mathf.Sqrt((float)random.NextDouble()) * radius;
+        float distance = Mathf.Sqrt(UnityEngine.Random.value) * radius;
 
         return new Vector2(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance);
-    }
-
-    private static System.Random CreateRoomRandom(GeneratedStage stage, GeneratedRoomNode node)
-    {
-        unchecked //오버플로우 무시
-        {
-            int seed = stage.Seed;
-            seed = seed * 397 ^ node.Index;
-            seed = seed * 397 ^ Reward_Random_Salt;
-
-            return new System.Random(seed);
-        }
     }
 }
