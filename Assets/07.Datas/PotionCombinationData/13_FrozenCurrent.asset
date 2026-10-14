@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 13
   _displayName: "빙전"
-  _description: "6초 장판. 0.5초마다 서리 16 + 전류 16(64 DPS), 서리 1스택 및 0.15초 마비. 3스택이면 2초 빙결. 피해 잔류 없음."
+  _description: "서리와 전류로 적을 공격하며 빙결과 마비를 일으킵니다."
   _elementA: 3
   _elementB: 5
   _inheritThrownEffectsFrom: 0

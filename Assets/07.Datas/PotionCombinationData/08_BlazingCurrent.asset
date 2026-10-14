@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 8
   _displayName: "과충전"
-  _description: "6초 장판. 0.5초마다 화염 30 + 전류 20(100 DPS) 및 0.15초 마비. 이탈 후 화상 8/1초, 2초."
+  _description: "화염과 전류로 적을 공격하고 잠시 마비시킵니다. 장판을 벗어나도 화상이 남습니다."
   _elementA: 1
   _elementB: 5
   _inheritThrownEffectsFrom: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 5
   _displayName: "정화의 생명"
-  _description: "남은 장판 회복량의 1.5배를 1회 회복. 기화 한 병의 모든 즉발 회복(흡혈 포함)은 대상별 합계 120 상한. 수명 6초 온전히 남은 생명 장판은 90 회복."
+  _description: "생명 장판에 남은 회복 효과를 모아 한 번에 체력을 회복합니다."
   _elementA: 4
   _elementB: 6
   _inheritThrownEffectsFrom: 0

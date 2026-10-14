@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 9
   _displayName: "화염 폭발"
-  _description: "남은 장판 화염 피해량의 0.8배를 즉발로 적용. 기화 한 병의 대상별 합계 피해 240 상한. 수명 6초 온전히 남은 기본 화염 장판은 172.8 피해."
+  _description: "화염 장판에 남은 피해를 모아 한 번에 폭발시킵니다."
   _elementA: 1
   _elementB: 6
   _inheritThrownEffectsFrom: 0

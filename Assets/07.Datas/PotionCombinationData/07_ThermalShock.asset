@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 7
   _displayName: "열충격"
-  _description: "6초 장판. 성립 당시 대상에게 0.4초 확산이 도달하면 화염 72를 1회 적용. 0.5초마다 서리 24 및 1스택. 3스택이면 2초 빙결. 피해 잔류 없음."
+  _description: "조합이 형성될 때 화염 피해를 주고, 서리 장판으로 적을 얼립니다."
   _elementA: 1
   _elementB: 3
   _inheritThrownEffectsFrom: 0

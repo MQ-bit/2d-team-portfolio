@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 2
   _displayName: "흡혈 독"
-  _description: "6초 장판. 0.75초마다 독 26. 이탈 후 중독 24/0.75초, 4.5초. 적의 실제 HP 감소량 15% 흡혈(잔류 및 기화 포함), 자기 피해 제외. 독 둔화 없음."
+  _description: "독 장판으로 적을 중독시키고, 준 피해의 일부만큼 체력을 회복합니다."
   _elementA: 4
   _elementB: 2
   _inheritThrownEffectsFrom: 0
