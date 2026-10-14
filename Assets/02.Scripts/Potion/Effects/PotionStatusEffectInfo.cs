@@ -47,8 +47,8 @@ public readonly struct PotionStatusEffectInfo
         Status = status;
         Element = element;
         Duration = PotionDataValidation.NonNegative(duration);
-        DamagePerTick = status == PotionStatusEffectTracker.Burning || status == PotionStatusEffectTracker.Poisoned
-            ? PotionDataValidation.NonNegative(damagePerTick) : 0f;
+        DamagePerTick = status == PotionStatusEffectTracker.Burning || status == PotionStatusEffectTracker.Poisoned || status == PotionStatusEffectTracker.Paralyzed
+        ? PotionDataValidation.NonNegative(damagePerTick) : 0f;
         float interval = PotionDataValidation.NonNegative(tickInterval);
         TickInterval = interval > 0f ? Mathf.Max(0.01f, interval) : 0f;
         ApplyImmediately = applyImmediately;

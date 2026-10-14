@@ -1,7 +1,7 @@
 #if UNITY_INCLUDE_TESTS
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Reflection;
-using NUnit.Framework;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
