@@ -28,6 +28,7 @@ public class PotionAreaController : MonoBehaviour
     internal int ActivationOrder { get; private set; }
 
     public PotionData Data { get; private set; }
+    public PotionRunCatalog Catalog { get; private set; }
     public PotionAreaOwnership Ownership { get; } = new PotionAreaOwnership();
     public IDamageable Owner => Ownership.Owner;
     public Collider2D AreaCollider => _collider;
@@ -43,6 +44,7 @@ public class PotionAreaController : MonoBehaviour
     private bool _hasValidFootprint = true;
 
     public void SetOwner(IDamageable owner) => Ownership.SetOwner(owner);
+    public void SetCatalog(PotionRunCatalog catalog) => Catalog = catalog;
     public void SetThrowOrder(long order) => Ownership.SetThrowOrder(order);
 
     internal void SetCombinedFootprint(PotionAreaFootprint footprint) => Footprint = footprint;

@@ -17,8 +17,10 @@ public class PotionRunCatalog : MonoBehaviour
     private readonly List<PotionItem> _items = new List<PotionItem>();
     private readonly Dictionary<PotionData, int> _apperanceIndexes = new Dictionary<PotionData, int>();
     private bool[] _identified = Array.Empty<bool>();
+    private readonly HashSet<PotionCombinationData> _discoveredCombinations = new();
 
     public event Action<int, PotionItem> OnIdentified; //UI 연결용
+    public event Action<PotionCombinationData> OnCombinationDiscovered;
 
     public int Count => _items.Count;
     public int CurrentSeed { get; private set; }
@@ -39,6 +41,7 @@ public class PotionRunCatalog : MonoBehaviour
 
         _items.Clear();
         _apperanceIndexes.Clear();
+        _discoveredCombinations.Clear();
         _identified = new bool[_potionSprites.Length];
 
         List<PotionData> shuffledPotions = new List<PotionData>(_database.Potions);
@@ -97,6 +100,17 @@ public class PotionRunCatalog : MonoBehaviour
     {
         return TryGetAppearanceIndex(data, out int appearanceIndex)
             && IsIdentified(appearanceIndex);
+    }
+
+    public bool IsCombinationDiscovered(PotionCombinationData combination) =>
+        combination != null && _discoveredCombinations.Contains(combination);
+
+    // Only successful world reactions call this; identifying ingredients does not unlock a recipe.
+    public bool TryDiscoverCombination(PotionCombinationData combination)
+    {
+        if (!IsInitialized || combination == null || !_discoveredCombinations.Add(combination)) return false;
+        OnCombinationDiscovered?.Invoke(combination);
+        return true;
     }
 
     /// <summary>
