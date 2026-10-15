@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 /// <summary>
@@ -12,10 +11,6 @@ public class StageGenerator : MonoBehaviour
 
     [Header("Profile")]
     [SerializeField] private StageGenerationProfileSO _profile;
-
-    [Header("Seed")]
-    [SerializeField] private bool _useRandomSeed = true;
-    [SerializeField] private int _seed = 12345;
 
     [Header("Runtime")]
     [SerializeField] private bool _generateOnStart = true;
@@ -42,10 +37,10 @@ public class StageGenerator : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Stage 생성 성공: Seed={stage.Seed}, Rooms={stage.Rooms.Count}, Hallways={stage.Hallways.Count}");
+        Debug.Log($"Stage 생성 성공: Rooms={stage.Rooms.Count}, Hallways={stage.Hallways.Count}");
     }
 
-    public bool TryGenerate(int seed, out GeneratedStage stage, out StageFailure failure)
+    public bool TryGenerate(out GeneratedStage stage, out StageFailure failure)
     {
         stage = null;
 
@@ -63,7 +58,7 @@ public class StageGenerator : MonoBehaviour
             return false;
         }
 
-        StageLayoutRequest layoutRequest = new StageLayoutRequest(_startRoom, _profile, seed);
+        StageLayoutRequest layoutRequest = new StageLayoutRequest(_startRoom, _profile);
 
         if (!StageLayoutPlanner.TryCreatePlan(layoutRequest, out StagePlan plan, out failure))
         {
@@ -87,9 +82,7 @@ public class StageGenerator : MonoBehaviour
 
     public bool TryGenerateConfigured(out GeneratedStage stage, out StageFailure failure)
     {
-        int selectedSeed = _useRandomSeed ? Environment.TickCount : _seed;
-
-        return TryGenerate(selectedSeed, out stage, out failure);
+        return TryGenerate(out stage, out failure);
     }
 
     public bool TryRegenerateConfigured(out GeneratedStage stage, out StageFailure failure)

@@ -10,8 +10,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4621741833939702906, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
       propertyPath: m_Name
-      value: PotionFieldItem_Frost_EnemyDrop
+      value: PotionFieldItem_Frost_BoxDrop
       objectReference: {fileID: 0}
+    - target: {fileID: 4738305527283598493, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+      propertyPath: _trailRenderer
+      value: 
+      objectReference: {fileID: 2053401812935531484}
     - target: {fileID: 8947438971573722298, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -60,6 +64,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5057173794293555113}
   m_SourcePrefab: {fileID: 100100000, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+--- !u!96 &2053401812935531484 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 8822533691428299326, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}
+  m_PrefabInstance: {fileID: 7354599982555838946}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2752666952200383896 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4621741833939702906, guid: 7be7f7459b2286742b86b2b37446e4f9, type: 3}

@@ -3,6 +3,10 @@ using UnityEngine;
 
 public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
+    private const float EarlierSoundVolumeRatio = 0.4f;
+    private const float LaterSoundVolumeRatio = 0.6f;
+    private const float CombinationSoundFadeTime = 0.3f;
+
     [SerializeField] private PotionCombinationDatabase _database;
     [SerializeField] private PotionCombinedAreaShape _combinedAreaShape;
 
@@ -150,14 +154,18 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             return false;
         }
         float expiresAt = Time.time + duration;
-        IDamageable owner = IsAlive(_areaController.Owner) ? _areaController.Owner : other.Owner;
+        TransferLatestOwnership(other);
+        IDamageable owner = _areaController.Owner;
         _areaController.AreaEffect.ReplaceWithCombinationProfile(data, effectProfile, owner,
             templateProfile.LifeStealRatio, expiresAt, _combinedAreaShape.CombinationCollider);
         _areaController.SetExpiration(expiresAt);
         other.SetExpiration(expiresAt);
-        // 합쳐진 장판에서는 나중에 던져진 포션의 소리만 남긴다.
+        // 두 장판음을 유지하고, 먼저 던진 포션 40% / 나중 포션 60%로 부드럽게 섞는다.
         PotionAreaController earlier = _areaController.ActivationOrder < other.ActivationOrder ? _areaController : other;
-        earlier.StopLoopSound();
+        PotionAreaController later = earlier == _areaController ? other : _areaController;
+        earlier.FadeLoopSoundTo(EarlierSoundVolumeRatio, CombinationSoundFadeTime);
+        later.FadeLoopSoundTo(LaterSoundVolumeRatio, CombinationSoundFadeTime);
+        RecordCombination(other, data);
         return true;
     }
 
@@ -170,10 +178,10 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
         PotionAreaController impactAreaController = _areaController.Data.Element == PotionElement.Vaporization
             ? _areaController : other;
-        IDamageable owner = IsAlive(impactAreaController.Owner) ? impactAreaController.Owner :
-            IsAlive(_areaController.Owner) ? _areaController.Owner : other.Owner;
+        TransferLatestOwnership(other);
+        IDamageable owner = _areaController.Owner;
         var source = new PotionEffectSource(_areaController.GetInstanceID(), combination: data,
-            owner: owner, lifeStealRatio: profile.LifeStealRatio);
+            owner: owner, lifeStealRatio: profile.LifeStealRatio, areaOwnership: _areaController.Ownership);
 
         Physics2D.SyncTransforms();
         Vector3 scale = impactAreaController.transform.lossyScale;
@@ -190,6 +198,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
             PotionEffectApplier.ApplyProfilePhase(profile, PotionEffectPhase.Impact, target, source);
         }
 
+        RecordCombination(other, data);
         // 기화는 원본 장판의 FloorExit 잔류 효과까지 제거한다.
         _areaController.AreaEffect.DisableForCombination();
         other.AreaEffect.DisableForCombination();
@@ -199,10 +208,15 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         return true;
     }
 
-    private static bool IsAlive(IDamageable target)
+    private void TransferLatestOwnership(PotionAreaController other)
     {
-        return target != null &&
-               !(target is Object unityObject && unityObject == null) &&
-               !target.IsDead;
+        _areaController.Ownership.TakeLatest(other.Ownership);
+        other.Ownership.TakeLatest(_areaController.Ownership);
+    }
+
+    private void RecordCombination(PotionAreaController other, PotionCombinationData data)
+    {
+        PotionRunCatalog catalog = _areaController.Catalog != null ? _areaController.Catalog : other.Catalog;
+        if (catalog != null) catalog.TryDiscoverCombination(data);
     }
 }

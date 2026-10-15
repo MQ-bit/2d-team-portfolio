@@ -6,18 +6,7 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class PauseSoundController : MonoBehaviour
 {
-    [Header("UI Sound")]
-    [SerializeField] private AudioClip _buttonClickSound;
-    [SerializeField, Range(0f, 1f)] private float _uiSoundVolume = 1f;
-
-    [Header("Button Hover Sound")]
-    [SerializeField] private AudioClip _buttonHoverSound;
-    [SerializeField, Range(0f, 1f)] private float _buttonHoverSoundVolume = 0.35f;
-    [SerializeField, Min(0f)] private float _buttonHoverSoundInterval = 0.08f;
-
-    [Header("Volume Feedback Sound")]
-    [SerializeField] private AudioClip _volumeFeedbackSound;
-    [SerializeField, Min(0f)] private float _volumeFeedbackInterval = 0.1f;
+    [SerializeField] private GameSoundId _clickSoundId = GameSoundId.PauseClick;
 
     private PauseView _view;
     private float _nextVolumeFeedbackTime;
@@ -49,13 +38,13 @@ public class PauseSoundController : MonoBehaviour
     private void HandleButtonFocused()
     {
         if (!isActiveAndEnabled || _view == null || !_view.IsOpen || _suppressButtonHoverSound
-            || _buttonHoverSound == null || Time.unscaledTime < _nextButtonHoverSoundTime)
+            || SoundManager.GetSound(GameSoundId.PauseHover)?.Clip == null || Time.unscaledTime < _nextButtonHoverSoundTime)
         {
             return;
         }
 
-        _nextButtonHoverSoundTime = Time.unscaledTime + _buttonHoverSoundInterval;
-        SoundManager.PlayUi(_buttonHoverSound, _buttonHoverSoundVolume);
+        _nextButtonHoverSoundTime = Time.unscaledTime + SoundManager.GetSound(GameSoundId.PauseHover).Interval;
+        SoundManager.Play(GameSoundId.PauseHover);
     }
 
     // 화면을 열거나 돌아올 때 자동 선택되는 버튼은 소리를 내지 않는다.
@@ -75,27 +64,26 @@ public class PauseSoundController : MonoBehaviour
 
     public void PlayClickSound()
     {
-        PlayUiSound(_buttonClickSound);
+        PlayConfiguredUiSound(_clickSoundId);
     }
 
     public void PlayVolumeFeedbackSound()
     {
-        if (!isActiveAndEnabled || _volumeFeedbackSound == null
+        if (!isActiveAndEnabled || SoundManager.GetSound(GameSoundId.VolumeFeedback)?.Clip == null
             || Time.unscaledTime < _nextVolumeFeedbackTime)
         {
             return;
         }
 
-        _nextVolumeFeedbackTime = Time.unscaledTime + _volumeFeedbackInterval;
-        PlayUiSound(_volumeFeedbackSound);
+        _nextVolumeFeedbackTime = Time.unscaledTime + SoundManager.GetSound(GameSoundId.VolumeFeedback).Interval;
+        PlayConfiguredUiSound(GameSoundId.VolumeFeedback);
     }
 
-    private void PlayUiSound(AudioClip clip)
+    private void PlayConfiguredUiSound(GameSoundId id)
     {
-        if (!isActiveAndEnabled || clip == null) return;
-        SoundManager.PlayUi(clip, _uiSoundVolume);
+        if (!isActiveAndEnabled) return;
+        SoundManager.Play(id);
     }
-
     private void UnlinkButtonSounds()
     {
         foreach (PauseButtonSound sound in _buttonSounds)

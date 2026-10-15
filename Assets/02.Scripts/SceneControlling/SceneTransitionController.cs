@@ -10,7 +10,7 @@ public sealed class SceneTransitionController : MonoBehaviour
     [SerializeField] private SceneVisualEffectManager _visualEffectManager;
 
     [Header("Transition To GameOverScene")] //TODO : 스크립터블 오브젝트화 해보기
-    [SerializeField] private string _gameOverSceneName = "GameOverScene";
+    [SerializeField] private string _gameOverSceneName = "GameOverScene_new";
     [SerializeField, Min(0f)] private float _deathDelay = 1.5f;
     [SerializeField, Min(0f)] private float _fadeOutDuration = 0.25f;
 

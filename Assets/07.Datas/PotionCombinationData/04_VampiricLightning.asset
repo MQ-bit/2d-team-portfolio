@@ -13,30 +13,67 @@ MonoBehaviour:
   m_Name: 04_VampiricLightning
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 4
-  _displayName: "\uD761\uD608\uC758 \uC804\uB958"
-  _description: "\uC804\uAE30 \uC6D0\uBCF8 \uC7A5\uD310\xB7\uB9C8\uBE44\uB97C \uC720\uC9C0\uD558\uACE0
-    \uC2E4\uC81C \uD53C\uD574\uC758 20%\uB97C \uC2DC\uC804\uC790\uC5D0\uAC8C \uD68C\uBCF5\uD55C\uB2E4."
+  _displayName: "\uD761\uD608 \uC804\uB958"
+  _description: "\uC804\uB958 \uC7A5\uD310\uC73C\uB85C \uC801\uC744 \uC7A0\uC2DC
+    \uB9C8\uBE44\uC2DC\uD0A4\uACE0, \uC900 \uD53C\uD574\uC758 \uC77C\uBD80\uB9CC\uD07C
+    \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   _elementA: 4
   _elementB: 5
-  _inheritThrownEffectsFrom: 5
+  _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 0
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
-  _lifeStealRatio: 0.2
-  _effects: []
+  _lifeStealRatio: 0.15
+  _effects:
+  - _phase: 1
+    _operation: 0
+    _element: 5
+    _amount: 16
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 0.15
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.15
+    _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 5
+    _amount: 5
+    _status: 3
+    _duration: 3
+    _tickInterval: 0.5
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.3
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: 2059618730, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
+    _cardBackgroundSprite: {fileID: 0}
     _areaSprite: {fileID: -2003827210, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}
     _areaColor: {r: 0.48, g: 0.3, b: 0.64, a: 0.72}
     _areaAccentColor: {r: 0.8, g: 1, b: 0.88, a: 1}
     _areaSurfaceStyle: 16
     _areaVfxPrefab: {fileID: 0}
+    _impactVisualDuration: 0

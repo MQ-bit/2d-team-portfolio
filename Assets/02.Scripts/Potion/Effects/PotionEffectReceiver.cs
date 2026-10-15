@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -22,6 +23,11 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     {
         Damageable = GetComponentInParent<IDamageable>();
         Thirstable = GetComponentInParent<IThirstable>();
+        // 기존 씬과 프리팹의 대상에도 상태 연출을 자동으로 연결한다.
+        if (GetComponent<PotionStatusVisual>() == null)
+        {
+            gameObject.AddComponent<PotionStatusVisual>();
+        }
     }
 
     public void ClearStatuses()
@@ -73,7 +79,9 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
                 ApplyDamage(effect.Amount, source, effect.Element, false);
                 break;
             case PotionEffectOperation.Heal:
-                PotionStatApplier.Heal(Damageable, effect.Amount);
+                if (source.VaporizationBatch != null)
+                    source.VaporizationBatch.AddHealing(Damageable, effect.Amount);
+                else PotionStatApplier.Heal(Damageable, effect.Amount);
                 break;
             case PotionEffectOperation.ApplyStatus:
                 ApplyStatus(effect, source);
@@ -98,6 +106,15 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public void ApplyStatus(PotionStatusEffectInfo effectInfo)
     {
         if (!PrepareStatusApplication()) return;
+        if (effectInfo.Status == PotionStatusEffectTracker.Frozen
+            || effectInfo.Status == PotionStatusEffectTracker.Paralyzed)
+        {
+            float multiplier = SelfPotionMultiplier(effectInfo.Source);
+            effectInfo = new PotionStatusEffectInfo(effectInfo.Status, effectInfo.Duration * multiplier,
+                effectInfo.Source, effectInfo.Element, effectInfo.DamagePerTick, effectInfo.TickInterval,
+                effectInfo.ApplyImmediately, effectInfo.MoveSpeedMultiplier,
+                effectInfo.ImmobilizeDuration * multiplier);
+        }
         _statusEffects.Apply(effectInfo);
         TickStatuses();
     }
@@ -115,7 +132,8 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
         int amount = 1, float tickInterval = 1f)
     {
-        if (PrepareStatusApplication()) _statusEffects.AddFrostStacks(settings, source, amount, tickInterval);
+        if (PrepareStatusApplication())
+            _statusEffects.AddFrostStacks(settings, source, amount, tickInterval, SelfPotionMultiplier(source));
     }
 
     private bool PrepareStatusApplication()
@@ -160,13 +178,24 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
 
     private void ApplyDamage(float amount, PotionEffectSource source, PotionElement element, bool isStatusDamage)
     {
+        // Apply the player's own potion damage reduction after the reaction's raw cap.
+        amount *= SelfPotionMultiplier(source);
+
         PotionDamageResult result = PotionStatApplier.Damage(Damageable, amount, source, element);
         if (result.ActualDamage <= 0f) return;
 
-        PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
+        if (TargetKind != PotionTargetKind.Enemy || ReferenceEquals(Damageable, source.Owner))
+            result = new PotionDamageResult(source, element, result.ActualDamage, false);
+        if (source.VaporizationBatch != null)
+            source.VaporizationBatch.AddHealing(source.Owner, result.LifeStealAmount);
+        else PotionStatApplier.Heal(source.Owner, result.LifeStealAmount);
         if (isStatusDamage) StatusDamageApplied?.Invoke(result);
         DamageApplied?.Invoke(result);
     }
+
+    private float SelfPotionMultiplier(PotionEffectSource source) =>
+        source.IsAreaDamage && TargetKind == PotionTargetKind.Player
+        && ReferenceEquals(Damageable, source.Owner) ? 0.5f : 1f;
 
     public int GetStatusStackCount(PotionStatusEffectTracker status)
     {
@@ -182,5 +211,13 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     public bool IsInStatusArea(PotionStatusEffectTracker status)
     {
         return _areaEffects.HasStatus(status);
+    }
+
+    // 장판과 남아 있는 상태의 조합 정보를 중복 없이 조회한다. 게임플레이 상태는 변경하지 않는다.
+    public void GetVisualCombinations(List<PotionCombinationData> result)
+    {
+        result.Clear();
+        _areaEffects.CollectVisualCombinations(result);
+        _statusEffects.CollectVisualCombinations(result);
     }
 }

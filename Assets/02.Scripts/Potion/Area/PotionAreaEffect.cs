@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·상태이상 적용
 {
+    [Tooltip("적이 만든 장판에서만 사용. 원본 포션의 수치와 효과를 유지하고 플레이어에게만 적용한다.")]
+    [SerializeField] private bool _playerOnly;
     private readonly PotionAreaContacts _contacts = new();
     private PotionData _data;
     private int _sourceId;
@@ -30,11 +32,12 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
 
     public void ActivateSingleProfile(IDamageable owner, float expiresAt)
     {
-        _singleProfile = _data;
-        if (_singleProfile == null) return;
+        if (_data == null) return;
+        _singleProfile = _playerOnly ? new PotionTargetProfile(_data, PotionTargetType.Player) : _data;
 
         _singleSource = new PotionEffectSource(_sourceId, _data, owner: owner,
-            lifeStealRatio: _singleProfile.LifeStealRatio);
+            lifeStealRatio: _singleProfile.LifeStealRatio,
+            areaOwnership: GetComponent<PotionAreaController>().Ownership);
         if (_singleProfile.CreatesFloor)
         {
             // Capture the original profile/source: this timeline survives while the
@@ -100,7 +103,8 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         // Keep the old source independent until its part of the floor is converted.
         if (effectCollider != null) _sourceId = effectCollider.GetInstanceID();
         _singleSource = new PotionEffectSource(_sourceId, combination: combination,
-            owner: owner, lifeStealRatio: lifeStealRatio);
+            owner: owner, lifeStealRatio: lifeStealRatio,
+            areaOwnership: GetComponent<PotionAreaController>().Ownership);
         _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
             _singleProfile.TickInterval, _singleProfile.ApplyOnEnter,
             IsValidSingleTarget, EnterSingleFloor, PulseSingleFloor, ExitSingleFloor);

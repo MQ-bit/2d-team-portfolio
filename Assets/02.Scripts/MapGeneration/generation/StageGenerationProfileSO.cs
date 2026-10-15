@@ -17,6 +17,18 @@ public class StageGenerationProfileSO : ScriptableObject
     [Header("Stage Objects")]
     [SerializeField] private InteractablePortal _portalPrefab;
 
+    [Header("RewardBox")]
+    [SerializeField] private InteractablePotionBox _goldRewardBoxPrefab;
+    [SerializeField] private InteractablePotionBox _silverRewardBoxPrefab;
+
+    [Header("Reward Count")]
+    [SerializeField] private Vector2Int _normalRoomRewardMinMax = new Vector2Int(1, 3);
+    [SerializeField] private Vector2Int _eliteRoomRewardMinMax = new Vector2Int(2, 4);
+
+    [SerializeField, Min(0f)] private float _rewardSpawnRadius = 2f;
+    [SerializeField, Min(1f)] private int _rewardPlacementAttempts = 20;
+    [SerializeField] private LayerMask _rewardBlockingLayers;
+
     [Header("Hallway Prefabs")]
     [SerializeField] private HallwayDefinition _horizontalHallway;
     [SerializeField] private HallwayDefinition _verticalHallway;
@@ -39,6 +51,12 @@ public class StageGenerationProfileSO : ScriptableObject
     public int MaxLayoutRetryCount => _maxLayoutRetryCount;
     public float OverlapClearance => _overlapClearance;
     public float ConnectorAlignmentEpsilon => _connectorAlignmentEpsilon;
+    public float RewardSpawnRadius => _rewardSpawnRadius;
+    public int RewardPlacementAttempts => _rewardPlacementAttempts;
+    public LayerMask RewardBlockingLayers => _rewardBlockingLayers;
+    public Vector2Int NormalRoomRewardMinMax => _normalRoomRewardMinMax;
+    public Vector2Int EliteRoomRewardMinMax => _eliteRoomRewardMinMax;
+
 
     public HallwayDefinition GetHallway(ConnectorDirection direction)
     {
@@ -76,16 +94,11 @@ public class StageGenerationProfileSO : ScriptableObject
 
     public bool TryValidate(out string error)
     {
-        if (!ValidateRooms(_normalRooms, RoomType.Normal, out error))
+        if (!ValidateRooms(_normalRooms, RoomType.Normal, out error) ||
+            !ValidateRooms(_eliteRooms, RoomType.Elite, out error))
         {
             return false;
         }
-
-        if (!ValidateRooms(_eliteRooms, RoomType.Elite, out error))
-        {
-            return false;
-        }
-
         if (_endRoom == null || _endRoom.Type != RoomType.End)
         {
             error = "EndRoom 프리팹이 없거나 RoomType이 End가 아닙니다.";
@@ -116,6 +129,52 @@ public class StageGenerationProfileSO : ScriptableObject
             return false;
         }
 
+        if (!ValidateRewardPrefab(_goldRewardBoxPrefab, "Gold", out error) ||
+            !ValidateRewardPrefab(_silverRewardBoxPrefab, "Silver", out error))
+        {
+            return false;
+        }
+
+        if (_rewardSpawnRadius < 0f)
+        {
+            error = "Reward Spawn Radius는 0 이상이어야 합니다.";
+            return false;
+        }
+
+        if (_rewardPlacementAttempts <= 0)
+        {
+            error = "Reward Placement Attempts는 1 이상이어야 합니다.";
+            return false;
+        }
+
+        int requiredRewardLayers = LayerMask.GetMask("Wall", "FieldItem");
+
+        if ((_rewardBlockingLayers.value & requiredRewardLayers) != requiredRewardLayers)
+        {
+            error = "Reward Blocking Layers에 Wall과 FieldItem이 모두 포함되어야 합니다.";
+            return false;
+        }
+
+
+        error = null;
+        return true;
+    }
+
+    private static bool ValidateRewardPrefab(InteractablePotionBox prefab, string label, out string error)
+    {
+        if (prefab == null)
+        {
+            error = $"{label} Reward Box 프리팹이 없습니다.";
+            return false;
+        }
+
+        BoxCollider2D collider = prefab.GetComponent<BoxCollider2D>();
+
+        if (collider == null || collider.isTrigger)
+        {
+            error = $"{label} Reward Box에 비트리거 BoxCollider2D가 없습니다.";
+            return false;
+        }
 
         error = null;
         return true;
@@ -140,5 +199,18 @@ public class StageGenerationProfileSO : ScriptableObject
 
         error = null;
         return true;
+    }
+
+
+    public InteractablePotionBox GetRewardBoxPrefab(RoomType roomType)
+    {
+        return roomType switch
+        {
+            RoomType.Start => _goldRewardBoxPrefab,
+            RoomType.Normal => _silverRewardBoxPrefab,
+            RoomType.Elite => _goldRewardBoxPrefab,
+            RoomType.End => _goldRewardBoxPrefab,
+            _ => null
+        };
     }
 }

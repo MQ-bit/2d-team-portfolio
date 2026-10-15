@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplodingEnemyController : MonoBehaviour
+public class ExplodingEnemyController : MonoBehaviour, IPoolMember
 {
     private enum State
     {
@@ -32,8 +32,21 @@ public class ExplodingEnemyController : MonoBehaviour
     private Transform _target;
     private float _fuseElapsed;
     private Color _originalColor;
+    private bool _isWindingUp; // 돌진 전에 멈춰 있는 중
+    private float _windupElapsed;
+    private bool _isRushing;
+    private float _rushElapsed;
+    private float _rushCooldownRemaining;
+    private float _damageMultiplier = 1f; // 분열체는 엘리트 데이터의 SplitDamageMultiplier로 낮아진다
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
+
+    // 예열(충전) 중인지와 그 진행도(0~1). 폭발 범위 표시가 읽는다.
+    public bool IsFusing => _state == State.Fuse;
+    public float FuseProgress => _data != null && _data.FuseDuration > 0f ? Mathf.Clamp01(_fuseElapsed / _data.FuseDuration) : 1f;
+
+    // 실제 피해 판정 반경. 폭발 이펙트 크기를 여기에 맞춘다.
+    public float ExplosionRadius => _data != null ? _data.ExplosionRadius : 0f;
 
     // 예열이 끝나 자폭하는 순간. 체력으로 죽는 EnemyStatus.OnDeath와는 별개다.
     public event Action OnExploded;
@@ -42,10 +55,16 @@ public class ExplodingEnemyController : MonoBehaviour
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
+        if (_data != null) _status.Initialize(_data);
+        else _status.Initialize(100f, 2.5f);
 
         if (_spriteRenderer != null)
         {
+            if (_data != null)
+            {
+                _data.ApplyVisual(_spriteRenderer);
+            }
+
             _originalColor = _spriteRenderer.color;
         }
     }
@@ -82,6 +101,37 @@ public class ExplodingEnemyController : MonoBehaviour
         }
     }
 
+    private void ResetState()
+    {
+        _state = State.Idle;
+        _target = null;
+        _fuseElapsed = 0f;
+        _isWindingUp = false;
+        _windupElapsed = 0f;
+        _isRushing = false;
+        _rushElapsed = 0f;
+        _rushCooldownRemaining = 0f;
+        _damageMultiplier = 1f;
+
+        _overlapResults.Clear();
+        _damagedTargets.Clear();
+
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = _originalColor;
+        }
+
+        if (_status != null && _data != null)
+        {
+            _status.Initialize(_data);
+        }
+
+        if (_movementModule != null)
+        {
+            _movementModule.ResetState();
+        }
+    }
+
     private void OnEnable()
     {
         _status.OnDeath += HandleDeath;
@@ -101,7 +151,7 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         _state = State.Exploded;
-        Destroy(gameObject);
+        Release();
     }
 
     private void FixedUpdate()
@@ -140,6 +190,13 @@ public class ExplodingEnemyController : MonoBehaviour
         _target = FindPlayerInRange(_data.DetectRange);
         if (_target == null)
         {
+            // 멈춰서 붉어지던 중에 대상을 놓치면 취소하고 색을 되돌린다.
+            if (_isWindingUp)
+            {
+                _isWindingUp = false;
+                SetBodyColor(_originalColor);
+            }
+
             _state = State.Idle;
             _movementModule.Stop();
             return;
@@ -156,13 +213,72 @@ public class ExplodingEnemyController : MonoBehaviour
             return;
         }
 
-        _movementModule.ChaseTarget(targetPosition, _status.Speed);
+        // 처음 범위 안에 들어오면 RushWindupDuration 동안 멈춰서 붉어진 뒤, 평소 속도의 RushSpeedMultiplier배로 돌진한다.
+        // 한 번 멈추기 시작하면 플레이어가 범위를 벗어나도 끝까지 멈췄다가 돌진하고,
+        // 돌진을 시작하면 계속 돌진한다(멈칫하는 연출이 반복되지 않게).
+        // 돌진은 RushDuration 동안만 지속되고, 끝나면 RushCooldown 동안 평소 속도로 걷다가 다시 감지한다.
+        if (_isRushing)
+        {
+            _rushElapsed += Time.fixedDeltaTime;
+            if (_rushElapsed >= _data.RushDuration)
+            {
+                _isRushing = false;
+                _rushCooldownRemaining = _data.RushCooldown;
+            }
+        }
+        else if (_rushCooldownRemaining > 0f)
+        {
+            _rushCooldownRemaining -= Time.fixedDeltaTime;
+        }
+
+        bool canStartWindup = _data.RushSpeedMultiplier > 1f && _rushCooldownRemaining <= 0f && distance <= _data.RushTriggerRange;
+        if (!_isRushing && (_isWindingUp || canStartWindup))
+        {
+            if (!_isWindingUp)
+            {
+                _isWindingUp = true;
+                _windupElapsed = 0f;
+                SetBodyColor(_data.RushWindupColor);
+            }
+
+            _windupElapsed += Time.fixedDeltaTime;
+            if (_windupElapsed >= _data.RushWindupDuration)
+            {
+                _isWindingUp = false;
+                _isRushing = true;
+                _rushElapsed = 0f;
+                SetBodyColor(_originalColor);
+            }
+            else
+            {
+                _movementModule.Stop();
+                return;
+            }
+        }
+
+        float speed = _isRushing ? _status.Speed * _data.RushSpeedMultiplier : _status.Speed;
+        _movementModule.ChaseTarget(targetPosition, speed);
+    }
+
+    private void SetBodyColor(Color color)
+    {
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = color;
+        }
+    }
+
+    // 분열해서 생긴 적에 쓴다. 바로 터지지 않고 일반 폭발형처럼 탐지, 추적, 예열 순으로 행동하며 폭발 피해만 낮아진다.
+    public void SetDamageMultiplier(float damageMultiplier)
+    {
+        _damageMultiplier = damageMultiplier;
     }
 
     private void StartFuse()
     {
         _state = State.Fuse;
         _fuseElapsed = 0f;
+        _isWindingUp = false;
         _movementModule.Stop();
     }
 
@@ -196,11 +312,26 @@ public class ExplodingEnemyController : MonoBehaviour
 
     private void Explode()
     {
+        if (_data.SplitPrefab != null)
+        {
+            Split();
+            return;
+        }
+
         _state = State.Exploded;
+        DealExplosion();
+        Release();
+    }
+
+    // 폭발 이펙트/사운드를 내고 반경 안의 플레이어에게 피해를 준다.
+    private void DealExplosion()
+    {
         OnExploded?.Invoke();
         _damagedTargets.Clear();
 
-        Physics2D.OverlapCircle(transform.position, _data.ExplosionRadius, ContactFilter2D.noFilter, _overlapResults);
+        // 트리거는 제외한다. 플레이어의 아이템 획득 범위(ItemCollector, 반지름 3)가 피격 범위로 잡히면 안 된다.
+        ContactFilter2D bodyOnly = new ContactFilter2D { useTriggers = false };
+        Physics2D.OverlapCircle(transform.position, _data.ExplosionRadius, bodyOnly, _overlapResults);
         foreach (Collider2D hit in _overlapResults)
         {
             PotionEffectReceiver receiver = hit.GetComponentInParent<PotionEffectReceiver>();
@@ -214,15 +345,43 @@ public class ExplodingEnemyController : MonoBehaviour
             // 폭발 중심에서 바깥으로 맞은 방향을 넘겨 피격 연출이 폭발 반대쪽으로 튀게 한다.
             if (hit.GetComponentInParent<IDirectionalDamageable>() is IDirectionalDamageable directional)
             {
-                directional.DecreaseHealth(_data.ExplosionDamage, (Vector2)(hit.bounds.center - transform.position));
+                directional.DecreaseHealth(_data.ExplosionDamage * _damageMultiplier, (Vector2)(hit.bounds.center - transform.position));
             }
             else
             {
-                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage);
+                hit.GetComponentInParent<IDamageable>()?.DecreaseHealth(_data.ExplosionDamage * _damageMultiplier);
+            }
+        }
+    }
+
+    // 엘리트 폭발형: 예열이 끝나면 먼저 한 번 터진 뒤(이펙트/피해), SplitPrefab 적 여러 마리로 갈라진다. 분열체는 일반 폭발형처럼 플레이어를 탐지해 쫓아가 터진다.
+    private void Split()
+    {
+        _state = State.Exploded;
+        DealExplosion();
+
+        // 분열체를 좌우로 균등하게 벌려 배치한다. (2마리면 정확히 왼쪽/오른쪽)
+        int count = _data.SplitCount;
+        for (int i = 0; i < count; i++)
+        {
+            float t = count > 1 ? (float)i / (count - 1) * 2f - 1f : 1f; // -1 ~ 1
+            Vector2 offset = Vector2.right * (t * _data.SplitSpawnDistance);
+            // 몬스터는 SpawnManager의 풀에서 빌려 쓴다.
+            Vector3 position = (Vector2)transform.position + offset;
+            GameObject split = SpawnManager.Instance.Spawn(_data.SplitPrefab, position, transform.rotation);
+            if (split == null)
+            {
+                continue;
+            }
+
+            split.transform.SetParent(transform.parent, true);
+            if (split.TryGetComponent(out ExplodingEnemyController controller))
+            {
+                controller.SetDamageMultiplier(_data.SplitDamageMultiplier);
             }
         }
 
-        Destroy(gameObject);
+        Release();
     }
 
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
@@ -239,6 +398,30 @@ public class ExplodingEnemyController : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void OnSpawned()
+    {
+        ResetState();
+    }
+
+    public void OnDespawned()
+    {
+        ResetState();
+    }
+
+    /// <summary>
+    /// 풀에서 반환되거나, 풀에 속하지 않은 경우에는 그냥 파괴한다.
+    /// </summary>
+    private void Release()
+    {
+        if (TryGetComponent(out PoolMember member) && member.IsRented)
+        {
+            member.ReturnToPool();
+            return;
+        }
+
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()

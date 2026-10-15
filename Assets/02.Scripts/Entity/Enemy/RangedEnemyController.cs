@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangedEnemyController : MonoBehaviour
+public class RangedEnemyController : MonoBehaviour, IPoolMember
 {
     private enum State
     {
@@ -19,6 +19,7 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private EnemyMovementModule _movementModule;
     [SerializeField] private PotionEffectReceiver _potionEffectReceiver;
     [SerializeField] private EnemyStatus _status;
+    [SerializeField] private SpriteRenderer _spriteRenderer;
 
     [Header("Attack")]
     [Tooltip("투사체가 나가는 위치. 이 오브젝트의 직계 자식으로, 오른쪽을 바라보는 기준으로 배치한다. " +
@@ -33,6 +34,7 @@ public class RangedEnemyController : MonoBehaviour
     private float _attackTimer;
     private float _fireTimer;
     private bool _isFiring; // 공격을 시작해서 투사체가 나가기를 기다리는 중
+    private int _burstRemaining; // 이번 공격에서 아직 쏘지 않은 연속 발사 횟수
     private bool _isAttackFacingLeft; // 공격을 시작할 때 플레이어가 왼쪽에 있었는지
 
     private bool CanMove => _potionEffectReceiver == null || _potionEffectReceiver.CanMove;
@@ -48,7 +50,13 @@ public class RangedEnemyController : MonoBehaviour
     {
         GetModules();
 
-        _status.Initialize(_data != null ? _data.MaxHealth : 100f, _data != null ? _data.MoveSpeed : 2.5f);
+        if (_data != null) _status.Initialize(_data);
+        else _status.Initialize(100f, 2.5f);
+
+        if (_data != null)
+        {
+            _data.ApplyVisual(_spriteRenderer);
+        }
     }
 
     private void GetModules()
@@ -68,6 +76,10 @@ public class RangedEnemyController : MonoBehaviour
         if (_potionEffectReceiver == null)
         {
             _potionEffectReceiver = GetComponent<PotionEffectReceiver>();
+        }
+        if (_spriteRenderer == null)
+        {
+            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
         if (_firePoint == null)
         {
@@ -102,7 +114,7 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         _state = State.Dead;
-        Destroy(gameObject);
+        Release();
     }
 
     private void FixedUpdate()
@@ -186,6 +198,16 @@ public class RangedEnemyController : MonoBehaviour
             {
                 _isFiring = false;
                 FireProjectile();
+
+                // 연속 발사: 남은 횟수가 있으면 공격 모션을 다시 시작하고 다음 투사체를 기다린다.
+                if (_burstRemaining > 0)
+                {
+                    _burstRemaining--;
+                    _isFiring = true;
+                    _fireTimer = _data.AttackFireDelay + _data.BurstInterval;
+                    _isAttackFacingLeft = _target != null && _target.position.x < transform.position.x;
+                    OnAttackStarted?.Invoke(_isAttackFacingLeft);
+                }
             }
             return;
         }
@@ -201,6 +223,7 @@ public class RangedEnemyController : MonoBehaviour
     private void StartAttack()
     {
         _isFiring = true;
+        _burstRemaining = _data.BurstCount - 1;
         _fireTimer = _data.AttackFireDelay;
         _attackTimer = _data.AttackCooldown;
         _isAttackFacingLeft = _target.position.x < transform.position.x;
@@ -215,6 +238,7 @@ public class RangedEnemyController : MonoBehaviour
         }
 
         _isFiring = false;
+        _burstRemaining = 0;
         OnAttackCanceled?.Invoke();
     }
 
@@ -228,8 +252,19 @@ public class RangedEnemyController : MonoBehaviour
         Vector2 origin = GetFireOrigin();
         Vector2 direction = ((Vector2)_target.position - origin).normalized;
 
-        EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
-        projectile.Launch(direction, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+        // 투사체가 여러 개면 플레이어 방향을 가운데로 두고 부채꼴로 고르게 퍼뜨린다.
+        int count = _data.ProjectileCount;
+        float angleStep = count > 1 ? _data.SpreadAngle / (count - 1) : 0f;
+        float startAngle = count > 1 ? -_data.SpreadAngle * 0.5f : 0f;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 shotDirection = Quaternion.Euler(0f, 0f, startAngle + angleStep * i) * direction;
+            EnemyProjectile projectile = Instantiate(_projectilePrefab, origin, Quaternion.identity);
+            projectile.Launch(shotDirection, _data.ProjectileSpeed, _data.ProjectileDamage, _data.ProjectileLifetime);
+        }
+
+        SoundManager.Play(GameSoundId.EnemyAttack);
     }
 
     // FirePoint는 오른쪽을 바라보는 기준으로 놓여 있으므로, 왼쪽을 보고 공격 중이면 x를 뒤집는다.
@@ -285,4 +320,46 @@ public class RangedEnemyController : MonoBehaviour
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(transform.position, _data.ChaseResumeRange);
     }
+
+    public void OnSpawned()
+    {
+        ResetState();
+    }
+
+    public void OnDespawned()
+    {
+        ResetState();
+    }
+
+    private void ResetState()
+    {
+        _state = State.Idle;
+        _target = null;
+        _attackTimer = 0f;
+        _fireTimer = 0f;
+        _isFiring = false;
+        _burstRemaining = 0;
+        _isAttackFacingLeft = false;
+
+        if (_status != null && _data != null)
+        {
+            _status.Initialize(_data);
+        }
+    }
+
+
+    /// <summary>
+    /// 풀에서 반환되거나, 풀에 속하지 않은 경우에는 그냥 파괴한다.
+    /// </summary>
+    private void Release()
+    {
+        if (TryGetComponent(out PoolMember member) && member.IsRented)
+        {
+            member.ReturnToPool();
+            return;
+        }
+
+        Destroy(gameObject);
+    }
+
 }

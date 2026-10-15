@@ -37,15 +37,11 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     [SerializeField] private PotionFrostSettings _frost = new();
 
     [Header("Drink")]
-    [Tooltip("양수는 갈증 감소, 음수는 갈증 증가")]
+    [Tooltip("양수는 금단 증가, 음수는 금단 감소. 공통 음용 감소량은 별도로 적용합니다.")]
     [SerializeField] private float _thirstDelta;
 
     [Header("Visual")]
     [SerializeField] private PotionVisualData _visualData = new(null, Color.red, null, null);
-
-    [Header("Sound")]
-    [Tooltip("장판이 있는 동안 반복 재생하는 소리. 비워두면 소리가 나지 않는다.")]
-    [SerializeField] private AudioClip _areaLoopSound;
 
     [Tooltip("기화 포션에서만 사용하는 전용 설정 에셋입니다.")]
     [SerializeField] private PotionVaporizationSettings _vaporizationSettings;
@@ -57,7 +53,7 @@ public sealed class PotionData : ScriptableObject, IPotionEffectData
     public float AreaWidth => _effectRadius * 2f;
     public float ThirstDelta => _thirstDelta;
     public PotionVisualData VisualData => _visualData;
-    public AudioClip AreaLoopSound => _areaLoopSound;
+    public AudioClip AreaLoopSound => SoundManager.GetSound(GameSoundData.GetAreaSoundId(_element))?.Clip;
     public PotionVaporizationSettings VaporizationSettings =>
         _element == PotionElement.Vaporization ? _vaporizationSettings : null;
     public PotionTargetType TargetType => _targetType;

@@ -179,7 +179,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinedAreaShape
   _combinationCollider: {fileID: 6075459067124031844}
-  _ellipseMinCenterDistance: 0.1
+  _connectionWidthRatio: 0.55
+  _connectionBlendRatio: 0.25
 --- !u!114 &5000000000000000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,16 +191,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 308a234cf94e490daaee36f0acfab576, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotionAreaVisual
   _flowSpeed: 0.7
   _edgeWobble: 0.018
+  _surfaceDetail: 0.65
+  _opacity: 0.85
   _edgeIrregularity: 0.17
   _edgeDensity: 4.5
   _edgeMotionSpeed: 0.35
   _edgeMotionAmount: 0.45
-  _surfaceDetail: 0.65
-  _opacity: 0.85
   _appearDuration: 0.25
   _colorTransitionDuration: 0.35
   _fadeDuration: 0.4
@@ -280,8 +281,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -507127363
-  m_SortingLayer: 3
+  m_SortingLayerID: -223298867
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 8234795638328950718, guid: af740b4b10db73942b0667bd9cc74461, type: 3}

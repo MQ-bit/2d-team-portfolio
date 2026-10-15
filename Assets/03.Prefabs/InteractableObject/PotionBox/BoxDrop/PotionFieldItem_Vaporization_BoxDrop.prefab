@@ -10,8 +10,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4621741833939702906, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
       propertyPath: m_Name
-      value: PotionFieldItem_Vaporization_EnemyDrop
+      value: PotionFieldItem_Vaporization_BoxDrop
       objectReference: {fileID: 0}
+    - target: {fileID: 4738305527283598493, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
+      propertyPath: _trailRenderer
+      value: 
+      objectReference: {fileID: 9218692768898084620}
     - target: {fileID: 8947438971573722298, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -77,3 +81,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8631820ca61b2cb45b7214afdfe69877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DroppedPotionCatalogBinder
+--- !u!96 &9218692768898084620 stripped
+TrailRenderer:
+  m_CorrespondingSourceObject: {fileID: 6288861162792727028, guid: 266b60ec5d3508e49b89ae7bafe726d3, type: 3}
+  m_PrefabInstance: {fileID: 2930125728687283960}
+  m_PrefabAsset: {fileID: 0}

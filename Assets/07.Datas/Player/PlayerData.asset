@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e6160c970948d7a4d959b2ca463738, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
+  _health:
+    _maxHealth: 300
+    _initialHealth: 300
+    _contactDamageInterval: 0.5
+  _thirst:
+    _maxValue: 100
+    _initialValue: 0
+    _increaseAmount: 1
+    _increaseInterval: 1.25
+    _warningRatio: 0.7
+    _criticalRatio: 1
+  _movement:
+    _speed: 5
+  _dash:
+    _speed: 30
+    _duration: 0.2
+    _cooldown: 1
+  _melee:
+    _damage: 30
+    _range: 3
+    _angle: 90
+    _cooldown: 0.5
+    _swingDuration: 0.25
+    _withdrawalCost: 3
+    _knockbackForce: 1
+  _throw:
+    _maxDistance: 6
+    _flightDuration: 0.7
+    _arcHeight: 1.5
+    _rotationSpeed: 360
+  _drink:
+    _duration: 0.5
+    _baseWithdrawalDecrease: 10
+  _collection:
+    _localRadius: 5
+  _interaction:
+    _holdDuration: 1

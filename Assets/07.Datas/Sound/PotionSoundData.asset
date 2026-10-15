@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a16591f68188e94418a8ca1bc69ba0af, type: 3}
+  m_Name: PotionSoundData
+  m_EditorClassIdentifier: Assembly-CSharp::SoundCategoryData
+  _entries:
+  - _id: 40
+    _clip: {fileID: 8300000, guid: a2885618edb5f3340aef42c3fc410896, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 2
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 41
+    _clip: {fileID: 8300000, guid: c353b31b06ffd7842a3b0751b742a8bc, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 2
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 42
+    _clip: {fileID: 8300000, guid: 59e1882f3a8968c4b82bae082036c9aa, type: 3}
+    _channel: 1
+    _volume: 1
+    _gain: 2
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 18
+    _clip: {fileID: 8300000, guid: e1ff3e9de6746134691657751af0f5c1, type: 3}
+    _channel: 4
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 19
+    _clip: {fileID: 8300000, guid: dfbc14281910f3f42b79a02377bf0553, type: 3}
+    _channel: 4
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 20
+    _clip: {fileID: 8300000, guid: 29a2b575e354fbe45ba6f1088c8509ec, type: 3}
+    _channel: 4
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 21
+    _clip: {fileID: 8300000, guid: 57c16dde8834c024087e214f5017af56, type: 3}
+    _channel: 4
+    _volume: 0.66
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 22
+    _clip: {fileID: 8300000, guid: 42739df6b45a2584db55928b7a3b6567, type: 3}
+    _channel: 4
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 23
+    _clip: {fileID: 8300000, guid: e848b92f5f4d60a4195c60000d6bc3e6, type: 3}
+    _channel: 4
+    _volume: 1
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 1
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0
+  - _id: 24
+    _clip: {fileID: 8300000, guid: 175bd457717ac264b82d89ec7439c96a, type: 3}
+    _channel: 4
+    _volume: 0.7
+    _gain: 1
+    _startOffset: 0
+    _endTime: 0
+    _fadeOutTime: 0
+    _loop: 0
+    _repeatCount: 1
+    _fadeInTime: 0
+    _interval: 0

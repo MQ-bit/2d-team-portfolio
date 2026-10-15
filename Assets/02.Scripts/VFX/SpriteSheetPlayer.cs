@@ -24,6 +24,23 @@ public class SpriteSheetPlayer : MonoBehaviour
     Sprite[] _sprites;
     SpriteRenderer _sr;
     float _startTime;
+    private static readonly int VfxTextureSizeId = Shader.PropertyToID("_VfxTextureSize");
+    private MaterialPropertyBlock _textureProperties;
+    private Texture _frameTexture;
+    private Material _frameMaterial;
+
+    // Sprite textures can change between frames. Avoid the automatic _TexelSize property
+    // unsupported by the 2D SRP Batcher, while preserving any existing clipping/tint data.
+    internal static void ApplyTextureSize(SpriteRenderer renderer, Texture texture,
+        ref MaterialPropertyBlock properties)
+    {
+        Material material = renderer.sharedMaterial;
+        if (texture == null || material == null || !material.HasProperty(VfxTextureSizeId)) return;
+        properties ??= new MaterialPropertyBlock();
+        renderer.GetPropertyBlock(properties);
+        properties.SetVector(VfxTextureSizeId, new Vector4(texture.width, texture.height, 0f, 0f));
+        renderer.SetPropertyBlock(properties);
+    }
 
     void OnEnable()
     {
@@ -82,5 +99,13 @@ public class SpriteSheetPlayer : MonoBehaviour
         if (_sprites == null || _sprites.Length == 0 || _sr == null) return;
         float t = (Application.isPlaying ? Time.time - _startTime : Time.realtimeSinceStartup) + timeOffset;
         _sr.sprite = _sprites[(int)(t * fps) % _sprites.Length];
+        Texture texture = _sr.sprite.texture;
+        Material material = _sr.sharedMaterial;
+        if (texture != _frameTexture || material != _frameMaterial)
+        {
+            ApplyTextureSize(_sr, texture, ref _textureProperties);
+            _frameTexture = texture;
+            _frameMaterial = material;
+        }
     }
 }

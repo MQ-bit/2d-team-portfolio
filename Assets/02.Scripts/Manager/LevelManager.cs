@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -18,6 +19,10 @@ public class LevelManager : MonoBehaviour
 
     [Header("Level")]
     [SerializeField] private StageManager _stageManager;
+
+    [Header("BGM")]
+    [SerializeField] private GameBgmId _bgmId = GameBgmId.InGame;
+    [SerializeField, Min(0f)] private float _bgmDelay = 2f;
 
     [Header("Transition")]
     [SerializeField] private SceneVisualEffectManager _visualEffectManager;
@@ -55,8 +60,22 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogError($"{nameof(LevelManager)}: 최초 Stage 생성에 실패했습니다.", this);
         }
+        else
+        {
+            StartCoroutine(PlayBgmAfterDelay());
+        }
 
 
+    }
+
+    private IEnumerator PlayBgmAfterDelay()
+    {
+        if (_bgmDelay > 0f)
+            yield return new WaitForSecondsRealtime(_bgmDelay);
+
+        PlayerStatus status = _player != null ? _player.GetComponent<PlayerStatus>() : null;
+        if (isActiveAndEnabled && status != null && !status.IsDead)
+            SoundManager.PlayBgm(_bgmId);
     }
 
     public bool TryCompleteStage()
@@ -68,7 +87,8 @@ public class LevelManager : MonoBehaviour
 
         _isTransitioning = true;
 
-        bool accepted = _visualEffectManager.TryFadeTransition(HandleScreenCovered, -1, 0, -1, HandleTransitionCompleted);
+        bool accepted = _visualEffectManager.TryFadeTransition(HandleScreenCovered,
+            onCompleted: HandleTransitionCompleted, whileCovered: WaitForCameraAfterStageChange());
 
         if (!accepted)
         {
@@ -82,16 +102,38 @@ public class LevelManager : MonoBehaviour
     {
         if (!TryMovePlayerToStart())
         {
-            Debug.LogError($"{nameof(LevelManager)}: 플레이어를 StartMap으로 이동하지 못했습니다.");
+            Debug.LogError(
+                $"{nameof(LevelManager)}: 플레이어를 StartMap으로 이동하지 못했습니다.",
+                this);
             return;
         }
 
         if (!_stageManager.TryRegenerateStage())
         {
-            Debug.LogError($"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.");
+            Debug.LogError(
+                $"{nameof(LevelManager)}: Stage 재생성에 실패했습니다.",
+                this);
+            return;
         }
 
+        // 다음 층 생성에 성공한 경우에만 클리어 기록을 증가시킵니다.
+        // 이 처리는 검은 화면에서 실행되므로 페이드 인 완료 시 새 층 번호를 읽습니다.
         ScoreManager.Instance?.TryRecordFloorCleared();
+
+        SoundManager.Play(GameSoundId.FloorMove);
+    }
+
+    private IEnumerator WaitForCameraAfterStageChange()
+    {
+        CameraController cameraController = CameraController.Instance;
+        if (cameraController == null)
+        {
+            Debug.LogWarning($"{nameof(LevelManager)}: 카메라를 찾지 못해 층 이동 카메라 대기를 생략합니다.", this);
+            yield return null;
+            yield break;
+        }
+
+        yield return cameraController.WaitForTrackingSettled();
     }
 
     private void HandleTransitionCompleted()

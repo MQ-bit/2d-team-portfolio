@@ -10,10 +10,8 @@ public class EnemyExplosionEffect : MonoBehaviour
     [Header("Effect")]
     [SerializeField] private GameObject _effectPrefab;
     [SerializeField, Min(0.1f)] private float _effectLifetime = 2f;
-
-    [Header("Sound")]
-    [SerializeField] private AudioClip _explosionSound;
-    [SerializeField, Range(0f, 1f)] private float _explosionSoundVolume = 1f;
+    [Tooltip("이펙트 프리팹을 스케일 1로 생성했을 때 눈에 보이는 폭발 반경(월드 단위). 이펙트는 실제 피해 반경(ExplosionRadius) / 이 값 만큼 확대된다. 이펙트가 판정보다 작아 보이면 이 값을 줄이고, 너무 크면 늘린다.")]
+    [SerializeField, Min(0.1f)] private float _effectBaseRadius = 2f;
 
     private void Awake()
     {
@@ -49,10 +47,7 @@ public class EnemyExplosionEffect : MonoBehaviour
 
     private void HandleExploded()
     {
-        if (_explosionSound != null)
-        {
-            SoundManager.PlaySfx(_explosionSound, _explosionSoundVolume);
-        }
+        SoundManager.Play(GameSoundId.EnemyExplosion);
 
         if (_effectPrefab == null)
         {
@@ -60,6 +55,26 @@ public class EnemyExplosionEffect : MonoBehaviour
         }
 
         GameObject effect = Instantiate(_effectPrefab, transform.position, Quaternion.identity);
+        FitEffectToRadius(effect);
         Destroy(effect, _effectLifetime); // TODO : 풀링 적용 시 반환으로 변경
+    }
+
+    // 눈에 보이는 폭발 범위가 실제 피해 반경보다 작지 않도록 이펙트를 확대한다.
+    private void FitEffectToRadius(GameObject effect)
+    {
+        if (_controller == null || _controller.ExplosionRadius <= 0f)
+        {
+            return;
+        }
+
+        float scale = _controller.ExplosionRadius / _effectBaseRadius;
+        effect.transform.localScale = Vector3.one * scale;
+
+        // 파티클이 Local 스케일 모드면 부모 스케일이 무시되므로 계층 스케일을 따르게 한다.
+        foreach (ParticleSystem particles in effect.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ParticleSystem.MainModule main = particles.main;
+            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        }
     }
 }

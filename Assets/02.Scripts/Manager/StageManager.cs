@@ -24,7 +24,25 @@ public class StageManager : MonoBehaviour
     [Header("Encounter")]
     [SerializeField] private StageEncounterCoordinator _encounterCoordinator;
 
+    [Header("Difficulty")]
+    [Tooltip("X: 클리어한 층 수 (첫 층 = 0), Y: 몬스터 최대 체력에 곱해줄 증감치.")]
+    [SerializeField] private AnimationCurve _enemyHealthMultiplierCurve = AnimationCurve.Linear(0f, 1f, 50f, 1000f);
+
     public GeneratedStage CurrentStage { get; private set; }
+
+    public float EnemyHealthMultiplier
+    {
+        get
+        {
+            if (_enemyHealthMultiplierCurve == null || _enemyHealthMultiplierCurve.length == 0)
+            {
+                return 1f;
+            }
+
+            int floor = ScoreManager.Instance != null ? ScoreManager.Instance.ClearedFloorCount : 0;
+            return Mathf.Max(0.1f, _enemyHealthMultiplierCurve.Evaluate(floor));
+        }
+    }
 
     public GeneratedRoomNode CurrentRoom => _encounterCoordinator != null ? _encounterCoordinator.CurrentRoom : null;
 
@@ -32,7 +50,8 @@ public class StageManager : MonoBehaviour
     public bool IsStageCleared => _encounterCoordinator != null && _encounterCoordinator.IsCompleted;
     public StageState State => _encounterCoordinator != null ? _encounterCoordinator.State : StageState.Initializing;
 
-    public event Action<StageState> StateChanged;
+    public event Action<GeneratedRoomNode> CombatRoomCleared;
+    public event Action<GeneratedStage> CurrentStageChanged;
     public event Action<GeneratedRoomNode> RoomEntered;
     public event Action<GeneratedRoomNode> RoomCleared;
 
@@ -132,24 +151,8 @@ public class StageManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log($"Stage 재생성 완료: Seed={stage.Seed}, CombatRooms={_encounterCoordinator.CombatRoomCount}");
+        Debug.Log($"Stage 재생성 완료: CombatRooms={_encounterCoordinator.CombatRoomCount}");
         return true;
-    }
-
-    public void TryEnterCombatRoom(GeneratedRoomNode node)
-    {
-        _encounterCoordinator?.TryEnterCombatRoom(node);
-    }
-
-    public bool TryGetRoomProgress(GeneratedRoomNode node, out RoomProgressState progress)
-    {
-        if (_encounterCoordinator != null)
-        {
-            return _encounterCoordinator.TryGetRoomProgress(node, out progress);
-        }
-
-        progress = RoomProgressState.Unvisited;
-        return false;
     }
 
     private bool TryBindStage(GeneratedStage stage, out string error)
@@ -159,10 +162,29 @@ public class StageManager : MonoBehaviour
             return false;
         }
 
+        RoomRewardGenerator rewardGenerator = GetComponent<RoomRewardGenerator>();
+
+        if (rewardGenerator == null || !rewardGenerator.isActiveAndEnabled)
+        {
+            error = "활성화된 RoomRewardGenerator가 없습니다.";
+            return false;
+        }
+
         CurrentStage = stage;
         PlayerSpawnPoint = spawnPoint;
 
-        return _encounterCoordinator.TryBind(stage, out error);
+        // 몬스터 길찾기 격자는 맵 기준이라, 새 스테이지의 벽으로 다시 만들어야 한다.
+        // 층 이동/시작 연출 중에 미리 만들어서, 첫 전투 중에 끊기지 않게 한다.
+        EnemyPathfinder.Instance.RebuildGrid();
+
+        if (!_encounterCoordinator.TryBind(stage, out error) ||
+            !rewardGenerator.TrySpawnInitialRewards(stage, out error))
+        {
+            return false;
+        }
+
+        CurrentStageChanged?.Invoke(stage);
+        return true;
     }
 
     private static bool TryFindPlayerSpawnPoint(GeneratedStage stage, out Transform spawnPoint, out string error)
@@ -232,6 +254,9 @@ public class StageManager : MonoBehaviour
 
         CurrentStage = null;
         PlayerSpawnPoint = null;
+        EnemyPathfinder.Instance.InvalidateGrid();
+
+        CurrentStageChanged?.Invoke(null);
     }
 
     private void SubscribeEncounterEvents()
@@ -243,9 +268,9 @@ public class StageManager : MonoBehaviour
 
         UnsubscribeEncounterEvents();
 
-        _encounterCoordinator.StateChanged += HandleStateChanged;
         _encounterCoordinator.RoomEntered += HandleRoomEntered;
         _encounterCoordinator.RoomCleared += HandleRoomCleared;
+        _encounterCoordinator.CombatRoomCleared += HandleCombatRoomCleared;
     }
 
     private void UnsubscribeEncounterEvents()
@@ -255,23 +280,25 @@ public class StageManager : MonoBehaviour
             return;
         }
 
-        _encounterCoordinator.StateChanged -= HandleStateChanged;
         _encounterCoordinator.RoomEntered -= HandleRoomEntered;
         _encounterCoordinator.RoomCleared -= HandleRoomCleared;
-    }
-
-    private void HandleStateChanged(StageState state)
-    {
-        StateChanged?.Invoke(state);
+        _encounterCoordinator.CombatRoomCleared -= HandleCombatRoomCleared;
     }
 
     private void HandleRoomEntered(GeneratedRoomNode node)
     {
+        // 방 진입으로 출입구가 닫히고 전투가 시작될 때 재생한다.
+        SoundManager.Play(GameSoundId.RoomPortal);
         RoomEntered?.Invoke(node);
     }
 
     private void HandleRoomCleared(GeneratedRoomNode node)
     {
         RoomCleared?.Invoke(node);
+    }
+
+    private void HandleCombatRoomCleared(GeneratedRoomNode node)
+    {
+        CombatRoomCleared?.Invoke(node);
     }
 }

@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcab6078b00664d4fbf70a4f083174dc, type: 3}
+  m_Name: ReaperRanged
+  m_EditorClassIdentifier: Assembly-CSharp::ReaperData
+  _maxHealth: 120
+  _moveSpeed: 2.5
+  _contactDamage: 12
+  _detectRange: 200
+  _visualScale: 1
+  _tintColor: {r: 0.65, g: 0.9, b: 1, a: 1}
+  _useMeleeAttack: 1
+  _useDashAttack: 0
+  _usePotionSummon: 1
+  _usePotionSteal: 1
+  _preferredDistance: 6
+  _distanceTolerance: 0.75
+  _magicCircleTint: {r: 0.65, g: 0.9, b: 1, a: 1}
+  _indicatorColor: {r: 0.15, g: 0.3, b: 0.6, a: 1}
+  _indicatorRuneColor: {r: 0.45, g: 0.65, b: 1, a: 1}
+  _indicatorChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
+  _meleeRange: 2.1
+  _meleeAngle: 140
+  _meleeDamage: 20
+  _meleeWindup: 0.4
+  _meleeActiveDuration: 0.3
+  _meleeHitboxSize: {x: 3.007, y: 1.913}
+  _meleeHitboxOffset: {x: 1.367, y: 0.205}
+  _meleeRecovery: 0.3
+  _meleeCooldown: 3
+  _dashMinRange: 2
+  _dashMaxRange: 6
+  _dashWindup: 0.6
+  _dashSpeed: 7
+  _dashDistance: 4
+  _dashDamage: 20
+  _dashRecovery: 0.6
+  _dashCooldown: 5
+  _summonPotions:
+  - {fileID: 11400000, guid: e2a7b0149c8d5f30a2b6d7e8901f2345, type: 2}
+  - {fileID: 11400000, guid: f3b8c125ad9e6041b3c7e8f9012a3456, type: 2}
+  - {fileID: 11400000, guid: a4c9d236beaf7152c4d8f901123b4567, type: 2}
+  - {fileID: 11400000, guid: b5dae347cfb08263d5e90112234c5678, type: 2}
+  _summonMinRange: 3
+  _summonRange: 10
+  _summonWindup: 0.9
+  _summonRecovery: 0.8
+  _summonCooldown: 15
+  _warningDuration: 1.1
+  _fallDuration: 0.5
+  _summonHeight: 2.5
+  _stealIndicatorColor: {r: 0.12, g: 0.06, b: 0.25, a: 1}
+  _stealRuneColor: {r: 0.58, g: 0.25, b: 0.9, a: 1}
+  _stealAccentColor: {r: 0.2, g: 0.85, b: 0.78, a: 1}
+  _stealChargedColor: {r: 0.8, g: 0.95, b: 1, a: 1}
+  _stealMinRange: 3
+  _stealRange: 7
+  _stealAreaRadius: 2.6
+  _stealWindup: 1.2
+  _stealActiveDuration: 0.35
+  _stealRecovery: 0.8
+  _stealCooldown: 14
+  _stealCaptureDuration: 2.2
+  _stealDamage: 4
+  _stealEmptyDamage: 16
+  _deathDuration: 1

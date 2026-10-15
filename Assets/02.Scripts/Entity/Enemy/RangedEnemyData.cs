@@ -14,10 +14,25 @@ public class RangedEnemyData : EnemyData
     [SerializeField, Min(0f)] private float _attackFireDelay = 0.3f;
 
     [Header("Projectile")]
-    [SerializeField, Min(0f)] private float _projectileSpeed = 8f;
+    [SerializeField, Min(0f)] private float _projectileSpeed = 5f;
     [SerializeField, Min(0f)] private float _projectileDamage = 10f;
     [SerializeField, Min(0f)] private float _projectileLifetime = 3f;
 
+    [Tooltip("한 번 공격에 나가는 투사체 수. 2개 이상이면 플레이어 방향을 중심으로 부채꼴로 퍼진다.")]
+    [SerializeField, Min(1)] private int _projectileCount = 1;
+    [Tooltip("부채꼴 전체 각도(도). 첫 투사체와 마지막 투사체 사이의 각도다.")]
+    [SerializeField, Range(0f, 180f)] private float _spreadAngle = 60f;
+
+    [Header("Burst (연속 발사)")]
+    [Tooltip("한 번 공격에 연속으로 발사하는 횟수. 1이면 한 번만 쏜다. 한 번 발사마다 ProjectileCount만큼 나간다.")]
+    [SerializeField, Min(1)] private int _burstCount = 1;
+    [Tooltip("연속 발사 사이에 AttackFireDelay에 더해지는 추가 대기 시간(초).")]
+    [SerializeField, Min(0f)] private float _burstInterval = 0.1f;
+
+    public int BurstCount => _burstCount;
+    public float BurstInterval => _burstInterval;
+    public int ProjectileCount => _projectileCount;
+    public float SpreadAngle => _spreadAngle;
     public float AttackRange => _attackRange;
     public float ChaseResumeRange => _attackRange + _chaseResumeBuffer;
     public float AttackCooldown => _attackCooldown;

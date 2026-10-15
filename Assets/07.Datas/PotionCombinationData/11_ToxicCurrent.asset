@@ -13,24 +13,34 @@ MonoBehaviour:
   m_Name: 11_ToxicCurrent
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 11
-  _displayName: "\uB3C5\uC131 \uC804\uB958"
-  _description: "5\uCD08 \uC7A5\uD310. \uB9E4\uCD08 \uB3C5 5 \uBC0F 0.15\uCD08 \uB9C8\uBE44.
-    \uC774\uD0C8 \uD6C4 \uC911\uB3C5 3\uCD08."
+  _displayName: "신경독"
+  _description: "독과 전류로 적을 공격하고 잠시 마비시킵니다. 장판을 벗어나도 중독이 남습니다."
   _elementA: 2
   _elementB: 5
   _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 5
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 2
-    _amount: 5
+    _amount: 30
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 1
+    _operation: 0
+    _element: 5
+    _amount: 12
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -43,22 +53,33 @@ MonoBehaviour:
     _element: 5
     _amount: 0
     _status: 3
-    _duration: 0.15
+    _duration: 0.2
     _tickInterval: 0
     _applyImmediately: 0
-    _moveSpeedMultiplier: 0
-    _immobilizeDuration: 0.15
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.2
     _frostStackAmount: 1
   - _phase: 2
     _operation: 2
     _element: 2
-    _amount: 5
+    _amount: 24
     _status: 1
-    _duration: 3
-    _tickInterval: 1
+    _duration: 4.5
+    _tickInterval: 0.75
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 5
+    _amount: 0
+    _status: 3
+    _duration: 3
+    _tickInterval: 0.5
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0.3
     _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
@@ -66,6 +87,7 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: 2103726937, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 2026292119, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}

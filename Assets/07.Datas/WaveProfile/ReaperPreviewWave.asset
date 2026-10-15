@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d979c096edb12434e88f25c4aed3f948, type: 3}
+  m_Name: ReaperPreviewWave
+  m_EditorClassIdentifier: Assembly-CSharp::WavePlanSO
+  _enemyRoster:
+    _bomber: {fileID: -8661543858205422219, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
+    _ranged: {fileID: -5882051593152911699, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+    _eliteBomber: {fileID: 829986578479390835, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
+    _eliteRanged: {fileID: 6855117681603736741, guid: 84428c3767fbcf54393a5b590c0c7a8a, type: 3}
+    _reaper: {fileID: 114999, guid: 82fdfcb203c840dc952bdaf36c30ec1e, type: 3}
+  _normalRoom:
+    _waves:
+    - _baseCountMin: 0
+      _baseCountMax: 0
+      _bombRatio: 0
+      _eliteBonusMin: 0
+      _eliteBonusMax: 0
+      _reaperCount: 1
+      _batchSize: 1
+      _spawnInterval: 0.15
+      _batchInterval: 1
+  _eliteRoom:
+    _waves:
+    - _baseCountMin: 0
+      _baseCountMax: 0
+      _bombRatio: 0
+      _eliteBonusMin: 0
+      _eliteBonusMax: 0
+      _reaperCount: 1
+      _batchSize: 1
+      _spawnInterval: 0.15
+      _batchInterval: 1
+  _interWaveDelay: 1

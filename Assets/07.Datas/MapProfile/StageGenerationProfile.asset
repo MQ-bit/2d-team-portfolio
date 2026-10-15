@@ -24,6 +24,15 @@ MonoBehaviour:
   - {fileID: 4838776290454009359, guid: 52269b32dcd18c14ab31c62b00846068, type: 3}
   _endRoom: {fileID: 4307201373427224824, guid: 848773dcee5f5f446956be436ab0759c, type: 3}
   _portalPrefab: {fileID: 6754475698265709867, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
+  _goldRewardBoxPrefab: {fileID: 5201999197382066211, guid: a930a0442d8ce8b479e99c313283caf5, type: 3}
+  _silverRewardBoxPrefab: {fileID: 5201999197382066211, guid: 2a6fb803a6d28554b9d3e96ae0b0ee78, type: 3}
+  _normalRoomRewardMinMax: {x: 1, y: 3}
+  _eliteRoomRewardMinMax: {x: 2, y: 3}
+  _rewardSpawnRadius: 3
+  _rewardPlacementAttempts: 10
+  _rewardBlockingLayers:
+    serializedVersion: 2
+    m_Bits: 1536
   _horizontalHallway: {fileID: 1523143416914674073, guid: 35b40a695cd532d429cc9added3cd939, type: 3}
   _verticalHallway: {fileID: 145594401814618462, guid: c32cfb51d5460b84389f929050ca23b3, type: 3}
   _additionalRoomChance: 0.5

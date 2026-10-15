@@ -62,6 +62,8 @@ public class VFXBurstField : MonoBehaviour
         public SpriteRenderer Renderer;
         public float StartTime;
         public Vector3 LocalAnchor;
+        public Texture FrameTexture;
+        public Material FrameMaterial;
     }
 
     private readonly List<Burst> _bursts = new();
@@ -416,6 +418,14 @@ public class VFXBurstField : MonoBehaviour
     {
         SpriteRenderer renderer = burst.Renderer;
         renderer.sprite = sprite;
+        Texture texture = sprite.texture;
+        Material material = renderer.sharedMaterial;
+        if (texture != burst.FrameTexture || material != burst.FrameMaterial)
+        {
+            SpriteSheetPlayer.ApplyTextureSize(renderer, texture, ref _clipProperties);
+            burst.FrameTexture = texture;
+            burst.FrameMaterial = material;
+        }
         Vector3 position = burst.LocalAnchor;
         if (_anchorAtBottom)
         {

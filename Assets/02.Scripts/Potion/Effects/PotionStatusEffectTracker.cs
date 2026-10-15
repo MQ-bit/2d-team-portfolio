@@ -56,6 +56,17 @@ public sealed class PotionStatusEffectState
     public bool IsActive(PotionStatusEffectTracker status) => TryGetActive(status, _clock(), out _);
     public int GetStackCount(PotionStatusEffectTracker status) => IsActive(status) ? 1 : 0;
 
+    public void CollectVisualCombinations(List<PotionCombinationData> result)
+    {
+        double now = _clock();
+        foreach (ActiveStatus status in _statuses.Values)
+        {
+            PotionCombinationData combination = status.EffectInfo.Source.Combination;
+            if (status.ExpiresAt > now && combination != null && !result.Contains(combination))
+                result.Add(combination);
+        }
+    }
+
     // 상태 연출용 조회이며 피해 처리나 상태 만료 처리를 실행하지 않는다.
     public float GetRemainingTime(PotionStatusEffectTracker status)
     {
@@ -88,7 +99,9 @@ public sealed class PotionStatusEffectState
         _statuses[effectInfo.Status] = new ActiveStatus
         {
             EffectInfo = selected,
-            ExpiresAt = now + effectInfo.Duration,
+            ExpiresAt = refreshing && (effectInfo.Status == PotionStatusEffectTracker.Frozen
+                || effectInfo.Status == PotionStatusEffectTracker.Paralyzed)
+                ? Math.Max(previous.ExpiresAt, now + effectInfo.Duration) : now + effectInfo.Duration,
             NextTickAt = nextTick,
             PulseStartedAt = pulseStart
         };
@@ -129,7 +142,7 @@ public sealed class PotionStatusEffectState
     }
 
     public void AddFrostStacks(PotionFrostSettings settings, PotionEffectSource source,
-        int amount = 1, float tickInterval = 1f)
+        int amount = 1, float tickInterval = 1f, float freezeDurationMultiplier = 1f)
     {
         if (settings == null || amount <= 0) return;
         EnterFrostArea(source.SourceId);
@@ -140,7 +153,8 @@ public sealed class PotionStatusEffectState
         _frostStacks = (int)Math.Min(threshold, (long)_frostStacks + amount);
         if (_frostStacks >= threshold)
         {
-            Apply(new PotionStatusEffectInfo(PotionStatusEffectTracker.Frozen, settings.FreezeDuration, source));
+            Apply(new PotionStatusEffectInfo(PotionStatusEffectTracker.Frozen,
+                settings.FreezeDuration * PotionDataValidation.Multiplier(freezeDurationMultiplier), source));
             ResetFrostStacks();
             return;
         }

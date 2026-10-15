@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3517091504903148408}
   - component: {fileID: 5689443597141892876}
   - component: {fileID: 4910267320262829492}
+  - component: {fileID: 6944053465600101145}
   m_Layer: 0
   m_Name: StageManager
   m_TagString: Untagged
@@ -68,7 +69,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4029ad9611de6d34badb3f6545981a90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
+  _monsterPrefabs:
+  - {fileID: 1377157155696017660, guid: 2aa54ec8eb26a594cac6f82c949394f7, type: 3}
+  - {fileID: 2257449687580552698, guid: ae01fc55b5aacab4d8bb8b6eb776a889, type: 3}
+  - {fileID: 1700258492560780822, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+  - {fileID: 7414064203600362526, guid: 84428c3767fbcf54393a5b590c0c7a8a, type: 3}
+  _poolExpandSize: 15
   _enemySpawnPoints: []
+  _spawnPortalPrefab: {fileID: 8323107680524810300, guid: e87e6eb7db2f63543950bfbb403c10b9, type: 3}
+  _spawnPortalColor: {r: 1, g: 0.15, b: 0.15, a: 1}
+  _spawnPortalLifetime: 1.5
 --- !u!114 &7127352592370934398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +93,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageManager
   _stageGenerator: {fileID: 5344559511488696796}
   _encounterCoordinator: {fileID: 3517091504903148408}
+  _enemyHealthMultiplierCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 3
+      value: 1
+      inSlope: -Infinity
+      outSlope: -Infinity
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 5
+      value: 1.2
+      inSlope: -Infinity
+      outSlope: -Infinity
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 7
+      value: 2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 10
+      value: 3
+      inSlope: -Infinity
+      outSlope: -Infinity
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &3517091504903148408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,6 +185,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveController
   _spawnManager: {fileID: 3927931753644130531}
+--- !u!114 &6944053465600101145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565521264326019836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99610f8cf1dd74c4a9c196f6c8f1e066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomRewardGenerator
+  _stageManager: {fileID: 7127352592370934398}
+  _profile: {fileID: 11400000, guid: 986eaca58e962be48a19cf9e37ba7225, type: 2}
 --- !u!1 &1212480417415490277
 GameObject:
   m_ObjectHideFlags: 0

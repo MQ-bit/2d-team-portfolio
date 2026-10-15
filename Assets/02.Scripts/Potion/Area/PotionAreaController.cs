@@ -5,9 +5,9 @@ public class PotionAreaController : MonoBehaviour
 {
     private const float GroundHeightRatio = 0.5f;
     private const int EllipseSegments = 128;
+    private const float VaporizationSoundFadeOutTime = 0.3f;
     [SerializeField, Min(0f)] private float _duration = 3f;
     [SerializeField, Min(0f)] private float _radius = 1.5f;
-    [SerializeField, Range(0f, 1f)] private float _loopSoundVolume = 1f;
 
     private static int _activationCount;
 
@@ -24,11 +24,13 @@ public class PotionAreaController : MonoBehaviour
     private VFXBurstField _vfxField;
     private SoundHandle _loopSound;
 
-    // 장판이 깔린 순서. 값이 클수록 나중에 던져진 포션이다.
+    // 장판이 깔린 순서. 실제 투척 순서(Ownership.ThrowOrder)와 별개다.
     internal int ActivationOrder { get; private set; }
 
     public PotionData Data { get; private set; }
-    public IDamageable Owner { get; private set; }
+    public PotionRunCatalog Catalog { get; private set; }
+    public PotionAreaOwnership Ownership { get; } = new PotionAreaOwnership();
+    public IDamageable Owner => Ownership.Owner;
     public Collider2D AreaCollider => _collider;
     public PotionAreaEffect AreaEffect => _areaEffect;
     public SpriteRenderer AreaRenderer => _renderer;
@@ -41,7 +43,9 @@ public class PotionAreaController : MonoBehaviour
     internal PotionAreaFootprint Footprint { get; private set; }
     private bool _hasValidFootprint = true;
 
-    public void SetOwner(IDamageable owner) => Owner = owner;
+    public void SetOwner(IDamageable owner) => Ownership.SetOwner(owner);
+    public void SetCatalog(PotionRunCatalog catalog) => Catalog = catalog;
+    public void SetThrowOrder(long order) => Ownership.SetThrowOrder(order);
 
     internal void SetCombinedFootprint(PotionAreaFootprint footprint) => Footprint = footprint;
 
@@ -206,7 +210,9 @@ public class PotionAreaController : MonoBehaviour
             return;
         }
         _activated = true;
+        if (Ownership.ThrowOrder == 0) Ownership.SetThrowOrder(PotionAreaOwnership.NextThrowOrder());
         ActivationOrder = ++_activationCount;
+        Ownership.MarkReaction();
         SetExpiration(Time.time + _duration);
         // 조합에서 먼저 던져진 쪽의 소리를 끌 수 있도록 조합 탐색보다 먼저 재생한다.
         // 기화는 장판을 만들지 않지만 반응을 기다리는 동안 소리를 낸다.
@@ -226,16 +232,40 @@ public class PotionAreaController : MonoBehaviour
         }
     }
 
-    // 장판이 있는 동안 포션의 소리를 반복 재생한다. 장판 오브젝트가 사라지면 같이 멈춘다.
+    // 장판이 있는 동안 반복 재생하며, 증기 대기음은 종료 시 짧게 페이드아웃한다.
     private void PlayLoopSound()
     {
         _loopSound.Stop();
-        _loopSound = SoundManager.Play(Data.AreaLoopSound, SoundChannel.Potion, _loopSoundVolume, loop: true);
+        _loopSound = SoundManager.Play(GameSoundData.GetAreaSoundId(Data.Element));
+    }
+
+    // 각 클립의 원래 재생 음량에 대한 비율로 장판음을 조절한다.
+    internal void FadeLoopSoundTo(float volumeRatio, float fadeTime)
+    {
+        _loopSound.FadeTo(volumeRatio, fadeTime);
+    }
+
+    internal void FadeOutLoopSound(float fadeTime, float volumeScale)
+    {
+        _loopSound.FadeOut(fadeTime, volumeScale);
+        // 장판 제거 시 OnDisable이 잔향을 즉시 정지하지 않도록 소유권을 놓는다.
+        _loopSound = default;
     }
 
     internal void StopLoopSound()
     {
-        _loopSound.Stop();
+        if (Data != null && Data.Element == PotionElement.Vaporization)
+        {
+            // 장판이 사라져도 매니저가 남은 페이드를 처리한다.
+            _loopSound.FadeOut(VaporizationSoundFadeOutTime);
+        }
+        else
+        {
+            _loopSound.Stop();
+        }
+
+        // 조합 처리와 OnDisable에서 중복 호출해도 페이드를 다시 시작하지 않는다.
+        _loopSound = default;
     }
 
     private void OnDisable()

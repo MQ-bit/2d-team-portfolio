@@ -4,12 +4,11 @@ using UnityEngine;
 
 public sealed class ScreenFadeController : MonoBehaviour
 {
-    [Header("References")]
     [SerializeField] private CanvasGroup _canvasGroup;
 
-    [Header("Fade Settings")]
-    [SerializeField] private float _defaultFadeOutDuration = 0.25f;
-    [SerializeField] private float _defaultFadeInDuration = 0.25f;
+    [SerializeField] private float _defaultFadeOutDuration = 0.8f;
+
+    [SerializeField] private float _defaultFadeInDuration = 0.8f;
     [SerializeField] private bool _startCovered = false;
 
     private Coroutine _fadeCoroutine;
@@ -59,13 +58,17 @@ public sealed class ScreenFadeController : MonoBehaviour
         return TryStart(FadeInCoroutine(resolvedDuration), onCompleted);
     }
 
-    public bool TryTransition(Action onCovered, float fadeOutDuration = -1f, float coveredDuration = 0f, float fadeInDuration = -1f, Action onCompleted = null)
+    public bool TryTransition(Action onCovered, float fadeOutDuration = -1f, float coveredDuration = 0f,
+        float fadeInDuration = -1f, Action onCompleted = null, IEnumerator whileCovered = null)
     {
         float resolvedFadeOutDuration = ResolveFadeOutDuration(fadeOutDuration);
         float resolvedFadeInDuration = ResolveFadeInDuration(fadeInDuration);
         coveredDuration = Mathf.Max(0f, coveredDuration);
 
-        return TryStart(TransitionCoroutine(onCovered, resolvedFadeOutDuration, coveredDuration, resolvedFadeInDuration), onCompleted);
+        return TryStart(
+            TransitionCoroutine(onCovered, resolvedFadeOutDuration, coveredDuration, resolvedFadeInDuration,
+                whileCovered),
+            onCompleted);
     }
 
     public void ResetImmediately(float targetAlpha = 0f)
@@ -90,6 +93,18 @@ public sealed class ScreenFadeController : MonoBehaviour
     private bool TryStart(IEnumerator fadeRoutine, Action onCompleted)
     {
         if (!Initialize() || _isFading)
+        {
+            return false;
+        }
+
+        // 투명 상태는 CanvasGroup.alpha로 처리하고, 코루틴 실행 시 오브젝트는 활성화한다.
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+
+        // 부모가 비활성화됐거나 컨트롤러가 꺼져 있으면 요청을 거절한다.
+        if (!isActiveAndEnabled)
         {
             return false;
         }
@@ -123,13 +138,20 @@ public sealed class ScreenFadeController : MonoBehaviour
         SetRaycastBlocked(false);
     }
 
-    private IEnumerator TransitionCoroutine(Action onCovered, float fadeOutDuration, float coveredDuration, float fadeInDuration)
+    private IEnumerator TransitionCoroutine(Action onCovered, float fadeOutDuration, float coveredDuration,
+        float fadeInDuration, IEnumerator whileCovered)
     {
         SetRaycastBlocked(true);
 
         yield return FadeTo(1f, fadeOutDuration);
 
         InvokeSafely(onCovered);
+
+        // 층 생성 이후 카메라 추적 등이 끝날 때까지 완전히 검은 상태와 입력 차단을 유지합니다.
+        if (whileCovered != null)
+        {
+            yield return whileCovered;
+        }
 
         if (coveredDuration > 0f)
         {

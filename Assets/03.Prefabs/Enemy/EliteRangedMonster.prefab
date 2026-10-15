@@ -12,6 +12,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: EliteRangedMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 2241308197873801084, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241308197873801084, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1831432877
+      objectReference: {fileID: 0}
     - target: {fileID: 2623299136486945534, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: _effectPrefab
       value: 
@@ -23,6 +31,18 @@ PrefabInstance:
     - target: {fileID: 5160474410883006025, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: _type
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0020325207
+      objectReference: {fileID: 0}
+    - target: {fileID: 5568155151692152904, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.047
       objectReference: {fileID: 0}
     - target: {fileID: 7146418001948172298, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: m_LocalScale.x
@@ -71,6 +91,10 @@ PrefabInstance:
     - target: {fileID: 7146418001948172298, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687968566608678316, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+      propertyPath: _dropChance
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

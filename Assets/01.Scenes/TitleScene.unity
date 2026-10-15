@@ -151,10 +151,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1142780516}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 266, y: 84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9014636
 MonoBehaviour:
@@ -2523,6 +2523,63 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &437308640
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 960
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 540
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712239265066562760, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112975403730758260, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
+      propertyPath: m_Name
+      value: SoundManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2c840a5c2c6072340af6c53c0a68ccd2, type: 3}
 --- !u!1 &441011527
 GameObject:
   m_ObjectHideFlags: 0
@@ -5897,7 +5954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleSceneController
   _startButton: {fileID: 624044265}
-  _fadeGroup: {fileID: 1686313465}
+  _fadeController: {fileID: 1686313466}
   _ingameSceneName: IngameScene
   _fadeDuration: 0.8
 --- !u!4 &1005989717
@@ -5964,9 +6021,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleButtonSoundController
   _buttonRoot: {fileID: 1692559225}
-  _buttonHoverSound: {fileID: 8300000, guid: f053133de79c6d849a17cda3ed75aaf3, type: 3}
-  _volume: 0.35
-  _soundInterval: 0.08
 --- !u!1 &1021557241
 GameObject:
   m_ObjectHideFlags: 0
@@ -7308,10 +7362,10 @@ RectTransform:
   - {fileID: 9014635}
   m_Father: {fileID: 1692559225}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 400, y: -100}
-  m_SizeDelta: {x: 265.9752, y: 83.8404}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -150, y: -70}
+  m_SizeDelta: {x: 265, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1142780517
 MonoBehaviour:
@@ -11083,6 +11137,7 @@ GameObject:
   - component: {fileID: 1686313464}
   - component: {fileID: 1686313463}
   - component: {fileID: 1686313465}
+  - component: {fileID: 1686313466}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -11159,6 +11214,22 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &1686313466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686313461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5714ce5efa219bd47b50dce77d3a5a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenFadeController
+  _canvasGroup: {fileID: 1686313465}
+  _defaultFadeOutDuration: 0.8
+  _defaultFadeInDuration: 0.8
+  _startCovered: 1
 --- !u!1 &1692559221
 GameObject:
   m_ObjectHideFlags: 0
@@ -13309,3 +13380,4 @@ SceneRoots:
   - {fileID: 1022200441}
   - {fileID: 1005989717}
   - {fileID: 988903664}
+  - {fileID: 437308640}

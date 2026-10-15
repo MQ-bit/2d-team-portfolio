@@ -13,27 +13,48 @@ MonoBehaviour:
   m_Name: 01_VampiricFire
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 1
-  _displayName: "\uD761\uD608\uC758 \uBD88\uAF43"
-  _description: "\uD654\uC5FC \uC6D0\uBCF8 \uC7A5\uD310\xB7\uC794\uB958 \uD6A8\uACFC\uB97C
-    \uC720\uC9C0\uD558\uACE0 \uC2E4\uC81C \uD53C\uD574\uC758 20%\uB97C \uC2DC\uC804\uC790\uC5D0\uAC8C
-    \uD68C\uBCF5\uD55C\uB2E4."
+  _displayName: "흡혈 화염"
+  _description: "화염 장판으로 적을 태우고, 준 피해의 일부만큼 체력을 회복합니다."
   _elementA: 4
   _elementB: 1
-  _inheritThrownEffectsFrom: 1
+  _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 0
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.5
   _applyOnEnter: 1
-  _lifeStealRatio: 0.2
-  _effects: []
+  _lifeStealRatio: 0.15
+  _effects:
+  - _phase: 1
+    _operation: 0
+    _element: 1
+    _amount: 30
+    _status: 0
+    _duration: 0
+    _tickInterval: 0
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
+  - _phase: 2
+    _operation: 2
+    _element: 1
+    _amount: 8
+    _status: 0
+    _duration: 2
+    _tickInterval: 1
+    _applyImmediately: 0
+    _moveSpeedMultiplier: 1
+    _immobilizeDuration: 0
+    _frostStackAmount: 1
   _frost:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: -1303046585, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: 179022352, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}

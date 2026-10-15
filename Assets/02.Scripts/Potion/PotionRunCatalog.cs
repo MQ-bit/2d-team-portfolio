@@ -10,39 +10,35 @@ public class PotionRunCatalog : MonoBehaviour
     [SerializeField] private PotionDatabase _database;
     [SerializeField] private Sprite[] _potionSprites = new Sprite[Required_Potion_Count];
 
-    [Header("Random")]
-    [SerializeField] private bool _useRandomSeed = true;
-    [SerializeField] private int _fixedSeed;
-
     private readonly List<PotionItem> _items = new List<PotionItem>();
     private readonly Dictionary<PotionData, int> _apperanceIndexes = new Dictionary<PotionData, int>();
     private bool[] _identified = Array.Empty<bool>();
+    private readonly HashSet<PotionCombinationData> _discoveredCombinations = new();
 
     public event Action<int, PotionItem> OnIdentified; //UI 연결용
+    public event Action<PotionCombinationData> OnCombinationDiscovered;
 
     public int Count => _items.Count;
-    public int CurrentSeed { get; private set; }
     public bool IsInitialized { get; private set; }
 
     private void Awake()
     {
-        int seed = _useRandomSeed ? Guid.NewGuid().GetHashCode() : _fixedSeed;
-
-        Initialize(seed);
+        Initialize();
     }
 
-    public void Initialize(int seed)
+    public void Initialize()
     {
         CheckDataBase();
-        CurrentSeed = seed;
         IsInitialized = false;
 
         _items.Clear();
         _apperanceIndexes.Clear();
+        _discoveredCombinations.Clear();
         _identified = new bool[_potionSprites.Length];
 
         List<PotionData> shuffledPotions = new List<PotionData>(_database.Potions);
-        Shuffle(shuffledPotions, new System.Random(seed));
+
+        Shuffle(shuffledPotions);
 
         for (int i = 0; i < _potionSprites.Length; i++)
         {
@@ -97,6 +93,17 @@ public class PotionRunCatalog : MonoBehaviour
     {
         return TryGetAppearanceIndex(data, out int appearanceIndex)
             && IsIdentified(appearanceIndex);
+    }
+
+    public bool IsCombinationDiscovered(PotionCombinationData combination) =>
+        combination != null && _discoveredCombinations.Contains(combination);
+
+    // Only successful world reactions call this; identifying ingredients does not unlock a recipe.
+    public bool TryDiscoverCombination(PotionCombinationData combination)
+    {
+        if (!IsInitialized || combination == null || !_discoveredCombinations.Add(combination)) return false;
+        OnCombinationDiscovered?.Invoke(combination);
+        return true;
     }
 
     /// <summary>
@@ -170,11 +177,11 @@ public class PotionRunCatalog : MonoBehaviour
         }
     }
 
-    private static void Shuffle<T>(IList<T> values, System.Random random)
+    private static void Shuffle<T>(IList<T> values)
     {
         for (int i = values.Count - 1; i > 0; i--)
         {
-            int swapIndex = random.Next(i + 1);
+            int swapIndex = UnityEngine.Random.Range(0, i + 1);
 
             (values[i], values[swapIndex]) = (values[swapIndex], values[i]);
         }

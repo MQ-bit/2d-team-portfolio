@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c17c55de17cd3bf428ead465c22e1786, type: 3}
+  m_Name: BgmSoundData
+  m_EditorClassIdentifier: Assembly-CSharp::GameBgmData
+  _entries:
+  - _id: 0
+    _introClip: {fileID: 8300000, guid: 51370f3b64783da4a83cd50474a6d37d, type: 3}
+    _loopClip: {fileID: 8300000, guid: 0d46f3fd32f4c764ba18dab94442fdd4, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: f728bb1e886f95e44906a160ca37f6b1, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: 10b279559e2427148acb076d5aa81986, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: b9614e627ccd8654bbb5c4ce4e431e2e, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 1
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: b265612e9c6099046bbf850e7f43c302, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1
+  - _id: 2
+    _introClip: {fileID: 0}
+    _loopClip: {fileID: 8300000, guid: 09cfa7d80c07fe54bb69fd8d2fa72eeb, type: 3}
+    _loop: 1
+    _endTime: 0
+    _fadeOutTime: 0
+    _volume: 0.3
+    _fadeTime: 1

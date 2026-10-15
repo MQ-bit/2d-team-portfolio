@@ -1,9 +1,11 @@
 using System.Collections;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class DictionaryCardSlotView : MonoBehaviour
+public class DictionaryCardSlotView : MonoBehaviour, IPointerClickHandler
 {
     private const float HiddenAngle = 180f;
     private const float RevealedAngle = 0f;
@@ -11,6 +13,7 @@ public class DictionaryCardSlotView : MonoBehaviour
 
     [Header("Flip Animation Setting")]
     [SerializeField] private RectTransform _flipRoot;
+    [SerializeField] private Image _cardBackImage;
     [SerializeField, Min(0f)] private float _revealDuration = 0.5f;
     [SerializeField] private AnimationCurve _revealCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
@@ -19,13 +22,31 @@ public class DictionaryCardSlotView : MonoBehaviour
     [SerializeField] private Image _potionImage;
     [SerializeField] private TMP_Text _nameText;
     [SerializeField] private TMP_Text _descriptionText;
+    [Header("Selection highlight")]
+    [SerializeField] private GameObject _selectionBadge;
+    [SerializeField] private Color _selectionColor = new Color(1f, 0.76f, 0.2f, 1f);
+    [SerializeField, Min(0f)] private float _selectionWidth = 7f;
 
     private Coroutine _revealRoutine;
+    private bool _revealPending;
+    private Outline _selectionOutline;
+    public PotionData Potion { get; private set; }
+    public Sprite PotionIcon => _potionImage != null ? _potionImage.sprite : null;
+    public event Action<DictionaryCardSlotView> OnCardClicked;
     public bool HasRevealPlayed { get; private set; }
-    public bool IsRevealing => _revealRoutine != null;
+    public bool IsRevealing => _revealPending || _revealRoutine != null;
+
+    private void OnEnable()
+    {
+        if (!_revealPending) return;
+        _revealPending = false;
+        _revealRoutine = StartCoroutine(RevealCoroutine());
+    }
 
     public void SetHidden()
     {
+        Potion = null;
+        SetSelected(false);
         CancelReveal();
 
         HasRevealPlayed = false;
@@ -78,11 +99,19 @@ public class DictionaryCardSlotView : MonoBehaviour
             return;
         }
 
+        if (!isActiveAndEnabled)
+        {
+            // 조합표 탭 등으로 숨겨진 카드의 공개 연출은 활성화될 때 시작한다.
+            _revealPending = true;
+            return;
+        }
+
         _revealRoutine = StartCoroutine(RevealCoroutine());
     }
 
     public void CancelReveal()
     {
+        _revealPending = false;
         if (_revealRoutine == null)
         {
             return;
@@ -113,12 +142,19 @@ public class DictionaryCardSlotView : MonoBehaviour
     private void CompleteReveal()
     {
         _revealRoutine = null;
+        _revealPending = false;
         HasRevealPlayed = true;
+        SetAngle(RevealedAngle);
     }
 
     private void SetContent(PotionData data, Sprite uiPotionSprite, Sprite cardBackgroundSprite)
     {
+        Potion = data;
         SetImage(_cardBackgroundImage, cardBackgroundSprite);
+        if (_cardBackgroundImage != null)
+        {
+            _cardBackgroundImage.preserveAspect = false;
+        }
 
         SetImage(_potionImage, uiPotionSprite);
 
@@ -133,6 +169,33 @@ public class DictionaryCardSlotView : MonoBehaviour
         }
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left || Potion == null || IsRevealing) return;
+        OnCardClicked?.Invoke(this);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (_selectionOutline == null && selected && _cardBackgroundImage != null)
+        {
+            _selectionOutline = _cardBackgroundImage.gameObject.AddComponent<Outline>();
+        }
+        if (_selectionOutline != null)
+        {
+            _selectionOutline.effectColor = _selectionColor;
+            _selectionOutline.effectDistance = new Vector2(_selectionWidth, -_selectionWidth);
+            _selectionOutline.enabled = selected;
+        }
+        if (_cardBackgroundImage != null)
+        {
+            _cardBackgroundImage.color = _cardBackgroundImage.sprite == null ? Color.clear
+                : selected ? new Color(1f, 0.94f, 0.78f, 1f) : Color.white;
+        }
+
+        if (_selectionBadge != null) _selectionBadge.SetActive(selected);
+    }
+
     private void SetAngle(float yAngle)
     {
         if (_flipRoot == null)
@@ -142,6 +205,30 @@ public class DictionaryCardSlotView : MonoBehaviour
 
         if (_flipRoot != null)
         {
+            if (_cardBackImage == null)
+            {
+                Transform back = _flipRoot.Find("CardBack");
+                if (back != null) _cardBackImage = back.GetComponent<Image>();
+            }
+
+            if (_cardBackImage != null && _cardBackgroundImage != null)
+            {
+                RectTransform front = _cardBackgroundImage.rectTransform;
+                RectTransform back = _cardBackImage.rectTransform;
+                back.anchorMin = front.anchorMin;
+                back.anchorMax = front.anchorMax;
+                back.pivot = front.pivot;
+                back.sizeDelta = front.sizeDelta;
+                back.anchoredPosition3D = front.anchoredPosition3D;
+                back.localRotation = front.localRotation;
+                back.localScale = front.localScale;
+
+                // Both faces use UI rendering; show the back only on its half of the flip.
+                _cardBackImage.material = _cardBackgroundImage.material;
+                _cardBackImage.preserveAspect = false;
+                _cardBackImage.enabled = Mathf.Cos(yAngle * Mathf.Deg2Rad) < 0f;
+            }
+
             _flipRoot.localRotation = Quaternion.Euler(0f, yAngle, 0f);
         }
     }

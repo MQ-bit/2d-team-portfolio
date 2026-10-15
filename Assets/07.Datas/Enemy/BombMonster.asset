@@ -12,10 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9e0e89defb125542bb892e0f984bca6, type: 3}
   m_Name: BombMonster
   m_EditorClassIdentifier: Assembly-CSharp::ExplodingEnemyData
-  _maxHealth: 100
+  _maxHealth: 120
   _moveSpeed: 2.5
-  _detectRange: 9999
-  _fuseTriggerRange: 2.2
-  _fuseDuration: 0.333
-  _explosionRadius: 2
-  _explosionDamage: 30
+  _contactDamage: 12
+  _detectRange: 200
+  _visualScale: 1
+  _tintColor: {r: 1, g: 1, b: 1, a: 1}
+  _fuseTriggerRange: 1.8
+  _fuseDuration: 0.65
+  _explosionRadius: 4
+  _explosionDamage: 40
+  _rushTriggerRange: 4
+  _rushSpeedMultiplier: 2.5
+  _rushDuration: 1.5
+  _rushCooldown: 1.5
+  _rushWindupDuration: 0.5
+  _rushWindupColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  _splitPrefab: {fileID: 0}
+  _splitCount: 2
+  _splitDamageMultiplier: 0.6
+  _splitSpawnDistance: 0.6

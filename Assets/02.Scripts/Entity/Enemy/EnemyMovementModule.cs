@@ -23,6 +23,8 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
     [SerializeField, Min(0.1f)] private float _separationSearchRadius = 2.5f;
 
     private readonly List<Collider2D> _neighborResults = new List<Collider2D>();
+    private EntityBodyCollision _bodyCollision;
+    private EnemyStatus _status;
 
     private float _knockbackEndTime;
     private bool _isKnockedBack;
@@ -34,15 +36,24 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
 
     // 몸 반지름(콜라이더 크기 x 스케일). 길찾기에서 몸이 지나갈 수 있는 길을 고르고, 몬스터끼리 간격을 잴 때 쓴다.
     public float BodyRadius { get; private set; } = 0.5f;
+    public bool IsKnockedBack => _isKnockedBack && Time.fixedTime < _knockbackEndTime;
 
     private void Awake()
     {
+        _status = GetComponent<EnemyStatus>();
         if (_rigid == null)
         {
             _rigid = GetComponent<Rigidbody2D>();
         }
 
         BodyRadius = CalculateBodyRadius();
+        _bodyCollision = new EntityBodyCollision(_rigid, false);
+    }
+
+    private void OnEnable() => _bodyCollision.Register();
+    private void OnDisable()
+    {
+        _bodyCollision.Unregister();
     }
 
     private float CalculateBodyRadius()
@@ -72,7 +83,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         }
 
         Vector2 nextPosition = Vector2.MoveTowards(_rigid.position, targetPosition, speed * Time.fixedDeltaTime);
-        _rigid.MovePosition(nextPosition);
+        _bodyCollision.MoveTo(nextPosition);
     }
 
     // FixedUpdate에서 호출한다. 벽/소품을 돌아서 targetPosition까지 쫓아간다(EnemyPathfinder).
@@ -90,7 +101,7 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
 
         // 같은 길로 몰려와도 겹치지 않게 주변 몬스터 반대쪽으로 조금씩 비켜난다. 한 프레임 이동량을 넘지 않는다.
         nextPosition += Vector2.ClampMagnitude(GetSeparation() * _separationStrength, 1f) * step;
-        _rigid.MovePosition(nextPosition);
+        _bodyCollision.MoveTo(nextPosition);
     }
 
     // 몸끼리 간격(_separationGap)보다 가까운 몬스터에게서, 가까울수록 강하게 밀어내는 방향의 합.
@@ -169,6 +180,11 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
     // direction * force 만큼 밀려난다. 위치를 직접 옮기지 않고 속도로 밀어서 벽/다른 적과의 충돌이 적용된다.
     public void ApplyKnockback(Vector2 direction, float force)
     {
+        if (_status != null && _status.IsDead)
+        {
+            ResetState();
+            return;
+        }
         _rigid.linearVelocity = direction * force / _knockbackDuration;
         _knockbackEndTime = Time.fixedTime + _knockbackDuration; // Update에서 호출돼도 물리 시간 기준으로 맞춘다.
         _isKnockedBack = true;
@@ -192,4 +208,22 @@ public class EnemyMovementModule : MonoBehaviour, IKnockbackable
         _rigid.linearVelocity = Vector2.zero;
         return false;
     }
+
+    public void ResetState()
+    {
+        _isKnockedBack = false;
+        _knockbackEndTime = 0f;
+
+        _waypoint = Vector2.zero;
+        _hasWaypoint = false;
+        _isDirectChase = false;
+        _nextRepathTime = 0f;
+
+        if (_rigid != null)
+        {
+            _rigid.linearVelocity = Vector2.zero;
+            _rigid.angularVelocity = 0f;
+        }
+    }
+
 }

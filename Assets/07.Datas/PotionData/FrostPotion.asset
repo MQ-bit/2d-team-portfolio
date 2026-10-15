@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: FrostPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: frost_potion
-  _displayName: "\uC11C\uB9AC\uC758 \uBB3C\uC57D"
-  _description: "\uD55C\uC5C6\uC774 \uCC28\uAC00\uC6B4 \uC0B4\uC5BC\uC74C\uC774 \uB5A0
-    \uC788\uB294 \uC561\uCCB4. \uC190\uC5D0 \uC950\uACE0 \uC788\uC73C\uBA74 \uD314\uC774
-    \uC5BC\uC5B4\uBD99\uC744 \uAC83\uB9CC \uAC19\uB2E4."
+  _displayName: "<color=#216B8A>\uC11C\uB9AC</color>\uC758 \uBB3C\uC57D"
+  _description: "\uC950\uACE0 \uC788\uC73C\uBA74 \uC190\uB05D\uC774 \uC5BC\uC5B4\uBD99\uC744
+    \uAC83\uB9CC \uAC19\uB2E4.\n\n<color=#216B8A>\uBE59\uACB0</color> : \uB454\uD654
+    \uBC0F \uC815\uC9C0"
   _element: 3
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 4
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.75
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 3
-    _amount: 5
+    _amount: 6
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -51,7 +51,7 @@ MonoBehaviour:
   - _phase: 3
     _operation: 0
     _element: 3
-    _amount: 15
+    _amount: 10
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -64,7 +64,7 @@ MonoBehaviour:
     _element: 3
     _amount: 0
     _status: 2
-    _duration: 2
+    _duration: 1.5
     _tickInterval: 0
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
@@ -74,9 +74,9 @@ MonoBehaviour:
     _freezeThreshold: 3
     _moveSpeedMultipliers:
     - 0.85
-    - 0.7
+    - 0.5
     _freezeDuration: 2
-  _thirstDelta: -30
+  _thirstDelta: -20
   _visualData:
     _iconSprite: {fileID: 694522102, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _cardBackgroundSprite: {fileID: 2330094949270191781, guid: 9506386f64cb6434a8c9f77ee41d247b, type: 3}
@@ -86,5 +86,4 @@ MonoBehaviour:
     _areaSurfaceStyle: 3
     _areaVfxPrefab: {fileID: 0}
     _impactVisualDuration: 0
-  _areaLoopSound: {fileID: 8300000, guid: 29a2b575e354fbe45ba6f1088c8509ec, type: 3}
   _vaporizationSettings: {fileID: 0}

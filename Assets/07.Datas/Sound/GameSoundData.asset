@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e6a1dfb5c82469bb8f1ee6415602a73, type: 3}
+  m_Name: GameSoundData
+  m_EditorClassIdentifier: Assembly-CSharp::GameSoundData
+  _bgm: {fileID: 11400000, guid: 3621f393f67d42939e120063b50316ad, type: 2}
+  _scene: {fileID: 11400000, guid: e1e7ceb238d0481385ff1907b3b3248a, type: 2}
+  _player: {fileID: 11400000, guid: 333727b7f4b7467d810b3166dd305794, type: 2}
+  _ui: {fileID: 11400000, guid: 08f40b74b2cc481890c6ad05447be520, type: 2}
+  _enemies:
+  - {fileID: 11400000, guid: f2d0be24e14b4c4b979dc9b2edd69ba6, type: 2}
+  - {fileID: 11400000, guid: bb3fca8e82454959b8b50c4430c68445, type: 2}
+  - {fileID: 11400000, guid: dbe04ff77c14464a90f43de989f9f678, type: 2}
+  _potion: {fileID: 11400000, guid: 44dc8d32a11e4ebebf69875f07958b4a, type: 2}

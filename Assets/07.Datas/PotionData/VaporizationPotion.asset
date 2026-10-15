@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: VaporizationPotion
   m_EditorClassIdentifier: Assembly-CSharp::PotionData
   _id: vaporization_potion
-  _displayName: "\uAE30\uD654\uC758 \uD3EC\uC158"
-  _description: "\uBB34\uC0C9\uC758 \uC5F0\uBB34\uB97C \uBFDC\uC5B4\uB0B4\uB294 \uC561\uCCB4.
-    \uB2E4\uB978 \uBAA8\uB4E0 \uBB3C\uC57D \uC131\uBD84\uC744 \uB0A0\uB824\uBC84\uB9B0\uB2E4."
+  _displayName: "<color=#505E70>\uAE30\uD654</color>\uC758 \uD3EC\uC158"
+  _description: "\uB2E4\uB978 \uBAA8\uB4E0 \uBB3C\uC57D \uC131\uBD84\uC744 \uB0A0\uB824\uBC84\uB9B0\uB2E4.\n\n<color=#505E70>\uAE30\uD654</color>
+    : \uC7A5\uD310 \uD3ED\uBC1C"
   _element: 6
   _targetType: 2
   _effectRadius: 3
@@ -39,7 +39,7 @@ MonoBehaviour:
   - _phase: 3
     _operation: 0
     _element: 6
-    _amount: 15
+    _amount: 10
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -63,5 +63,4 @@ MonoBehaviour:
     _areaSurfaceStyle: 6
     _areaVfxPrefab: {fileID: 5417271631518840610, guid: c1fba479fcab4a779b1fb7282da78392, type: 3}
     _impactVisualDuration: 0
-  _areaLoopSound: {fileID: 8300000, guid: cfe18bc295ea8b14a89a32179cd9c7a9, type: 3}
   _vaporizationSettings: {fileID: 11400000, guid: 0dbd3562a82b4976a8ec1488b7e26bb9, type: 2}

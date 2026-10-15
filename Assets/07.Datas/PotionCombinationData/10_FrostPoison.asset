@@ -13,24 +13,23 @@ MonoBehaviour:
   m_Name: 10_FrostPoison
   m_EditorClassIdentifier: Assembly-CSharp::PotionCombinationData
   _combination: 10
-  _displayName: "\uB3D9\uC0C1\uB3C5"
-  _description: "5\uCD08 \uC7A5\uD310. \uB9E4\uCD08 \uB3C5 5 + \uC11C\uB9AC 1\uC2A4\uD0DD.
-    \uC774\uD0C8 \uD6C4 \uC911\uB3C5 3\uCD08."
+  _displayName: "동상"
+  _description: "독 장판으로 적을 중독시키며 얼립니다. 장판을 벗어나도 중독이 남습니다."
   _elementA: 2
   _elementB: 3
   _inheritThrownEffectsFrom: 0
   _targetType: 2
-  _effectRadius: 3
+  _effectRadius: 4
   _createsFloor: 1
-  _floorDuration: 5
-  _tickInterval: 1
+  _floorDuration: 6
+  _tickInterval: 0.75
   _applyOnEnter: 1
   _lifeStealRatio: 0
   _effects:
   - _phase: 1
     _operation: 0
     _element: 2
-    _amount: 5
+    _amount: 32
     _status: 0
     _duration: 0
     _tickInterval: 0
@@ -52,10 +51,10 @@ MonoBehaviour:
   - _phase: 2
     _operation: 2
     _element: 2
-    _amount: 5
+    _amount: 24
     _status: 1
-    _duration: 3
-    _tickInterval: 1
+    _duration: 4.5
+    _tickInterval: 0.75
     _applyImmediately: 0
     _moveSpeedMultiplier: 1
     _immobilizeDuration: 0
@@ -66,6 +65,7 @@ MonoBehaviour:
     - 0.85
     - 0.7
     _freezeDuration: 2
+  _spreadDuration: 0.4
   _visualData:
     _iconSprite: {fileID: 505763235, guid: 32ae3c576e52e2645bb0b435437aee04, type: 3}
     _areaSprite: {fileID: -1159928539, guid: 17f857ee0f5fb384fb2550cb3aa39a12, type: 3}

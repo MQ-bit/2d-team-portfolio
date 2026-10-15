@@ -11,14 +11,9 @@ public class PlayerMeleeModule : MonoBehaviour
     [SerializeField] private MeleeAttackIndicator _attackIndicator;
 
 
-    [Header("Melee Settings")]
-    [SerializeField] private float _attackDamage = 10f;
-    [SerializeField] private float _attackRange = 2f;
-    [SerializeField] private float _attackAngle = 90f;
-    [SerializeField] private float _attackCooltime = 0.5f;
-    [SerializeField] private float _swingDuration = 0.3f;
-    [SerializeField] private float _knockbackForce = 5f;
+    [Header("Target Filter")]
     [SerializeField] private LayerMask _targetLayer = ~0;
+    private PlayerData.MeleeSettings Settings => _status.Data.Melee;
 
     [Header("Melee Indicator Settings")]
     [SerializeField] private MeleeAttackIndicator _indicatorPrefab;
@@ -31,9 +26,9 @@ public class PlayerMeleeModule : MonoBehaviour
     public bool IsMeleeModeActivated { get; private set; }
 
     public bool IsSwinging => Time.time < _swingEndTime;
-    public float SwingDuration => _swingDuration;
-    public float AttackRange => _attackRange;   // 공격 이펙트 크기용
-    public float AttackAngle => _attackAngle;
+    public float SwingDuration => Settings.SwingDuration;
+    public float AttackRange => Settings.Range;   // 공격 이펙트 크기용
+    public float AttackAngle => Settings.Angle;
     public Vector2 LastAttackDirection => _lastAttackDirection; // 공격 애니메이션 방향용
 
     public event Action<bool> OnMeleeModeChanged;   //UI용 이벤트
@@ -43,6 +38,7 @@ public class PlayerMeleeModule : MonoBehaviour
     private void Awake()
     {
         InitiateComponents();
+        if (_status == null || _status.Data == null) { enabled = false; return; }
         _currentAttackTime = 0f;
     }
 
@@ -68,7 +64,7 @@ public class PlayerMeleeModule : MonoBehaviour
             _attackIndicator = Instantiate(_indicatorPrefab, playerCanvas.transform);
         }
 
-        _attackIndicator.SetIndicatorSize(_attackRange, _attackAngle);
+        _attackIndicator.SetIndicatorSize(Settings.Range, Settings.Angle);
 
         IsMeleeModeActivated = false;
         _attackIndicator.Hide();
@@ -102,8 +98,8 @@ public class PlayerMeleeModule : MonoBehaviour
     public bool CanAttack()
     {
         return IsMeleeModeActivated && !IsSwinging
-            && Time.time - _currentAttackTime >= _attackCooltime
-            && _status != null && _status.CanMove;
+            && _status != null && _status.Data != null && _status.CanMove
+            && Time.time - _currentAttackTime >= Settings.Cooldown;
     }
 
     public bool TryToggleMeleeMode()
@@ -127,8 +123,9 @@ public class PlayerMeleeModule : MonoBehaviour
         Vector2 attackDirection = GetAttackDirection(mousePosition);
         _lastAttackDirection = attackDirection;
         _currentAttackTime = Time.time;
-        _swingEndTime = Time.time + _swingDuration;
+        _swingEndTime = Time.time + Settings.SwingDuration;
 
+        _status.RestoreThirst(Settings.WithdrawalCost);
         OnAttackStarted?.Invoke(attackDirection);
         ApplyAttack(attackDirection);
         return true;
@@ -182,7 +179,7 @@ public class PlayerMeleeModule : MonoBehaviour
     private void ApplyAttack(Vector2 attackDirection)
     {
         Vector2 origin = _attackOrigin.position;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, _attackRange, _targetLayer);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, Settings.Range, _targetLayer);
 
         _damagedTarget.Clear();
         bool hasKilled = false;
@@ -203,10 +200,11 @@ public class PlayerMeleeModule : MonoBehaviour
                 continue;
             }
 
-            damageable.DecreaseHealth(_attackDamage);
+            damageable.DecreaseHealth(Settings.Damage);
             hasKilled |= damageable.IsDead;
 
-            if (!hit.TryGetComponent(out IKnockbackable knockbackable))
+            // 치명타의 사망 처리에서 정지시킨 속도를 넉백으로 다시 만들지 않는다.
+            if (damageable.IsDead || !hit.TryGetComponent(out IKnockbackable knockbackable))
             {
                 continue;
             }
@@ -218,7 +216,7 @@ public class PlayerMeleeModule : MonoBehaviour
             }
 
             knockbackDirection.Normalize();
-            knockbackable.ApplyKnockback(knockbackDirection, _knockbackForce);
+            knockbackable.ApplyKnockback(knockbackDirection, Settings.KnockbackForce);
         }
 
         if (_damagedTarget.Count > 0)
@@ -244,23 +242,26 @@ public class PlayerMeleeModule : MonoBehaviour
 
         float angle = Vector2.Angle(attackDirection, directionToTarget);
 
-        return angle <= _attackAngle * 0.5f;
+        return angle <= Settings.Angle * 0.5f;
     }
 
     private void OnDrawGizmos()
     {
+        PlayerStatus status = _status != null ? _status : GetComponent<PlayerStatus>();
+        if (status == null || status.Data == null) return;
+        PlayerData.MeleeSettings settings = status.Data.Melee;
         Transform originTransform = _attackOrigin != null ? _attackOrigin : transform;
 
         Vector3 origin = originTransform.position;
         Vector2 centerDirection = _lastAttackDirection.sqrMagnitude > Mathf.Epsilon ? _lastAttackDirection.normalized : Vector2.right;
 
         const int segmentCount = 24;
-        float halfAngle = _attackAngle * 0.5f;
+        float halfAngle = settings.Angle * 0.5f;
 
         Gizmos.color = Color.red;
 
         Vector3 leftDirection = Quaternion.Euler(0f, 0f, -halfAngle) * centerDirection;
-        Vector3 previousPoint = origin + leftDirection * _attackRange;
+        Vector3 previousPoint = origin + leftDirection * settings.Range;
 
         Gizmos.DrawLine(origin, previousPoint);
 
@@ -270,7 +271,7 @@ public class PlayerMeleeModule : MonoBehaviour
             float angle = Mathf.Lerp(-halfAngle, halfAngle, ratio);
 
             Vector3 direction = Quaternion.Euler(0f, 0f, angle) * centerDirection;
-            Vector3 currentPoint = origin + direction * _attackRange;
+            Vector3 currentPoint = origin + direction * settings.Range;
 
             Gizmos.DrawLine(previousPoint, currentPoint);
             previousPoint = currentPoint;
