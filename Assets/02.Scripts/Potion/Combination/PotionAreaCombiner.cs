@@ -3,6 +3,8 @@ using UnityEngine;
 
 public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 탐색과 조합 확정
 {
+    public static event System.Action<PotionAreaController, PotionAreaController, PotionCombinationData> CombinationCommitted;
+    private static readonly Unity.Profiling.ProfilerMarker CombineMarker = new("PerfDemo.CombineCommit");
     private const float EarlierSoundVolumeRatio = 0.4f;
     private const float LaterSoundVolumeRatio = 0.6f;
     private const float CombinationSoundFadeTime = 0.3f;
@@ -124,6 +126,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
         PotionAreaCombiner otherCombiner, PotionCombinationData data,
         IPotionEffectData templateProfile)
     {
+        using var marker = CombineMarker.Auto();
         IPotionEffectData effectProfile = templateProfile;
         float duration = data.FloorDuration;
         PotionElement inheritedElement = data.InheritThrownEffectsFrom;
@@ -216,6 +219,7 @@ public sealed class PotionAreaCombiner : MonoBehaviour // 포션 조합 상대 �
 
     private void RecordCombination(PotionAreaController other, PotionCombinationData data)
     {
+        CombinationCommitted?.Invoke(_areaController, other, data);
         PotionRunCatalog catalog = _areaController.Catalog != null ? _areaController.Catalog : other.Catalog;
         if (catalog != null) catalog.TryDiscoverCombination(data);
     }

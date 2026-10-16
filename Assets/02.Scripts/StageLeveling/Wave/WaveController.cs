@@ -24,6 +24,7 @@ public sealed class WaveController : MonoBehaviour
 
     public event Action CombatCompleted;
     public event Action<string> CombatFailed;
+    public event Action<WaveEnemyHandle> EnemySpawned;
 
     private void Awake()
     {
@@ -120,6 +121,7 @@ public sealed class WaveController : MonoBehaviour
                     }
 
                     TrackEnemy(enemy);
+                    EnemySpawned?.Invoke(enemy);
                     index++;
 
                     if (index < batchEnd && wave.SpawnInterval > 0f)

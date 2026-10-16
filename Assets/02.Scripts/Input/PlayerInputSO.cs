@@ -8,6 +8,32 @@ using static UnityEngine.InputSystem.InputAction;
 public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 {
     private PlayerInput _playerInput;
+    private bool _isReplay;
+
+    public static InputReader CreateReplayReader()
+    {
+        var reader = CreateInstance<InputReader>();
+        reader.ReleaseInput();
+        reader._isReplay = true;
+        reader.name = "Performance replay input";
+        return reader;
+    }
+    public void ReplayState(Vector2 move, Vector2 screenAim)
+    {
+        if (!_isReplay) throw new InvalidOperationException("Replay requires a runtime replay reader.");
+        _moveInput = Vector2.ClampMagnitude(move, 1);
+        _mousePosition = screenAim;
+    }
+    public void ReplayPrimary(bool pressed)
+    {
+        if (!_isReplay) throw new InvalidOperationException("Not a replay reader.");
+        _isPrimaryActionHolding = pressed;
+        if (pressed) OnPrimaryActionStart?.Invoke(_mousePosition);
+        else OnPrimaryActionEnd?.Invoke(_mousePosition);
+    }
+    public void ReplaySelectSlot(int slot) { if (_isReplay) OnItemSlotChanged?.Invoke(slot); }
+    public void ReplayToggleMelee() { if (_isReplay) OnMeleeToggleRequested?.Invoke(); }
+    public void ReplayDash() { if (_isReplay) OnMoveInput?.Invoke(); }
 
     private Vector2 _moveInput = Vector2.zero;
     private Vector2 _mousePosition = Vector2.zero;
@@ -48,7 +74,7 @@ public class InputReader : ScriptableObject, PlayerInput.IPlayerActions
 
     private void InitializeInput()
     {
-        if (_playerInput != null) return;
+        if (_isReplay || _playerInput != null) return;
 
         _playerInput = new PlayerInput();
         _playerInput.Player.SetCallbacks(this);

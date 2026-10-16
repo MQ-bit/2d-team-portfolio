@@ -2,8 +2,10 @@
 
 - 작성일: 2026-10-14
 - 기반 문서: [성능 최적화 영향 요소 분석](PerformanceOptimizationAnalysis.md)
-- 상태: 구현 전 설계. 아래 씬·클래스·설정 파일 이름은 신규 생성 예정이며 확정된 구현 API가 아니다.
+- 상태: `PerformanceDemoScene` 및 S0·S1·S3·S5의 첫 실행 버전 구현. 구현 상세와 남은 검증은 아래 12절을 따른다.
 - 목적: 포션 장판과 리퍼를 우선 측정하고, 이후 적 이동·상태 효과·복합 전투로 확장할 수 있는 재현 가능한 테스트 환경을 만든다.
+- 후속 확장 계획: [실제 전투 루프 시나리오 계획](PerformanceDemoGameLoopScenarioPlan.md). 다중 장판 조합·다수 적 추적·복합 전투·스테이지 진행·반복 수명의 구현 및 검증 순서를 다룬다.
+- 게임 루프 시나리오 구현: [추가된 24개 시나리오 사용법과 범위](PerformanceDemoGameLoopImplementation.md). 고정 공간의 전투를 확장하며 방/스테이지 진행은 후속 범위다.
 
 ## 1. 결정할 형태
 
@@ -210,3 +212,43 @@ Development Build에서도 UI 개별 실행과 자동 시작 설정을 제공한
 - GPU Profiler 지원과 목표 빌드의 저장 경로·Profiler 연결.
 
 원래 분석 문서는 **무엇이 비용을 만들 수 있는지**, 이 문서는 **그 비용을 재현하고 비교하는 씬을 어떻게 만들지**를 담당한다. 구현 중 바뀐 구조와 확인된 제약은 이 문서에 반영한다.
+
+## 12. 2026-10-15 구현 현황과 사용법
+
+- 씬: `Assets/01.Scenes/Optimization/PerformanceDemoScene.unity`. 열고 Play 후 왼쪽 패널에서 `Run selected` / `Run all` / `Stop and clean up`을 사용한다.
+- 생성 메뉴: `Tools/Performance/Create Demo Scene`. 씬이 이미 있으면 기존 씬을 열며 덮어쓰지 않는다. 일반 빌드 목록은 변경하지 않는다.
+- 11개 설정: S0 기준, S1 화염 장판 1·5·10·20개, S3 벽 없음·단순 벽·복잡한 모서리, S5 돌진·포션 탈취 성공·포션 낙하. 설정은 `Assets/PerformanceDemo/`의 ScriptableObject에서 조절한다.
+- 바닥과 벽은 현재 유효한 `NormalRoom_1.prefab`의 Tilemap 구성과 최다 사용 타일을 사용한다. 기존 문서의 `Level_1.prefab` 경로는 사용하지 않는다. 한 공간만 활성화한다.
+- S1은 원본 화염 포션의 반경 4, 수명 6초를 유지한다. 간격은 지름의 1.1배이며, 측정은 5.5초다. 워밍업용 대상을 먼저 실행하고 정리한 뒤 새 대상으로 측정한다. 측정 도중 보충하지 않는다.
+- S3은 실제 `Initiate` / `Launch` 경로를 사용한다. 예측한 벽 충돌 및 착지 위치, 실제 생성된 장판의 위치·콜라이더를 확인한다. 착지 관찰에는 0.1초 간격의 런타임 씬 루트 탐색 부하가 포함된다.
+- S5는 원본 리퍼 프리팹의 전용 사본과 단일 스킬만 허용한 ReaperData 사본을 사용한다. 공개 `Action` / `RecoveryFrom` 변화로 시작·완료를 기록한다. 탈취 성공은 인벤토리 감소로 확인한다. 빈 인벤토리·회피 실패 케이스와 다중 리퍼는 후속 범위다.
+- 데모 플레이어는 원본 프리팹 사본을 사용하고 입력을 잠근다. PlayerData 사본의 초기·최대 HP만 100000으로 변경한다. 측정 중 회복을 반복하지 않는다.
+- 각 반복은 별도 가산 런타임 씬에서 실행된다. 실제 코드가 부모 없이 만든 장판·파괴 이펙트·리퍼 경고도 해당 씬이 소유하며, 정리 때 비활성화 후 씬 전체를 언로드한다. SoundManager·카탈로그·길찾기는 반복 간 유지한다.
+- `PerfDemo.Setup`, `PerfDemo.Measure`, `PerfDemo.Cleanup` 마커는 동기 작업 범위만 감싼다. 구간 경계와 프레임·실제 시간·게임 시간·개수·상태 변화는 JSON/CSV로 별도 기록한다.
+- 저장: `Application.persistentDataPath/PerformanceDemo/<RunId>/run.json`, `events.csv`, 시나리오·반복별 `.raw`. 러너의 `AutoStart`를 켜면 빌드에서도 자동 순회한다.
+- 현재 비교 조건: 원본 렌더러·오디오 유지, 고정 카메라. 카메라 흔들림 컨트롤러와 전역 데미지 숫자 UI는 배치하지 않았다. 전체 인게임 피드백 비용으로 해석하지 않는다. 렌더러 비활성화 비교·GPU/프레임 통계 집계·데모 전용 빌드 메뉴는 아직 구현하지 않았다.
+- 검증 도구: `PerformanceDemoSceneBuilder.CreateBatch`는 생성·재열기·참조를 확인한다. `PerformanceDemoSmokeCheck.RunBatch`는 설정을 메모리에 복사해 짧은 1회 순회를 실행한다. `-batchmode -executeMethod PerformanceDemoSmokeCheck.RunBatch`로 실행하며 `-quit`는 지정하지 않는다. 실제 성능 기준 캡처는 화면이 있는 Development Build에서 원래 시간·3회 반복 설정으로 별도 수행해야 한다.
+- 검증 결과: Unity 6000.3.22f1에서 스크립트 컴파일, 저장 씬 재열기·참조 검증, 11개 단축 시나리오 순회, 중단 후 정리, 잘못된 설정 실패 처리, 실패 후 재실행을 통과했다. 루트 씬 개수가 실행 전으로 복구되는 것도 확인했다. `-nographics` 실행이므로 화면 품질·GPU 성능 및 Development Build 검증은 아직 수행하지 않았다. 로그는 `Logs/PerformanceDemoCreate.log`, `Logs/PerformanceDemoSmoke.log`에 남는다.
+
+## 13. 측정 구간 자동 Profiler 캡처
+
+- `DemoSystem`의 러너에서 `Capture Profiler`는 기본 활성화다. 에디터 또는 Development Build에서 `Run selected`를 누르면 워밍업과 측정 준비를 끝낸 후 Measure에 들어가면서 기록한다. Profiler 창을 직접 열거나 Record를 누를 필요가 없다.
+- `S1_Areas_20_repeat01.raw`처럼 시나리오 이름과 반복 번호로 파일을 나눈다. 저장 폴더는 실행 시작 때 만들고, 실행 ID에는 충돌 방지용 접미사를 붙인다. 정리와 결과 JSON/CSV 쓰기 전에 바이너리 기록을 닫는다.
+- S1 장판 생성은 준비 구간에 두고, S3 투척 시작은 Measure 안에서 수행한다. 리퍼는 준비 때 생성한 뒤 컨트롤러를 잠시 멈췄다가 Measure 진입 시 다시 활성화한다. 실제 스킬 로직과 데이터는 변경하지 않는다.
+- `run.json`의 `captures`에 파일명, 시나리오, 반복, 시작·종료 프레임/실제 시간, 러너가 발행한 Measure 샘플 수, 파일 크기, `Completed` / `Stopped` / `Failed` 상태와 실패 사유를 저장한다. 에디터 실행 여부·Development Build 여부·씬 경로도 기록한다.
+- `Completed`는 실행 중 검증을 통과한 캡처 후보라는 뜻이다. 파일 내부의 실제 마커·함수 비용 검증은 다음 CLI 분석 단계에서 수행하므로 `markerVerification`은 `PendingOfflineAnalysis`로 명시한다. 빈 파일이나 Measure 샘플 0개는 즉시 실패 처리한다.
+- `Maximum Frame Gap Seconds` 기본값은 1초다. 이 값을 넘는 프레임/갱신 중단, 연속 `timeScale=0`, 목표 시간 초과를 감지하면 결과를 무효로 저장한다. Measure 중 애플리케이션 포커스 상실도 무효 처리한다(배치 모드 제외). 짧은 게임 히트스톱은 허용하며 timeScale을 매 프레임 강제 복구하지 않는다.
+- 사용자 중단, 오류, 러너 비활성화·파괴·애플리케이션 종료 때에도 캡처를 닫고 결과를 저장한다. 프로세스 강제 종료나 운영체제 중단까지 저장을 보장하지는 않는다. 기존 바이너리 Profiler 기록이 있으면 이를 덮어쓰지 않고 실패 처리한다. 자체 캡처 후에는 기존 Profiler 활성 상태와 logFile 설정을 복구한다.
+- 새 캡처 경로 검증: Unity 6000.3.22f1의 별도 임시 프로젝트에서 실제 러너·레코더·캡처 소스와 가짜 게임 서비스를 사용해 정상 2회, 측정 중 중단, 수량 불일치 실패, 컴포넌트 비활성화, 재실행, 캡처 끄기, 기존 기록 충돌을 검사했다. 저장된 6개 raw를 다시 열어 Measure 마커 존재 및 Setup/Cleanup 마커 부재를 확인했다. 짧은 히트스톱 허용과 긴 갭·정지·시간 초과 거부도 검사했다. 로그와 검증 캡처는 `Logs/ProfilerCaptureChecks/` 및 `Logs/ProfilerCaptureChecks.log`에 있다. 실제 전투 시나리오와 화면이 있는 Development Build의 성능 검증은 별도로 수행한다.
+
+## 14. 저장 캡처 CLI 분석
+
+`Tools/Profiling/Analyze-Profiler.ps1`에서 실행 결과 폴더나 단일 `.raw` / `.data`를 분석한다. 별도 Unity 프로젝트로 파일을 읽어 측정 마커·실행 상태·기대 샘플 수를 검증하고, 프레임별 CSV·CPU 함수 비용·GC 할당 경로·p50/p95/p99와 Markdown/JSON 보고서를 만든다. 입력과 게임 씬은 변경하지 않는다. 유효한 Measure 내부 프레임만 성능 비교에 사용하며, GPU 시간과 Render Thread CPU 시간을 혼동하지 않는다. 메타데이터가 없는 단일 파일은 마커만 검증했다는 경고를 남긴다.
+
+실행 예시·종료 코드·유효성 기준은 [Profiler CLI 사용법](../Tools/Profiling/README.md)을 따른다. 변경 전후 자동 비교는 후속 단계다.
+
+## 15. MCP 실행·캡처·분석 자동화
+
+`PerformanceDemoMcpTool`의 `performance_demo` 도구는 start/status/stop/analyze를 제공한다. 작업 상태를 SessionState와 `Logs/PerformanceMcp/job.json`에 저장해 플레이 진입·종료에 따른 도메인 리로드를 넘겨 이어간다. 플레이 진입 완료를 기다린 뒤 러너를 실행하며, 원본 시나리오 대신 메모리 사본으로 반복 수를 적용한다. 자동 실행 중 백그라운드 실행을 켜고 종료 시 설정을 복구한다. 직접 시작한 플레이 모드만 종료한다. 정상 캡처 후 기존 CLI를 별도 프로세스로 실행하고 유효성 판정·보고서 경로를 반환한다.
+
+`Start-UnityMcp.ps1`은 설치된 Unity MCP와 버전을 맞춘 로컬 서버를 시작·재사용하고, 열려 있는 에디터에 연결을 요청한다. `Run-PerformanceDemo.py`는 MCP HTTP 프로토콜로 이 도구를 호출한다. 상세 명령은 [CLI / MCP 사용법](../Tools/Profiling/README.md)에 있다. Unity 6000.3.22f1에서 실제 S1_Areas_20 1회 실행 → raw 저장 → 플레이 종료 → CLI 분석을 완료해 유효 캡처 1개를 확인했다. S0 워밍업 중 중지·저장·플레이 종료도 확인했다. 이 검증은 에디터 실행이며 Development Build의 성능 기준 측정은 아니다.

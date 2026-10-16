@@ -17,6 +17,16 @@ public class PlayerController : MonoBehaviour
 
     public Vector2 ReadableMoveInput => GetEffectiveMoveInput();
 
+    // Runtime replay readers still use this controller's action gates.
+    public void UseInputSource(InputReader source)
+    {
+        if (source == null) throw new System.ArgumentNullException(nameof(source));
+        CancelAllActions();
+        if (isActiveAndEnabled) UnLinkInputEvents();
+        _inputSO = source;
+        if (isActiveAndEnabled) LinkInputEvents();
+    }
+
     private void Awake()
     {
         GetModules();
