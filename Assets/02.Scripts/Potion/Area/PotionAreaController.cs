@@ -24,7 +24,7 @@ public class PotionAreaController : MonoBehaviour
     private VFXBurstField _vfxField;
     private SoundHandle _loopSound;
 
-    // 장판이 깔린 순서. 실제 투척 순서(Ownership.ThrowOrder)와 별개다.
+    // 장판이 깔린 순서 기준이며 실제 투척 순서(Ownership.ThrowOrder)는 별개다.
     internal int ActivationOrder { get; private set; }
 
     public PotionData Data { get; private set; }
