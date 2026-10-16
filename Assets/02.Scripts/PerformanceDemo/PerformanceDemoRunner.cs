@@ -260,6 +260,8 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
         Time.timeScale = _timeScale;
         Phase = result;
         IsRunning = false;
+        OptimizationRuntime.Select(OptimizationVariant.Original);
+        OptimizedEnemySearch.Clear();
     }
     private static bool IsReaper(PerformanceDemoScenario scenario) => scenario.Kind >= PerformanceDemoKind.Dash && scenario.Kind <= PerformanceDemoKind.Summon;
     private void Validate(PerformanceDemoScenario scenario)
@@ -297,6 +299,7 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
     }
     private void Setup(PerformanceDemoScenario scenario)
     {
+        OptimizationRuntime.Select(scenario.Optimizations);
         ActualCount = 0;
         for (int i = 0; i < Arenas.Length; i++) Arenas[i].SetActive(i == (int)scenario.Arena);
         Physics2D.SyncTransforms();
@@ -434,6 +437,8 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
         IsRunning = false;
         QuiesceRuntimeEffects();
         if (_runtime.IsValid() && _runtime.isLoaded) SceneManager.UnloadSceneAsync(_runtime);
+        OptimizationRuntime.Select(OptimizationVariant.Original);
+        OptimizedEnemySearch.Clear();
     }
     private void QuiesceRuntimeEffects()
     {

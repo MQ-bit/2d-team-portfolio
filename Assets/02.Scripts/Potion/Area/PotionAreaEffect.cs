@@ -11,7 +11,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
     private bool _hasCombination;
     private IPotionEffectData _singleProfile;
     private PotionEffectSource _singleSource;
-    private PotionAreaTimeline<IPotionEffectTarget> _singleTimeline;
+    private ComparisonAreaTimeline<IPotionEffectTarget> _singleTimeline;
     private readonly PotionAreaSpreadEffect _spreadEffect = new();
     private readonly HashSet<IPotionEffectTarget> _affectedTargets = new();
     private bool _isSynchronizingTimeline;
@@ -44,7 +44,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
             // reaction front replaces only the reached part with a new profile.
             IPotionEffectData profile = _singleProfile;
             PotionEffectSource source = _singleSource;
-            _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
+            _singleTimeline = new ComparisonAreaTimeline<IPotionEffectTarget>(expiresAt,
                 profile.TickInterval, profile.ApplyOnEnter,
                 target => PotionEffectApplier.CanAffect(profile.TargetType, target),
                 target =>
@@ -105,7 +105,7 @@ public class PotionAreaEffect : MonoBehaviour  // 계산된 결과로 피해·�
         _singleSource = new PotionEffectSource(_sourceId, combination: combination,
             owner: owner, lifeStealRatio: lifeStealRatio,
             areaOwnership: GetComponent<PotionAreaController>().Ownership);
-        _singleTimeline = new PotionAreaTimeline<IPotionEffectTarget>(expiresAt,
+        _singleTimeline = new ComparisonAreaTimeline<IPotionEffectTarget>(expiresAt,
             _singleProfile.TickInterval, _singleProfile.ApplyOnEnter,
             IsValidSingleTarget, EnterSingleFloor, PulseSingleFloor, ExitSingleFloor);
         if (_spreadEffect.IsActive)

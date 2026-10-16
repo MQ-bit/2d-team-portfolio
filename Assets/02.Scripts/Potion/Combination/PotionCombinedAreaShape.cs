@@ -42,20 +42,28 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         // Thermal shock uses a stable spatial ordering, independent of throw order.
         bool reverseShape = visualData.AreaSurfaceStyle == PotionAreaSurfaceStyle.ThermalShock
             && (firstCenter.x > secondCenter.x || (firstCenter.x == secondCenter.x && firstCenter.y > secondCenter.y));
-        var shape = new PotionPuddleShape(reverseShape ? secondCenter : firstCenter,
-            reverseShape ? second.OriginalRadius : first.OriginalRadius,
-            reverseShape ? firstCenter : secondCenter,
-            reverseShape ? first.OriginalRadius : second.OriginalRadius,
-            _connectionWidthRatio, _connectionBlendRatio);
+        PotionPuddleShape shape;
+        using (OptimizationMarkers.Shape.Auto())
+        {
+            shape = new PotionPuddleShape(reverseShape ? secondCenter : firstCenter,
+                reverseShape ? second.OriginalRadius : first.OriginalRadius,
+                reverseShape ? firstCenter : secondCenter,
+                reverseShape ? first.OriginalRadius : second.OriginalRadius,
+                _connectionWidthRatio, _connectionBlendRatio);
+        }
         _combinationCollider.enabled = false;
         // Preserve original centers/radii; a clipped collider's bounds are not a lobe.
-        Rect bounds = PotionAreaFootprint.BoundsOf(shape.Outline);
-        var walls = PotionWallQuery.FindPolygons(bounds, first.WallLayers);
-        if (second.WallLayers != first.WallLayers)
-            walls.AddRange(PotionWallQuery.FindPolygons(bounds, second.WallLayers));
-        PotionAreaFootprint footprint = walls.Count == 0
-            ? PotionAreaFootprint.Unclipped(shape.Outline)
-            : PotionAreaClipper.Subtract(shape.Outline, firstCenter, walls);
+        PotionAreaFootprint footprint;
+        using (OptimizationMarkers.Clip.Auto())
+        {
+            Rect bounds = PotionAreaFootprint.BoundsOf(shape.Outline);
+            var walls = PotionWallQuery.FindPolygons(bounds, first.WallLayers);
+            if (second.WallLayers != first.WallLayers)
+                walls.AddRange(PotionWallQuery.FindPolygons(bounds, second.WallLayers));
+            footprint = walls.Count == 0
+                ? PotionAreaFootprint.Unclipped(shape.Outline)
+                : PotionAreaClipper.Subtract(shape.Outline, firstCenter, walls);
+        }
         if (footprint == null || !footprint.Contains(secondCenter)) return;
         var spread = new PotionCombinationSpread(shape, _combinationCollider, Time.time,
             spreadDuration,
@@ -63,7 +71,7 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
             reverseShape ? first.Data.VisualData.AreaColor : second.Data.VisualData.AreaColor);
         firstCollider.enabled = false;
         secondCollider.enabled = false;
-        footprint.ApplyTo(_combinationCollider);
+        using (OptimizationMarkers.Collider.Auto()) footprint.ApplyTo(_combinationCollider);
         first.AreaEffect.PrepareOriginalForSpread(spread, !reverseShape, first.Owner);
         second.AreaEffect.PrepareOriginalForSpread(spread, reverseShape, second.Owner);
 
@@ -71,18 +79,21 @@ public sealed class PotionCombinedAreaShape : MonoBehaviour
         second.RetainAreaVfxForSpread(spread);
         first.SetCombinedFootprint(footprint);
         second.SetCombinedFootprint(footprint);
-        CreatePuddleVisual(first, second, visualData, shape);
-        first.AreaVisual.SetFootprint(footprint);
-        first.AreaVisual.SetCombinationSpread(spread);
-        if (visualData.AreaVfxPrefab != null)
+        using (OptimizationMarkers.Visual.Auto())
         {
-            GameObject vfx = first.SetAreaVfx(visualData, shape.BoundsSize.x, shape.BoundsSize.y);
-            vfx.transform.position = new Vector3(shape.BoundsCenter.x, shape.BoundsCenter.y,
-                first.transform.position.z);
-            vfx.transform.rotation = Quaternion.identity;
-            vfx.GetComponent<VFXBurstField>().ApplyCombinationPalette(visualData.AreaColor);
-            vfx.GetComponent<VFXBurstField>().ConfigurePuddle(shape);
-            vfx.GetComponent<VFXBurstField>().ConfigureSpread(spread, true);
+            CreatePuddleVisual(first, second, visualData, shape);
+            first.AreaVisual.SetFootprint(footprint);
+            first.AreaVisual.SetCombinationSpread(spread);
+            if (visualData.AreaVfxPrefab != null)
+            {
+                GameObject vfx = first.SetAreaVfx(visualData, shape.BoundsSize.x, shape.BoundsSize.y);
+                vfx.transform.position = new Vector3(shape.BoundsCenter.x, shape.BoundsCenter.y,
+                    first.transform.position.z);
+                vfx.transform.rotation = Quaternion.identity;
+                vfx.GetComponent<VFXBurstField>().ApplyCombinationPalette(visualData.AreaColor);
+                vfx.GetComponent<VFXBurstField>().ConfigurePuddle(shape);
+                vfx.GetComponent<VFXBurstField>().ConfigureSpread(spread, true);
+            }
         }
         first.AreaEffect.enabled = true;
     }

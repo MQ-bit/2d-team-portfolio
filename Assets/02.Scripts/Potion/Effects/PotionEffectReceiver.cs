@@ -8,7 +8,7 @@ public sealed class PotionEffectReceiver : MonoBehaviour, IPotionEffectTarget
     [SerializeField] private PotionTargetKind _targetKind = PotionTargetKind.Enemy;
 
     private readonly PotionStatusEffectState _statusEffects = new();
-    private readonly PotionAreaEffectTracker _areaEffects = new();
+    private readonly ComparisonAreaEffectTracker _areaEffects = new();
 
     public PotionTargetKind TargetKind => _targetKind;
     public IDamageable Damageable { get; private set; }

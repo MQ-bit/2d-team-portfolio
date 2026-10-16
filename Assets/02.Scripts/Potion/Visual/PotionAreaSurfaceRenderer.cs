@@ -24,7 +24,7 @@ internal sealed class PotionAreaSurfaceRenderer
     private Sprite _originalSprite;
     private Color _originalColor;
     private Vector3 _originalScale;
-    private readonly PotionAreaMaskRenderer _mask = new();
+    private readonly ComparisonAreaMaskRenderer _mask = new();
     private Vector4 _boundarySettings = new(0.17f, 4.5f, 0.35f, 0.45f);
 
     internal void SetFootprint(PotionAreaFootprint footprint) => _mask.SetFootprint(footprint);

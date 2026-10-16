@@ -7,6 +7,8 @@ public enum PerformanceDemoArena { OpenFloor, SimpleWall, ComplexCorner, ReaperA
 public sealed class PerformanceDemoScenario : ScriptableObject
 {
     public string Id;
+    public OptimizationVariant Optimizations = OptimizationVariant.Original;
+    public bool DiagnosticSustainedEnemies;
     public PerformanceDemoKind Kind;
     public PerformanceDemoArena Arena;
     [Min(1)] public int Count = 1;

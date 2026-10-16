@@ -11,6 +11,8 @@ public sealed class PerformanceDemoView : MonoBehaviour
         if (!Runner.ShowDemoUI) return;
         GUILayout.BeginArea(new Rect(16, 16, 350, Mathf.Min(Screen.height - 32, 650)), GUI.skin.box);
         GUILayout.Label("PERFORMANCE DEMO");
+        if (_selected >= 0 && _selected < Runner.Scenarios.Length && Runner.Scenarios[_selected] != null)
+            GUILayout.Label("Implementation: " + Runner.Scenarios[_selected].Optimizations);
         GUILayout.Label($"{Runner.CurrentScenario} / {Runner.Phase} / Repeat {Runner.Repetition}");
         GUILayout.Label($"Actual targets: {Runner.ActualCount}");
         GUI.enabled = !Runner.IsRunning;

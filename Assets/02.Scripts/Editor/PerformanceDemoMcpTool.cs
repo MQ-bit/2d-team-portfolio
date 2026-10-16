@@ -316,6 +316,14 @@ public static class PerformanceDemoMcpTool
     }
     static void PollAnalysis()
     {
+        // summary.json is written before Unity finishes shutdown and the launcher
+        // releases analysis.lock. Do not start the next analysis in that gap.
+        try
+        {
+            using (var process = Process.GetProcessById(_job.analysisProcessId))
+                if (!process.HasExited) return;
+        }
+        catch (ArgumentException) { }
         if (File.Exists(_job.summaryPath))
         {
             JObject summary;
@@ -329,12 +337,6 @@ public static class PerformanceDemoMcpTool
             Save();
             return;
         }
-        try
-        {
-            using (var process = Process.GetProcessById(_job.analysisProcessId))
-                if (!process.HasExited) return;
-        }
-        catch (ArgumentException) { }
         throw new InvalidOperationException("Analysis exited without summary.json. See " + Path.Combine(_job.analysisDirectory, "unity.log"));
     }
     static void Stop()

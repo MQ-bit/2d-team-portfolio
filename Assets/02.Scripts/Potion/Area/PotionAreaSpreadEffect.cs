@@ -7,7 +7,7 @@ internal sealed class PotionAreaSpreadEffect
 {
     private PotionCombinationSpread _spread;
     private bool _firstLobe;
-    private PotionAreaTimeline<IPotionEffectTarget> _originalTimeline;
+    private ComparisonAreaTimeline<IPotionEffectTarget> _originalTimeline;
     private readonly HashSet<IPotionEffectTarget> _reachedTargets = new();
     private readonly HashSet<IPotionEffectTarget> _originalTargets = new();
     private readonly HashSet<IPotionEffectTarget> _pendingImpact = new();
@@ -24,7 +24,7 @@ internal sealed class PotionAreaSpreadEffect
         _firstLobe = firstLobe;
     }
 
-    internal void KeepOriginalTimeline(PotionAreaTimeline<IPotionEffectTarget> timeline) =>
+    internal void KeepOriginalTimeline(ComparisonAreaTimeline<IPotionEffectTarget> timeline) =>
         _originalTimeline = timeline;
 
     internal void QueueCombinationImpact(Func<IPotionEffectTarget, bool> isValid)
@@ -37,7 +37,7 @@ internal sealed class PotionAreaSpreadEffect
     }
 
     // true이면 확산이 끝났으며 호출자가 일반 장판 추적으로 전환할 수 있다.
-    internal bool Synchronize(PotionAreaTimeline<IPotionEffectTarget> timeline,
+    internal bool Synchronize(ComparisonAreaTimeline<IPotionEffectTarget> timeline,
         bool hasCombination, Action<IPotionEffectTarget> applyImpact)
     {
         PotionCombinationSpread spread = _spread;

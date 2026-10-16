@@ -23,7 +23,7 @@ public sealed class PerformanceDemoRecorder : MonoBehaviour
         public bool isEditor, developmentBuild;
         public int width, height, targetFrameRate, vSync;
         public float fixedDeltaTime;
-        public string conditions = "Original renderers and audio; fixed camera; no camera shake controller. " +
+        public string conditions = "Implementation flags and diagnostic overrides are in settings; audio enabled; fixed camera; no camera shake controller. " +
             "S3 landing observation: runtime scene roots every 0.1 unscaled seconds. " +
             "Per-interval binary capture is controlled by the runner; its status is in captures. " +
             "CPU/GPU frame statistics require offline analysis; markerVerification remains pending until that analysis.";

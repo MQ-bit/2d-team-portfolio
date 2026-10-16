@@ -78,7 +78,7 @@ public class VFXBurstField : MonoBehaviour
     private bool _showReached;
     private Vector2[][] _footprint;
     private PotionAreaFootprint _clippedFootprint;
-    private readonly PotionAreaMaskRenderer _clipMask = new();
+    private readonly ComparisonAreaMaskRenderer _clipMask = new();
     private MaterialPropertyBlock _clipProperties;
     private Material _clipMaterial;
     private static readonly int FrostPoisonPaletteId = Shader.PropertyToID("_FrostPoisonPalette");

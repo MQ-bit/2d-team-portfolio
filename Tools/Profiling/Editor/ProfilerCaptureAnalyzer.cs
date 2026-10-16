@@ -18,6 +18,8 @@ public static class ProfilerCaptureAnalyzer
     {
         public string[] sources;
         public string manifestPath, outputDirectory;
+        public string[] manifestPaths;
+        public bool optimizationOnly;
         public int maxFrames = 100000;
     }
     [Serializable] public sealed class CaptureMetadata
@@ -91,6 +93,21 @@ public static class ProfilerCaptureAnalyzer
         public double mainMs, renderMs;
         public long gcBytes;
         public bool selected;
+        public readonly List<FrameScope> eventScopes = new List<FrameScope>();
+        public readonly List<FrameScope> spikeScopes = new List<FrameScope>();
+    }
+    sealed class FrameScope
+    {
+        public string name;
+        public int sample;
+        public double inclusiveMs;
+    }
+    sealed class OptimizationScope
+    {
+        public string name;
+        public int end;
+        public double inclusiveMs, selfMs;
+        public long gcBytes, allocations;
     }
     sealed class Stat
     {
@@ -112,17 +129,25 @@ public static class ProfilerCaptureAnalyzer
             if (option < 0 || option + 1 == arguments.Length) throw new ArgumentException("Missing -profilerAnalysisRequest.");
             request = JsonUtility.FromJson<Request>(File.ReadAllText(arguments[option + 1]));
             if (request == null || request.sources == null || request.sources.Length == 0) throw new ArgumentException("No capture sources.");
+            if (request.manifestPaths != null && request.manifestPaths.Length != request.sources.Length)
+                throw new ArgumentException("Per-source manifest count must match captures.");
             Directory.CreateDirectory(request.outputDirectory);
             SetHistoryLimit(request.maxFrames);
             Manifest manifest = string.IsNullOrEmpty(request.manifestPath) ? null : JsonUtility.FromJson<Manifest>(File.ReadAllText(request.manifestPath));
             var summary = new Summary { analysisUnityVersion = Application.unityVersion, manifestPath = request.manifestPath,
                 generatedUtc = DateTime.UtcNow.ToString("O"), historyLimit = request.maxFrames };
+            if (request.optimizationOnly) summary.metricNotes += " Optimization-only aggregation: hotspot and allocation paths contain selected instrumented scopes, not every sample.";
             for (int i = 0; i < request.sources.Length; i++)
             {
                 string directory = Path.Combine(request.outputDirectory, $"capture_{i + 1:000}");
                 Directory.CreateDirectory(directory);
                 var report = new CaptureReport { source = Path.GetFullPath(request.sources[i]), reportDirectory = directory };
-                try { Analyze(request, manifest, report); }
+                try
+                {
+                    Manifest sourceManifest = request.manifestPaths == null ? manifest :
+                        JsonUtility.FromJson<Manifest>(File.ReadAllText(request.manifestPaths[i]));
+                    Analyze(request, sourceManifest, report);
+                }
                 catch (Exception exception) { report.issues.Add("AnalysisError: " + exception.Message); report.valid = false; }
                 report.markerVerification = report.valid ? "Verified" : "Failed";
                 File.WriteAllText(Path.Combine(directory, "summary.json"), JsonUtility.ToJson(report, true));
@@ -220,27 +245,101 @@ public static class ProfilerCaptureAnalyzer
                 }
             if (mainThread < 0) { report.issues.Add("MissingMainThread: loaded frame " + index); continue; }
             var frame = new Frame { index = index };
+            var optimizationScopes = request.optimizationOnly ? new List<OptimizationScope>() : null;
+            var activeScopes = request.optimizationOnly ? new List<OptimizationScope>() : null;
             using (var view = ProfilerDriver.GetRawFrameDataView(index, mainThread))
             {
                 frame.mainMs = view.frameTimeMs;
                 for (int sample = 0; sample < view.sampleCount; sample++)
                 {
-                    string name = view.GetSampleName(sample);
+                    string name = view.GetSampleName(sample) ?? "";
                     if (name == "PerfDemo.Measure") frame.measure++;
                     if (name == "PerfDemo.Setup") frame.setup++;
                     if (name == "PerfDemo.Cleanup") frame.cleanup++;
-                    if (name == "GC.Alloc") frame.gcBytes += AllocationBytes(view, sample);
+                    if (name == "GC.Alloc")
+                    {
+                        long bytes = AllocationBytes(view, sample);
+                        frame.gcBytes += bytes;
+                        if (request.optimizationOnly)
+                            foreach (var scope in activeScopes)
+                                if (sample < scope.end)
+                                {
+                                    scope.gcBytes += bytes;
+                                    if (bytes > 0) scope.allocations++;
+                                }
+                    }
+                    if (request.optimizationOnly)
+                    {
+                        while (activeScopes.Count > 0 && sample >= activeScopes[activeScopes.Count - 1].end)
+                            activeScopes.RemoveAt(activeScopes.Count - 1);
+                        if (IsOptimizationScope(name))
+                        {
+                            double duration = view.GetSampleTimeMs(sample), self = duration;
+                            int child = sample + 1;
+                            for (int c = 0; c < view.GetSampleChildrenCount(sample); c++)
+                            {
+                                self -= view.GetSampleTimeMs(child);
+                                child += 1 + view.GetSampleChildrenCountRecursive(child);
+                            }
+                            var scope = new OptimizationScope { name = name,
+                                end = sample + 1 + view.GetSampleChildrenCountRecursive(sample),
+                                inclusiveMs = duration, selfMs = Math.Max(0, self) };
+                            optimizationScopes.Add(scope); activeScopes.Add(scope);
+                        }
+                        if (IsEventScope(name)) frame.eventScopes.Add(new FrameScope
+                            { name = name, sample = sample, inclusiveMs = view.GetSampleTimeMs(sample) });
+                        if (frame.mainMs > 100 && view.GetSampleTimeMs(sample) >= 10)
+                            frame.spikeScopes.Add(new FrameScope { name = name, sample = sample, inclusiveMs = view.GetSampleTimeMs(sample) });
+                    }
                 }
                 bool boundary = index == report.firstLoadedFrame || index == report.lastLoadedFrame;
                 if (boundary && frame.measure > 0) report.boundaryFramesExcluded++;
                 frame.selected = !boundary && frame.measure > 0 && frame.setup == 0 && frame.cleanup == 0;
-                if (frame.selected) Aggregate(view, index, stats, allocations);
+                if (!frame.selected) frame.eventScopes.Clear();
+                if (!request.optimizationOnly && frame.mainMs > 100)
+                    for (int sample = 0; sample < view.sampleCount; sample++)
+                    {
+                        double duration = view.GetSampleTimeMs(sample);
+                        if (duration >= 10)
+                            frame.spikeScopes.Add(new FrameScope { name = view.GetSampleName(sample), sample = sample, inclusiveMs = duration });
+                    }
+                if (frame.selected && request.optimizationOnly)
+                {
+                    foreach (var scope in optimizationScopes)
+                    {
+                        string key = "Main Thread\t" + scope.name;
+                        if (!stats.TryGetValue(key, out Stat stat)) stats[key] = stat = new Stat
+                            { value = new Hotspot { thread = "Main Thread", name = scope.name } };
+                        stat.value.calls++;
+                        stat.value.inclusiveMs += scope.inclusiveMs;
+                        stat.value.selfMs += scope.selfMs;
+                        stat.value.inclusiveGcBytes += scope.gcBytes;
+                        stat.value.maxSingleMs = Math.Max(stat.value.maxSingleMs, scope.inclusiveMs);
+                        if (stat.lastFrame != index) { stat.lastFrame = index; stat.value.frames++; }
+                        if (scope.gcBytes > 0)
+                        {
+                            if (!allocations.TryGetValue(key, out AllocationSite site)) allocations[key] = site = new AllocationSite
+                                { thread = "Main Thread", scopePath = scope.name };
+                            site.bytes += scope.gcBytes; site.allocations += scope.allocations;
+                        }
+                    }
+                }
+                if (frame.selected && !request.optimizationOnly)
+                {
+                    Aggregate(view, index, stats, allocations);
+                    for (int sample = 0; sample < view.sampleCount; sample++)
+                    {
+                        string name = view.GetSampleName(sample) ?? "";
+                        if (IsEventScope(name))
+                            frame.eventScopes.Add(new FrameScope { name = name, sample = sample, inclusiveMs = view.GetSampleTimeMs(sample) });
+                    }
+                }
             }
             if (renderThread >= 0)
                 using (var view = ProfilerDriver.GetRawFrameDataView(index, renderThread))
                 {
                     frame.renderMs = view.frameTimeMs;
-                    if (frame.selected) Aggregate(view, index, stats, allocations);
+                    if (frame.selected && !request.optimizationOnly) Aggregate(view, index, stats, allocations);
                 }
             frames.Add(frame);
             report.actualMeasureSamples += frame.measure;
@@ -268,6 +367,13 @@ public static class ProfilerCaptureAnalyzer
 
     static long AllocationBytes(RawFrameDataView view, int sample) => view.GetSampleMetadataCount(sample) > 0
         ? Math.Max(0, view.GetSampleMetadataAsLong(sample, 0)) : 0;
+
+    static bool IsEventScope(string name) => name == "PerfDemo.CombineCommit" || name.Contains("PotionProjectile.Update()") ||
+        name.StartsWith("Optimization.Combine.", StringComparison.Ordinal) || name.StartsWith("Optimization.Mask.", StringComparison.Ordinal);
+
+    static bool IsOptimizationScope(string name) => name == "PlayerLoop" || name == "PerfDemo.CombineCommit" ||
+        name.StartsWith("Optimization.", StringComparison.Ordinal) || name.Contains("PotionStatusVisual.LateUpdate()") ||
+        name.Contains("RangedEnemyController.FixedUpdate()") || name.Contains("PotionProjectile.Update()");
 
     static void Aggregate(RawFrameDataView view, int frameIndex, Dictionary<string, Stat> stats, Dictionary<string, AllocationSite> allocations)
     {
@@ -324,6 +430,23 @@ public static class ProfilerCaptureAnalyzer
     }
     static void WriteCsv(string directory, List<Frame> frames, List<Hotspot> hotspots, IEnumerable<AllocationSite> sites)
     {
+        // Include boundary/failed frames for diagnosis without making them eligible
+        // for the validated performance statistics above.
+        using (var writer = new StreamWriter(Path.Combine(directory, "observed-spikes.csv")))
+        {
+            writer.WriteLine("loadedFrameIndex,selected,mainThreadMs,sampleIndex,name,inclusiveMs");
+            foreach (var frame in frames)
+                foreach (var scope in frame.spikeScopes)
+                    writer.WriteLine(string.Join(",", frame.index, frame.selected ? "1" : "0", Number(frame.mainMs), scope.sample, Csv(scope.name), Number(scope.inclusiveMs)));
+        }
+        // Same-frame correlation only. Inclusive scopes overlap; never sum them.
+        using (var writer = new StreamWriter(Path.Combine(directory, "event-frames.csv")))
+        {
+            writer.WriteLine("loadedFrameIndex,mainThreadMs,sampleIndex,name,inclusiveMs");
+            foreach (var frame in frames)
+                foreach (var scope in frame.eventScopes)
+                    writer.WriteLine(string.Join(",", frame.index, Number(frame.mainMs), scope.sample, Csv(scope.name), Number(scope.inclusiveMs)));
+        }
         using (var writer = new StreamWriter(Path.Combine(directory, "frames.csv")))
         {
             writer.WriteLine("loadedFrameIndex,mainThreadMs,renderThreadCpuMs,mainThreadGcBytes,measureMarkers,setupMarkers,cleanupMarkers,selected");

@@ -78,6 +78,7 @@ public sealed class PerformanceDemoLoopDriver : MonoBehaviour
             IsCombat ? new Vector3(-8, 0, 0) : new Vector3(-3, 0, 0);
         _player = Instantiate(playerPrefab, playerPosition, Quaternion.identity).GetComponent<PlayerStatus>();
         if (_player == null || _player.IsDead) throw new InvalidOperationException("Loop player did not initialize.");
+        OptimizedEnemySearch.ConfigureIsolatedPlayer(_player.GetComponent<PotionEffectReceiver>());
         _controller = _player.GetComponent<PlayerController>();
         _throw = _player.GetComponent<PlayerThrowingModule>();
         _melee = _player.GetComponent<PlayerMeleeModule>();
@@ -320,6 +321,7 @@ public sealed class PerformanceDemoLoopDriver : MonoBehaviour
         }
 
         var status = handle.GetComponent<EnemyStatus>();
+        if (_scenario.DiagnosticSustainedEnemies) status.Initialize(1000000f, status.Speed);
         var observation = new EnemyObservation
         {
             status = status,
@@ -360,6 +362,8 @@ public sealed class PerformanceDemoLoopDriver : MonoBehaviour
         if (failure == null && _scenario.Kind == PerformanceDemoKind.ContactEffects && (Result.potionDamageEvents == 0 || Result.enemyDamageEvents == 0)) failure = "No actual potion damage was observed.";
         if (failure == null && IsCombat && !AcceptedDefeat && (!Result.combatCompleted || Result.wavesStarted != _scenario.WaveCount || Result.playerThrows < 2 || Result.meleeAttacks == 0 || Result.enemyReleases == 0 || Result.enemyDamageEvents == 0)) failure = "Combat did not complete the required waves/actions.";
         if (failure == null && AcceptedDefeat && (Result.enemiesSpawned < _scenario.EnemyCount || Result.playerDamageEvents == 0 || Result.playerThrows < 2 || Result.combinations == 0)) failure = "Defeat occurred before the configured load/required interactions were reached.";
+        if (failure == null && _scenario.DiagnosticSustainedEnemies && (Result.enemyDeaths != 0 || ActiveEnemies != _scenario.EnemyCount))
+            failure = "Sustained contact load lost enemies.";
         Result.outcome = failure != null ? "Failed" : AcceptedDefeat ? "PlayerDefeated" : IsCombat ? "CombatCompleted" : "IntervalCompleted";
         Result.functionalValid = failure == null; Result.failure = failure;
         return failure;

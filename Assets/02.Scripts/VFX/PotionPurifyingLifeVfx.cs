@@ -6,7 +6,7 @@ public sealed class PotionPurifyingLifeVfx : MonoBehaviour
 {
     private const float Duration = 1.6f;
     private static readonly int AnimationId = Shader.PropertyToID("_HealingMistAnimation");
-    private readonly PotionAreaMaskRenderer _mask = new();
+    private readonly ComparisonAreaMaskRenderer _mask = new();
     private MeshRenderer _renderer;
     private Mesh _mesh;
     private Material _material;

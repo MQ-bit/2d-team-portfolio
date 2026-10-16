@@ -27,6 +27,7 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
     [SerializeField] private Transform _firePoint;
     [SerializeField] private EnemyProjectile _projectilePrefab;
 
+    private static readonly Unity.Profiling.ProfilerMarker SearchMarker = new("Optimization.Enemy.FindPlayer");
     private readonly List<Collider2D> _overlapResults = new List<Collider2D>();
 
     private State _state = State.Idle;
@@ -293,6 +294,9 @@ public class RangedEnemyController : MonoBehaviour, IPoolMember
     // 플레이어는 태그/레이어가 없어서 TargetKind가 Player인 PotionEffectReceiver로 찾는다.
     private Transform FindPlayerInRange(float range)
     {
+        using var marker = SearchMarker.Auto();
+        if (OptimizationRuntime.Uses(OptimizationVariant.EnemySearch))
+            return OptimizedEnemySearch.Find(transform.position, range, _overlapResults);
         Physics2D.OverlapCircle(transform.position, range, ContactFilter2D.noFilter, _overlapResults);
         foreach (Collider2D hit in _overlapResults)
         {
