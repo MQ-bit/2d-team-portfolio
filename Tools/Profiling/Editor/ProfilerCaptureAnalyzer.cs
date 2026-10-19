@@ -41,8 +41,10 @@ public static class ProfilerCaptureAnalyzer
         public string scenarioName, outcome, scope, failure, inputTimeline, playerData, firstPotion, secondPotion;
         public int repetition, configuredEnemies, configuredWaves, enemiesSpawned, wavesStarted, combinations, playerThrows;
         public int meleeAttacks, enemyDamageEvents, playerDamageEvents, enemyDeaths, enemyReleases;
+        public int effectiveSeed, potionDamageEvents, projectilesLaunched, meleeHits, dashes;
+        public int inputAttempts, inputAccepted, peakEnemies, cycles;
         public bool functionalValid, combatCompleted, showDemoUI, diagnosticHighHealth;
-        public float playerDistance;
+        public float playerDistance, enemyDistance, combatCompletedAt;
     }
     [Serializable] public sealed class Timing
     {
@@ -475,6 +477,7 @@ public static class ProfilerCaptureAnalyzer
             text.AppendLine($"Outcome: **{Code(loop.outcome)}**. Functional validation: {loop.functionalValid}. Wave completion: {loop.combatCompleted}.\n");
             text.AppendLine($"Scope: {Code(loop.scope)}. Input policy: {Code(loop.inputTimeline)}. Demo UI: {loop.showDemoUI}. Diagnostic high health: {loop.diagnosticHighHealth}.\n");
             text.AppendLine($"Enemies spawned: {loop.enemiesSpawned}; configured per wave: {loop.configuredEnemies}; waves started/configured: {loop.wavesStarted}/{loop.configuredWaves}; combinations: {loop.combinations}; throws: {loop.playerThrows}; melee attacks: {loop.meleeAttacks}; enemy damage events: {loop.enemyDamageEvents}; player damage events: {loop.playerDamageEvents}; player distance: {Number(loop.playerDistance)}.\n");
+            text.AppendLine($"Effective seed: {loop.effectiveSeed}; potion damage events: {loop.potionDamageEvents}; projectiles launched: {loop.projectilesLaunched}; melee hits: {loop.meleeHits}; dashes: {loop.dashes}; inputs accepted/attempted: {loop.inputAccepted}/{loop.inputAttempts}; peak enemies: {loop.peakEnemies}; lifecycle cycles: {loop.cycles}; enemy distance: {Number(loop.enemyDistance)}; combat completed at: {Number(loop.combatCompletedAt)}. Missing fields in older manifests deserialize as zero; consult the original manifest before interpreting them.\n");
         }
         foreach (string issue in report.issues) text.AppendLine("- INVALID: " + Code(issue));
         foreach (string warning in report.warnings) text.AppendLine("- NOTE: " + Code(warning));

@@ -12,6 +12,25 @@ MARKERS = ["PlayerLoop", "PotionStatusVisual.LateUpdate", "Optimization.Status.H
            "RangedEnemyController.FixedUpdate"]
 
 
+def combine_event_timing(directory):
+    directory = Path(directory)
+    if not (directory / "event-frames.csv").exists():
+        return None
+    with (directory / "frames.csv").open(encoding="utf-8-sig", newline="") as stream:
+        selected = {row["loadedFrameIndex"] for row in csv.DictReader(stream) if row["selected"] == "True"}
+    # Each frame is counted once even when multiple combinations commit in it.
+    frames = {}
+    with (directory / "event-frames.csv").open(encoding="utf-8-sig", newline="") as stream:
+        for row in csv.DictReader(stream):
+            if row["name"] == "PerfDemo.CombineCommit" and row["loadedFrameIndex"] in selected:
+                frames[row["loadedFrameIndex"]] = float(row["mainThreadMs"])
+    if not frames:
+        return None
+    return {"frames": len(frames), "maximumMs": max(frames.values()),
+            "over16_67Ms": sum(value > 16.67 for value in frames.values()),
+            "over33_33Ms": sum(value > 33.33 for value in frames.values())}
+
+
 def capture_row(capture, job_id, diagnostic_only):
     row = {key: capture.get(key) for key in ["scenarioName", "repetition", "valid", "selectedFrames", "issues", "warnings"]}
     row["job"] = job_id
@@ -21,6 +40,7 @@ def capture_row(capture, job_id, diagnostic_only):
     row["validationLevel"] = capture["validationLevel"]
     row["timing"] = capture.get("measurementMainThreadTiming")
     row["gameLoop"] = capture.get("gameLoop")
+    row["combineEventTiming"] = combine_event_timing(capture["reportDirectory"])
     row["markers"] = {}
     frames = capture["selectedFrames"]
     with (Path(capture["reportDirectory"]) / "hotspots.csv").open(encoding="utf-8-sig", newline="") as stream:
@@ -36,6 +56,8 @@ def capture_row(capture, job_id, diagnostic_only):
                 "calls": calls, "inclusiveMs": float(sample["inclusiveMs"]),
                 "selfMs": float(sample["selfMs"]), "maxSingleMs": float(sample["maxSingleMs"]),
                 "gcBytes": int(sample["inclusiveGcBytes"]),
+                "gcBytesPerCall": int(sample["inclusiveGcBytes"]) / calls if calls else None,
+                "callsPerFrame": calls / frames if frames else None,
                 "gcBytesPerFrame": int(sample["inclusiveGcBytes"]) / frames if frames else None,
                 "inclusiveMsPerFrame": float(sample["inclusiveMs"]) / frames if frames else None,
                 "inclusiveUsPerCall": float(sample["inclusiveMs"]) * 1000 / calls if calls else None,
@@ -50,11 +72,21 @@ def main():
     args = parser.parse_args()
     rows, pending, seen = [], [], set()
     environments = set()
+    provenance = []
+    player_conditions = None
     for path in args.journals:
         journal = json.loads(path.read_text(encoding="utf-8"))
         environments.add(journal.get("environment", "editor"))
         if len(environments) > 1:
             raise ValueError("Summarize Editor and Development Build environments separately.")
+        if journal.get("environment", "").startswith("development-player"):
+            conditions = {key: journal.get(key) for key in ["managedAssemblySha256", "exeSha256",
+                          "frameRate", "resolution", "vSync"]}
+            if player_conditions is not None and (conditions != player_conditions or
+                                                   not conditions["managedAssemblySha256"]):
+                raise ValueError("Summarize different or unverified player builds/settings separately.")
+            player_conditions = conditions
+        provenance.append({"path": str(path), **{key: value for key, value in journal.items() if key != "attempts"}})
         for attempt in journal["attempts"]:
             analysis = attempt.get("analysis") or {}
             summary = analysis.get("summaryPath") or attempt.get("summaryPath")
@@ -78,6 +110,8 @@ def main():
         metrics = group["metrics"]
         for name, value in row["timing"].items():
             metrics.setdefault("frame." + name, []).append(value)
+        for name, value in (row["combineEventTiming"] or {}).items():
+            metrics.setdefault("combineEvent." + name, []).append(value)
         for marker, values in row["markers"].items():
             for name, value in values.items():
                 if value is not None:
@@ -85,7 +119,7 @@ def main():
     for group in groups.values():
         group["metrics"] = {name: {"values": values, "median": statistics.median(values), "min": min(values), "max": max(values)}
                             for name, values in group["metrics"].items()}
-    result = {"environment": next(iter(environments)), "notes": "Medians describe per-capture measurements, not pooled frames. Inclusive scopes overlap. GC is allocation, not retained memory. Missing markers are unavailable, not zero.",
+    result = {"environment": next(iter(environments)), "journals": provenance, "notes": "Medians describe per-capture measurements, not pooled frames. Inclusive scopes overlap. GC is allocation, not retained memory. Missing markers are unavailable, not zero.",
               "validCaptures": sum(row["valid"] and not row["diagnosticOnly"] and row["validationLevel"] == "RuntimeAndMarkers" for row in rows),
               "invalidCaptures": sum(not row["valid"] for row in rows), "pending": pending, "groups": groups, "captures": rows}
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -75,6 +75,8 @@ python Tools/Profiling/Summarize-Optimization.py Logs/Optimization/<journal>.jso
 
 `gc`, `combine`, `enemy`, `regression`, `all` suite도 제공한다. 이전 journal에서 완료한 시나리오를 제외하려면 `--exclude-journal`을 사용한다. 실패 시도는 삭제하지 않으며, 실패 실행의 일부 정상 프레임도 성공 비교 그룹에 합치지 않는다.
 
+Development Build 실행은 `Run-OptimizationBuild.py`를 사용한다. 재개할 때 실행 파일·관리 어셈블리 해시, 반복 횟수, 프레임 제한, 해상도와 VSync가 일치해야 완료 시나리오를 건너뛴다. 이전 journal에 빌드 해시가 없으면 동일 빌드라고 추정하지 않고 새로 측정한다. `Summarize-Optimization.py`도 서로 다른 빌드·실행 설정을 함께 요약하지 않는다.
+
 Development Build에는 아래 인자로 저장된 시나리오를 실행하는 진입점을 제공한다. 실행 완료 시 빌드 폴더에 `optimization-last-run.json`을 기록하고 종료한다. 원본/개선은 동일 빌드 안에 포함된다.
 
 ```text
@@ -95,3 +97,5 @@ PotionOptimization.exe --optimization-scenarios S6_Chase_Moving_60_EnemySearch
 현재 Unity Mono 환경에서는 `GC.GetAllocatedBytesForCurrentThread()`가 명시적인 배열 할당에도 0을 반환했다. 해당 카운터는 사용 불가로 기록하며, 테스트 결과의 0을 무할당 근거로 사용하지 않는다. GC 성능은 binary Profiler 캡처에서 확인한다.
 
 로컬 원본 메타데이터, 실패 시도와 분석 결과는 `Logs/Optimization/` 및 `Logs/ProfilerReports/`에 보관한다. Logs는 Git 제외 대상이므로 공유용 성능 수치와 한계는 별도의 최종 결과 문서에 남긴다.
+
+2026-10-19 재개 측정의 Development Build 결과, 반복별 작업량과 적용 한계는 [OptimizationResults.md](OptimizationResults.md)에 기록한다. 조합 순간 부하는 단일 함수 최대뿐 아니라 해당 조합 이벤트가 발생한 측정 프레임의 최대 시간과 예산 초과 횟수도 확인한다.

@@ -18,6 +18,16 @@ optimization = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(optimization)
 
 
+def completed_scenarios(earlier, current):
+    # A completed scenario at a different frame cap or repetition count does not
+    # satisfy this capture request. Missing provenance also cannot prove a match.
+    for key in ["managedAssemblySha256", "exeSha256", "environment", "repetitions",
+                "frameRate", "resolution", "vSync"]:
+        if key not in earlier or earlier[key] != current[key]:
+            raise ValueError("Cannot resume measurements with different or missing " + key)
+    return {item["scenario"] for item in earlier["attempts"] if item.get("phase") == "Completed"}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", type=Path, default=ROOT / "Logs/Optimization/Build/PotionOptimization.exe")
@@ -47,7 +57,7 @@ def main():
     excluded = set()
     if args.exclude_journal:
         earlier = json.loads(args.exclude_journal.read_text(encoding="utf-8"))
-        excluded = {item["scenario"] for item in earlier["attempts"] if item.get("phase") == "Completed"}
+        excluded = completed_scenarios(earlier, journal)
     save()
     for name in args.scenario or optimization.scenarios(args.suite):
         if name in excluded:
@@ -67,6 +77,8 @@ def main():
             # Keep helpers hidden; graphics remains enabled in the standalone player.
             process = subprocess.Popen(arguments, cwd=exe.parent, creationflags=subprocess.CREATE_NO_WINDOW,
                                        env={key.upper(): value for key, value in os.environ.items()})
+            item["processId"] = process.pid
+            save()
             deadline = time.monotonic() + 1800
             while process.poll() is None:
                 if time.monotonic() > deadline:

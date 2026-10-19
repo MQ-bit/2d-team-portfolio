@@ -39,4 +39,10 @@
 - GPU 실행 시간이나 드로우콜 감소를 입증한 작업이 아니다.
 - 에디터 전체 프레임 최대값을 조합 함수에 전부 귀속하지 않는다. `event-frames.csv`는 같은 프레임의 비용을 연결하고, `observed-spikes.csv`는 무효/경계 프레임 진단에 사용한다.
 
-로컬 근거: `Logs/Optimization/editor-core.json`, `editor-results.json`, 각 분석 보고서. 최종 빌드 결과는 `Docs/OptimizationResults.md`에 정리한다.
+## 2026-10-19 Development Build 결과
+
+Build-v2, 각 3회 중앙값이다. 동시 10쌍에서 마스크 inclusive 시간 합계는 221.505 → 137.053ms/실행, 조합 최대 단일 호출은 24.325 → 13.742ms로 감소했다. 원본·개선 모두 각 반복의 실제 조합 수는 10회였다.
+
+조합 이벤트가 있는 프레임의 최대 시간은 185.158 → 127.430ms로 31.2% 감소했지만 16.67ms 예산을 크게 넘는다. 단일 호출 감소를 순간 끊김 해소로 표현하지 않는다. 반복별 프레임 예산 초과 횟수와 벽 조건별 결과는 [최종 결과](../../../Docs/OptimizationResults.md)에 보존했다.
+
+로컬 근거: `Logs/Optimization/editor-core.json`, `editor-results.json`, `player-v2-core-20261019.json`, `player-v2-results.json`과 각 분석 보고서의 `event-frames.csv`, `frames.csv`.

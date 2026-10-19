@@ -41,4 +41,10 @@ Unity 6000.3.22f1, Deep Profile OFF, Profile Editor OFF, Demo UI OFF. 적 30명 
 - `Pulse`, 효과 선택, 잔류 상태 등 다른 경로의 할당은 남아 있다.
 - .NET 할당 카운터는 현재 Unity Mono에서 사용 불가였다. 위 숫자는 binary Profiler에서 확인했다.
 
-로컬 근거: `Logs/Optimization/editor-core.json`, `editor-results.json`과 각 분석 보고서의 `hotspots.csv`, `allocation-sites.csv`. Development Build 최종 결과 및 전체 실행별 값은 `Docs/OptimizationResults.md`에 정리한다.
+## 2026-10-19 Development Build 결과
+
+Build-v2, 지속 접촉 적 30명, 각 3회 중앙값이다. 상태 조회만 개선했을 때 `HasStatus` 할당은 211.986 → 0 bytes/call, 타임라인만 개선했을 때 동기화 inclusive 할당은 2,262.573 → 376.463 bytes/call이었다. 전체 개선의 PlayerLoop 할당은 26.334 → 4.402 KiB/frame으로 83.3% 감소했다. 전체 할당이 0이 된 결과는 아니다.
+
+원본·전체 개선은 각 반복의 포션 피해가 330회, 적 사망 0명으로 일치했다. 상태 조회만·타임라인만 개선한 조건은 일부 반복이 300회여서 종료 경계의 작업량 차이를 기록했다. 반복별 수치·시드·환경·한계는 [최종 결과](../../../Docs/OptimizationResults.md)에 보존했다.
+
+로컬 근거: `Logs/Optimization/editor-core.json`, `editor-results.json`, `player-v2-core-20261019.json`, `player-v2-results.json` 및 각 분석 보고서의 `hotspots.csv`, `allocation-sites.csv`.
