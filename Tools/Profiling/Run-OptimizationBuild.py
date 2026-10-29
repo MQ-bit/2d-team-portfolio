@@ -33,7 +33,7 @@ def run_scenario(args, journal, directory, save, exe, name, round_number):
         identifier = name + ("_round" + str(round_number) if args.rounds > 1 else "") + "_attempt" + str(attempt)
         result_path = directory / (identifier + ".json")
         log_path = directory / (identifier + ".log")
-        arguments = [str(exe), "-batchmode", "-screen-fullscreen", "0", "-screen-width", "1280", "-screen-height", "720",
+        arguments = [str(exe)] + ([] if args.windowed else ["-batchmode"]) + ["-screen-fullscreen", "0", "-screen-width", "1280", "-screen-height", "720",
                      "-logFile", str(log_path), "--optimization-scenarios", name,
                      "--optimization-repetitions", str(args.repetitions), "--optimization-frame-rate", str(args.frame_rate),
                      "--optimization-result", str(result_path),
@@ -109,6 +109,9 @@ def main():
                         help="Repeat the whole list this many times in alternating order. Use with --repetitions 1 "
                              "to interleave original and improved runs; each round uses seed offset round-1")
     parser.add_argument("--screenshots", action="store_true", help="Save one PNG per scenario right after the measured interval")
+    parser.add_argument("--windowed", action="store_true",
+                        help="Run with a visible window instead of -batchmode. Batch-mode players skip real rendering, "
+                             "so only a windowed run shows render/GPU cost. Do not touch the keyboard or other windows while it runs.")
     parser.add_argument("--allow-missing-build-meta", action="store_true")
     parser.add_argument("--journal", type=Path)
     parser.add_argument("--attempts", type=int, default=1)
@@ -127,7 +130,7 @@ def main():
         raise RuntimeError("Use a new journal path; existing evidence is preserved.")
     directory = path.parent / (path.stem + "_runs")
     directory.mkdir(parents=True, exist_ok=True)
-    journal = {"environment": "development-player-batch-graphics", "executable": str(exe),
+    journal = {"environment": "development-player-windowed-graphics" if args.windowed else "development-player-batch-graphics", "executable": str(exe),
                "exeSha256": hashlib.sha256(exe.read_bytes()).hexdigest(),
                "managedAssemblySha256": hashlib.sha256((exe.parent / (exe.stem + "_Data") / "Managed/Assembly-CSharp.dll").read_bytes()).hexdigest(),
                "suite": args.suite, "repetitions": args.repetitions, "frameRate": args.frame_rate,
