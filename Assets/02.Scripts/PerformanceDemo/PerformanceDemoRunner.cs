@@ -367,6 +367,9 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
         camera.targetTexture = target;
         yield return null;
         yield return new WaitForEndOfFrame();
+        camera.Render();
+        _recorder.Record(scenario, Repetition, Phase, $"Screenshot camera={camera.name}; pos={camera.transform.position}; " +
+            $"ortho={camera.orthographic}/{camera.orthographicSize}; mask={camera.cullingMask}; renderers={FindObjectsByType<Renderer>(FindObjectsSortMode.None).Length}");
         Texture2D texture = null;
         RenderTexture previousActive = RenderTexture.active;
         try
