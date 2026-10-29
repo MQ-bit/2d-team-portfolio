@@ -16,6 +16,8 @@ internal sealed class OptimizedPotionAreaMaskRenderer
     private static readonly int RectId = Shader.PropertyToID("_AreaClipRect");
     private static readonly int EnabledId = Shader.PropertyToID("_AreaClipEnabled");
     private static readonly ProfilerMarker RasterMarker = new("Optimization.Mask.RasterizeAndUpload");
+    private static readonly ProfilerMarker PixelMarker = new("Optimization.Mask.PixelTest");
+    private static readonly ProfilerMarker UploadMarker = new("Optimization.Mask.TextureUpload");
     private PotionAreaFootprint _footprint;
     private Entry _entry;
     private Rect _bounds;
@@ -46,32 +48,40 @@ internal sealed class OptimizedPotionAreaMaskRenderer
         int height = Mathf.Max(1, Mathf.RoundToInt(resolution * bounds.height /
             Mathf.Max(bounds.width, bounds.height)));
         var pixels = new Color32[width * height];
-        foreach (Vector2[] path in footprint.Paths)
+        using (var rasterMarker = PixelMarker.Auto())
         {
-            Rect pathBounds = PotionAreaFootprint.BoundsOf(path);
-            int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
-            int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
-            int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
-            int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
-            for (int y = yMin; y <= yMax; y++)
+            foreach (Vector2[] path in footprint.Paths)
             {
-                for (int x = xMin; x <= xMax; x++)
+                Rect pathBounds = PotionAreaFootprint.BoundsOf(path);
+                int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
+                int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
+                int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
+                int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
+                for (int y = yMin; y <= yMax; y++)
                 {
-                    Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
-                        (y + 0.5f) / height * bounds.height);
-                    if (PotionAreaFootprint.Inside(path, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
+                    for (int x = xMin; x <= xMax; x++)
+                    {
+                        Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
+                            (y + 0.5f) / height * bounds.height);
+                        if (PotionAreaFootprint.Inside(path, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
+                    }
                 }
             }
         }
-        var texture = new Texture2D(width, height, TextureFormat.RGBA32, false, true)
+        Texture2D texture;
+        using (var uploadMarker = UploadMarker.Auto())
         {
-            name = "PotionAreaClipMask",
-            hideFlags = HideFlags.HideAndDontSave,
-            filterMode = FilterMode.Point,
-            wrapMode = TextureWrapMode.Clamp
-        };
-        texture.SetPixels32(pixels);
-        texture.Apply(false, true);
+            texture = new Texture2D(width, height, TextureFormat.RGBA32, false, true)
+            {
+                name = "PotionAreaClipMask",
+                hideFlags = HideFlags.HideAndDontSave,
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+        }
+
         return new Entry { Texture = texture, Bounds = bounds };
     }
 

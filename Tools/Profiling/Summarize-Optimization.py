@@ -8,7 +8,7 @@ import statistics
 MARKERS = ["PlayerLoop", "PotionStatusVisual.LateUpdate", "Optimization.Status.HasStatus",
            "Optimization.Timeline.Synchronize", "PerfDemo.CombineCommit", "Optimization.Combine.Shape",
            "Optimization.Combine.WallQueryAndClip", "Optimization.Combine.Collider", "Optimization.Combine.Visual",
-           "Optimization.Mask.SetFootprint", "Optimization.Mask.RasterizeAndUpload", "Optimization.Enemy.FindPlayer",
+           "Optimization.Mask.SetFootprint", "Optimization.Mask.RasterizeAndUpload", "Optimization.Mask.PixelTest", "Optimization.Mask.TextureUpload", "Optimization.Enemy.FindPlayer",
            "RangedEnemyController.FixedUpdate", "PotionProjectile.Update",
            "Optimization.Land.WallTrace", "Optimization.Land.Total", "Optimization.Land.BreakEffect", "Optimization.Land.AreaInstantiate", "Optimization.Land.AreaInitialize", "Optimization.Land.FootprintClip", "Optimization.Land.FootprintCollider", "Optimization.Land.AreaEffectInit", "Optimization.Land.VisualBind", "Optimization.Land.AreaVfx", "Optimization.Land.AreaActivate", "Optimization.Land.RegisterArea", "Optimization.Land.SingleImpact", "Optimization.Land.Feedback", "Optimization.Land.Identify"]
 
