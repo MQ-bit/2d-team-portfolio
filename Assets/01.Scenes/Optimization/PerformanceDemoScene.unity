@@ -52031,6 +52031,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 55693993aca2ea64ba3cf749aa330d62, type: 2}
   - {fileID: 11400000, guid: c50d5d83ce5947f40be5e21de880d10b, type: 2}
   - {fileID: 11400000, guid: c43ffad0b8c6d4c45a774dc29cef4a2a, type: 2}
+  - {fileID: 11400000, guid: 789d63305e2671a4bbfaa2eab2c4342d, type: 2}
+  - {fileID: 11400000, guid: 039737da1ebdca84fba6796943bb184a, type: 2}
+  - {fileID: 11400000, guid: 3e30712a761d7df4ba4f3ab8d2861db8, type: 2}
+  - {fileID: 11400000, guid: 62d53fa635a63e346a3fd6792b0a7a68, type: 2}
+  - {fileID: 11400000, guid: 62ee124891c06434b89c3cd60dad813a, type: 2}
+  - {fileID: 11400000, guid: 78111961011e59e429d6d1acadd30b19, type: 2}
+  - {fileID: 11400000, guid: ac9008ec6edb0f147834b4c1fa8a46cc, type: 2}
+  - {fileID: 11400000, guid: 103e53a1c842ae547b7bb3193cf0bd2c, type: 2}
   Arenas:
   - {fileID: 629532136}
   - {fileID: 250107318}
@@ -52041,6 +52049,7 @@ MonoBehaviour:
   Catalog: {fileID: 1009403611}
   AutoStart: 0
   CaptureProfiler: 1
+  CaptureScreenshots: 0
   MaximumFrameGapSeconds: 1
 --- !u!114 &1347177636
 MonoBehaviour:

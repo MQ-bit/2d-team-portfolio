@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 898100066b49c8e478edbea6cf46af0f, type: 3}
+  m_Name: S4_Combine_Pair_FastMask
+  m_EditorClassIdentifier: Assembly-CSharp::PerformanceDemoScenario
+  Id: S4
+  Optimizations: 20
+  DiagnosticSustainedEnemies: 0
+  Kind: 6
+  Arena: 0
+  Count: 1
+  Repetitions: 3
+  Seed: 1014
+  WarmupSeconds: 2
+  MeasureSeconds: 7
+  Potion: {fileID: 11400000, guid: e2a7b0149c8d5f30a2b6d7e8901f2345, type: 2}
+  ReaperPrefab: {fileID: 0}
+  DataChanges: Original potion and enemy data. Fixed arena; production AI/physics/damage.
+    Combinations use independent fire/poison pairs, no recombination. Stage/room
+    progression and game HUD are not included. Diagnostic direct projectile launches
+    in S4/S7; S8/S9 use PlayerController replay input and finite inventory. Comparison
+    variant=SharedMask, FastMask.
+  SecondPotion: {fileID: 11400000, guid: f3b8c125ad9e6041b3c7e8f9012a3456, type: 2}
+  EnemyPrefabs:
+  - {fileID: 1700258492560780822, guid: 54c9856f051c1474f8af36cffdd6262c, type: 3}
+  EnemyCount: 0
+  CombinationPairs: 1
+  PairInterval: 0
+  WaveCount: 2
+  LifecycleCycles: 1
+  MovePlayer: 0
+  DenseSpawn: 0
+  ShowDemoUI: 0
+  AllowPlayerDeath: 0
+  DiagnosticHighHealth: 0
+  NonOverlappingControl: 0
+  MinimumPlayerDistance: 1
