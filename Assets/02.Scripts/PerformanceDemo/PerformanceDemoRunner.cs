@@ -351,17 +351,43 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
     private IEnumerator CaptureScreenshot(PerformanceDemoScenario scenario)
     {
         // Failure here only loses the picture; it must not invalidate a finished measurement.
+        // Batch-mode players have no presentable back buffer (screen capture returns white),
+        // so the main camera renders into a RenderTexture for one frame instead.
+        Camera camera = Camera.main;
+        if (camera == null)
+        {
+            foreach (Camera candidate in FindObjectsByType<Camera>(FindObjectsSortMode.None))
+            {
+                if (candidate.enabled && candidate.targetTexture == null) { camera = candidate; break; }
+            }
+        }
+        if (camera == null) { Debug.LogWarning("Screenshot skipped: no camera."); yield break; }
+        var target = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGB32);
+        RenderTexture previousTarget = camera.targetTexture;
+        camera.targetTexture = target;
+        yield return null;
         yield return new WaitForEndOfFrame();
         Texture2D texture = null;
+        RenderTexture previousActive = RenderTexture.active;
         try
         {
-            texture = ScreenCapture.CaptureScreenshotAsTexture();
+            RenderTexture.active = target;
+            texture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+            texture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+            texture.Apply(false);
             string path = System.IO.Path.Combine(_recorder.OutputPath, scenario.name + "_repeat" + Repetition.ToString("00") + ".png");
             System.IO.File.WriteAllBytes(path, texture.EncodeToPNG());
             _recorder.Record(scenario, Repetition, Phase, "Screenshot saved: " + System.IO.Path.GetFileName(path));
         }
         catch (Exception exception) { Debug.LogWarning("Screenshot skipped: " + exception.Message); }
-        finally { if (texture != null) Destroy(texture); }
+        finally
+        {
+            RenderTexture.active = previousActive;
+            camera.targetTexture = previousTarget;
+            target.Release();
+            Destroy(target);
+            if (texture != null) Destroy(texture);
+        }
     }
     private IEnumerator Wait(float seconds)
     {
