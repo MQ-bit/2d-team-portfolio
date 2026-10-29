@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" font-family="Segoe UI, Arial, sans-serif">
+<rect width="760" height="420" fill="#ffffff"/>
+<text x="70" y="28" font-size="18" font-weight="600" fill="#1f2328">마스크 생성 구간 (Mask.SetFootprint)</text>
+<text x="70" y="48" font-size="12" fill="#57606a">한 실행 동안의 합계(10쌍은 장판 20개 착지), 중앙값</text>
+<line x1="70" y1="350.0" x2="736" y2="350.0" stroke="#d0d7de"/>
+<text x="62" y="354.0" font-size="11" text-anchor="end" fill="#57606a">0</text>
+<line x1="70" y1="295.6" x2="736" y2="295.6" stroke="#d0d7de"/>
+<text x="62" y="299.6" font-size="11" text-anchor="end" fill="#57606a">100</text>
+<line x1="70" y1="241.2" x2="736" y2="241.2" stroke="#d0d7de"/>
+<text x="62" y="245.2" font-size="11" text-anchor="end" fill="#57606a">200</text>
+<line x1="70" y1="186.8" x2="736" y2="186.8" stroke="#d0d7de"/>
+<text x="62" y="190.8" font-size="11" text-anchor="end" fill="#57606a">300</text>
+<line x1="70" y1="132.4" x2="736" y2="132.4" stroke="#d0d7de"/>
+<text x="62" y="136.4" font-size="11" text-anchor="end" fill="#57606a">400</text>
+<line x1="70" y1="78.0" x2="736" y2="78.0" stroke="#d0d7de"/>
+<text x="62" y="82.0" font-size="11" text-anchor="end" fill="#57606a">500</text>
+<text x="14" y="214.0" font-size="11" fill="#57606a" transform="rotate(-90 14 214.0)" text-anchor="middle">ms / 실행</text>
+<rect x="119.9" y="161.3" width="74.7" height="188.7" fill="#8a8f98"/>
+<text x="157.3" y="156.3" font-size="11" text-anchor="middle" fill="#1f2328">346.9</text>
+<rect x="197.6" y="244.4" width="74.7" height="105.6" fill="#2f6fdb"/>
+<text x="235.0" y="239.4" font-size="11" text-anchor="middle" fill="#1f2328">194.1</text>
+<rect x="275.4" y="292.2" width="74.7" height="57.8" fill="#e0793a"/>
+<text x="312.7" y="287.2" font-size="11" text-anchor="middle" fill="#1f2328">106.2</text>
+<text x="236.5" y="370" font-size="12" text-anchor="middle" fill="#1f2328">10쌍 동시</text>
+<rect x="452.9" y="323.8" width="74.7" height="26.2" fill="#8a8f98"/>
+<text x="490.3" y="318.8" font-size="11" text-anchor="middle" fill="#1f2328">48.1</text>
+<rect x="530.6" y="335.9" width="74.7" height="14.1" fill="#2f6fdb"/>
+<text x="568.0" y="330.9" font-size="11" text-anchor="middle" fill="#1f2328">26.0</text>
+<rect x="608.4" y="339.7" width="74.7" height="10.3" fill="#e0793a"/>
+<text x="645.7" y="334.7" font-size="11" text-anchor="middle" fill="#1f2328">19.0</text>
+<text x="569.5" y="370" font-size="12" text-anchor="middle" fill="#1f2328">단순 벽</text>
+<rect x="70" y="394" width="12" height="12" fill="#8a8f98"/>
+<text x="88" y="404" font-size="12" fill="#1f2328">원본</text>
+<rect x="220" y="394" width="12" height="12" fill="#2f6fdb"/>
+<text x="238" y="404" font-size="12" fill="#1f2328">마스크 공유</text>
+<rect x="370" y="394" width="12" height="12" fill="#e0793a"/>
+<text x="388" y="404" font-size="12" fill="#1f2328">마스크 공유 + 행 구간 래스터화</text>
+</svg>
