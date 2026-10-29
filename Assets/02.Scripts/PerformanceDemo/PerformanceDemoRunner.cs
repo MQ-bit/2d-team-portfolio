@@ -14,6 +14,8 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
     public PotionRunCatalog Catalog;
     public bool AutoStart;
     public bool CaptureProfiler = true;
+    // One PNG per scenario, taken after the Profiler log is closed so it never affects the measured frames.
+    public bool CaptureScreenshots;
     [Min(0.1f)] public float MaximumFrameGapSeconds = 1f;
     public string Phase { get; private set; } = "Idle";
     public string Failure { get; private set; }
@@ -240,6 +242,8 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
                             }
                             Failure ??= _runtimeError;
                             EndCapture(Failure != null ? "Failed" : _stop ? "Stopped" : "Completed", Failure);
+                            if (CaptureScreenshots && Repetition == 1 && Failure == null && !_stop)
+                                yield return CaptureScreenshot(scenario);
                         }
                     }
                     Failure ??= _runtimeError;
@@ -343,6 +347,21 @@ public sealed class PerformanceDemoRunner : MonoBehaviour
             _reaper.Setup(scenario, _player, Catalog);
             ActualCount = 1;
         }
+    }
+    private IEnumerator CaptureScreenshot(PerformanceDemoScenario scenario)
+    {
+        // Failure here only loses the picture; it must not invalidate a finished measurement.
+        yield return new WaitForEndOfFrame();
+        Texture2D texture = null;
+        try
+        {
+            texture = ScreenCapture.CaptureScreenshotAsTexture();
+            string path = System.IO.Path.Combine(_recorder.OutputPath, scenario.name + "_repeat" + Repetition.ToString("00") + ".png");
+            System.IO.File.WriteAllBytes(path, texture.EncodeToPNG());
+            _recorder.Record(scenario, Repetition, Phase, "Screenshot saved: " + System.IO.Path.GetFileName(path));
+        }
+        catch (Exception exception) { Debug.LogWarning("Screenshot skipped: " + exception.Message); }
+        finally { if (texture != null) Destroy(texture); }
     }
     private IEnumerator Wait(float seconds)
     {

@@ -11,6 +11,9 @@ DIRECTORY = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("optimization_build", DIRECTORY / "Run-OptimizationBuild.py")
 build = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build)
+meta_spec = importlib.util.spec_from_file_location("write_build_meta", DIRECTORY / "Write-BuildMeta.py")
+meta_module = importlib.util.module_from_spec(meta_spec)
+meta_spec.loader.exec_module(meta_module)
 summary_spec = importlib.util.spec_from_file_location("optimization_summary", DIRECTORY / "Summarize-Optimization.py")
 summary = importlib.util.module_from_spec(summary_spec)
 summary_spec.loader.exec_module(summary)
@@ -84,6 +87,36 @@ class JournalCompatibilityTests(unittest.TestCase):
                 "2,PerfDemo.CombineCommit,40\n3,Optimization.Combine.Shape,100\n")
             self.assertEqual(summary.combine_event_timing(path),
                              {"frames": 2, "maximumMs": 40, "over16_67Ms": 2, "over33_33Ms": 1})
+
+
+class BuildProvenanceAndRoundsTests(unittest.TestCase):
+    def test_rounds_alternate_order_so_no_version_always_runs_first(self):
+        names = ["a", "a_Improved", "b", "b_Improved"]
+        self.assertEqual(build.round_order(names, 1), names)
+        self.assertEqual(build.round_order(names, 2), list(reversed(names)))
+        self.assertEqual(build.round_order(names, 3), names)
+
+    def write_meta(self, directory, **override):
+        meta = {"gitHead": "abc", "gitDirty": False, "exeSha256": "exe-a", "managedAssemblySha256": "managed-a", **override}
+        (Path(directory) / "build-meta.json").write_text(json.dumps(meta), encoding="utf-8")
+        return Path(directory) / "Game.exe"
+
+    def test_build_meta_is_required_unless_explicitly_waived(self):
+        journal = {"exeSha256": "exe-a", "managedAssemblySha256": "managed-a"}
+        with tempfile.TemporaryDirectory() as directory:
+            exe = Path(directory) / "Game.exe"
+            with self.assertRaisesRegex(RuntimeError, "build-meta.json"):
+                build.load_build_meta(exe, journal, False)
+            self.assertIsNone(build.load_build_meta(exe, journal, True))
+
+    def test_build_meta_must_belong_to_the_measured_binary(self):
+        journal = {"exeSha256": "exe-a", "managedAssemblySha256": "managed-a"}
+        with tempfile.TemporaryDirectory() as directory:
+            exe = self.write_meta(directory)
+            self.assertEqual(build.load_build_meta(exe, journal, False)["gitHead"], "abc")
+            exe = self.write_meta(directory, managedAssemblySha256="another-build")
+            with self.assertRaisesRegex(RuntimeError, "managedAssemblySha256"):
+                build.load_build_meta(exe, journal, False)
 
 
 if __name__ == "__main__":

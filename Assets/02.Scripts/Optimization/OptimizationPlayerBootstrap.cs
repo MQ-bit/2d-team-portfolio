@@ -24,7 +24,9 @@ public sealed class OptimizationPlayerBootstrap : MonoBehaviour
         yield return null;
         string[] args = Environment.GetCommandLineArgs();
         int repetitions = ReadPositiveInt(args, "--optimization-repetitions", 3);
-        int frameRate = ReadPositiveInt(args, "--optimization-frame-rate", 120);
+        // -1 removes the cap so frame time shows real CPU cost instead of the 120FPS wait.
+        int frameRate = ReadFrameRate(args, "--optimization-frame-rate", 120);
+        int seedOffset = ReadPositiveInt(args, "--optimization-seed-offset", 0, allowZero: true);
         var runner = FindFirstObjectByType<PerformanceDemoRunner>();
         if (runner == null) { Debug.LogError("Optimization build runner missing."); Application.Quit(2); yield break; }
         var selected = new List<PerformanceDemoScenario>();
@@ -35,10 +37,12 @@ public sealed class OptimizationPlayerBootstrap : MonoBehaviour
             var copy = Instantiate(source);
             copy.name = source.name;
             copy.Repetitions = Mathf.Clamp(repetitions, 1, 20);
+            copy.Seed += seedOffset;
             selected.Add(copy);
         }
         runner.Scenarios = selected.ToArray();
         runner.CaptureProfiler = true;
+        runner.CaptureScreenshots = Array.IndexOf(args, "--optimization-screenshots") >= 0;
         Application.runInBackground = true;
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = frameRate;
@@ -52,11 +56,18 @@ public sealed class OptimizationPlayerBootstrap : MonoBehaviour
         Debug.Log("Optimization build result: " + runner.Phase + "; " + runner.OutputPath);
         Application.Quit(runner.Phase == "Completed" ? 0 : 2);
     }
-    private static int ReadPositiveInt(string[] args, string flag, int fallback)
+    private static int ReadPositiveInt(string[] args, string flag, int fallback, bool allowZero = false)
     {
         int index = Array.IndexOf(args, flag);
-        return index >= 0 && index + 1 < args.Length && int.TryParse(args[index + 1], out int value) && value > 0
-            ? value : fallback;
+        return index >= 0 && index + 1 < args.Length && int.TryParse(args[index + 1], out int value) &&
+               (value > 0 || (allowZero && value == 0)) ? value : fallback;
+    }
+
+    private static int ReadFrameRate(string[] args, string flag, int fallback)
+    {
+        int index = Array.IndexOf(args, flag);
+        return index >= 0 && index + 1 < args.Length && int.TryParse(args[index + 1], out int value) &&
+               (value > 0 || value == -1) ? value : fallback;
     }
     [Serializable] private sealed class BuildResult { public string status, failure, runDirectory; }
 }

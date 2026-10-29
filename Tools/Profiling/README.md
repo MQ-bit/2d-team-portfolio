@@ -116,3 +116,18 @@ Unity 6000.3.22f1에서 다음을 확인했다.
 - 프레임 CSV의 GC 합계와 JSON 합계 일치, 메인 스레드 Self 합계와 프레임 시간 합계의 부동소수점 오차 범위 내 일치.
 
 검증 산출물은 `Logs/ProfilerCliValidation/`에 있으며 버전 관리 대상이 아니다. 검증용 CPU 수치는 가짜 서비스를 사용하는 이전 캡처 fixture의 값으로, 실제 게임 성능 기준이 아니다.
+
+## Development Build 측정 (원본·개선 비교)
+
+```powershell
+# 빌드 직후, 측정 전에 한 번 (소스 커밋과 바이너리를 연결한다)
+python Tools/Profiling/Write-BuildMeta.py --exe Logs/Optimization/Build-v3/PotionOptimization.exe
+# 원본·개선을 라운드마다 순서를 바꿔 교차 실행, FPS 무제한, 시나리오당 PNG 1장
+python Tools/Profiling/Run-OptimizationBuild.py --exe Logs/Optimization/Build-v3/PotionOptimization.exe `
+    --suite core --repetitions 1 --rounds 5 --frame-rate -1 --screenshots
+```
+
+- `Write-BuildMeta.py`는 Assets/Packages/ProjectSettings에 커밋되지 않은 변경이 있으면 거부한다(`--allow-dirty`로 dirty 기록). 러너는 `build-meta.json`이 없거나 다른 빌드의 것이면 시작하지 않는다(`--allow-missing-build-meta`로 해제).
+- `--rounds N`은 목록 전체를 N번 반복하고 짝수 라운드는 역순으로 실행한다. 라운드 r의 시드는 기본 시드 + (r-1)이며 원본·개선은 같은 라운드에서 같은 시드를 쓴다. 반복 횟수를 늘리려면 `--repetitions 1`과 함께 라운드를 늘린다.
+- `--frame-rate -1`은 FPS 상한을 해제한다. 기존 120FPS 결과와 같은 표에 합치지 않는다(저널의 `frameRate`로 구분된다).
+- `--screenshots`는 첫 반복의 측정이 끝나고 Profiler 기록을 닫은 직후 `<시나리오>_repeat01.png`를 실행 폴더에 저장한다. 측정 구간 밖이라 프레임 시간에 영향이 없다. 저장 실패는 측정 유효성에 영향을 주지 않는다.
