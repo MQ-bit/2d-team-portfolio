@@ -10,6 +10,8 @@ public enum OptimizationVariant
     Timeline = 2,
     SharedMask = 4,
     EnemySearch = 8,
+    // Row-span rasterization of the clip mask; only meaningful together with SharedMask.
+    FastMask = 16,
     Improved = StatusQuery | Timeline | SharedMask | EnemySearch
 }
 

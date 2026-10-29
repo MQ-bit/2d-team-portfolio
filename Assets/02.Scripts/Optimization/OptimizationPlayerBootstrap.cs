@@ -43,6 +43,7 @@ public sealed class OptimizationPlayerBootstrap : MonoBehaviour
         runner.Scenarios = selected.ToArray();
         runner.CaptureProfiler = true;
         runner.CaptureScreenshots = Array.IndexOf(args, "--optimization-screenshots") >= 0;
+        OptimizedPotionAreaMaskRenderer.VerifyAgainstReference = Array.IndexOf(args, "--optimization-verify-mask") >= 0;
         Application.runInBackground = true;
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = frameRate;

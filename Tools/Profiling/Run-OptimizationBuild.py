@@ -40,6 +40,8 @@ def run_scenario(args, journal, directory, save, exe, name, round_number):
                      "--optimization-seed-offset", str(round_number - 1)]
         if args.screenshots:
             arguments.append("--optimization-screenshots")
+        if args.verify_mask:
+            arguments.append("--optimization-verify-mask")
         item = {"id": identifier, "scenario": name, "attempt": attempt, "round": round_number, "phase": "Running", "arguments": arguments}
         journal["attempts"].append(item)
         save()
@@ -112,6 +114,8 @@ def main():
     parser.add_argument("--windowed", action="store_true",
                         help="Run with a visible window instead of -batchmode. Batch-mode players skip real rendering, "
                              "so only a windowed run shows render/GPU cost. Do not touch the keyboard or other windows while it runs.")
+    parser.add_argument("--verify-mask", action="store_true",
+                        help="FastMask runs compare every mask with the reference rasterization and log differences (diagnostic, not for timing)")
     parser.add_argument("--allow-missing-build-meta", action="store_true")
     parser.add_argument("--journal", type=Path)
     parser.add_argument("--attempts", type=int, default=1)

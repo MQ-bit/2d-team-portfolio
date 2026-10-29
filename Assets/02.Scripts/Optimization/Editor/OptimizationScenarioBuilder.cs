@@ -29,7 +29,10 @@ public static class OptimizationScenarioBuilder
         {
             if (source == null || AssetDatabase.GetAssetPath(source).StartsWith(DataPath + "/")) continue;
             if (source.Kind == PerformanceDemoKind.Combine)
+            {
                 Add(source, OptimizationVariant.SharedMask, false, scenarios);
+                Add(source, OptimizationVariant.SharedMask | OptimizationVariant.FastMask, false, scenarios, "FastMask");
+            }
             if (source.Kind == PerformanceDemoKind.Chase)
                 Add(source, OptimizationVariant.EnemySearch, false, scenarios);
             if (source.Kind == PerformanceDemoKind.ContactEffects)
@@ -56,9 +59,9 @@ public static class OptimizationScenarioBuilder
     }
 
     private static void Add(PerformanceDemoScenario source, OptimizationVariant variant,
-        bool sustained, List<PerformanceDemoScenario> scenarios)
+        bool sustained, List<PerformanceDemoScenario> scenarios, string label = null)
     {
-        string name = source.name + (sustained ? "_Sustained" : "") + "_" + variant;
+        string name = source.name + (sustained ? "_Sustained" : "") + "_" + (label ?? variant.ToString());
         string path = DataPath + "/" + name + ".asset";
         var scenario = AssetDatabase.LoadAssetAtPath<PerformanceDemoScenario>(path);
         if (scenario == null)

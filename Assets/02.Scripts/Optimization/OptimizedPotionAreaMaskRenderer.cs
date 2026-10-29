@@ -48,26 +48,17 @@ internal sealed class OptimizedPotionAreaMaskRenderer
         int height = Mathf.Max(1, Mathf.RoundToInt(resolution * bounds.height /
             Mathf.Max(bounds.width, bounds.height)));
         var pixels = new Color32[width * height];
+        bool fast = OptimizationRuntime.Uses(OptimizationVariant.FastMask);
         using (var rasterMarker = PixelMarker.Auto())
         {
             foreach (Vector2[] path in footprint.Paths)
             {
-                Rect pathBounds = PotionAreaFootprint.BoundsOf(path);
-                int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
-                int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
-                int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
-                int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
-                for (int y = yMin; y <= yMax; y++)
-                {
-                    for (int x = xMin; x <= xMax; x++)
-                    {
-                        Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
-                            (y + 0.5f) / height * bounds.height);
-                        if (PotionAreaFootprint.Inside(path, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
-                    }
-                }
+                if (fast && path.Length == 3) FillTriangleSpans(path, bounds, width, height, pixels);
+                else FillBoundingBox(path, bounds, width, height, pixels);
             }
         }
+
+        if (fast && VerifyAgainstReference) Verify(footprint, bounds, width, height, pixels);
         Texture2D texture;
         using (var uploadMarker = UploadMarker.Auto())
         {
@@ -83,6 +74,90 @@ internal sealed class OptimizedPotionAreaMaskRenderer
         }
 
         return new Entry { Texture = texture, Bounds = bounds };
+    }
+
+    // Reference rasterization: tests every pixel of the path's bounding box.
+    private static void FillBoundingBox(Vector2[] path, Rect bounds, int width, int height, Color32[] pixels)
+    {
+        Rect pathBounds = PotionAreaFootprint.BoundsOf(path);
+        int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
+        int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
+        int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
+        int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
+        for (int y = yMin; y <= yMax; y++)
+        {
+            for (int x = xMin; x <= xMax; x++)
+            {
+                Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
+                    (y + 0.5f) / height * bounds.height);
+                if (PotionAreaFootprint.Inside(path, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
+            }
+        }
+    }
+
+    // Same per-pixel predicate as the reference, but only for pixels near the triangle's span on each row.
+    // The span is widened by one pixel and a small y tolerance, so the result stays identical to the reference.
+    private static void FillTriangleSpans(Vector2[] triangle, Rect bounds, int width, int height, Color32[] pixels)
+    {
+        const float YTolerance = 0.0001f;
+        Rect pathBounds = PotionAreaFootprint.BoundsOf(triangle);
+        int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
+        int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
+        int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
+        int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
+        for (int y = yMin; y <= yMax; y++)
+        {
+            float rowY = bounds.min.y + (y + 0.5f) / height * bounds.height;
+            float low = float.MaxValue, high = float.MinValue;
+            for (int edge = 0; edge < 3; edge++)
+            {
+                Vector2 a = triangle[edge], b = triangle[(edge + 1) % 3];
+                float minY = Mathf.Min(a.y, b.y) - YTolerance, maxY = Mathf.Max(a.y, b.y) + YTolerance;
+                if (rowY < minY || rowY > maxY) continue;
+                float dy = b.y - a.y;
+                if (Mathf.Abs(dy) < 1e-9f)
+                {
+                    low = Mathf.Min(low, Mathf.Min(a.x, b.x));
+                    high = Mathf.Max(high, Mathf.Max(a.x, b.x));
+                    continue;
+                }
+
+                float t = Mathf.Clamp01((rowY - a.y) / dy);
+                float crossing = a.x + (b.x - a.x) * t;
+                low = Mathf.Min(low, crossing);
+                high = Mathf.Max(high, crossing);
+            }
+
+            if (low > high) continue;
+            int from = Mathf.Max(xMin, Mathf.FloorToInt((low - bounds.xMin) / bounds.width * width - 0.5f) - 1);
+            int to = Mathf.Min(xMax, Mathf.CeilToInt((high - bounds.xMin) / bounds.width * width - 0.5f) + 1);
+            for (int x = from; x <= to; x++)
+            {
+                Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
+                    (y + 0.5f) / height * bounds.height);
+                if (PotionAreaFootprint.Inside(triangle, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
+            }
+        }
+    }
+
+    // Verification mode (--optimization-verify-mask): compare against the reference and report any difference.
+    internal static bool VerifyAgainstReference;
+    internal static int VerifiedMasks;
+    internal static int MismatchedMasks;
+
+    private static void Verify(PotionAreaFootprint footprint, Rect bounds, int width, int height, Color32[] fast)
+    {
+        var reference = new Color32[width * height];
+        foreach (Vector2[] path in footprint.Paths) FillBoundingBox(path, bounds, width, height, reference);
+        int different = 0;
+        for (int i = 0; i < reference.Length; i++)
+        {
+            if (reference[i].a != fast[i].a) different++;
+        }
+
+        VerifiedMasks++;
+        if (different > 0) MismatchedMasks++;
+        Debug.Log("MaskVerify size=" + width + "x" + height + " triangles=" + footprint.Paths.Count + " differentPixels=" + different);
     }
 
     internal void Apply(MaterialPropertyBlock properties)
