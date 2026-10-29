@@ -107,16 +107,22 @@ public class PotionAreaController : MonoBehaviour
 
         if (_areaEffect != null)
         {
-            _areaEffect.Initialize(data);
+            using (OptimizationMarkers.LandEffectInit.Auto()) _areaEffect.Initialize(data);
         }
 
-        _visual.Bind(_renderer, data.VisualData);
-        _visual.SetFootprint(Footprint);
+        using (OptimizationMarkers.LandVisualBind.Auto())
+        {
+            _visual.Bind(_renderer, data.VisualData);
+            _visual.SetFootprint(Footprint);
+        }
 
         if (data.CreatesFloor && data.VisualData.AreaVfxPrefab != null)
         {
             // Match the aim preview's 2:1 ground ellipse, including VFX placement.
-            SetAreaVfx(data.VisualData, data.AreaWidth, data.AreaWidth * GroundHeightRatio);
+            using (OptimizationMarkers.LandAreaVfx.Auto())
+            {
+                SetAreaVfx(data.VisualData, data.AreaWidth, data.AreaWidth * GroundHeightRatio);
+            }
         }
     }
 
@@ -143,9 +149,16 @@ public class PotionAreaController : MonoBehaviour
             points[i] = worldPoint;
         }
 
-        Footprint = PotionAreaClipper.Clip(points, OriginalCenter, WallLayers);
+        using (OptimizationMarkers.LandClip.Auto())
+        {
+            Footprint = PotionAreaClipper.Clip(points, OriginalCenter, WallLayers);
+        }
+
         _hasValidFootprint = Footprint != null;
-        if (_hasValidFootprint) Footprint.ApplyTo(_floorCollider);
+        if (_hasValidFootprint)
+        {
+            using (OptimizationMarkers.LandCollider.Auto()) Footprint.ApplyTo(_floorCollider);
+        }
     }
 
     public GameObject SetAreaVfx(PotionVisualData visualData, float width, float height)
@@ -217,12 +230,18 @@ public class PotionAreaController : MonoBehaviour
         // 조합에서 먼저 던져진 쪽의 소리를 끌 수 있도록 조합 탐색보다 먼저 재생한다.
         // 기화는 장판을 만들지 않지만 반응을 기다리는 동안 소리를 낸다.
         if (Data.CreatesFloor || Data.Element == PotionElement.Vaporization) PlayLoopSound();
-        if (_combiner != null) _combiner.RegisterArea();
+        if (_combiner != null)
+        {
+            using (OptimizationMarkers.LandRegister.Auto()) _combiner.RegisterArea();
+        }
 
         if (!IsCombined && _areaEffect != null)
         {
-            _areaEffect.ActivateSingleProfile(Owner, _expiresAt);
-            _areaEffect.ApplySingleImpact(_collider);
+            using (OptimizationMarkers.LandSingleImpact.Auto())
+            {
+                _areaEffect.ActivateSingleProfile(Owner, _expiresAt);
+                _areaEffect.ApplySingleImpact(_collider);
+            }
         }
 
         // Instant effects may leave a trace; uncombined vaporization can still react.

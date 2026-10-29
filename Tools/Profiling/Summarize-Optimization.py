@@ -9,7 +9,8 @@ MARKERS = ["PlayerLoop", "PotionStatusVisual.LateUpdate", "Optimization.Status.H
            "Optimization.Timeline.Synchronize", "PerfDemo.CombineCommit", "Optimization.Combine.Shape",
            "Optimization.Combine.WallQueryAndClip", "Optimization.Combine.Collider", "Optimization.Combine.Visual",
            "Optimization.Mask.SetFootprint", "Optimization.Mask.RasterizeAndUpload", "Optimization.Enemy.FindPlayer",
-           "RangedEnemyController.FixedUpdate"]
+           "RangedEnemyController.FixedUpdate", "PotionProjectile.Update",
+           "Optimization.Land.WallTrace", "Optimization.Land.Total", "Optimization.Land.BreakEffect", "Optimization.Land.AreaInstantiate", "Optimization.Land.AreaInitialize", "Optimization.Land.FootprintClip", "Optimization.Land.FootprintCollider", "Optimization.Land.AreaEffectInit", "Optimization.Land.VisualBind", "Optimization.Land.AreaVfx", "Optimization.Land.AreaActivate", "Optimization.Land.RegisterArea", "Optimization.Land.SingleImpact", "Optimization.Land.Feedback", "Optimization.Land.Identify"]
 
 
 def combine_event_timing(directory):
@@ -46,7 +47,7 @@ def capture_row(capture, job_id, diagnostic_only):
     with (Path(capture["reportDirectory"]) / "hotspots.csv").open(encoding="utf-8-sig", newline="") as stream:
         for sample in csv.DictReader(stream):
             name = sample["name"]
-            for method in ["PotionStatusVisual.LateUpdate", "RangedEnemyController.FixedUpdate"]:
+            for method in ["PotionStatusVisual.LateUpdate", "RangedEnemyController.FixedUpdate", "PotionProjectile.Update"]:
                 if method + "()" in name:
                     name = method
             if sample["thread"] != "Main Thread" or name not in MARKERS:

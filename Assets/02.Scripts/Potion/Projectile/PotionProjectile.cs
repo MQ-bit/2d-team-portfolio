@@ -62,8 +62,15 @@ public class PotionProjectile : MonoBehaviour
         _elapsedTime = Mathf.Min(_elapsedTime + deltaTime, _flightDuration);
         float progress = _elapsedTime / _flightDuration;
 
-        if (_wallCollision.TryTraceGround(_startPosition, _targetPosition, previousProgress,
-            progress, _wallCollisionLayers, _wallGroundClearance, out PotionThrowPrediction wallImpact))
+        bool hitWall;
+        PotionThrowPrediction wallImpact;
+        using (OptimizationMarkers.WallTrace.Auto())
+        {
+            hitWall = _wallCollision.TryTraceGround(_startPosition, _targetPosition, previousProgress,
+                progress, _wallCollisionLayers, _wallGroundClearance, out wallImpact);
+        }
+
+        if (hitWall)
         {
             Land(wallImpact.ImpactPosition, wallImpact.AreaPosition, wallImpact.CanCreateArea);
             return;
@@ -138,6 +145,7 @@ public class PotionProjectile : MonoBehaviour
     {
         if (!enabled) return;
         enabled = false;
+        using var landMarker = OptimizationMarkers.Land.Auto();
         SoundManager.PlayPotionBreak();
         transform.position = impactPosition;
         // Root movement alone retains the previous frame's arc offset on the child.
@@ -146,25 +154,46 @@ public class PotionProjectile : MonoBehaviour
 
         if (_breakEffectPrefab != null)
         {
-            PotionBreakEffect breakEffect = Instantiate(_breakEffectPrefab, impactPosition, Quaternion.identity);
-            breakEffect.Play();
+            using (OptimizationMarkers.LandBreakEffect.Auto())
+            {
+                PotionBreakEffect breakEffect = Instantiate(_breakEffectPrefab, impactPosition, Quaternion.identity);
+                breakEffect.Play();
+            }
         }
 
         if (_areaControllerPrefab != null && canCreateArea)
         {
-            PotionAreaController areaController = Instantiate(_areaControllerPrefab, areaPosition, Quaternion.identity);
-            areaController.Initialize(_potionData, _wallCollisionLayers);
+            PotionAreaController areaController;
+            using (OptimizationMarkers.LandInstantiate.Auto())
+            {
+                areaController = Instantiate(_areaControllerPrefab, areaPosition, Quaternion.identity);
+            }
+
+            using (OptimizationMarkers.LandInitialize.Auto())
+            {
+                areaController.Initialize(_potionData, _wallCollisionLayers);
+            }
+
             areaController.SetOwner(_owner);
             areaController.SetCatalog(_catalog);
             areaController.SetThrowOrder(_throwOrder);
-            areaController.Activate();
+            using (OptimizationMarkers.LandActivate.Auto())
+            {
+                areaController.Activate();
+            }
         }
 
-        PlayImpactFeedback(areaPosition, canCreateArea);
+        using (OptimizationMarkers.LandFeedback.Auto())
+        {
+            PlayImpactFeedback(areaPosition, canCreateArea);
+        }
 
         if (_catalog != null)
         {
-            _catalog.TryIdentify(_itemData);
+            using (OptimizationMarkers.LandIdentify.Auto())
+            {
+                _catalog.TryIdentify(_itemData);
+            }
         }
         Destroy(gameObject);
     }
