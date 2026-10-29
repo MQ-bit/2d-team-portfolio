@@ -77,7 +77,7 @@ internal sealed class OptimizedPotionAreaMaskRenderer
     }
 
     // Reference rasterization: tests every pixel of the path's bounding box.
-    private static void FillBoundingBox(Vector2[] path, Rect bounds, int width, int height, Color32[] pixels)
+    internal static void FillBoundingBox(Vector2[] path, Rect bounds, int width, int height, Color32[] pixels)
     {
         Rect pathBounds = PotionAreaFootprint.BoundsOf(path);
         int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
@@ -95,49 +95,93 @@ internal sealed class OptimizedPotionAreaMaskRenderer
         }
     }
 
-    // Same per-pixel predicate as the reference, but only for pixels near the triangle's span on each row.
-    // The span is widened by one pixel and a small y tolerance, so the result stays identical to the reference.
-    private static void FillTriangleSpans(Vector2[] triangle, Rect bounds, int width, int height, Color32[] pixels)
+    // Same predicate as the reference, but only for pixels near the ends of the triangle's span on each row;
+    // the interior is filled directly. The span is widened by one pixel and a small y tolerance, so the result
+    // stays identical to the reference (checked by --optimization-verify-mask).
+    // Written with plain floats on purpose: Development Mono builds do not inline Mathf/Vector2 helpers,
+    // and those calls, repeated for every row of every triangle, were the real cost.
+    internal static void FillTriangleSpans(Vector2[] triangle, Rect bounds, int width, int height, Color32[] pixels)
     {
         const float YTolerance = 0.0001f;
+        float x0 = triangle[0].x, y0 = triangle[0].y, x1 = triangle[1].x, y1 = triangle[1].y;
+        float x2 = triangle[2].x, y2 = triangle[2].y;
         Rect pathBounds = PotionAreaFootprint.BoundsOf(triangle);
         int xMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.xMin - bounds.xMin) / bounds.width * width), 0, width - 1);
         int xMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.xMax - bounds.xMin) / bounds.width * width), 0, width - 1);
         int yMin = Mathf.Clamp(Mathf.FloorToInt((pathBounds.yMin - bounds.yMin) / bounds.height * height), 0, height - 1);
         int yMax = Mathf.Clamp(Mathf.CeilToInt((pathBounds.yMax - bounds.yMin) / bounds.height * height), 0, height - 1);
+        float boundsX = bounds.xMin, boundsY = bounds.yMin;
+        float boundsWidth = bounds.width, boundsHeight = bounds.height;
+        float pixelsPerUnit = width / boundsWidth;
+        var white = new Color32(255, 255, 255, 255);
         for (int y = yMin; y <= yMax; y++)
         {
-            float rowY = bounds.min.y + (y + 0.5f) / height * bounds.height;
+            float rowY = boundsY + (y + 0.5f) / height * boundsHeight;
             float low = float.MaxValue, high = float.MinValue;
-            for (int edge = 0; edge < 3; edge++)
+            AddCrossing(x0, y0, x1, y1, rowY, YTolerance, ref low, ref high);
+            AddCrossing(x1, y1, x2, y2, rowY, YTolerance, ref low, ref high);
+            AddCrossing(x2, y2, x0, y0, rowY, YTolerance, ref low, ref high);
+            if (low > high) continue;
+            float lowPixel = (low - boundsX) * pixelsPerUnit - 0.5f;
+            float highPixel = (high - boundsX) * pixelsPerUnit - 0.5f;
+            int from = FloorInt(lowPixel) - 1;
+            int to = CeilInt(highPixel) + 1;
+            if (from < xMin) from = xMin;
+            if (to > xMax) to = xMax;
+            // A triangle is convex, so its row is exactly [low, high]. Pixels one pixel inside that span are
+            // inside without asking; only the pixels near either end use the reference predicate.
+            int solidFrom = CeilInt(lowPixel) + 1;
+            int solidTo = FloorInt(highPixel) - 1;
+            if (solidFrom < from) solidFrom = from;
+            if (solidTo > to) solidTo = to;
+            int row = y * width;
+            for (int x = from; x <= to; x++)
             {
-                Vector2 a = triangle[edge], b = triangle[(edge + 1) % 3];
-                float minY = Mathf.Min(a.y, b.y) - YTolerance, maxY = Mathf.Max(a.y, b.y) + YTolerance;
-                if (rowY < minY || rowY > maxY) continue;
-                float dy = b.y - a.y;
-                if (Mathf.Abs(dy) < 1e-9f)
+                if (x == solidFrom && solidFrom <= solidTo)
                 {
-                    low = Mathf.Min(low, Mathf.Min(a.x, b.x));
-                    high = Mathf.Max(high, Mathf.Max(a.x, b.x));
+                    for (; x <= solidTo; x++) pixels[row + x] = white;
+                    x = solidTo;
                     continue;
                 }
 
-                float t = Mathf.Clamp01((rowY - a.y) / dy);
-                float crossing = a.x + (b.x - a.x) * t;
-                low = Mathf.Min(low, crossing);
-                high = Mathf.Max(high, crossing);
-            }
-
-            if (low > high) continue;
-            int from = Mathf.Max(xMin, Mathf.FloorToInt((low - bounds.xMin) / bounds.width * width - 0.5f) - 1);
-            int to = Mathf.Min(xMax, Mathf.CeilToInt((high - bounds.xMin) / bounds.width * width - 0.5f) + 1);
-            for (int x = from; x <= to; x++)
-            {
-                Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * bounds.width,
-                    (y + 0.5f) / height * bounds.height);
-                if (PotionAreaFootprint.Inside(triangle, point)) pixels[y * width + x] = new Color32(255, 255, 255, 255);
+                Vector2 point = bounds.min + new Vector2((x + 0.5f) / width * boundsWidth,
+                    (y + 0.5f) / height * boundsHeight);
+                if (PotionAreaFootprint.Inside(triangle, point)) pixels[row + x] = white;
             }
         }
+    }
+
+    private static void AddCrossing(float ax, float ay, float bx, float by, float rowY, float tolerance,
+        ref float low, ref float high)
+    {
+        float minY = ay < by ? ay : by, maxY = ay < by ? by : ay;
+        if (rowY < minY - tolerance || rowY > maxY + tolerance) return;
+        float dy = by - ay;
+        if (dy < 1e-9f && dy > -1e-9f)
+        {
+            float minX = ax < bx ? ax : bx, maxX = ax < bx ? bx : ax;
+            if (minX < low) low = minX;
+            if (maxX > high) high = maxX;
+            return;
+        }
+
+        float t = (rowY - ay) / dy;
+        t = t < 0f ? 0f : (t > 1f ? 1f : t);
+        float crossing = ax + (bx - ax) * t;
+        if (crossing < low) low = crossing;
+        if (crossing > high) high = crossing;
+    }
+
+    private static int FloorInt(float value)
+    {
+        int whole = (int)value;
+        return value < whole ? whole - 1 : whole;
+    }
+
+    private static int CeilInt(float value)
+    {
+        int whole = (int)value;
+        return value > whole ? whole + 1 : whole;
     }
 
     // Verification mode (--optimization-verify-mask): compare against the reference and report any difference.
