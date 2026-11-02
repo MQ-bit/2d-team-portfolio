@@ -86,6 +86,23 @@ def main():
                  [(label, [median(release[k + suffix], "Optimization.Mask.SetFootprint.inclusiveMs") for k in combine_keys]) for label, suffix in variants],
                  "ms / 실행", "mask-cost.svg")
 
+    land_key = "Optimization.Land.Total.inclusiveMs"
+    grouped_bars("착지 전체 비용 (Land.Total)", "한 실행 동안의 합계(10쌍은 장판 20개 착지), 중앙값",
+                 combine_cats,
+                 [(label, [median(release[k + suffix], land_key) for k in combine_keys]) for label, suffix in variants],
+                 "ms / 실행", "land-total.svg")
+
+    # Everyday frame cost in real combat scenarios (original path, windowed, uncapped).
+    combat_file = LOGS / "v10rel-W-combat-results.json"
+    if combat_file.exists():
+        combat = groups("v10rel-W-combat-results.json")
+        names = ["S8_Combat_Minimal", "S8_Combat_Representative", "S8_Combat_Peak"]
+        grouped_bars("실제 전투 시나리오의 평소 프레임 시간", "창 있는 Development Build, FPS 무제한, 교차 3라운드 중앙값 (60FPS 예산 = 16.67ms)",
+                     ["최소 전투", "대표 전투", "최대 전투"],
+                     [("평균", [median(combat[n], "frame.averageMs") for n in names]),
+                      ("p99", [median(combat[n], "frame.p99Ms") for n in names])],
+                     "ms", "combat-frame-time.svg", decimals=2)
+
     # Rendering: frame time does not grow with area count (windowed player, uncapped).
     render = groups("v6-W1-results.json") if (LOGS / "v6-W1-results.json").exists() else None
     if render:
