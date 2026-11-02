@@ -26,6 +26,7 @@ public static class OptimizationValidation
     {
         public string unity, utc;
         public int assertions;
+        public int gameMaskComparisons;
         public long originalStatusBytes, improvedStatusBytes;
         public bool allocationCounterSupported;
         public string status = "Passed";
@@ -43,6 +44,7 @@ public static class OptimizationValidation
         ValidateQueries(result);
         ValidateTimeline();
         ValidateMasks();
+        ValidateGameDefaultMasks(result);
         ValidateSearch();
         result.assertions = _checks;
         string json = JsonUtility.ToJson(result, true);
@@ -201,6 +203,56 @@ public static class OptimizationValidation
             Check(c.GetFloat("_AreaClipEnabled") == 0, "Null footprint did not disable clipping.");
         }
         finally { original.Release(); first.Release(); second.Release(); }
+    }
+
+    // The renderer the game really uses (ComparisonAreaMaskRenderer with the default variant) must produce the same
+    // pixels as the original renderer for many footprints: varied outlines clipped by one to three walls.
+    private static void ValidateGameDefaultMasks(Result result)
+    {
+        Check(OptimizationRuntime.Variant == OptimizationVariant.GameDefault, "Game default variant is not applied.");
+        var random = new System.Random(20261102);
+        int compared = 0;
+        for (int n = 0; n < 60; n++)
+        {
+            int sides = 4 + random.Next(0, 13);
+            float radiusX = 1.5f + (float)random.NextDouble() * 3f, radiusY = 1.5f + (float)random.NextDouble() * 3f;
+            var outline = new Vector2[sides];
+            for (int i = 0; i < sides; i++)
+            {
+                float angle = i * Mathf.PI * 2f / sides;
+                outline[i] = new Vector2(Mathf.Cos(angle) * radiusX, Mathf.Sin(angle) * radiusY);
+            }
+
+            var walls = new List<Vector2[]>();
+            int wallCount = 1 + random.Next(0, 3);
+            for (int w = 0; w < wallCount; w++)
+            {
+                float x = -3f + (float)random.NextDouble() * 6f, y = -3f + (float)random.NextDouble() * 6f;
+                float width = .3f + (float)random.NextDouble() * 2f, height = .3f + (float)random.NextDouble() * 2f;
+                walls.Add(new Vector2[] { new(x, y), new(x + width, y), new(x + width, y + height), new(x, y + height) });
+            }
+
+            PotionAreaFootprint footprint = PotionAreaClipper.Subtract(outline, Vector2.zero, walls);
+            if (footprint == null || !footprint.IsClipped) continue;
+            var original = new PotionAreaMaskRenderer();
+            var game = new ComparisonAreaMaskRenderer();
+            var a = new MaterialPropertyBlock(); var b = new MaterialPropertyBlock();
+            try
+            {
+                original.SetFootprint(footprint); game.SetFootprint(footprint);
+                original.Apply(a); game.Apply(b);
+                Texture expected = a.GetTexture("_AreaClipMask"), actual = b.GetTexture("_AreaClipMask");
+                Check(expected.width == actual.width && expected.height == actual.height, "Game mask dimensions changed, case " + n);
+                Color32[] x = Read(expected), y = Read(actual);
+                for (int i = 0; i < x.Length; i++) Check(x[i].Equals(y[i]), "Game mask pixels differ, case " + n + " pixel " + i);
+                compared++;
+            }
+            finally { original.Release(); game.Release(); }
+        }
+
+        Check(compared >= 20, "Too few clipped footprints were compared: " + compared);
+        Check(OptimizedPotionAreaMaskRenderer.CachedFootprints == 0, "Game mask validation leaked a cache entry.");
+        result.gameMaskComparisons = compared;
     }
 
     private static void ValidateSearch()
