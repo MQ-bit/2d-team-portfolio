@@ -19,7 +19,7 @@
 
 포션 하나로 체력과 금단증상을 관리하며 싸우고, 던진 포션의 장판끼리 겹치면 조합 효과로 바뀝니다.
 
-![포션 조합 플레이](docs/images/potion-combo.gif)
+![포션 조합 플레이](Docs/images/potion-combo.gif)
 
 ## 주요 기능
 
