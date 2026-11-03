@@ -9,9 +9,9 @@
 | 개발 기간 | 2026.09.23 ~ 2026.10.14 (약 3주) |
 | 엔진 / 언어 | Unity 6000.3.22f1 / C# |
 | 패키지 | DOTween, Input System, UI Effect |
-| 링크 | [시연 영상](https://youtu.be/0gpzyluhml4) · [상세 포트폴리오 (Notion)](https://app.notion.com/p/Potion-Junkie-2D-40d961aba7008050ac44eced675f5391) · [원본 팀 레포](https://github.com/GA1-Team-Project/2d-team01) |
+| 링크 | [시연 영상](https://youtu.be/0gpzyluhml4) · [개발 상세 (Notion)](https://app.notion.com/p/Potion-Junkie-2D-40d961aba7008050ac44eced675f5391) |
 
-> 팀 프로젝트 원본([GA1-Team-Project/2d-team01](https://github.com/GA1-Team-Project/2d-team01))의 커밋 이력을 그대로 가져온 포트폴리오용 사본입니다.
+> 팀 프로젝트의 커밋 이력을 그대로 가져온 포트폴리오용 사본입니다.
 
 ## 핵심 플레이
 
