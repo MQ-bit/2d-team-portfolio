@@ -11,7 +11,7 @@
 | 패키지 | DOTween, Input System, UI Effect |
 | 링크 | [시연 영상](https://youtu.be/0gpzyluhml4) · [원본 팀 레포](https://github.com/GA1-Team-Project/2d-team01) |
 
-> 이 레포는 팀 프로젝트 원본의 커밋 이력을 그대로 복제한 포트폴리오용 사본입니다. 재배포가 허용되지 않는 일부 에셋은 이력에서 제외했습니다.
+> 팀 프로젝트 원본([GA1-Team-Project/2d-team01](https://github.com/GA1-Team-Project/2d-team01))의 커밋 이력을 그대로 가져온 포트폴리오용 사본입니다.
 
 ## 핵심 플레이
 
